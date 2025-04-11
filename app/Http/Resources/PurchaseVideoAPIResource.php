@@ -27,10 +27,10 @@ class PurchaseVideoAPIResource extends JsonResource
             'purchase_id' => $this->purchase_id,
             'feedback' => $this->feedback,
             'note' => $this->note,
-            'video_link' => asset('/storage' . '/' . tenant('id') . '/' . $this->video_url),
-            'video_link_2' => isset($this->video_url_2) ? asset('/storage' . '/' . tenant('id') . '/' . $this->video_url_2) : null,
+            'video_link' => $this->video_url,
+            'video_link_2' => isset($this->video_url_2) ? $this->video_url_2 : null,
             'instructor_feedback' => $feedbackContent,
-            'thumbnail' => asset('/storage' . '/' . tenant('id') . '/' . $this->thumbnail),
+            'thumbnail' => $this->thumbnail,
         ];
     }
 }

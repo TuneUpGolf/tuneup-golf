@@ -127,7 +127,15 @@ class VideoConverter
                 '-preset',
                 $options['preset'],
                 '-crf',
-                $options['crf']
+                $options['crf'],
+                 '-r', '30',
+                '-profile:v', 'main',
+                '-level', '3.1',
+                '-pix_fmt', 'yuv420p',
+                '-g', '60',
+                '-keyint_min', '60',
+                '-sc_threshold', '0',
+                '-movflags', '+faststart',
             ];
 
             if ($options['audioChannels']) {

@@ -76,7 +76,7 @@ class PurchaseController extends Controller
 
                     ]);
                     $newPurchase->total_amount = $total_amount;
-                    $newPurchase->status = Purchase::STATUS_INCOMPLETE;
+                    $newPurchase->status = Purchase::STATUS_COMPLETE; //Purchase::STATUS_INCOMPLETE;
                     $newPurchase->lessons_used = 0;
                     $newPurchase->save();
                     $newPurchase = $newPurchase->load('student', 'instructor', 'lesson');
@@ -157,7 +157,7 @@ class PurchaseController extends Controller
 
                         ]);
                         $newPurchase->total_amount = $total_amount;
-                        $newPurchase->status = Purchase::STATUS_INCOMPLETE;
+                        $newPurchase->status = Purchase::STATUS_COMPLETE; //Purchase::STATUS_INCOMPLETE;
                         $newPurchase->lessons_used = 0;
                         $newPurchase->save();
                         // SendEmail::dispatch($newPurchase->student->email, new PurchaseCreated($newPurchase));
@@ -715,7 +715,7 @@ class PurchaseController extends Controller
     public function getVideo(PurchaseVideos $video)
     {
         $name = $video->video_url;
-        $fileContents = Storage::disk('local')->get($name);
+        $fileContents = Storage::disk('spaces')->url($name);
         $response = FacadesResponse::make($fileContents, 200);
         $response->header('Content-Type', "video/quicktime");
         return $response;
