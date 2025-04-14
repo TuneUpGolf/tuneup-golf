@@ -112,7 +112,7 @@ class VideoConverter
             }
 
             // Create format instance
-            $format = new X264('aac');
+            $format = new X264('aac','libx264');
 
             if ($bitrate) {
                 $format->setKiloBitrate($bitrate);
@@ -127,7 +127,15 @@ class VideoConverter
                 '-preset',
                 $options['preset'],
                 '-crf',
-                $options['crf']
+                $options['crf'],
+                '-r', '30',
+                '-profile:v', 'main',
+                '-level', '3.1',
+                '-pix_fmt', 'yuv420p',
+                '-g', '60',
+                '-keyint_min', '60',
+                '-sc_threshold', '0',
+                '-movflags', '+faststart',
             ];
 
             if ($options['audioChannels']) {
@@ -136,7 +144,7 @@ class VideoConverter
             }
 
             $format->setAdditionalParameters($additionalParams);
-
+            $format->setAdditionalParameters(['-pix_fmt', 'yuv420p']);
             // Handle resize if dimensions are specified
             if ($options['width'] && $options['height']) {
                 $video->filters()->resize(new Dimension($options['width'], $options['height']));

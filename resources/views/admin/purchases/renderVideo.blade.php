@@ -1,3 +1,3 @@
 <video width='320' height='240' controls>
-    <source src="{{ route('getVideo', $video->id) }}" type='video/mp4'>
+    <source src="{{ $video }}" type='video/mp4'>
 </video>

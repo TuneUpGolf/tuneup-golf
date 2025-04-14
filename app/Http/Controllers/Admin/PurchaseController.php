@@ -65,7 +65,6 @@ class PurchaseController extends Controller
                 $coupon_discount_amount = ($lesson->lesson_price * $coupon->discount);
                 $total_amount = $lesson->lesson_price - ($coupon_discount_amount >= $coupon->limit ? $coupon->limit : $coupon_discount_amount);
             }
-
             if ($student && $lesson && !empty($lesson->user) && Auth::user()->can('create-purchases')) {
                 try {
                     $newPurchase = new Purchase([
@@ -77,10 +76,9 @@ class PurchaseController extends Controller
 
                     ]);
                     $newPurchase->total_amount = $total_amount;
-                    $newPurchase->status = Purchase::STATUS_INCOMPLETE;
+                    $newPurchase->status = Purchase::STATUS_COMPLETE; //Purchase::STATUS_INCOMPLETE;
                     $newPurchase->lessons_used = 0;
                     $newPurchase->save();
-
                     $newPurchase = $newPurchase->load('student', 'instructor', 'lesson');
                 } catch (\Illuminate\Database\QueryException $e) {
                     echo 'Database exception: ', $e->getMessage(), "\n";
@@ -101,7 +99,7 @@ class PurchaseController extends Controller
                 // $userPhone = str_replace(array('(', ')'), '', $userPhone);
                 // SendSMS::dispatch($userPhone, $message);
 
-                return redirect()->route('purchase.video.index', ['purchase_id' => $newPurchase->id, 'checkout' => true])->with('success', 'Purchase created successfully, please add video and proceed to checkout.');
+                return redirect()->route('purchase.video.index', ['purchase_id' => $newPurchase->id, 'checkout' => false])->with('success', 'Purchase created successfully, please add video and proceed to checkout.');
             } else {
                 return response("Something went wrong", 419);
             }
@@ -159,7 +157,7 @@ class PurchaseController extends Controller
 
                         ]);
                         $newPurchase->total_amount = $total_amount;
-                        $newPurchase->status = Purchase::STATUS_INCOMPLETE;
+                        $newPurchase->status = Purchase::STATUS_COMPLETE; //Purchase::STATUS_INCOMPLETE;
                         $newPurchase->lessons_used = 0;
                         $newPurchase->save();
                         // SendEmail::dispatch($newPurchase->student->email, new PurchaseCreated($newPurchase));
@@ -268,21 +266,41 @@ class PurchaseController extends Controller
                         'note' => $request?->note,
                     ]);
                     if ($request?->hasFile('video')) {
-                        $path = $request->file('video')->store('purchaseVideos');
-                        if (Str::endsWith($path, '.mov'))
-                            $path = $this->convertSingleVideo($path);
+                        $file = $request->file('video');
+                        if (Str::endsWith($file->getClientOriginalName(), '.mov')) {
+                            $localPath =$request->file('video')->store('purchaseVideos');
+                            $path = $this->convertSingleVideo($localPath);
+                        } else {
+                             // Digital Ocean space storage
+                            $file = $request->file('video');
+                            $extension = $file->getClientOriginalExtension();
+                            $randomFileName = Str::random(25) . '.' . $extension;
+                            $filePath = Auth::user()->tenant_id.'/purchaseVideos/'.$randomFileName;
+                            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                            $path = Storage::disk('spaces')->url($filePath);
+                        }
+                        
                         $purchase_video->video_url = $path;
                         $purchase_video->save();
                     }
 
                     if ($request?->hasFile('video_2')) {
-                        $path = $request->file('video_2')->store('purchaseVideos');
-                        if (Str::endsWith($path, '.mov'))
-                            $path = $this->convertSingleVideo($path);
+                        $file2 = $request->file('video_2');
+                        if (Str::endsWith($file2->getClientOriginalName(), '.mov')) {
+                            $localPath = $request->file('video_2')->store('purchaseVideos');
+                            $path = $this->convertSingleVideo($localPath);
+                        } else {
+                             // Digital Ocean space storage
+                            $file = $request->file('video_2');
+                            $extension = $file->getClientOriginalExtension();
+                            $randomFileName = Str::random(25) . '.' . $extension;
+                            $filePath = Auth::user()->tenant_id.'/purchaseVideos/'.$randomFileName;
+                            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                            $path = Storage::disk('spaces')->url($filePath);
+                        }
                         $purchase_video->video_url_2 = $path;
                         $purchase_video->save();
                     }
-
                     $purchase->lessons_used = $purchase->lessons_used + 1;
                     if ($purchase->lesson_used == $purchase?->lesson->lesson_quantity) {
                         $purchase->isFeedbackComplete = 1;
@@ -341,20 +359,47 @@ class PurchaseController extends Controller
                         'feedback' => '',
                     ]);
                     if ($request->hasFile('thumbnail')) {
-                        $purchase_video['thumbnail'] = $request->file('thumbnail')->store('purchaseVideos/thumbnails');
+                        $thumbnailsFile = $request->file('thumbnail');
+                        $extension = $thumbnailsFile->getClientOriginalExtension();
+                        $randomFileName = Str::random(25) . '.' . $extension;
+                         // Digital Ocean space storage
+                        $thumbnailsFileFilePath = Auth::user()->tenant_id.'/purchaseVideos/thumbnails/'.$randomFileName;
+                        Storage::disk('spaces')->put($thumbnailsFileFilePath, file_get_contents($thumbnailsFile), 'public');
+                        $thumbnailsPath = Storage::disk('spaces')->url($thumbnailsFileFilePath);
+                        $purchase_video['thumbnail'] = $thumbnailsPath;
                         $purchase_video->save();
                     }
                     if ($request?->hasFile('video')) {
-                        $path = $request->file('video')->store('purchaseVideos');
-                        if (Str::endsWith($path, '.mov'))
-                            $path = $this->convertSingleVideo($path);
+                        $file = $request->file('video');
+                        if (Str::endsWith($file->getClientOriginalName(), '.mov')) {
+                            $localPath =$request->file('video')->store('purchaseVideos');
+                            $path = $this->convertSingleVideo($localPath);
+                        } else {
+                             // Digital Ocean space storage
+                            $file = $request->file('video');
+                            $extension = $file->getClientOriginalExtension();
+                            $randomFileName = Str::random(25) . '.' . $extension;
+                            $filePath = Auth::user()->tenant_id.'/purchaseVideos/'.$randomFileName;
+                            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                            $path = Storage::disk('spaces')->url($filePath);
+                        }
                         $purchase_video->video_url = $path;
                         $purchase_video->save();
                     }
                     if ($request?->hasFile('video_2')) {
-                        $path = $request->file('video_2')->store('purchaseVideos');
-                        if (Str::endsWith($path, '.mov'))
-                            $path = $this->convertSingleVideo($path);
+                        $file2 = $request->file('video_2');
+                        if (Str::endsWith($file2->getClientOriginalName(), '.mov')) {
+                            $localPath = $request->file('video_2')->store('purchaseVideos');
+                            $path = $this->convertSingleVideo($localPath);
+                        } else {
+                             // Digital Ocean space storage
+                            $file = $request->file('video_2');
+                            $extension = $file->getClientOriginalExtension();
+                            $randomFileName = Str::random(25) . '.' . $extension;
+                            $filePath = Auth::user()->tenant_id.'/purchaseVideos/'.$randomFileName;
+                            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                            $path = Storage::disk('spaces')->url($filePath);
+                        }
                         $purchase_video->video_url_2 = $path;
                         $purchase_video->save();
                     }
@@ -423,11 +468,29 @@ class PurchaseController extends Controller
                         $purchaseVideo->feedback = $request->feedback;
                         if ($request?->hasFile('fdbk_video')) {
                             foreach ($request->file('fdbk_video') as $file) {
-                                $path = $file->store('feedbackContent');
-                                if (Str::endsWith($path, '.mov'))
-                                    $path = $this->convertSingleVideo($path);
-                                $type = Str::contains($file->getMimeType(), 'video') ? 'video' : 'image';
 
+                                $file = $request->file('fdbk_video');
+                                $type = Str::contains($file->getMimeType(), 'video') ? 'video' : 'image';
+                                $extension = $file->getClientOriginalExtension();
+
+                                if ($type == 'video') {
+                                    if (Str::endsWith($file->getClientOriginalName(), '.mov')) {
+                                        $localPath =$request->file('fdbk_video')->store('feedbackContent');
+                                        $path = $this->convertSingleVideo($localPath);
+                                    } else {
+                                        $file = $request->file('fdbk_video');
+                                        
+                                        $randomFileName = Str::random(25) . '.' . $extension;
+                                        $filePath = Auth::user()->tenant_id.'/feedbackContent/'.$randomFileName;
+                                        Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                                        $path = Storage::disk('spaces')->url($filePath);
+                                    }
+                                } else {
+                                    $randomFileName = Str::random(25) . '.' . $extension;
+                                    $filePath = Auth::user()->tenant_id.'/feedbackContent/'.$randomFileName;
+                                    Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                                    $path = Storage::disk('spaces')->url($filePath);
+                                }
                                 FeedbackContent::create([
                                     'purchase_video_id' => $purchaseVideo->id,
                                     'url' => $path,
@@ -652,7 +715,7 @@ class PurchaseController extends Controller
     public function getVideo(PurchaseVideos $video)
     {
         $name = $video->video_url;
-        $fileContents = Storage::disk('local')->get($name);
+        $fileContents = Storage::disk('spaces')->url($name);
         $response = FacadesResponse::make($fileContents, 200);
         $response->header('Content-Type', "video/quicktime");
         return $response;

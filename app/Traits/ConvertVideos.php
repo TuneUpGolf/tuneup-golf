@@ -5,6 +5,7 @@ namespace App\Traits;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 use App\Support\VideoConverter;
+use Illuminate\Support\Facades\Auth;
 
 trait ConvertVideos
 {
@@ -41,8 +42,17 @@ trait ConvertVideos
                 $newFileName = $outputDir . "/" . $fileNameWithoutExt . '.mp4';
                 $result = $converter->convertMovToMp4($input, $newFileName);
                 if (!!$result['success']) {
-                    Storage::delete($storagePath);
-                    return $directoryName . '/' . $fileNameWithoutExt . '.mp4';
+                     // Upload to Spaces
+                     $localPath = $directoryName.'/'.$fileNameWithoutExt . '.mp4';
+                     $fileContents = Storage::disk('local')->get($localPath);
+                     $remotePath = Auth::user()->tenant_id.'/'.$directoryName.'/'.$fileNameWithoutExt . '.mp4';
+                     Storage::disk('spaces')->put($remotePath, $fileContents, 'public');
+                     // Generate file URL
+                     $fileUrl = Storage::disk('spaces')->url($remotePath);
+ 
+                     Storage::delete($storagePath);
+                     return $fileUrl;
+                    // return ['local' => $directoryName . '/' . $fileNameWithoutExt . '.mp4','remote'=>$fileUrl];
                 }
             }
         } catch (Exception $e) {
