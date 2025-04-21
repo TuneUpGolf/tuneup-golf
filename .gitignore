@@ -9,7 +9,6 @@
 /public/assets/vendor
 /public/assets/js
 /public/assets/images/dashboard.svg
-/public/vendor/*
 .phpunit.result.cache
 docker-compose.override.yml
 Homestead.json
