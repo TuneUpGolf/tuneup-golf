@@ -1482,9 +1482,13 @@ body.theme-1 .bg-primary {
     text-align: left;
   }
   .tb-search .dataTables_filter {
-    float: left;
+    float: none;
     padding: 0;
   }
+  div.table-btn .dt-buttons {
+    margin-top: 10px;
+  }
+  
 }
 
 @media (max-width: 575px) {
@@ -1510,10 +1514,18 @@ body.theme-1 .bg-primary {
 }
 
 @media (max-width: 448px) {
-  .table-btn a {
-    width: 40%;
-    margin-bottom: 10px;
+  
+  .dt-buttons .btn>span {
+    font-size: 0;
   }
+  .dropdown-toggle::after {
+    content: none !important;
+  }
+  .table-btn a {
+    width: 28px;
+    margin-bottom: 0;
+    padding: 5px;
+}
 }
 
 /* admin plan Payment scroll */
