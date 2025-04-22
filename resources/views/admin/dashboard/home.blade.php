@@ -38,11 +38,11 @@
         <div class="col-xxl-12">
             <div class="row">
                 @can('manage-lessons')
-                    <div class="col-lg-2 col-6 p-2">
-                        <div class="relative flex flex-col bg-card1  rounded-lg w-96 min-h-card">
-                            <div class="p-4 flex flex-col justify-center items-center">
-                                <div class="flex flex-col justify-center items-center text-center">
-                                    <div class="mb-6">
+                    <div class="col-lg-3 col-12 p-2">
+                        <div class="relative flex flex-col   rounded-lg w-96 min-h-card">
+                            <div class="p-2 flex flex-col">
+                                <div class="flex flex-row flex-wrap items-center  gap-2">
+                                    <div class="bg-card1 p-3 rounded">
                                         <svg width="34" height="34" viewBox="0 0 35 35" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path
@@ -53,8 +53,10 @@
                                                 fill="#4AD991" />
                                         </svg>
                                     </div>
-                                    <p class="font-sans font-thin mb-0">{{ __('Online') }}</p>
-                                    <span class="font-roboto font-semibold"> {{ __('Completed Lessons') }} </span>
+                                    <div>
+                                        <p class="font-sans font-thin mb-0">{{ __('Online') }}</p>
+                                        <span class="font-roboto font-semibold"> {{ __('Completed Lessons') }} </span>
+                                    </div>
                                 </div>
                                 <p class="mb-0 font-sans font-thin bg-card-text text-xl"> {{ $purchaseComplete }} </p>
                             </div>
