@@ -18987,8 +18987,7 @@ body:not(.minimenu) .dash-sidebar .dash-submenu .dash-submenu .dash-submenu>.das
 }
 
 .dash-header .header-wrapper {
-  /* display: flex;
-  padding: 0 30px; */
+  padding: 0 30px;
 }
 
 .dash-header .dash-h-item {
@@ -19406,7 +19405,7 @@ body:not(.minimenu) .dash-sidebar .dash-submenu .dash-submenu .dash-submenu>.das
 }
 
 .dash-container .dash-content {
-  padding-left: 48px;
+  padding-left: 30px;
   padding-right: 30px;
   padding-top: 18px;
   background-color: #f7f7f7;
