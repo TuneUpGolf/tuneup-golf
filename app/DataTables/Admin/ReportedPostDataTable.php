@@ -83,7 +83,7 @@ class ReportedPostDataTable extends DataTable
             }')
             ->parameters([
                 "dom" =>  "
-                <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'>
+                <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12 d-none d-sm-block'>
                 <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
                 <'dataTable-container'<'col-sm-12'tr>>
                 <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>

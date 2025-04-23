@@ -38,11 +38,11 @@
         <div class="col-xxl-12">
             <div class="row">
                 @can('manage-lessons')
-                    <div class="col-lg-3 col-12 p-2">
-                        <div class="relative flex flex-col   rounded-lg w-96 min-h-card">
-                            <div class="p-2 flex flex-col">
-                                <div class="flex flex-row flex-wrap items-center  gap-2">
-                                    <div class="bg-card1 p-3 rounded">
+                    <div class="col-lg-3 col-md-6 col-12 pb-3">
+                        <div class="relative flex flex-col bg-white rounded-lg w-96">
+                            <div class="p-3 flex flex-col">
+                                <div class="flex flex-row flex-wrap items-center gap-3">
+                                    <div class="bg-card1 p-2 rounded">
                                         <svg width="34" height="34" viewBox="0 0 35 35" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path
@@ -57,16 +57,17 @@
                                         <p class="font-sans font-thin mb-0">{{ __('Online') }}</p>
                                         <span class="font-roboto font-semibold"> {{ __('Completed Lessons') }} </span>
                                     </div>
+                                    <p class="mb-0 font-sans font-bold bg-card-text text-3xl ml-auto"> {{ $purchaseComplete }} </p>
                                 </div>
-                                <p class="mb-0 font-sans font-thin bg-card-text text-xl"> {{ $purchaseComplete }} </p>
+                                
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-2 col-6 p-2">
-                        <div class="relative flex flex-col bg-card4  rounded-lg w-96 min-h-card">
-                            <div class="p-4 flex flex-col justify-center items-center">
-                                <div class="flex flex-col justify-center items-center">
-                                    <div class="mb-6">
+                    <div class="col-lg-3 col-md-6 col-12 pb-3">
+                        <div class="relative flex flex-col bg-white rounded-lg w-96">
+                            <div class="p-3 flex flex-col">
+                                <div class="flex flex-row flex-wrap items-center gap-3">
+                                    <div class="bg-card4 p-2 rounded">
                                         <svg width="33" height="35" viewBox="0 0 33 35" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path opacity="0.48" fill-rule="evenodd" clip-rule="evenodd"
@@ -77,19 +78,22 @@
                                                 fill="#FEC53D" />
                                         </svg>
                                     </div>
+                                    <div>
                                     <p class="font-sans font-thin mb-0">{{ __('Online') }}</p>
                                     <span class="font-roboto font-semibold"> {{ __('Lessons Pending') }} </span>
-                                </div>
-                                <p class="mb-0 font-sans font-thin bg-card4-text text-xl">
+                                    </div>
+                                    <p class="mb-0 font-sans font-bold bg-card4-text text-3xl ml-auto">
                                     {{ $purchaseInprogress }} </p>
+                                </div>
+                                
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-2 col-6 p-2">
-                        <div class="relative flex flex-col bg-card1  rounded-lg w-96 min-h-card">
-                            <div class="p-4 flex flex-col justify-center items-center">
-                                <div class="flex flex-col justify-center items-center text-center">
-                                    <div class="mb-6">
+                    <div class="col-lg-3 col-md-6 col-12 pb-3">
+                        <div class="relative flex flex-col bg-white rounded-lg w-96">
+                            <div class="p-3 flex flex-col">
+                                <div class="flex flex-row flex-wrap items-center gap-3">
+                                    <div class="bg-card2 p-2 rounded">
                                         <svg width="34" height="34" viewBox="0 0 35 35" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path
@@ -100,18 +104,21 @@
                                                 fill="#4AD991" />
                                         </svg>
                                     </div>
+                                    <div>
                                     <p class="font-sans font-thin mb-0">{{ __('In Person') }}</p>
                                     <span class="font-roboto font-semibold"> {{ __('Completed Lessons') }} </span>
+                                    </div>
+                                    <p class="mb-0 font-sans font-bold bg-card-text text-3xl ml-auto"> {{ $inPersonCompleted }} </p>
                                 </div>
-                                <p class="mb-0 font-sans font-thin bg-card-text text-xl"> {{ $inPersonCompleted }} </p>
+                                
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-2 col-6 p-2">
-                        <div class="relative flex flex-col bg-card4  rounded-lg w-96 min-h-card">
-                            <div class="p-4 flex flex-col justify-center items-center">
-                                <div class="flex flex-col justify-center items-center">
-                                    <div class="mb-6">
+                    <div class="col-lg-3 col-md-6 col-12 pb-3">
+                        <div class="relative flex flex-col bg-white rounded-lg w-96">
+                            <div class="p-3 flex flex-col">
+                                <div class="flex flex-row flex-wrap items-center gap-3">
+                                    <div class="bg-card4 p-2 rounded">
                                         <svg width="33" height="35" viewBox="0 0 33 35" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path opacity="0.48" fill-rule="evenodd" clip-rule="evenodd"
@@ -122,21 +129,24 @@
                                                 fill="#FEC53D" />
                                         </svg>
                                     </div>
+                                    <div>
                                     <p class="font-sans font-thin mb-0">{{ __('In Person') }}</p>
                                     <span class="font-roboto font-semibold"> {{ __('Upcoming  Lessons') }} </span>
-                                </div>
-                                <p class="mb-0 font-sans font-thin bg-card4-text text-xl">
+                                    </div>
+                                    <p class="mb-0 font-sans font-bold bg-card4-text text-3xl ml-auto">
                                     {{ $inPersonPending }} </p>
+                                </div>
+                                
                             </div>
                         </div>
                     </div>
                 @endcan
                 @can('manage-students')
-                    <div class="col-lg-2 col-6 p-2">
-                        <div class="relative flex flex-col bg-card2  rounded-lg w-96 min-h-card">
-                            <div class="p-4 flex flex-col justify-center items-center">
-                                <div class="flex flex-col justify-center items-center">
-                                    <div class="mb-6">
+                    <div class="col-lg-3 col-md-6 col-12 pb-3">
+                        <div class="relative flex flex-col bg-white rounded-lg w-96">
+                            <div class="p-3 flex flex-col">
+                                <div class="flex flex-row flex-wrap items-center gap-3">
+                                    <div class="bg-card1 p-2 rounded">
                                         <svg width="34" height="34" viewBox="0 0 31 34" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -147,20 +157,23 @@
                                                 fill="#2DBCFF" />
                                         </svg>
                                     </div>
+                                    <div>
                                     <p class="font-sans font-thin mb-0">{{ __('Total') }}</p>
                                     <span class="font-roboto font-semibold"> {{ __('Students') }} </span>
+                                    </div>
+                                    <p class="mb-0 font-sans font-bold bg-card2-text text-3xl ml-auto"> {{ $students }} </p>
                                 </div>
-                                <p class="mb-0 font-sans font-thin bg-card2-text text-xl"> {{ $students }} </p>
+                                
                             </div>
                         </div>
                     </div>
                 @endcan
                 @if (Auth::user()->type == 'Admin' || Auth::user()->type == 'Instructor')
-                    <div class="col-lg-2 col-6 p-2">
-                        <div class="relative flex flex-col bg-card3  rounded-lg w-96 min-h-card">
-                            <div class="p-4 flex flex-col justify-center items-center">
-                                <div class="flex flex-col justify-center items-center">
-                                    <div class="mb-6">
+                    <div class="col-lg-3 col-md-6 col-12 pb-3">
+                        <div class="relative flex flex-col bg-white rounded-lg w-96">
+                            <div class="p-3 flex flex-col">
+                                <div class="flex flex-row flex-wrap items-center gap-3">
+                                    <div class="bg-card3 p-2 rounded">
                                         <svg width="35" height="35" viewBox="0 0 35 35" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <g clip-path="url(#clip0_176_931)">
@@ -182,11 +195,14 @@
                                             </defs>
                                         </svg>
                                     </div>
+                                    <div>
                                     <p class="font-sans font-thin mb-0">{{ __('Total') }}</p>
                                     <span class="font-roboto font-semibold"> {{ __('Earnings') }} </span>
-                                </div>
-                                <p class="mb-0 font-sans font-thin bg-card3-text text-xl">
+                                    </div>
+                                    <p class="mb-0 font-sans font-bold bg-card3-text text-3xl ml-auto">
                                     {{ Utility::amount_format($earning) }} </p>
+                                </div>
+                                
                             </div>
                         </div>
                     </div>
