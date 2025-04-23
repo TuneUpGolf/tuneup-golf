@@ -1478,15 +1478,13 @@ body.theme-1 .bg-primary {
     width: 100%;
     padding: 0;
   }
-  div.table-btn .dt-buttons {
-    text-align: left;
-  }
   .tb-search .dataTables_filter {
     float: none;
     padding: 0;
   }
   div.table-btn .dt-buttons {
     margin-top: 10px;
+    gap: 6px;
   }
   
 }
