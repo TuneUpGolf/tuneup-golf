@@ -112,7 +112,7 @@ class VideoConverter
             }
 
             // Create format instance
-            $format = new X264('aac');
+            $format = new X264('aac','libx264');
 
             if ($bitrate) {
                 $format->setKiloBitrate($bitrate);
@@ -136,15 +136,16 @@ $additionalParams = [
     '-color_primaries', 'bt709',
     '-color_trc', 'bt709',
     '-colorspace', 'bt709',
-    '-g', '1',                 // Even smaller GOP size (12 frames)
-    '-keyint_min', '1',        // Match GOP size
+    '-g', '60',                 // Even smaller GOP size (12 frames)
+    '-keyint_min', '60',        // Match GOP size
     '-sc_threshold', '0',       // Disable scene cut detection
     '-level', '3.1',            // Level 3.1 for compatibility
     '-vsync', 'cfr',            // Constant frame rate
     '-refs', '1',               // Single reference frame 
     '-bf', '0',                 // No B-frames
     '-tune', 'zerolatency',      // Optimize for fast decoding
-    '-x264-params', 'no-mbtree=1:rc-lookahead=0:bframes=0:weightp=0:scenecut=0'
+    '-x264-params', 'no-mbtree=1:rc-lookahead=0:bframes=0:weightp=0:scenecut=0',
+    '-r', '30','main',
 ];
 
             if ($options['audioChannels']) {
@@ -153,7 +154,6 @@ $additionalParams = [
             }
 
             $format->setAdditionalParameters($additionalParams);
-
             // Handle resize if dimensions are specified
             if ($options['width'] && $options['height']) {
                 $video->filters()->resize(new Dimension($options['width'], $options['height']));

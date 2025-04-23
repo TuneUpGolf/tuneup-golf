@@ -36,6 +36,7 @@ use Illuminate\Validation\ValidationException;
 use Laravel\Horizon\Listeners\SendNotification;
 
 use function PHPUnit\Framework\isEmpty;
+use Illuminate\Support\Facades\Storage;
 
 class InstructorController extends Controller
 {
@@ -272,19 +273,32 @@ class InstructorController extends Controller
             $request->validate([
                 'video' => 'required|mimetypes:video/avi,video/mpeg,video/quicktime,video/mov,video/mp4',
             ]);
+            $currentDomain = tenant('domains');
+            $currentDomain = $currentDomain[0]->domain;
             if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
+                if($request->hasFile('video')) {
+                    $file = $request->file('video');
+                    if (Str::endsWith($file->getClientOriginalName(), '.mov')) {
+                        $localPath = $request->file('video')->store('AnnotationVideos');
+                        $path = $this->convertSingleVideo($localPath);
+                    } else {
+                        $extension = $file->getClientOriginalExtension();
+                        $randomFileName = Str::random(25) . '.' . $extension;
+                        //$filePath = Auth::user()->tenant_id.'/AnnotationVideos/'.$randomFileName;
+                        $filePath = $currentDomain.'/'.Auth::user()->id.'/AnnotationVideos/'.$randomFileName;
+                        Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                        $path = Storage::disk('spaces')->url($filePath);
+                    }
+                } else {
+                    $path = '/error';
+                }
                 $annotationVideo =  AnnotationVideos::create(
                     [
                         'uuid' => Str::uuid(),
                         'instructor_id' => Auth::user()->id,
-                        'video_url' => $request->hasFile('video') ? $request->file('video')->store('AnnotationVideos') : '/error',
+                        'video_url' => $path,
                     ]
                 );
-                if (Str::endsWith($annotationVideo->video_url, '.mov')) {
-                    $path = $this->convertSingleVideo($annotationVideo->video_url);
-                    $annotationVideo->video_url = $path;
-                    $annotationVideo->save();
-                }
             } else
                 throw new Exception('UnAuthorized', 401);
             return response()->json(new AnnotationVideoApiResource($annotationVideo));
