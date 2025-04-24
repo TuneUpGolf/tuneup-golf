@@ -1468,6 +1468,9 @@ body.theme-1 .bg-primary {
     display: none;
     margin-left: 5px;
   }
+  .dataTable-title.col-lg-3.col-sm-12 {
+    display: none;
+}
 }
 
 @media (max-width: 460px) {
@@ -1478,15 +1481,13 @@ body.theme-1 .bg-primary {
     width: 100%;
     padding: 0;
   }
-  div.table-btn .dt-buttons {
-    text-align: left;
-  }
   .tb-search .dataTables_filter {
     float: none;
     padding: 0;
   }
   div.table-btn .dt-buttons {
     margin-top: 10px;
+    gap: 6px;
   }
   
 }

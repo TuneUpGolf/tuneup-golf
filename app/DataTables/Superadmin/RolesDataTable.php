@@ -33,6 +33,7 @@ class RolesDataTable extends DataTable
     {
         return $this->builder()
             ->setTableId('users-table')
+            ->addTableClass('display responsive nowrap')
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->orderBy(1)
@@ -69,7 +70,11 @@ class RolesDataTable extends DataTable
                     ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
                     ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
                 ],
-                "scrollX" => true,
+                "scrollX" => false,
+                'responsive' => true,
+'rowReorder' => [
+    'selector' => 'td:nth-child(2)'
+],
                 "drawCallback" => 'function( settings ) {
                     var tooltipTriggerList = [].slice.call(
                         document.querySelectorAll("[data-bs-toggle=tooltip]")
@@ -120,3 +125,4 @@ class RolesDataTable extends DataTable
         return 'Roles_' . date('YmdHis');
     }
 }
+
