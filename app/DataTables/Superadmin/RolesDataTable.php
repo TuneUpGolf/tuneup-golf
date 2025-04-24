@@ -70,11 +70,38 @@ class RolesDataTable extends DataTable
                     ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
                     ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
                 ],
-                "scrollX" => false,
-                'responsive' => true,
-'rowReorder' => [
-    'selector' => 'td:nth-child(2)'
-],
+                "scrollX" => true,
+                // "responsive" =>
+                // [
+                //     "details"=> [
+                //       "type"=>'inline',
+                //       "target"=> '0'
+                //     ]
+                // ],
+
+                "responsive" => [
+                    "scrollX"=> false,
+                "details" => [
+                    "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
+                    "renderer" => "function (api, rowIdx, columns) {
+                        var data = $('<table/>').addClass('vertical-table');
+                        $.each(columns, function (i, col) {
+                            data.append(
+                                '<tr>' +
+                                    '<td><strong>' + col.title + '</strong></td>' +
+                                    '<td>' + col.data + '</td>' +
+                                '</tr>'
+                            );
+                        });
+                        return data;
+                    }"
+                ]
+            ],
+
+            "rowCallback" => 'function(row, data, index) {
+                $(row).addClass("custom-parent-row"); // <- Add your custom class here
+            }',
+                
                 "drawCallback" => 'function( settings ) {
                     var tooltipTriggerList = [].slice.call(
                         document.querySelectorAll("[data-bs-toggle=tooltip]")
