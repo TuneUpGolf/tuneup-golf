@@ -20655,7 +20655,7 @@ body:not(.minimenu) .dash-sidebar .dash-submenu .dash-submenu .dash-submenu>.das
     width: calc(50% - 2px) !important;
     border-bottom: 1px solid #f1f1f1;
   }
- 
+
 }
 
 .flat-card[class*="widget-"] .row-table {
@@ -26475,12 +26475,15 @@ body.theme-10 .team-lists img {
     margin-left: -15px;
     margin-right: -15px;
   }
+
   .card:not(.table-card) .dataTable-top {
-    padding:25px 0;
+    padding: 25px 0;
   }
+
   div.dataTables_wrapper div.dataTables_filter label {
     width: 100%;
   }
+
   div.dataTables_wrapper div.dataTables_filter input {
     margin-left: 0 !important;
   }
@@ -30233,13 +30236,15 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   .header-brand-logo {
     display: none;
   }
+
   .page-header {
     padding-bottom: 20px;
   }
-  .dash-container .dash-content{
+
+  .dash-container .dash-content {
     height: calc(100vh - 70px);
   }
-  
+
 }
 
 .header-brand-logo img {
@@ -30276,7 +30281,8 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   .header-brand-logo img {
     max-height: 36px;
   }
-  .dataTable-container .responsive  td.child {
-      padding: 0 !important;
+
+  .dataTable-container .responsive td.child {
+    padding: 0 !important;
   }
 }
