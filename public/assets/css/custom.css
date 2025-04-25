@@ -1486,6 +1486,12 @@ body.theme-1 .bg-primary {
     display: none;
     margin-left: 5px;
   }
+  table.dataTable.dtr-inline.collapsed>tbody>tr>td.dtr-control:before, table.dataTable.dtr-inline.collapsed>tbody>tr>th.dtr-control:before {
+    background-color: blue;
+    width: 20px;
+    text-align: center;
+    color: white !important;
+  }
 
 }
 
