@@ -419,9 +419,7 @@ File: style.css
   background-color: #51459d;
 }
 
-.dash-sidebar.light-sidebar .dash-navbar > .dash-item.active > .dash-link {
-  font-weight: 700;
-}
+
 
 .dash-sidebar.light-sidebar .dash-navbar > .dash-item.active > .dash-link,
 .dash-sidebar.light-sidebar .dash-navbar > .dash-item:focus > .dash-link,

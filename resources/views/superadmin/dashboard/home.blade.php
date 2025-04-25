@@ -54,7 +54,7 @@ $chatcolor = '#0C7785';
                         <p class="text-muted text-sm mb-0"> {{ __('Total') }} </p>
                         <h6 class="text-primary mb-0"> {{ __('Admin') }} </h6>
                     </div>
-                    <h3 class="mb-0 text-primary ml-auto text-3xl"> {{ $user }} </h3>
+                    <h3 class="mb-0 text-primary ml-auto text-2xl"> {{ $user }} </h3>
                 </div>
             </div>
         </div>

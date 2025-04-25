@@ -1486,12 +1486,17 @@ body.theme-1 .bg-primary {
 
   table.dataTable.dtr-inline.collapsed>tbody>tr>td.dtr-control:before,
   table.dataTable.dtr-inline.collapsed>tbody>tr>th.dtr-control:before {
-    background-color: blue;
+    background-color: #0071ce;
+    border-radius: 5px;
     width: 20px;
     text-align: center;
     color: white !important;
+    content: "\ea5f" !important;
+    font-family: tabler-icons !important;
   }
-
+  table.dataTable.dtr-inline.collapsed>tbody>tr.parent>td.dtr-control:before, table.dataTable.dtr-inline.collapsed>tbody>tr.parent>th.dtr-control:before {
+    content: "\ea62" !important;
+  }
   table.vertical-table {
     background-color: #f2f2f2;
     width: 100%;
@@ -1547,13 +1552,13 @@ body.theme-1 .bg-primary {
 
   div.table-btn .dt-buttons {
     margin-top: 10px;
-    gap: 6px;
+    gap: 10px;
   }
 
   .table-btn a {
-    width: 28px;
+    width: 35px;
     margin-bottom: 0;
-    padding: 5px;
+    padding: 7px;
   }
 
   .dt-buttons .btn>span {
