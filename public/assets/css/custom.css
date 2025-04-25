@@ -1494,13 +1494,16 @@ body.theme-1 .bg-primary {
 
   table.vertical-table {
     background-color: #f2f2f2;
+    width: 100%;
   }
 
   table.vertical-table .btn-sm {
     padding: 0px 3px;
     height: 23px;
   }
-  table.dataTable.nowrap .vertical-table th, table.dataTable.nowrap .vertical-table td {
+
+  table.dataTable.nowrap .vertical-table th,
+  table.dataTable.nowrap .vertical-table td {
     word-break: break-all;
   }
 
@@ -1559,6 +1562,12 @@ body.theme-1 .bg-primary {
 
   .dropdown-toggle::after {
     content: none !important;
+  }
+
+  li.dropdown.dash-h-item.drp-company.exit-btn .btn {
+    position: absolute;
+    right: 0;
+    top: 60px;
   }
 }
 

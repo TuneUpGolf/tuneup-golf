@@ -30242,7 +30242,7 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   }
 
   .dash-container .dash-content {
-    height: calc(100vh - 70px);
+    min-height: calc(100vh - 70px);
   }
 
 }

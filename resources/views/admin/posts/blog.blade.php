@@ -1,4 +1,4 @@
-<div class="focus:outline-none w-full sm:w-1/2 md:w-1/3 mb-8 p-2">
+<div class="focus:outline-none w-full sm:w-1/2 md:w-1/3 mb-8 p-sm-2">
 <div class=" shadow-md">
     <div class="bg-white px-4 py-2 rounded-tl-3xl rounded-tr-3xl">
         <div class="flex justify-between items-center w-full">

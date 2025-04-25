@@ -5,7 +5,7 @@
 @endphp
 <header class="dash-header border-search {{ Utility::getsettings('transparent_layout') == 1 ? 'transprent-bg' : '' }}">
     <div class="header-wrapper">
-        <div class="flex justify-end items-center">
+        <div class="flex justify-end items-center position-relative">
             <!-- <div
                 class="flex pl-3 py-2 pr-24 w-100 rounded-3xl border-search overflow-hidden max-w-md mx-auto font-sans search-bg ">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192.904 192.904" width="16px"
@@ -16,8 +16,7 @@
                 </svg>
                 <input type="text" placeholder="Search"
                     class="w-full outline-none bg-transparent border-0 text-gray-600 text-sm" />
-            </div> -->
-                
+            </div> -->               
                 <div class=" dash-mob-drp">
                     <ul class="list-unstyled items-center">
                         <li class="dash-h-item mob-hamburger">
@@ -315,8 +314,8 @@
                         
                         
                         @impersonating($guard = null)
-                            <li class="dropdown dash-h-item drp-company">
-                                <a class="btn btn-primary btn-active-color-primary btn-outline-secondary me-0"
+                            <li class="dropdown dash-h-item drp-company exit-btn">
+                                <a class="btn btn-primary btn-active-color-primary btn-outline-secondary me-0 ml-2"
                                     href="{{ route('impersonate.leave') }}"><i class="ti ti-ban"></i>
                                     {{ __('Exit Impersonation') }}
                                 </a>
