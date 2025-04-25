@@ -30285,4 +30285,12 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   .dataTable-container .responsive td.child {
     padding: 0 !important;
   }
+  .order-sm-3 {
+    order: 3 !important;
+  }
+  
+  .order-sm-2 {
+    order: 2 !important;
+  }
+  
 }
