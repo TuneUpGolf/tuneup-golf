@@ -30276,7 +30276,7 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   .header-brand-logo img {
     max-height: 36px;
   }
-.dataTable-container .responsive  td.child {
-    padding: 0 !important;
-}
+  .dataTable-container .responsive  td.child {
+      padding: 0 !important;
+  }
 }

@@ -316,7 +316,7 @@
                         
                         @impersonating($guard = null)
                             <li class="dropdown dash-h-item drp-company">
-                                <a class="btn btn-primary btn-active-color-primary btn-outline-secondary me-3"
+                                <a class="btn btn-primary btn-active-color-primary btn-outline-secondary me-0"
                                     href="{{ route('impersonate.leave') }}"><i class="ti ti-ban"></i>
                                     {{ __('Exit Impersonation') }}
                                 </a>
