@@ -40,7 +40,7 @@
                 @can('manage-lessons')
                     <div class="col-lg-3 col-md-6 col-6 pb-3">
                         <div class="relative flex flex-col bg-white rounded-lg w-96">
-                            <div class="p-3 flex flex-col">
+                            <div class="p-2 p-sm-3 flex flex-col">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card1 p-2 rounded">
                                         <svg width="34" height="34" viewBox="0 0 35 35" fill="none"
@@ -65,7 +65,7 @@
                     </div>
                     <div class="col-lg-3 col-md-6 col-6 pb-3">
                         <div class="relative flex flex-col bg-white rounded-lg w-96">
-                            <div class="p-3 flex flex-col">
+                            <div class="p-2 p-sm-3 flex flex-col">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card4 p-2 rounded">
                                         <svg width="33" height="35" viewBox="0 0 33 35" fill="none"
@@ -91,7 +91,7 @@
                     </div>
                     <div class="col-lg-3 col-md-6 col-6 pb-3">
                         <div class="relative flex flex-col bg-white rounded-lg w-96">
-                            <div class="p-3 flex flex-col">
+                            <div class="p-2 p-sm-3 flex flex-col">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card2 p-2 rounded">
                                         <svg width="34" height="34" viewBox="0 0 35 35" fill="none"
@@ -116,7 +116,7 @@
                     </div>
                     <div class="col-lg-3 col-md-6 col-6 pb-3">
                         <div class="relative flex flex-col bg-white rounded-lg w-96">
-                            <div class="p-3 flex flex-col">
+                            <div class="p-2 p-sm-3 flex flex-col">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card4 p-2 rounded">
                                         <svg width="33" height="35" viewBox="0 0 33 35" fill="none"
@@ -144,7 +144,7 @@
                 @can('manage-students')
                     <div class="col-lg-3 col-md-6 col-6 pb-3">
                         <div class="relative flex flex-col bg-white rounded-lg w-96">
-                            <div class="p-3 flex flex-col">
+                            <div class="p-2 p-sm-3 flex flex-col">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card1 p-2 rounded">
                                         <svg width="34" height="34" viewBox="0 0 31 34" fill="none"
@@ -171,7 +171,7 @@
                 @if (Auth::user()->type == 'Admin' || Auth::user()->type == 'Instructor')
                     <div class="col-lg-3 col-md-6 col-6 pb-3">
                         <div class="relative flex flex-col bg-white rounded-lg w-96">
-                            <div class="p-3 flex flex-col">
+                            <div class="p-2 p-sm-3 flex flex-col">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card3 p-2 rounded">
                                         <svg width="35" height="35" viewBox="0 0 35 35" fill="none"
