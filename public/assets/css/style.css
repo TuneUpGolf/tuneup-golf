@@ -30271,9 +30271,35 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   font-size: 16px;
 }
 
+.custom-gradient {
+  background: linear-gradient(360deg, rgba(41, 50, 64, 0.00) 0%, #000 100%);
+}
+
+.paid-post {
+  background: linear-gradient(270deg, rgba(0, 113, 206, 0.60) 0%, rgba(125, 196, 255, 0.60) 100%);
+  
+}
+
+.paid-post-wrap{
+  backdrop-filter: blur(10px);
+}
+
+.bg-orange {
+background-color: #F39A14;
+}
+.paid-post form {
+  width: 80%;
+}
+
+.post-thumbnail {
+  max-height: 400px;
+}
 @media (max-width:1024px) {
   .dash-mob-drp {
     margin-right: auto;
+  }
+  .post-thumbnail {
+    max-height: 350px;
   }
 }
 
@@ -30285,12 +30311,16 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   .dataTable-container .responsive td.child {
     padding: 0 !important;
   }
+
   .order-sm-3 {
     order: 3 !important;
   }
-  
+
   .order-sm-2 {
     order: 2 !important;
   }
-  
+  .ctm-post-card {
+    background-color: transparent;
+  }
+
 }
