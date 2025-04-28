@@ -195,11 +195,11 @@
                                             </defs>
                                         </svg>
                                     </div>
-                                    <div>
+                                    <div class="order-3 order-sm-2">
                                     <p class="font-sans font-thin mb-0">{{ __('Total') }}</p>
                                     <span class="font-roboto font-semibold"> {{ __('Earnings') }} </span>
                                     </div>
-                                    <p class="mb-0 font-sans  bg-card3-text text-2xl ml-auto">
+                                    <p class="order-2 order-sm-3 mb-0 font-sans  bg-card3-text text-2xl ml-auto">
                                     {{ Utility::amount_format($earning) }} </p>
                                 </div>
                                 
