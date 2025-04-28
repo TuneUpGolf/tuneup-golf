@@ -7,12 +7,12 @@
 @section('content')
     <div class="row">
         <div class="col-xl-12">
-            <div class="card">
+            <div class="card ctm-post-card">
                 <div id="blog" class="sm:p-4 ">
                     <div class="dropdown dash-h-item drp-company">
                         <a class="dash-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
                             href="javascript:void(0);" role="button" aria-haspopup="false" aria-expanded="false">
-                            <span class="hide-mob ms-2 text-lg">Filter</span>
+                            <span class="hide-mob ms-sm-3 text-lg">Filter</span>
                             <i class="ti ti-chevron-down drp-arrow nocolor hide-mob"></i>
                         </a>
                         <div class="dropdown-menu dash-h-dropdown">
