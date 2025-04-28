@@ -53,11 +53,11 @@
                                                 fill="#4AD991" />
                                         </svg>
                                     </div>
-                                    <div class="order-sm-3">
+                                    <div class="order-3 order-sm-2">
                                         <p class="font-sans font-thin mb-0">{{ __('Online') }}</p>
                                         <span class="font-roboto font-semibold"> {{ __('Completed Lessons') }} </span>
                                     </div>
-                                    <p class="order-sm-2 mb-0 font-sans  bg-card-text text-2xl ml-auto"> {{ $purchaseComplete }} </p>
+                                    <p class="order-2 order-sm-3 mb-0 font-sans  bg-card-text text-2xl ml-auto"> {{ $purchaseComplete }} </p>
                                 </div>
                                 
                             </div>
@@ -78,11 +78,11 @@
                                                 fill="#FEC53D" />
                                         </svg>
                                     </div>
-                                    <div class="order-sm-3">
+                                    <div class="order-3 order-sm-2">
                                     <p class="font-sans font-thin mb-0">{{ __('Online') }}</p>
                                     <span class="font-roboto font-semibold"> {{ __('Lessons Pending') }} </span>
                                     </div>
-                                    <p class="order-sm-2 mb-0 font-sans  bg-card4-text text-2xl ml-auto">
+                                    <p class="order-2 order-sm-3 mb-0 font-sans  bg-card4-text text-2xl ml-auto">
                                     {{ $purchaseInprogress }} </p>
                                 </div>
                                 
@@ -104,11 +104,11 @@
                                                 fill="#4AD991" />
                                         </svg>
                                     </div>
-                                    <div class="order-sm-3">
+                                    <div class="order-3 order-sm-2">
                                     <p class="font-sans font-thin mb-0">{{ __('In Person') }}</p>
                                     <span class="font-roboto font-semibold"> {{ __('Completed Lessons') }} </span>
                                     </div>
-                                    <p class="order-sm-2 mb-0 font-sans  bg-card-text text-2xl ml-auto"> {{ $inPersonCompleted }} </p>
+                                    <p class="order-2 order-sm-3 mb-0 font-sans  bg-card-text text-2xl ml-auto"> {{ $inPersonCompleted }} </p>
                                 </div>
                                 
                             </div>
@@ -129,11 +129,11 @@
                                                 fill="#FEC53D" />
                                         </svg>
                                     </div>
-                                    <div class="order-sm-3">
+                                    <div class="order-3 order-sm-2">
                                     <p class="font-sans font-thin mb-0">{{ __('In Person') }}</p>
                                     <span class="font-roboto font-semibold"> {{ __('Upcoming  Lessons') }} </span>
                                     </div>
-                                    <p class="order-sm-2 mb-0 font-sans  bg-card4-text text-2xl ml-auto">
+                                    <p class="order-2 order-sm-3 mb-0 font-sans  bg-card4-text text-2xl ml-auto">
                                     {{ $inPersonPending }} </p>
                                 </div>
                                 
@@ -157,11 +157,11 @@
                                                 fill="#2DBCFF" />
                                         </svg>
                                     </div>
-                                    <div class="order-sm-3">
+                                    <div class="order-3 order-sm-2">
                                     <p class="font-sans font-thin mb-0">{{ __('Total') }}</p>
                                     <span class="font-roboto font-semibold"> {{ __('Students') }} </span>
                                     </div>
-                                    <p class="order-sm-2 mb-0 font-sans  bg-card2-text text-2xl ml-auto"> {{ $students }} </p>
+                                    <p class="order-2 order-sm-3 mb-0 font-sans  bg-card2-text text-2xl ml-auto"> {{ $students }} </p>
                                 </div>
                                 
                             </div>
