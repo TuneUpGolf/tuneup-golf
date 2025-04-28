@@ -1,8 +1,16 @@
-<a class="btn btn-sm small btn btn-danger "
+@if (Str::contains($purchaseVideo->video_url, 'digitaloceanspaces.com'))
+    <a class="btn btn-sm small btn btn-danger "
+        href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid . '&videourl='.$purchaseVideo->video_url) }}"
+        data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Analyze') }}">
+        <i class="ti ti-refresh text-white"></i>
+    </a>
+@else
+    <a class="btn btn-sm small btn btn-danger "
     href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid . '&videourl=' . asset('/storage' . '/' . tenant('id') . '/' . $purchaseVideo->video_url) }}"
     data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Analyze') }}">
     <i class="ti ti-refresh text-white"></i>
-</a>
+    </a>
+@endif
 @if (!$purchaseVideo->feedback)
     <a class="btn btn-sm small btn btn-warning "
         href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo]) }}" data-bs-toggle="tooltip"
