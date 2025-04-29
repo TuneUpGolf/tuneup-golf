@@ -30295,6 +30295,9 @@ background-color: #F39A14;
   max-height: 400px;
   object-fit: cover;
 }
+.ctm-min-h {
+  min-height: 40px;
+}
 @media (max-width:1024px) {
   .dash-mob-drp {
     margin-right: auto;
