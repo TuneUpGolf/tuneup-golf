@@ -451,4 +451,10 @@ class RequestDomainController extends Controller
         Cookie::queue('lang', $lang, 120);
         return redirect()->back()->with('success', __('Language successfully changed.'));
     }
+
+    public function followerLandingPage()
+    {
+        return view('welcome-follower');
+    }
+
 }
