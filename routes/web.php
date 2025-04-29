@@ -392,6 +392,7 @@ Route::any('config-cache', function () {
     return redirect()->back()->with('success', __('Cache Clear Successfully.'));
 })->name('config.cache');
 Route::get('/', [RequestDomainController::class, 'landingPage'])->name('landingpage');
+Route::get('/follower', [RequestDomainController::class, 'followerLandingPage'])->name('follower-landingpage');
 Route::get('changeLang/{lang?}', [RequestDomainController::class, 'changeLang'])->name('change.lang');
 Route::get('/request-demo', function () {
     try {
