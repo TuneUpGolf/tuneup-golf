@@ -28,6 +28,7 @@ use App\Notifications\Superadmin\RegisterNotification;
 use Illuminate\Support\Facades\Auth;
 use Spatie\MailTemplates\Models\MailTemplate;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\View\View;
 
 class RequestDomainController extends Controller
 {
@@ -451,8 +452,13 @@ class RequestDomainController extends Controller
         Cookie::queue('lang', $lang, 120);
         return redirect()->back()->with('success', __('Language successfully changed.'));
     }
-
-    public function followerLandingPage()
+    
+    /**
+     * Method to load follower's landing page
+     *
+     * @return View Follower landing page
+     */
+    public function followerLandingPage(): View
     {
         return view('welcome-follower');
     }
