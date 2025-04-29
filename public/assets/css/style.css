@@ -30272,7 +30272,7 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
 }
 
 .custom-gradient {
-  background: linear-gradient(360deg, rgba(41, 50, 64, 0.00) 0%, #000 100%);
+  background: linear-gradient(360deg, rgba(41, 50, 64, 0.00) 0%, #000 150%);
 }
 
 .paid-post {
@@ -30293,13 +30293,14 @@ background-color: #F39A14;
 
 .post-thumbnail {
   max-height: 400px;
+  object-fit: cover;
 }
 @media (max-width:1024px) {
   .dash-mob-drp {
     margin-right: auto;
   }
   .post-thumbnail {
-    max-height: 350px;
+    max-height: 100%;
   }
 }
 

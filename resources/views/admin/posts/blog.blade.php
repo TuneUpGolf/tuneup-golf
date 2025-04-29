@@ -55,8 +55,8 @@
                 'data-validate',
                 ]) !!}
 
-                <div class="bg-orange text-white px-4 py-2 rounded-3xl w-full text-center flex items-center justify-center">
-                    <i class="ti ti-lock-open"></i>
+                <div class="bg-orange text-white px-4 py-2 rounded-3xl w-full text-center flex items-center justify-center gap-1">
+                    <i class="ti ti-lock-open text-md"></i>
                     {{ Form::button(__('Unlock for - $' . $post->price), ['type' => 'submit', 'class' => 'btn p-0 pl-1 text-white border-0']) }}
                     {!! Form::close() !!}
                 </div>
