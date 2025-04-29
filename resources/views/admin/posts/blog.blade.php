@@ -29,16 +29,14 @@
                     </div>
                 </div>
 
-                <div class="flex items-center text-md font-bold flex items-center gap-1 bg-white py-2 px-3 rounded-3xl shadow">
+                <div class="bg-white py-2 px-3 rounded-3xl shadow">
                     {!! Form::open([
                     'route' => ['purchase.like', ['post_id' => $post->id]],
                     'method' => 'Post',
                     'data-validate',
                     ]) !!}
-                    <!-- {{ Form::button('<i class="text-lg ti ti-heart"></i> <span> ' . $post->likePost->count(), </span> ['type' => 'submit', 'class' => 'text-md font-bold flex items-center gap-2']) }}
-                    {!! Form::close() !!}Likes -->
-                    <!-- {{ Form::button('<i class="text-lg ti ti-heart"></i> ' . $post->likePost->count(), ['type' => 'submit', 'class' => '']) }} -->
-                    <button type="submit" class="text-md font-bold flex items-center gap-2"><i class="text-lg ti ti-heart"></i> <span> {{ $post->likePost->count()  }}</span>Likes</button>
+                    
+                    <button type="submit" class="text-md font-semibold flex items-center gap-2"><i class="text-2xl lh-sm ti ti-heart"></i><span> {{ $post->likePost->count()  }} Likes</span></button>
                     {!! Form::close() !!} 
                 </div>
 
@@ -63,8 +61,8 @@
                 'data-validate',
                 ]) !!}
 
-                <div class="bg-orange text-white px-4 py-2 rounded-3xl w-full text-center flex items-center justify-center gap-1">
-                    <i class="ti ti-lock-open text-md"></i>
+                <div class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
+                    <i class="ti ti-lock-open text-2xl lh-sm"></i>
                     {{ Form::button(__('Unlock for - $' . $post->price), ['type' => 'submit', 'class' => 'btn p-0 pl-1 text-white border-0']) }}
                     {!! Form::close() !!}
                 </div>
