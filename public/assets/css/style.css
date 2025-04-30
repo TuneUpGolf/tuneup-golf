@@ -30350,6 +30350,10 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   margin: 0 -16px;
 }
 
+.chat-box-wrap {
+  height: 50px;
+  min-width: 50px;
+}
 
 @media (max-width:1024px) {
   .dash-mob-drp {
