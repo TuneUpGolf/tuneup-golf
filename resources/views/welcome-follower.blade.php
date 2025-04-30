@@ -64,7 +64,7 @@ return Utility::getsettings('currency_symbol');
                         <div class="text-left">
                             <a class="font-bold text-dark text-xl"
                                 href="https://demo.collegegolfrecruitingportal.com/instructor/profile/get?instructor_id=4">
-                                Nikhil
+                               User 
                             </a>
                             <div class="text-lg font-bold tracking-tight text-primary">
                                 $ 0.00 (USD)
@@ -120,7 +120,7 @@ return Utility::getsettings('currency_symbol');
                         <div class="text-left">
                             <a class="font-bold text-dark text-xl"
                                 href="https://demo.collegegolfrecruitingportal.com/instructor/profile/get?instructor_id=4">
-                                Nikhil
+                               User 
                             </a>
                             <div class="text-lg font-bold tracking-tight text-primary">
                                 $ 0.00 (USD)
@@ -172,7 +172,7 @@ return Utility::getsettings('currency_symbol');
                         <div class="text-left">
                             <a class="font-bold text-dark text-xl"
                                 href="https://demo.collegegolfrecruitingportal.com/instructor/profile/get?instructor_id=4">
-                                Nikhil
+                               User 
                             </a>
                             <div class="text-lg font-bold tracking-tight text-primary">
                                 $ 0.00 (USD)
@@ -228,7 +228,7 @@ return Utility::getsettings('currency_symbol');
                         <div class="text-left">
                             <a class="font-bold text-dark text-xl"
                                 href="https://demo.collegegolfrecruitingportal.com/instructor/profile/get?instructor_id=4">
-                                Nikhil
+                               User 
                             </a>
                             <div class="text-lg font-bold tracking-tight text-primary">
                                 $ 0.00 (USD)
@@ -280,7 +280,7 @@ return Utility::getsettings('currency_symbol');
                         <div class="text-left">
                             <a class="font-bold text-dark text-xl"
                                 href="https://demo.collegegolfrecruitingportal.com/instructor/profile/get?instructor_id=4">
-                                Nikhil
+                               User 
                             </a>
                             <div class="text-lg font-bold tracking-tight text-primary">
                                 $ 0.00 (USD)
