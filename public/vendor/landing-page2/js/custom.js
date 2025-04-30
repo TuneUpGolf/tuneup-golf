@@ -450,3 +450,44 @@ if ($(".my-acc-column").length > 0) {
 
 
 }
+
+$(document).ready(function(){
+    $('.lessions-slider').slick({
+      speed: 500,
+      slidesToShow: 4,
+      slidesToScroll: 1,
+      autoplay: true,
+      autoplaySpeed: 2000,
+      dots:false,
+      prevArrow: '<div class="ctm-slick-arrow ctm-slick-left"><i class="fa fa-chevron-left"></i></div>',
+      nextArrow: '<div class="ctm-slick-arrow ctm-slick-right"><i class="fa fa-chevron-right"></i></div>',
+      infinite: false,
+      
+      responsive: [{
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 4,
+          slidesToScroll: 1,
+  
+        }
+  
+      }, {
+        breakpoint: 800,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 2,
+          dots: true,
+          
+  
+        }
+      },  {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          dots: true,
+          
+        }
+      }]
+    });
+  });

@@ -1,6 +1,11 @@
 <div class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md">
     <div class="shadow rounded-2 overflow-hidden position-relative">
-        <div class="p-3 position-absolute left-0 top-0 z-10 w-full custom-gradient">
+    @if($post->paid && !isset($purchasePost))
+      <?php $cls  = 'p-3 position-absolute left-0 top-0 z-10 w-full'; ?>
+    @else
+      <?php $cls  = 'p-3 position-absolute left-0 top-0 z-10 w-full custom-gradient'; ?>
+    @endif
+        <div class="{{ $cls }}">
             <div class="flex justify-between items-center w-full">
                 <div class="flex items-center gap-3">
                     <!-- @if ($post->isStudentPost)
@@ -24,14 +29,15 @@
                     </div>
                 </div>
 
-                <div class="flex items-center text-md font-bold flex items-center gap-1 bg-white py-2 px-3 rounded-3xl shadow">
+                <div class="bg-white py-2 px-3 rounded-3xl shadow">
                     {!! Form::open([
                     'route' => ['purchase.like', ['post_id' => $post->id]],
                     'method' => 'Post',
                     'data-validate',
                     ]) !!}
-                    {{ Form::button('<i class="text-lg ti ti-heart"></i> ' . $post->likePost->count(), ['type' => 'submit', 'class' => 'text-md font-bold flex items-center gap-2']) }}
-                    {!! Form::close() !!}Likes
+                    
+                    <button type="submit" class="text-md font-semibold flex items-center gap-2"><i class="text-2xl lh-sm ti ti-heart"></i><span> {{ $post->likePost->count()  }} Likes</span></button>
+                    {!! Form::close() !!} 
                 </div>
 
             </div>
@@ -55,8 +61,8 @@
                 'data-validate',
                 ]) !!}
 
-                <div class="bg-orange text-white px-4 py-2 rounded-3xl w-full text-center flex items-center justify-center">
-                    <i class="ti ti-lock-open"></i>
+                <div class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
+                    <i class="ti ti-lock-open text-2xl lh-sm"></i>
                     {{ Form::button(__('Unlock for - $' . $post->price), ['type' => 'submit', 'class' => 'btn p-0 pl-1 text-white border-0']) }}
                     {!! Form::close() !!}
                 </div>
@@ -100,7 +106,7 @@
             $shortDescription = \Illuminate\Support\Str::limit($description, 80, '');
             @endphp
 
-            <p class="text-gray-500 text-md mt-1 description font-medium">
+            <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h">
                 <span class="short-text">{{ $shortDescription }}</span>
                 @if (strlen($description) > 20)
                 <span class="hidden full-text">{{ $description }}</span>

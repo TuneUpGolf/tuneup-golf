@@ -6905,14 +6905,14 @@ fieldset:disabled .btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 15%;
+  width: 100%;
   padding: 0;
   color: #ffffff;
   text-align: center;
   background: none;
   border: 0;
-  opacity: 0.5;
-  transition: opacity 0.15s ease;
+  opacity: 1;
+  transition: opacity 1 ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -6933,9 +6933,7 @@ fieldset:disabled .btn {
   opacity: 0.9;
 }
 
-.carousel-control-prev {
-  left: 0;
-}
+
 
 .carousel-control-next {
   right: 0;
@@ -30272,34 +30270,84 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
 }
 
 .custom-gradient {
-  background: linear-gradient(360deg, rgba(41, 50, 64, 0.00) 0%, #000 100%);
+  background: linear-gradient(360deg, rgba(41, 50, 64, 0.00) 0%, #000 150%);
 }
 
 .paid-post {
   background: linear-gradient(270deg, rgba(0, 113, 206, 0.60) 0%, rgba(125, 196, 255, 0.60) 100%);
-  
+
 }
 
-.paid-post-wrap{
+.paid-post-wrap {
   backdrop-filter: blur(10px);
 }
 
 .bg-orange {
-background-color: #F39A14;
+  background-color: #F39A14;
 }
+
 .paid-post form {
   width: 80%;
 }
 
 .post-thumbnail {
   max-height: 400px;
+  object-fit: cover;
 }
+
+.ctm-min-h {
+  min-height: 40px;
+}
+
+.landing-hero .hero-sec {
+  background-size: cover;
+  background-position:center;
+  background-repeat: no-repeat;
+  padding:  60px 0;
+}
+.ctm-container {
+  max-width: 1440px !important;
+}
+.lession-sec {
+  padding: 100px 0;
+}
+.ctm-slick-arrow {
+  position: absolute;
+  top: -50px;
+  right:0;
+  left: auto;
+  max-width: 50px;
+  width: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 50px;
+  border-radius: 100px;
+  font-size: 20px;
+  background-color: #0071CE;
+  color: white;
+  
+}
+.ctm-slick-left {
+  right: 65px;
+}
+
+.ctm-slick-arrow.slick-disabled {
+  opacity: 0.5;
+}
+
+
+
+
 @media (max-width:1024px) {
   .dash-mob-drp {
     margin-right: auto;
   }
+
   .post-thumbnail {
-    max-height: 350px;
+    max-height: 100%;
   }
 }
 
