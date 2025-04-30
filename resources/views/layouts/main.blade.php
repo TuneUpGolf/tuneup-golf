@@ -62,7 +62,6 @@
 
     <!-- [ Header ] start -->
     @include('layouts.header')
-</body>
 
 <div class="dash-container">
     <div class="dash-content">
@@ -138,6 +137,9 @@
     </div>
 </div>
 
+<!-- [ live chat ] start -->
+@include('layouts.chatbot')
+<!-- [ live chat ] end -->
 
 @laravelViewsScripts(laravel - views, livewire, alpine)
 
