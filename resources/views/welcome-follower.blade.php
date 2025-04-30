@@ -76,10 +76,6 @@ return Utility::getsettings('currency_symbol');
                     </div>
 
                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                        <div class="flex flex-row justify-between">
-
-                        </div>
-
                         <span class="text-xl font-semibold text-dark">First Lesson</span>
                         <p class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis">
                             First Lesson
@@ -94,11 +90,115 @@ return Utility::getsettings('currency_symbol');
                             <div class="text-center w-50">
                                 <span class="text-xl font-bold">30 Days</span>
                                 <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
+                            </div>
+                        </div>
+                        <div class="w-100 mt-3">
+                            <form method="POST"
+                                action="https://demo.collegegolfrecruitingportal.com/purchase/store?lesson_id=1"
+                                accept-charset="UTF-8" enctype="multipart/form-data" class="form-horizontal"
+                                data-validate="" novalidate="true"><input name="_token" type="hidden"
+                                    value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH">
+                                <button type="submit" class="lesson-btn">Purchase</button>
+                            </form>
+                        </div>
+                    </div>
+                    <form id="bookingForm" method="POST"
+                        action="https://demo.collegegolfrecruitingportal.com/lesson/slot/booking?redirect=1">
+                        <input type="hidden" name="_token" value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH"> <input
+                            type="hidden" id="slotIdInput" name="slot_id">
+                        <input type="hidden" id="friendNamesInput" name="friend_names">
+
+                    </form>
+                </div>
+            </div>
+            <div class="p-3">
+                <div class=" bg-white rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col">
+                    <div class="relative text-center p-3 flex gap-3">
+                        <img src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
+                            alt="https://demo.collegegolfrecruitingportal.com/storage/5"
+                            class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
+                        <div class="text-left">
+                            <a class="font-bold text-dark text-xl"
+                                href="https://demo.collegegolfrecruitingportal.com/instructor/profile/get?instructor_id=4">
+                                Nikhil
+                            </a>
+                            <div class="text-lg font-bold tracking-tight text-primary">
+                                $ 0.00 (USD)
+                            </div>
+                            <div class="text-sm font-medium text-gray-500 italic">
+                                <span class="">(8 Purchased)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
+                        <span class="text-xl font-semibold text-dark">First Lesson</span>
+                        <p class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis">
+                            First Lesson
+                        </p>
+                        <div class="mt-2 bg-gray-200 gap-1 rounded-lg px-4 py-3 flex">
+                            <div class="text-center w-50">
+                                <span class="text-xl font-bold">30</span>
+                                <div class="text-sm rtl:space-x-reverse">Number of Lessons</div>
+                            </div>
+                            <div class="text-center w-50">
+                                <span class="text-xl font-bold">30 Days</span>
+                                <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
+                            </div>
+                        </div>
+                        <div class="w-100 mt-3">
+                            <form method="POST"
+                                action="https://demo.collegegolfrecruitingportal.com/purchase/store?lesson_id=1"
+                                accept-charset="UTF-8" enctype="multipart/form-data" class="form-horizontal"
+                                data-validate="" novalidate="true"><input name="_token" type="hidden"
+                                    value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH">
+                                <button type="submit" class="lesson-btn">Purchase</button>
+                            </form>
+                        </div>
+                    </div>
+                    <form id="bookingForm" method="POST"
+                        action="https://demo.collegegolfrecruitingportal.com/lesson/slot/booking?redirect=1">
+                        <input type="hidden" name="_token" value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH"> <input
+                            type="hidden" id="slotIdInput" name="slot_id">
+                        <input type="hidden" id="friendNamesInput" name="friend_names">
+                    </form>
+                </div>
+            </div>
+            <div class="p-3">
+                <div class=" bg-white rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col">
+                    <div class="relative text-center p-3 flex gap-3">
+                        <img src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
+                            alt="https://demo.collegegolfrecruitingportal.com/storage/5"
+                            class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
+                        <div class="text-left">
+                            <a class="font-bold text-dark text-xl"
+                                href="https://demo.collegegolfrecruitingportal.com/instructor/profile/get?instructor_id=4">
+                                Nikhil
+                            </a>
+                            <div class="text-lg font-bold tracking-tight text-primary">
+                                $ 0.00 (USD)
+                            </div>
+                            <div class="text-sm font-medium text-gray-500 italic">
+                                <span class="">(8 Purchased)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
+                        <span class="text-xl font-semibold text-dark">First Lesson</span>
+                        <p class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis">
+                            First Lesson
+                        </p>
+                        <div class="mt-2 bg-gray-200 gap-1 rounded-lg px-4 py-3 flex">
+                            <div class="text-center w-50">
+                                <span class="text-xl font-bold">30</span>
+                                <div class="text-sm rtl:space-x-reverse">Number of Lessons</div>
 
                             </div>
-
+                            <div class="text-center w-50">
+                                <span class="text-xl font-bold">30 Days</span>
+                                <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
+                            </div>
                         </div>
-
                         <div class="w-100 mt-3">
                             <form method="POST"
                                 action="https://demo.collegegolfrecruitingportal.com/purchase/store?lesson_id=1"
@@ -138,31 +238,21 @@ return Utility::getsettings('currency_symbol');
                             </div>
                         </div>
                     </div>
-
                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                        <div class="flex flex-row justify-between">
-
-                        </div>
-
                         <span class="text-xl font-semibold text-dark">First Lesson</span>
                         <p class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis">
                             First Lesson
                         </p>
-
                         <div class="mt-2 bg-gray-200 gap-1 rounded-lg px-4 py-3 flex">
                             <div class="text-center w-50">
                                 <span class="text-xl font-bold">30</span>
                                 <div class="text-sm rtl:space-x-reverse">Number of Lessons</div>
-
                             </div>
                             <div class="text-center w-50">
                                 <span class="text-xl font-bold">30 Days</span>
                                 <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
-
                             </div>
-
                         </div>
-
                         <div class="w-100 mt-3">
                             <form method="POST"
                                 action="https://demo.collegegolfrecruitingportal.com/purchase/store?lesson_id=1"
@@ -171,7 +261,6 @@ return Utility::getsettings('currency_symbol');
                                     value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH">
                                 <button type="submit" class="lesson-btn">Purchase</button>
                             </form>
-
                         </div>
                     </div>
                     <form id="bookingForm" method="POST"
@@ -179,7 +268,6 @@ return Utility::getsettings('currency_symbol');
                         <input type="hidden" name="_token" value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH"> <input
                             type="hidden" id="slotIdInput" name="slot_id">
                         <input type="hidden" id="friendNamesInput" name="friend_names">
-
                     </form>
                 </div>
             </div>
@@ -202,31 +290,21 @@ return Utility::getsettings('currency_symbol');
                             </div>
                         </div>
                     </div>
-
                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                        <div class="flex flex-row justify-between">
-
-                        </div>
-
                         <span class="text-xl font-semibold text-dark">First Lesson</span>
                         <p class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis">
                             First Lesson
                         </p>
-
                         <div class="mt-2 bg-gray-200 gap-1 rounded-lg px-4 py-3 flex">
                             <div class="text-center w-50">
                                 <span class="text-xl font-bold">30</span>
                                 <div class="text-sm rtl:space-x-reverse">Number of Lessons</div>
-
                             </div>
                             <div class="text-center w-50">
                                 <span class="text-xl font-bold">30 Days</span>
                                 <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
-
                             </div>
-
                         </div>
-
                         <div class="w-100 mt-3">
                             <form method="POST"
                                 action="https://demo.collegegolfrecruitingportal.com/purchase/store?lesson_id=1"
@@ -235,7 +313,6 @@ return Utility::getsettings('currency_symbol');
                                     value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH">
                                 <button type="submit" class="lesson-btn">Purchase</button>
                             </form>
-
                         </div>
                     </div>
                     <form id="bookingForm" method="POST"
@@ -243,135 +320,6 @@ return Utility::getsettings('currency_symbol');
                         <input type="hidden" name="_token" value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH"> <input
                             type="hidden" id="slotIdInput" name="slot_id">
                         <input type="hidden" id="friendNamesInput" name="friend_names">
-
-                    </form>
-                </div>
-            </div>
-            <div class="p-3">
-                <div class=" bg-white rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col">
-                    <div class="relative text-center p-3 flex gap-3">
-                        <img src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
-                            alt="https://demo.collegegolfrecruitingportal.com/storage/5"
-                            class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
-                        <div class="text-left">
-                            <a class="font-bold text-dark text-xl"
-                                href="https://demo.collegegolfrecruitingportal.com/instructor/profile/get?instructor_id=4">
-                                Nikhil
-                            </a>
-                            <div class="text-lg font-bold tracking-tight text-primary">
-                                $ 0.00 (USD)
-                            </div>
-                            <div class="text-sm font-medium text-gray-500 italic">
-                                <span class="">(8 Purchased)</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                        <div class="flex flex-row justify-between">
-
-                        </div>
-
-                        <span class="text-xl font-semibold text-dark">First Lesson</span>
-                        <p class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis">
-                            First Lesson
-                        </p>
-
-                        <div class="mt-2 bg-gray-200 gap-1 rounded-lg px-4 py-3 flex">
-                            <div class="text-center w-50">
-                                <span class="text-xl font-bold">30</span>
-                                <div class="text-sm rtl:space-x-reverse">Number of Lessons</div>
-
-                            </div>
-                            <div class="text-center w-50">
-                                <span class="text-xl font-bold">30 Days</span>
-                                <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
-
-                            </div>
-
-                        </div>
-
-                        <div class="w-100 mt-3">
-                            <form method="POST"
-                                action="https://demo.collegegolfrecruitingportal.com/purchase/store?lesson_id=1"
-                                accept-charset="UTF-8" enctype="multipart/form-data" class="form-horizontal"
-                                data-validate="" novalidate="true"><input name="_token" type="hidden"
-                                    value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH">
-                                <button type="submit" class="lesson-btn">Purchase</button>
-                            </form>
-
-                        </div>
-                    </div>
-                    <form id="bookingForm" method="POST"
-                        action="https://demo.collegegolfrecruitingportal.com/lesson/slot/booking?redirect=1">
-                        <input type="hidden" name="_token" value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH"> <input
-                            type="hidden" id="slotIdInput" name="slot_id">
-                        <input type="hidden" id="friendNamesInput" name="friend_names">
-
-                    </form>
-                </div>
-            </div>
-            <div class="p-3">
-                <div class=" bg-white rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col">
-                    <div class="relative text-center p-3 flex gap-3">
-                        <img src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
-                            alt="https://demo.collegegolfrecruitingportal.com/storage/5"
-                            class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
-                        <div class="text-left">
-                            <a class="font-bold text-dark text-xl"
-                                href="https://demo.collegegolfrecruitingportal.com/instructor/profile/get?instructor_id=4">
-                                Nikhil
-                            </a>
-                            <div class="text-lg font-bold tracking-tight text-primary">
-                                $ 0.00 (USD)
-                            </div>
-                            <div class="text-sm font-medium text-gray-500 italic">
-                                <span class="">(8 Purchased)</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                        <div class="flex flex-row justify-between">
-
-                        </div>
-
-                        <span class="text-xl font-semibold text-dark">First Lesson</span>
-                        <p class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis">
-                            First Lesson
-                        </p>
-
-                        <div class="mt-2 bg-gray-200 gap-1 rounded-lg px-4 py-3 flex">
-                            <div class="text-center w-50">
-                                <span class="text-xl font-bold">30</span>
-                                <div class="text-sm rtl:space-x-reverse">Number of Lessons</div>
-
-                            </div>
-                            <div class="text-center w-50">
-                                <span class="text-xl font-bold">30 Days</span>
-                                <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
-
-                            </div>
-
-                        </div>
-
-                        <div class="w-100 mt-3">
-                            <form method="POST"
-                                action="https://demo.collegegolfrecruitingportal.com/purchase/store?lesson_id=1"
-                                accept-charset="UTF-8" enctype="multipart/form-data" class="form-horizontal"
-                                data-validate="" novalidate="true"><input name="_token" type="hidden"
-                                    value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH">
-                                <button type="submit" class="lesson-btn">Purchase</button>
-                            </form>
-
-                        </div>
-                    </div>
-                    <form id="bookingForm" method="POST"
-                        action="https://demo.collegegolfrecruitingportal.com/lesson/slot/booking?redirect=1">
-                        <input type="hidden" name="_token" value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH"> <input
-                            type="hidden" id="slotIdInput" name="slot_id">
-                        <input type="hidden" id="friendNamesInput" name="friend_names">
-
                     </form>
                 </div>
             </div>
