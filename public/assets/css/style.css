@@ -30301,20 +30301,23 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
 
 .landing-hero .hero-sec {
   background-size: cover;
-  background-position:center;
+  background-position: center;
   background-repeat: no-repeat;
-  padding:  60px 0;
+  padding: 60px 0;
 }
+
 .ctm-container {
   max-width: 1440px !important;
 }
+
 .lession-sec {
   padding: 100px 0;
 }
+
 .ctm-slick-arrow {
   position: absolute;
   top: -50px;
-  right:0;
+  right: 0;
   left: auto;
   max-width: 50px;
   width: 50px;
@@ -30328,8 +30331,9 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   font-size: 20px;
   background-color: #0071CE;
   color: white;
-  
+
 }
+
 .ctm-slick-left {
   right: 65px;
 }
@@ -30338,8 +30342,18 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   opacity: 0.5;
 }
 
+.lessions-slider .slick-slide {
+  height: auto;
+}
 
+.lessions-slider .slick-list {
+  margin: 0 -16px;
+}
 
+.chat-box-wrap {
+  height: 50px;
+  min-width: 50px;
+}
 
 @media (max-width:1024px) {
   .dash-mob-drp {

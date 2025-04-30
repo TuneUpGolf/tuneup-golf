@@ -62,7 +62,7 @@
 
     <!-- [ Header ] start -->
     @include('layouts.header')
-</body>
+
 
 <div class="dash-container">
     <div class="dash-content">
