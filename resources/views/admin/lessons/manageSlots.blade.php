@@ -70,6 +70,7 @@
 @endpush
 @push('javascript')
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.17/index.global.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/core/main.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid/main.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid/main.css" rel="stylesheet" />
@@ -80,12 +81,16 @@
         var students = @json($students);
         var payment_method = @json($payment_method);
         var isMobile = window.innerWidth <= 768;
-        var initialCalendarView = isMobile ? 'listWeek' : 'timeGridWeek';
+        // var initialCalendarView = isMobile ? 'listWeek' : 'timeGridWeek';
+        var initialCalendarView = isMobile ? 'listWeek' : 'resourceTimeGridDay';
         var calendar = new FullCalendar.Calendar(calendarEl, {
+            schedulerLicenseKey: "{{ config('full-calendar.key') }}",
             initialView: initialCalendarView,
+            resourceAreaHeaderContent: 'Instructor',
             eventShortHeight: 45,
             slotMinTime: '5:00:00',
             slotMaxTime: '20:00:00',
+            resources: @json($resources),
             events: @json($events),
             eventClick: function(info) {
                 const slot_id = info?.event?.extendedProps?.slot_id;
@@ -219,8 +224,6 @@
                                     return false;
                                 }
 
-
-
                                 return {
                                     isGuest,
                                     student_ids,
@@ -298,17 +301,23 @@
 
             },
             headerToolbar: {
-                right: 'customDayButton today prev,next', // Add custom button here
+                right: 'today prev,next', // Add custom button here
                 center: 'title',
-                left: 'timeGridWeek,listWeek', // Built-in views
+                left: 'customWeekButton,resourceTimeGridDay,listWeek', // Built-in views
             },
             customButtons: {
                 customDayButton: {
-                    text: 'Day View', // Button label
+                    text: 'Day View',
                     click: function() {
-                        calendar.changeView('listDay'); // Change to day view
+                        calendar.changeView('listDay');
                     },
                 },
+                customWeekButton: {
+                    text: 'week',
+                    click: function() {
+                        calendar.changeView('resourceTimelineDay');
+                    },
+                }
             },
             nowIndicator: true,
         });

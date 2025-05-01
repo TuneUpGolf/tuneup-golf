@@ -176,6 +176,7 @@ class LessonController extends Controller
             $slots = Slots::where('is_active', true)->get();
             $payment_method = Lesson::find(request()->get('lesson_id'))?->payment_method;
             $events = [];
+            $resources = [];
             $instructorId = request()->get('instructor_id');
 
             if (!!$instructorId && $instructorId !== "-1")
@@ -194,10 +195,15 @@ class LessonController extends Controller
                 $students = $appointment->student;
                 $colors =  $appointment->is_completed ? '#41d85f' : ($appointment->isFullyBooked() ?
                     '#f7e50a' : '#0071ce');
+                
+                $datetime = date("Y-m-d H:i:s", strtotime($appointment->date_time . " +" . $intervalString));
+                $endDateTime = Carbon::parse($datetime)->setTimezone('UTC')->toIso8601String();
+                
                 array_push($events, [
                     'title' => substr($appointment->lesson->lesson_name, 0, 10) . ' (' . $appointment->lesson->max_students - $appointment->availableSeats() . '/' . $appointment->lesson->max_students . ')',
-                    'start' => $appointment->date_time,
-                    'end' => date("Y-m-d H:i:s", strtotime($appointment->date_time . " +" . $intervalString)),
+                    // 'start' => $appointment->date_time,
+                    'start' => Carbon::parse($appointment->date_time)->setTimezone('UTC')->toIso8601String(),
+                    'end' => $endDateTime,
                     'slot_id' => $appointment->id,
                     'color' => $colors,
                     'is_completed' => $appointment->is_completed,
@@ -207,14 +213,21 @@ class LessonController extends Controller
                     'available_seats' => $appointment->availableSeats(),
                     'lesson' => $appointment->lesson,
                     'instructor' => $appointment->lesson->user,
+                    'resourceId' => $appointment->lesson->user->id,
                     'className' => ($appointment->is_completed ? 'custom-completed-class' : ($appointment->isFullyBooked() ? 'custom-book-class' : 'custom-available-class')) . ' custom-event-class',
                 ]);
-            }
 
+                if(!in_array($appointment->lesson->user->id, $resources)) {
+                    $resources[$appointment->lesson->user->id] =
+                        ['id' => $appointment->lesson->user->id, 'title' => $appointment->lesson->user->name, 'eventColor'=>$colors];
+                }
+            }
+            $resources = array_values($resources);
+            // dd($events, $resources);
             $lesson_id = request()->get('lesson_id');
             $instructors = User::where('type', Role::ROLE_INSTRUCTOR)->get();
             $students = Student::where('active_status', true)->where('isGuest', false)->get();
-            return view('admin.lessons.manageSlots', compact('events', 'lesson_id', 'type', 'payment_method', 'instructors', 'students'));
+            return view('admin.lessons.manageSlots', compact('events', 'resources', 'lesson_id', 'type', 'payment_method', 'instructors', 'students'));
         }
         if (Auth::user()->type === Role::ROLE_INSTRUCTOR) {
             $slots = Slots::whereHas('lesson', function ($query) {
