@@ -43,7 +43,7 @@
                             <div class="p-2 p-sm-3 flex flex-col">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card1 p-2 rounded">
-                                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
+                                        <svg width="28" height="28" viewBox="0 0 35 35" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path
                                                 d="M4.5727 30.357H32.906C33.9492 30.357 34.7949 31.2027 34.7949 32.2459C34.7949 33.2891 33.9492 34.1348 32.906 34.1348H2.68381C1.64061 34.1348 0.794922 33.2891 0.794922 32.2459V2.02365C0.794922 0.98045 1.64061 0.134766 2.68381 0.134766C3.72702 0.134766 4.5727 0.98045 4.5727 2.02365V30.357Z"
@@ -68,7 +68,7 @@
                             <div class="p-2 p-sm-3 flex flex-col">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card4 p-2 rounded">
-                                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
+                                        <svg width="28" height="28" viewBox="0 0 35 35" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path opacity="0.48" fill-rule="evenodd" clip-rule="evenodd"
                                                 d="M14.87 10.6994C14.89 10.4389 15.1072 10.2378 15.3685 10.2378H16.0146C16.2714 10.2378 16.4865 10.4324 16.5121 10.688L17.2478 18.0456L22.4614 21.0248C22.6172 21.1139 22.7133 21.2795 22.7133 21.459V22.0757C22.7133 22.4054 22.3999 22.6449 22.0818 22.5581L14.5234 20.4967C14.292 20.4336 14.138 20.2151 14.1564 19.976L14.87 10.6994Z"
@@ -94,7 +94,7 @@
                             <div class="p-2 p-sm-3 flex flex-col">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card2 p-2 rounded">
-                                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
+                                        <svg width="28" height="28" viewBox="0 0 35 35" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path
                                                 d="M4.5727 30.357H32.906C33.9492 30.357 34.7949 31.2027 34.7949 32.2459C34.7949 33.2891 33.9492 34.1348 32.906 34.1348H2.68381C1.64061 34.1348 0.794922 33.2891 0.794922 32.2459V2.02365C0.794922 0.98045 1.64061 0.134766 2.68381 0.134766C3.72702 0.134766 4.5727 0.98045 4.5727 2.02365V30.357Z"
@@ -119,7 +119,7 @@
                             <div class="p-2 p-sm-3 flex flex-col">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card4 p-2 rounded">
-                                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
+                                        <svg width="28" height="28" viewBox="0 0 35 35" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path opacity="0.48" fill-rule="evenodd" clip-rule="evenodd"
                                                 d="M14.87 10.6994C14.89 10.4389 15.1072 10.2378 15.3685 10.2378H16.0146C16.2714 10.2378 16.4865 10.4324 16.5121 10.688L17.2478 18.0456L22.4614 21.0248C22.6172 21.1139 22.7133 21.2795 22.7133 21.459V22.0757C22.7133 22.4054 22.3999 22.6449 22.0818 22.5581L14.5234 20.4967C14.292 20.4336 14.138 20.2151 14.1564 19.976L14.87 10.6994Z"
@@ -147,7 +147,7 @@
                             <div class="p-2 p-sm-3 flex flex-col">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card1 p-2 rounded">
-                                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
+                                        <svg width="28" height="28" viewBox="0 0 35 35" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path fill-rule="evenodd" clip-rule="evenodd"
                                                 d="M0.441406 11.9137L13.3399 19.3607C13.4788 19.4409 13.6244 19.4988 13.7727 19.5356V33.9786L1.36133 26.6335C0.791136 26.2961 0.441406 25.6827 0.441406 25.0202V11.9137ZM30.4377 11.7158V25.0202C30.4377 25.6828 30.088 26.2961 29.5178 26.6336L17.1064 33.9786V19.4091C17.1367 19.394 17.1667 19.3779 17.1963 19.3608L30.4377 11.7158Z"

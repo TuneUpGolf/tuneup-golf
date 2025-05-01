@@ -605,7 +605,7 @@ $(document).ready(function () {
       '<div class="ctm-slick-arrow ctm-slick-left"><i class="fa fa-chevron-left"></i></div>',
     nextArrow:
       '<div class="ctm-slick-arrow ctm-slick-right"><i class="fa fa-chevron-right"></i></div>',
-     infinite: false,
+     infinite: true,
     centerMode: true,
     responsive: [
       {
@@ -631,6 +631,7 @@ $(document).ready(function () {
         settings: {
           slidesToShow: 1,
           centerMode: false,
+          arrows:false
         },
       },
     ],
@@ -667,7 +668,7 @@ $(document).ready(function () {
         breakpoint: 500,
         settings: {
           slidesToShow: 1,
-          
+          arrows:false
         },
       },
     ],
