@@ -30383,8 +30383,79 @@ button.lesson-btn.btn-border:hover {
 }
 
 
+.feedback-sec {
+ max-width: 730px;
+ 
+}
+
+.video-wrap video {
+  max-height: 450px;
+  max-width: 300px;
+  border-radius: 10px;
+}
 
 
+.timeline {
+  position: relative;
+  padding-left: 30px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #cfd8dc;
+}
+.event {
+  position: relative;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+.event .dot {
+  position: absolute;
+  left: -30px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #2196f3;
+  border: 5px solid white;
+  box-shadow: 0 0 0 3px #2196f3;
+  top: 4px;
+}
+.event.active .dot {
+  background: #4caf50;
+  box-shadow: 0 0 0 2px #4caf50;
+}
+.content-box {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-left: 10px;
+  margin-top: 20px;
+  display: none;
+}
+.content-box.open {
+display: block;
+}
+.date::before{
+  content: '';
+  border-top: 1px solid #BCBCBC;
+  width: auto;
+  position: absolute;
+  left: 30px;
+  top: 20px;
+  right: 0;
+}
+.event.active .ti-chevron-down::before{
+content: "\ea62";
+}
+
+.event.active .toggle>span.bg-primary{
+  background: #42A439 !important;
+}
 @media (max-width:1024px) {
   .dash-mob-drp {
     margin-right: auto;

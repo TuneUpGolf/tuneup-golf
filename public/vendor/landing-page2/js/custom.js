@@ -674,3 +674,33 @@ $(document).ready(function () {
     ],
   });
 });
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  const toggleButtons = document.querySelectorAll(".toggle");
+
+  toggleButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      const clickedEvent = button.closest(".event");
+      const clickedBox = clickedEvent.querySelector(".content-box");
+
+      document.querySelectorAll(".event").forEach(event => {
+        const box = event.querySelector(".content-box");
+        const toggle = event.querySelector(".toggle");
+
+        if (box && toggle) {
+          if (event === clickedEvent) {
+            const isOpen = box.classList.contains("open");
+            box.classList.toggle("open", !isOpen);
+            event.classList.toggle("active", !isOpen);
+            // toggle.textContent = isOpen ? "▸" : "▾";
+          } else {
+            box.classList.remove("open");
+            event.classList.remove("active");
+            // toggle.textContent = "▸";
+          }
+        }
+      });
+    });
+  });
+});
