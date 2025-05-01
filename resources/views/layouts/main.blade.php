@@ -62,7 +62,7 @@
 
     <!-- [ Header ] start -->
     @include('layouts.header')
-</body>
+
 
 <div class="dash-container">
     <div class="dash-content">
@@ -83,12 +83,12 @@
             <div class="page-header">
                 <div class="page-block">
                     <div class="row align-items-center">
-                        <h2 class="text-3xl">@yield('title')</h2>
-                        <div class="col-auto">
+                        <h2 class="text-3xl mb-0">@yield('title')</h2>
+                        <!-- <div class="col-auto">
                             <ul class="breadcrumb">
                                 @yield('breadcrumb')
                             </ul>
-                        </div>
+                        </div> -->
                         <div class="col">
                             @yield('action-btn')
                         </div>
@@ -99,7 +99,7 @@
 
         <!-- [ breadcrumb ] end -->
         <!-- [ Main Content ] start -->
-        <div class="row mt-4">
+        <div class="row">
             <!-- [ sample-page ] start -->
             <div class="col-sm-12 pl-2">
                 @yield('content')

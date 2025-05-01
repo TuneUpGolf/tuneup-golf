@@ -42,7 +42,7 @@ class UsersDataTable extends DataTable
             ->editColumn('email_verified_at', function (User $user) {
                 if ($user->email_verified_at) {
                     $html = '
-                    <div class="flex justify-center items-center">
+                    <div class="flex items-center">
                     <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0_205_1682)">
                     <path d="M0.820312 7.36721C2.63193 9.47814 4.38846 11.3785 6.07693 13.7821C7.91268 9.85002 9.79158 5.90432 12.8918 1.63131L12.0564 1.21924C9.43865 4.209 7.40486 7.03908 5.63768 10.4024C4.40877 9.21018 2.42271 7.52307 1.21006 6.65627L0.820312 7.36721Z" fill="#16DBAA"/>
@@ -61,7 +61,7 @@ class UsersDataTable extends DataTable
                     return $html;
                 } else {
                     $html = '
-                    <div class="flex justify-center items-center">
+                    <div class="flex items-center">
                     <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0_205_1682)">
                     <path d="M0.820312 7.36721C2.63193 9.47814 4.38846 11.3785 6.07693 13.7821C7.91268 9.85002 9.79158 5.90432 12.8918 1.63131L12.0564 1.21924C9.43865 4.209 7.40486 7.03908 5.63768 10.4024C4.40877 9.21018 2.42271 7.52307 1.21006 6.65627L0.820312 7.36721Z" fill="#16DBAA"/>
@@ -83,7 +83,7 @@ class UsersDataTable extends DataTable
             ->editColumn('phone_verified_at', function (User $user) {
                 if ($user->phone_verified_at) {
                     $html = '
-                    <div class="flex justify-center items-center">
+                    <div class="flex items-center">
                     <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0_205_1682)">
                     <path d="M0.820312 7.36721C2.63193 9.47814 4.38846 11.3785 6.07693 13.7821C7.91268 9.85002 9.79158 5.90432 12.8918 1.63131L12.0564 1.21924C9.43865 4.209 7.40486 7.03908 5.63768 10.4024C4.40877 9.21018 2.42271 7.52307 1.21006 6.65627L0.820312 7.36721Z" fill="#16DBAA"/>
@@ -102,7 +102,7 @@ class UsersDataTable extends DataTable
                     return $html;
                 } else {
                     $html = '
-                    <div class="flex justify-center items-center">
+                    <div class="flex items-center">
                     <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0_205_1682)">
                     <path d="M0.820312 7.36721C2.63193 9.47814 4.38846 11.3785 6.07693 13.7821C7.91268 9.85002 9.79158 5.90432 12.8918 1.63131L12.0564 1.21924C9.43865 4.209 7.40486 7.03908 5.63768 10.4024C4.40877 9.21018 2.42271 7.52307 1.21006 6.65627L0.820312 7.36721Z" fill="#16DBAA"/>
@@ -149,6 +149,7 @@ class UsersDataTable extends DataTable
     {
         return $this->builder()
             ->setTableId('users-table')
+            ->addTableClass('display responsive nowrap')
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->orderBy(1)
@@ -170,7 +171,7 @@ class UsersDataTable extends DataTable
             }')
             ->parameters([
                 "dom" =>  "
-                        <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'>
+                        <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12 d-none d-sm-block'>
                         <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
                         <'dataTable-container'<'col-sm-12'tr>>
                         <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
@@ -192,6 +193,27 @@ class UsersDataTable extends DataTable
                     ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
                 ],
                 "scrollX" => true,
+                "responsive" => [
+                    "scrollX"=> false,
+                    "details" => [
+                        "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
+                        "renderer" => "function (api, rowIdx, columns) {
+                            var data = $('<table/>').addClass('vertical-table');
+                            $.each(columns, function (i, col) {
+                                data.append(
+                                    '<tr>' +
+                                        '<td><strong>' + col.title + '</strong></td>' +
+                                        '<td>' + col.data + '</td>' +
+                                    '</tr>'
+                                );
+                            });
+                            return data;
+                        }"
+                    ]
+                ],
+                "rowCallback" => 'function(row, data, index) {
+                    $(row).addClass("custom-parent-row"); 
+                }',
                 'headerCallback' => 'function(thead, data, start, end, display) {
                     $(thead).find("th").css({
                         "background-color": "rgba(249, 252, 255, 1)",

@@ -14,7 +14,7 @@
     display: none !important;
   } */
   .icon {
-    display: block !important;
+    /* display: block !important; */
   }
   .hero-sec {
     flex-wrap: wrap;
