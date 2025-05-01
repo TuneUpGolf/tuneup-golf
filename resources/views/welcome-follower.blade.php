@@ -368,11 +368,9 @@ return Utility::getsettings('currency_symbol');
         <div class="subscription-slider pt-5">
             <div class="px-3 py-4">
                 <div class="bg-white rounded-lg shadow">
-                    <div class="relative p-3">
-                        <div class="h-16 w-16 rounded-full flex flex-col items-center justify-center chat-wrap">
-                            <i class="ti ti-brand-hipchat text-3xl"></i>
-                        </div>
-                        <p class="text-2xl font-semibold mt-2">Chat</p>
+                    
+                    <div class="relative p-3">  
+                        <p class="text-2xl font-semibold mb-2">Chat</p>
                         <p class="text-gray-600">
                             Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.
                         </p>
@@ -385,23 +383,65 @@ return Utility::getsettings('currency_symbol');
                         </div>
                         <button type="submit" class="lesson-btn btn-border font-bold text-lg">Purchase</button>
                     </div>
-                    <div class="border-t border-light"></div>
+                    <div class="border-t border-gray-300"></div>
                     <div class="p-3">
                         <p class="font-semibold text-xl">Features</p>
                         <ul class="mt-2">
-                            <li class="flex items-center gap-2 mb-1">
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
-                            <li class="flex items-center gap-2  mb-1">
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
-                            <li class="flex items-center gap-2  mb-1">
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
-                            <li class="flex items-center gap-2 mb-1">
+                            <li class="flex items-center gap-2 mb-2">
+                                <i class="text-3xl text-primary ti ti-circle-check"></i>
+                                <p>Sed ut perspiciatis unde omnis iste.</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="px-3 py-4">
+                <div class="bg-white rounded-lg shadow popular-wrap position-relative">
+                <div class="rounded-pill px-4 py-2 popular-plan w-auto bg-primary text-white font-bold position-absolute ">POPULAR</div>
+                    <div class="relative p-3">
+                        
+                        <p class="text-2xl font-semibold mb-2">Chat</p>
+                        <p class="text-gray-600">
+                            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.
+                        </p>
+                        <div class="flex gap-2 items-center my-3">
+                            <h2 class="text-6xl font-bold">$19.99</h2>
+                            <div>
+                                <p>$25.00</p>
+                                <p class="text-gray-600">/ Month</p>
+                            </div>
+                        </div>
+                        <button type="submit" class="lesson-btn font-bold text-lg">Purchase</button>
+                    </div>
+                    <div class="border-t border-gray-300"></div>
+                    <div class="p-3">
+                        <p class="font-semibold text-xl">Features</p>
+                        <ul class="mt-2">
+                            <li class="flex items-center gap-2 mb-2">
+                                <i class="text-3xl text-primary ti ti-circle-check"></i>
+                                <p>Sed ut perspiciatis unde omnis iste.</p>
+                            </li>
+                            <li class="flex items-center gap-2 mb-2">
+                                <i class="text-3xl text-primary ti ti-circle-check"></i>
+                                <p>Sed ut perspiciatis unde omnis iste.</p>
+                            </li>
+                            <li class="flex items-center gap-2 mb-2">
+                                <i class="text-3xl text-primary ti ti-circle-check"></i>
+                                <p>Sed ut perspiciatis unde omnis iste.</p>
+                            </li>
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
@@ -412,10 +452,8 @@ return Utility::getsettings('currency_symbol');
             <div class="px-3 py-4">
                 <div class="bg-white rounded-lg shadow">
                     <div class="relative p-3">
-                        <div class="h-16 w-16 rounded-full flex flex-col items-center justify-center chat-wrap">
-                            <i class="ti ti-brand-hipchat text-3xl"></i>
-                        </div>
-                        <p class="text-2xl font-semibold mt-2">Chat</p>
+                        
+                        <p class="text-2xl font-semibold mb-2">Chat</p>
                         <p class="text-gray-600">
                             Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.
                         </p>
@@ -428,23 +466,23 @@ return Utility::getsettings('currency_symbol');
                         </div>
                         <button type="submit" class="lesson-btn btn-border font-bold text-lg">Purchase</button>
                     </div>
-                    <div class="border-t border-light"></div>
+                    <div class="border-t border-gray-300"></div>
                     <div class="p-3">
                         <p class="font-semibold text-xl">Features</p>
                         <ul class="mt-2">
-                            <li class="flex items-center gap-2 mb-1">
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
-                            <li class="flex items-center gap-2  mb-1">
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
-                            <li class="flex items-center gap-2  mb-1">
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
-                            <li class="flex items-center gap-2 mb-1">
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
@@ -455,10 +493,8 @@ return Utility::getsettings('currency_symbol');
             <div class="px-3 py-4">
                 <div class="bg-white rounded-lg shadow">
                     <div class="relative p-3">
-                        <div class="h-16 w-16 rounded-full flex flex-col items-center justify-center chat-wrap">
-                            <i class="ti ti-brand-hipchat text-3xl"></i>
-                        </div>
-                        <p class="text-2xl font-semibold mt-2">Chat</p>
+                        
+                        <p class="text-2xl font-semibold mb-2">Chat</p>
                         <p class="text-gray-600">
                             Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.
                         </p>
@@ -471,23 +507,23 @@ return Utility::getsettings('currency_symbol');
                         </div>
                         <button type="submit" class="lesson-btn btn-border font-bold text-lg">Purchase</button>
                     </div>
-                    <div class="border-t border-light"></div>
+                    <div class="border-t border-gray-300"></div>
                     <div class="p-3">
                         <p class="font-semibold text-xl">Features</p>
                         <ul class="mt-2">
-                            <li class="flex items-center gap-2 mb-1">
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
-                            <li class="flex items-center gap-2  mb-1">
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
-                            <li class="flex items-center gap-2  mb-1">
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
-                            <li class="flex items-center gap-2 mb-1">
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
@@ -498,10 +534,8 @@ return Utility::getsettings('currency_symbol');
             <div class="px-3 py-4">
                 <div class="bg-white rounded-lg shadow">
                     <div class="relative p-3">
-                        <div class="h-16 w-16 rounded-full flex flex-col items-center justify-center chat-wrap">
-                            <i class="ti ti-brand-hipchat text-3xl"></i>
-                        </div>
-                        <p class="text-2xl font-semibold mt-2">Chat</p>
+                        
+                        <p class="text-2xl font-semibold mb-2">Chat</p>
                         <p class="text-gray-600">
                             Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.
                         </p>
@@ -514,66 +548,23 @@ return Utility::getsettings('currency_symbol');
                         </div>
                         <button type="submit" class="lesson-btn btn-border font-bold text-lg">Purchase</button>
                     </div>
-                    <div class="border-t border-light"></div>
+                    <div class="border-t border-gray-300"></div>
                     <div class="p-3">
                         <p class="font-semibold text-xl">Features</p>
                         <ul class="mt-2">
-                            <li class="flex items-center gap-2 mb-1">
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
-                            <li class="flex items-center gap-2  mb-1">
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
-                            <li class="flex items-center gap-2  mb-1">
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
-                            <li class="flex items-center gap-2 mb-1">
-                                <i class="text-3xl text-primary ti ti-circle-check"></i>
-                                <p>Sed ut perspiciatis unde omnis iste.</p>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="px-3 py-4">
-                <div class="bg-white rounded-lg shadow">
-                    <div class="relative p-3">
-                        <div class="h-16 w-16 rounded-full flex flex-col items-center justify-center chat-wrap">
-                            <i class="ti ti-brand-hipchat text-3xl"></i>
-                        </div>
-                        <p class="text-2xl font-semibold mt-2">Chat</p>
-                        <p class="text-gray-600">
-                            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.
-                        </p>
-                        <div class="flex gap-2 items-center my-3">
-                            <h2 class="text-6xl font-bold">$19.99</h2>
-                            <div>
-                                <p>$25.00</p>
-                                <p class="text-gray-600">/ Month</p>
-                            </div>
-                        </div>
-                        <button type="submit" class="lesson-btn btn-border font-bold text-lg">Purchase</button>
-                    </div>
-                    <div class="border-t border-light"></div>
-                    <div class="p-3">
-                        <p class="font-semibold text-xl">Features</p>
-                        <ul class="mt-2">
-                            <li class="flex items-center gap-2 mb-1">
-                                <i class="text-3xl text-primary ti ti-circle-check"></i>
-                                <p>Sed ut perspiciatis unde omnis iste.</p>
-                            </li>
-                            <li class="flex items-center gap-2  mb-1">
-                                <i class="text-3xl text-primary ti ti-circle-check"></i>
-                                <p>Sed ut perspiciatis unde omnis iste.</p>
-                            </li>
-                            <li class="flex items-center gap-2  mb-1">
-                                <i class="text-3xl text-primary ti ti-circle-check"></i>
-                                <p>Sed ut perspiciatis unde omnis iste.</p>
-                            </li>
-                            <li class="flex items-center gap-2 mb-1">
+                            <li class="flex items-center gap-2 mb-2">
                                 <i class="text-3xl text-primary ti ti-circle-check"></i>
                                 <p>Sed ut perspiciatis unde omnis iste.</p>
                             </li>
@@ -592,16 +583,12 @@ return Utility::getsettings('currency_symbol');
         <p style="color:#718096;" class="text-xl max-w-2xl mb-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
             do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
 
-        <div class="flex flex-wrap w-100">
-            <div class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md">
+        <div class="flex flex-wrap gap-5 w-100">
+            <div class="max-w-sm w-full">
                 <div class="shadow rounded-2 overflow-hidden position-relative">
                     <div class="p-3 position-absolute left-0 top-0 z-10 w-full custom-gradient">
                         <div class="flex justify-between items-center w-full">
                             <div class="flex items-center gap-3">
-                                <!--                     <img class="w-10 h-10 rounded-full"
-                        src="https://demo.collegegolfrecruitingportal.com/storage/5"
-                        alt="Profile" />
-                 -->
                                 <img class="w-16 h-16 rounded-full"
                                     src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
                                     alt="Profile">
@@ -651,7 +638,7 @@ return Utility::getsettings('currency_symbol');
                     </div>
                 </div>
             </div>
-            <div class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md">
+            <div class="max-w-sm w-full">
                 <div class="shadow rounded-2 overflow-hidden position-relative">
                     <div class="p-3 position-absolute left-0 top-0 z-10 w-full">
                         <div class="flex justify-between items-center w-full">
@@ -735,7 +722,7 @@ return Utility::getsettings('currency_symbol');
                     </div>
                 </div>
             </div>
-            <div class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md">
+            <div class="max-w-sm w-full">
                 <div class="shadow rounded-2 overflow-hidden position-relative">
                     <div class="p-3 position-absolute left-0 top-0 z-10 w-full custom-gradient">
                         <div class="flex justify-between items-center w-full">
@@ -799,7 +786,7 @@ return Utility::getsettings('currency_symbol');
                     </div>
                 </div>
             </div>
-            <div class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md">
+            <div class="max-w-sm w-full">
                 <div class="shadow rounded-2 overflow-hidden position-relative">
                     <div class="p-3 position-absolute left-0 top-0 z-10 w-full custom-gradient">
                         <div class="flex justify-between items-center w-full">
@@ -863,7 +850,7 @@ return Utility::getsettings('currency_symbol');
                     </div>
                 </div>
             </div>
-            <div class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md">
+            <div class="max-w-sm w-full">
                 <div class="shadow rounded-2 overflow-hidden position-relative">
                     <div class="p-3 position-absolute left-0 top-0 z-10 w-full">
                         <div class="flex justify-between items-center w-full">
@@ -941,68 +928,6 @@ return Utility::getsettings('currency_symbol');
                     </div>
                 </div>
             </div>
-            <div class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md">
-                <div class="shadow rounded-2 overflow-hidden position-relative">
-                    <div class="p-3 position-absolute left-0 top-0 z-10 w-full custom-gradient">
-                        <div class="flex justify-between items-center w-full">
-                            <div class="flex items-center gap-3">
-                                <!--                     <img class="w-10 h-10 rounded-full"
-                        src="https://demo.collegegolfrecruitingportal.com/storage/5"
-                        alt="Profile" />
-                 -->
-                                <img class="w-16 h-16 rounded-full"
-                                    src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
-                                    alt="Profile">
-                                <div>
-                                    <p class="text-xl text-white font-bold mb-0 leading-tight">
-                                        David
-                                    </p>
-                                    <span class="text-md text-white">
-                                        Instructor
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="bg-white py-2 px-3 rounded-3xl shadow">
-                                <form method="POST"
-                                    action="https://demo.collegegolfrecruitingportal.com/purchase/like?post_id=5"
-                                    accept-charset="UTF-8" data-validate="" novalidate="true"><input name="_token"
-                                        type="hidden" value="SPXmKFzZiPNexBLu4sdqhfLFZub7MjKoldBMJsMM">
-
-                                    <button type="submit" class="text-md font-semibold flex items-center gap-2"><i
-                                            class="text-2xl lh-sm ti ti-heart"></i><span> 0 Likes</span></button>
-                                </form>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <!-- <img class="rounded-md w-full" src="https://demo.collegegolfrecruitingportal.com/storage/5"
-                alt="Post Image" /> -->
-                    <img class=" w-full post-thumbnail"
-                        src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
-                        alt="Profile">
-
-
-                    <div class="px-4 py-2">
-                        <div class="text-md italic text-gray-500">
-                            24 Apr 2025
-                        </div>
-                        <h1 class="text-xl font-bold truncate">
-                            Test upload 3
-                        </h1>
-
-
-                        <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h">
-                            <span class="short-text">adfadsfasdf</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <nav>
-
-            </nav>
-
         </div>
     </div>
 </section>
@@ -1029,11 +954,11 @@ return Utility::getsettings('currency_symbol');
     </div>
 </footer>
 <footer class="foot-two">
-    <div class="d-flex justify-content-between align-items-center container footer-two">
+    <div class="flex justify-content-sm-between justify-center align-items-center container footer-two">
         <div class="text-white m-0">
             <p class="fot-p">© 2025 Tuneup. All rights reserved.</p>
         </div>
-        <div class="icon flex">
+        <div class="icon flex mt-2 sm-mt-0">
             <img src="{{ asset('assets/images/landing-page-images/Facebook.png') }}" alt="" />
             <img src="{{ asset('assets/images/landing-page-images/Twitter.png') }}" alt="" />
             <img src="{{ asset('assets/images/landing-page-images/Instagram.png') }}" alt="" />
@@ -1043,7 +968,3 @@ return Utility::getsettings('currency_symbol');
     </div>
 </footer>
 @endsection
-
-<script>
-
-</script>

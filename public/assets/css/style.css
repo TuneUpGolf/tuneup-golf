@@ -30230,6 +30230,11 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
 
 
 /* joolee css */
+@media (min-width:575px) {
+  .lessions-slider .slick-list {
+    padding:0 20% 0 0 !important;
+  }
+}
 @media (min-width:1025px) {
   .header-brand-logo {
     display: none;
@@ -30299,9 +30304,7 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   min-height: 40px;
 }
 
-.lessions-slider .slick-list {
-  padding:0 20% 0 0 !important;
-}
+
 
 .ctm-container {
   max-width: 1440px !important;
@@ -30329,7 +30332,7 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   font-size: 20px;
   background-color: #0071CE;
   color: white;
-
+cursor: pointer;
 }
 
 .ctm-slick-left {
@@ -30340,8 +30343,8 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   opacity: 0.5;
 }
 
-.lessions-slider .slick-slide {
-  height: auto;
+.slick-slide {
+  height: auto !important;
 }
 
 .lessions-slider .slick-list , .subscription-sec .slick-list {
@@ -30351,6 +30354,15 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
 .chat-box-wrap {
   height: 50px;
   min-width: 50px;
+}
+
+.popular-plan {
+  left: 50%;
+  top: -20px;
+  transform: translateX(-50%);
+}
+.popular-wrap {
+  border: 2px solid #0071CE;
 }
 
 .subscription-sec {
@@ -30365,6 +30377,14 @@ button.lesson-btn.btn-border {
   border: 1px solid #0071CE;
   color: #0071CE;
 }
+button.lesson-btn.btn-border:hover {
+  background-color: #0071CE;
+  color: #fff;
+}
+
+
+
+
 @media (max-width:1024px) {
   .dash-mob-drp {
     margin-right: auto;
@@ -30387,5 +30407,7 @@ button.lesson-btn.btn-border {
   .ctm-post-card {
     background-color: transparent;
   }
-
+  .lession-sec {
+    padding: 60px 10px;
+  }
 }
