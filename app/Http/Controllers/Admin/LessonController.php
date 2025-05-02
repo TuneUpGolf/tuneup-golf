@@ -200,10 +200,15 @@ class LessonController extends Controller
                 $endDateTime = Carbon::parse($datetime)->setTimezone('UTC')->toIso8601String();
                 
                 array_push($events, [
-                    'title' => substr($appointment->lesson->lesson_name, 0, 10) . ' (' . $appointment->lesson->max_students - $appointment->availableSeats() . '/' . $appointment->lesson->max_students . ')',
+                    'title' => substr($appointment->lesson->lesson_name, 0, 10).
+                    ' (' . $appointment->lesson->max_students - $appointment->availableSeats() . '/' . $appointment->lesson->max_students . ') ',
                     // 'start' => $appointment->date_time,
-                    'start' => Carbon::parse($appointment->date_time)->setTimezone('UTC')->toIso8601String(),
-                    'end' => $endDateTime,
+                    'extendedProps'=>[
+                       'details' => date('h:i a', strtotime($appointment->date_time)).' - '. date('h:i a', strtotime($endDateTime)),
+                       'location' => $appointment->location,
+                    ],
+                    'start' => date('Y-m-d', strtotime($appointment->date_time)),
+                    'end' => date('Y-m-d', strtotime($endDateTime)),
                     'slot_id' => $appointment->id,
                     'color' => $colors,
                     'is_completed' => $appointment->is_completed,
@@ -223,7 +228,6 @@ class LessonController extends Controller
                 }
             }
             $resources = array_values($resources);
-            // dd($events, $resources);
             $lesson_id = request()->get('lesson_id');
             $instructors = User::where('type', Role::ROLE_INSTRUCTOR)->get();
             $students = Student::where('active_status', true)->where('isGuest', false)->get();

@@ -67,13 +67,13 @@
 @push('css')
 <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.min.css">
-@endpush
-@push('javascript')
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.17/index.global.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/core/main.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid/main.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid/main.css" rel="stylesheet" />
+@endpush
+@push('javascript')
+{{-- <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script> --}}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.17/index.global.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
@@ -81,17 +81,50 @@
         var students = @json($students);
         var payment_method = @json($payment_method);
         var isMobile = window.innerWidth <= 768;
-        // var initialCalendarView = isMobile ? 'listWeek' : 'timeGridWeek';
-        var initialCalendarView = isMobile ? 'listWeek' : 'resourceTimeGridDay';
+        var initialCalendarView = 'resourceTimelineWeek';
+        var toolbarConf = {
+            right: 'today prev,next',
+            center: 'title',
+            left: 'resourceTimeGridDay,resourceTimelineWeek,listWeek',
+        };
+        
+        if($('#instructor_id').val() > 0){
+            var initialCalendarView = isMobile ? 'listWeek' : 'timeGridWeek';
+
+            toolbarConf = {
+                right: 'customDayButton today prev,next',
+                center: 'title',
+                left: 'timeGridWeek,listWeek',
+            };
+        }
+        
         var calendar = new FullCalendar.Calendar(calendarEl, {
             schedulerLicenseKey: "{{ config('full-calendar.key') }}",
             initialView: initialCalendarView,
+            datesAboveResources:true,
             resourceAreaHeaderContent: 'Instructor',
-            eventShortHeight: 45,
-            slotMinTime: '5:00:00',
-            slotMaxTime: '20:00:00',
             resources: @json($resources),
             events: @json($events),
+            views: {
+                resourceTimelineWeek: {
+                    slotDuration: { days: 1 },
+                    slotLabelFormat: [
+                        { weekday: 'short', month: 'short', day: 'numeric' }
+                    ],
+                }
+            },
+            firstDay: 1,
+            eventContent: function(arg) {
+                return {
+                    html: `
+                    <div style="white-space: normal;">
+                        <strong>${arg.event.title}</strong><br/>
+                        <small>${arg.event.extendedProps.details || ''}</small><br/>
+                        <small>${arg.event.extendedProps.location || ''}</small>
+                    </div>
+                    `
+                };
+            },
             eventClick: function(info) {
                 const slot_id = info?.event?.extendedProps?.slot_id;
                 const isBooked = !!info?.event?.extendedProps?.is_student_assigned;
@@ -300,22 +333,12 @@
                 }
 
             },
-            headerToolbar: {
-                right: 'today prev,next', // Add custom button here
-                center: 'title',
-                left: 'customWeekButton,resourceTimeGridDay,listWeek', // Built-in views
-            },
+            headerToolbar: toolbarConf,
             customButtons: {
                 customDayButton: {
                     text: 'Day View',
                     click: function() {
                         calendar.changeView('listDay');
-                    },
-                },
-                customWeekButton: {
-                    text: 'week',
-                    click: function() {
-                        calendar.changeView('resourceTimelineDay');
                     },
                 }
             },
@@ -323,6 +346,7 @@
         });
 
         calendar.render();
+
         window.toggleGuestBooking = function() {
             const isGuest = document.getElementById('guestBooking').checked;
             document.getElementById('student-form').style.display = isGuest ? 'none' : 'block';
