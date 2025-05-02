@@ -188,27 +188,29 @@ class LessonController extends Controller
             foreach ($slots as $appointment) {
 
                 $n = $appointment->lesson->lesson_duration;
+                $startDateTime = Carbon::parse($appointment->date_time);
                 $whole = floor($n);
                 $fraction = $n - $whole;
-                $intervalString = $whole . ' hours' . ' + ' . $fraction * 60 . ' minutes';
+                $minutes = $fraction * 60;
+                $endDateTime = $startDateTime->copy()->addHours($whole)->addMinutes($minutes);
 
                 $students = $appointment->student;
-                $colors =  $appointment->is_completed ? '#41d85f' : ($appointment->isFullyBooked() ?
+                $colors =  $appointment->is_completed?'#41d85f':($appointment->isFullyBooked()?
                     '#f7e50a' : '#0071ce');
                 
-                $datetime = date("Y-m-d H:i:s", strtotime($appointment->date_time . " +" . $intervalString));
-                $endDateTime = Carbon::parse($datetime)->setTimezone('UTC')->toIso8601String();
+                $startDts = $startDateTime->format('h:i a');
+                $endDts = $endDateTime->format('h:i a');
                 
                 array_push($events, [
                     'title' => substr($appointment->lesson->lesson_name, 0, 10).
                     ' (' . $appointment->lesson->max_students - $appointment->availableSeats() . '/' . $appointment->lesson->max_students . ') ',
                     // 'start' => $appointment->date_time,
                     'extendedProps'=>[
-                       'details' => date('h:i a', strtotime($appointment->date_time)).' - '. date('h:i a', strtotime($endDateTime)),
+                       'details' => $startDts == $endDts?$startDts:$startDts.' - '. $endDts,
                        'location' => $appointment->location,
                     ],
-                    'start' => date('Y-m-d', strtotime($appointment->date_time)),
-                    'end' => date('Y-m-d', strtotime($endDateTime)),
+                    'start' => $startDateTime->format('Y-m-d H:i:s'),
+                    'end' => $endDateTime->format('Y-m-d H:i:s'),
                     'slot_id' => $appointment->id,
                     'color' => $colors,
                     'is_completed' => $appointment->is_completed,
