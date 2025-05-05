@@ -30456,6 +30456,8 @@ content: "\ea62";
 .event.active .toggle>span.bg-primary{
   background: #42A439 !important;
 }
+
+
 @media (max-width:1024px) {
   .dash-mob-drp {
     margin-right: auto;
@@ -30480,5 +30482,8 @@ content: "\ea62";
   }
   .lession-sec {
     padding: 60px 10px;
+  }
+  .dashboard-row-wrap .order-3.order-sm-2 {
+    width: 100%;
   }
 }
