@@ -36,7 +36,7 @@
 @section('content')
     <div class="row">
         <div class="col-xxl-12">
-            <div class="row">
+            <div class="row dashboard-row-wrap">
                 @can('manage-lessons')
                     <div class="col-lg-3 col-md-6 col-6 pb-3">
                         <div class="relative flex flex-col bg-white rounded-lg w-96">
