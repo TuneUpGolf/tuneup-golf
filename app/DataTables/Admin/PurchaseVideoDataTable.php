@@ -51,7 +51,7 @@ class PurchaseVideoDataTable extends DataTable
         return $model->newQuery()->where('purchase_id', $this->purchase->id);
     }
 
-    public function html()
+    public function html() 
     {
         return $this->builder()
             ->setTableId('purchases-table')
