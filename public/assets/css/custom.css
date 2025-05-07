@@ -1559,6 +1559,11 @@ body.theme-1 .bg-primary {
     width: 35px;
     margin-bottom: 0;
     padding: 7px;
+    justify-content: center;
+  }
+  .dt-buttons .btn>span {
+    justify-content: center;
+    gap: 0;
   }
 
   .dt-buttons .btn>span {
