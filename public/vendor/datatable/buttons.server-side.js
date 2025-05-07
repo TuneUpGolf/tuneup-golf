@@ -90,11 +90,11 @@
   };
 
   DataTable.ext.buttons.excel = {
-    className: "buttons-excel",
+    className: "buttons-excel btn-light-warning me-1",
 
     text: function (dt) {
       return (
-        '<i class="fa fa-file-excel-o"></i> ' +
+        '<i class="fa fa-file-excel"></i> ' +
         dt.i18n("buttons.excel", "Excel")
       );
     },
@@ -106,11 +106,11 @@
   };
 
   DataTable.ext.buttons.postExcel = {
-    className: "buttons-excel",
+    className: "buttons-excel btn-light-warning me-1",
 
     text: function (dt) {
       return (
-        '<i class="fa fa-file-excel-o"></i> ' +
+        '<i class="fa fa-file-excel"></i> ' +
         dt.i18n("buttons.excel", "Excel")
       );
     },
@@ -124,11 +124,11 @@
   };
 
   DataTable.ext.buttons.postExcelVisibleColumns = {
-    className: "buttons-excel",
+    className: "buttons-excel btn-light-warning me-1",
 
     text: function (dt) {
       return (
-        '<i class="fa fa-file-excel-o"></i> ' +
+        '<i class="fa fa-file-excel"></i> ' +
         dt.i18n("buttons.excel", "Excel (only visible columns)")
       );
     },
@@ -158,11 +158,11 @@
   };
 
   DataTable.ext.buttons.csv = {
-    className: "buttons-csv",
+    className: "buttons-csv btn-light-danger me-1",
 
     text: function (dt) {
       return (
-        '<i class="fa fa-file-excel-o"></i> ' + dt.i18n("buttons.csv", "CSV")
+        '<i class="fa fa-file-csv"></i> ' + dt.i18n("buttons.csv", "CSV")
       );
     },
 
@@ -173,11 +173,11 @@
   };
 
   DataTable.ext.buttons.postCsvVisibleColumns = {
-    className: "buttons-csv",
+    className: "buttons-csv btn-light-danger me-1",
 
     text: function (dt) {
       return (
-        '<i class="fa fa-file-excel-o"></i> ' +
+        '<i class="fa fa-file-csv"></i> ' +
         dt.i18n("buttons.csv", "CSV (only visible columns)")
       );
     },
@@ -191,11 +191,11 @@
   };
 
   DataTable.ext.buttons.postCsv = {
-    className: "buttons-csv",
+    className: "buttons-csv btn-light-danger me-1",
 
     text: function (dt) {
       return (
-        '<i class="fa fa-file-excel-o"></i> ' + dt.i18n("buttons.csv", "CSV")
+        '<i class="fa fa-file-csv"></i> ' + dt.i18n("buttons.csv", "CSV")
       );
     },
 
@@ -208,11 +208,11 @@
   };
 
   DataTable.ext.buttons.pdf = {
-    className: "buttons-pdf",
+    className: "buttons-excel btn-light-primary btn-light-secondary me-1",
 
     text: function (dt) {
       return (
-        '<i class="fa fa-file-pdf-o"></i> ' + dt.i18n("buttons.pdf", "PDF")
+        '<i class="fa fa-file-pdf"></i> ' + dt.i18n("buttons.pdf", "PDF")
       );
     },
 
@@ -223,11 +223,11 @@
   };
 
   DataTable.ext.buttons.postPdf = {
-    className: "buttons-pdf",
+    className: "buttons-excel btn-light-primary me-1",
 
     text: function (dt) {
       return (
-        '<i class="fa fa-file-pdf-o"></i> ' + dt.i18n("buttons.pdf", "PDF")
+        '<i class="fa fa-file-pdf"></i> ' + dt.i18n("buttons.pdf", "PDF")
       );
     },
 
@@ -240,7 +240,7 @@
   };
 
   DataTable.ext.buttons.print = {
-    className: "buttons-print",
+    className: "buttons-excel btn-light-success me-1",
 
     text: function (dt) {
       return '<i class="fa fa-print"></i> ' + dt.i18n("buttons.print", "Print");

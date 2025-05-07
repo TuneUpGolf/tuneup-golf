@@ -87,7 +87,7 @@
             {!! Form::close() !!}
         </div>
         @else
-        <video controls class="w-full h-auto">
+        <video controls class="w-full post-thumbnail">
             <source src="{{ Storage::url(tenant('id') . '/' . $post?->file) }}" type="video/mp4">
         </video>
         @endif
