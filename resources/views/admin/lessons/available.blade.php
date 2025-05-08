@@ -11,7 +11,7 @@
             <button id='onlineTab' class="tablinks" onclick="openCity(event, 'online')">Online</button>
             </hr>
         </div>
-        <div class="flex flex-col justify-center items-center w-100">
+        <div class="flex flex-col w-100">
             <livewire:lessons-grid-view />
         </div>
     </div>
