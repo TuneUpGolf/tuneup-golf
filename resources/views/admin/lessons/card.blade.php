@@ -48,6 +48,7 @@
             {!! \Illuminate\Support\Str::limit($description, 180, '...') !!}
         </p>
 
+        @if($model->type !== 'inPerson')
         <div class="mt-auto bg-gray-200 gap-1 rounded-lg px-4 py-3 flex">
             <div class="text-center w-50">
                 <span class="text-xl font-bold">{!! $model->lesson_quantity !!}</span>
@@ -59,8 +60,8 @@
                 <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
 
             </div>
-
         </div>
+        @endif
 
         <div class="w-100 mt-3">
             @if ($model->type === 'online')
