@@ -15,8 +15,7 @@
                      <form class="w-full">
                         <select name="instructor_id" id="instructor_id" class="form-select w-full"
                            onchange="this.form.submit()">
-                           <option value="" disabled selected>Select Instructor</option>
-                           <option value="-1">All</option>
+                           <option value="">All</option>
                            @foreach ($instructors as $instructor)
                            <option value="{{ $instructor->id }}"
                            {{ request()->input('instructor_id') == $instructor->id ? 'selected' : '' }}>
@@ -87,18 +86,10 @@
        var toolbarConf = {
            right: 'today prev,next',
            center: 'title',
-           left: 'resourceTimeGridDay,resourceTimelineWeek,listWeek',
+           left: 'listWeek,resourceTimeGridDay,resourceTimelineWeek,dayGridMonth',
        };
-       
-       if($('#instructor_id').val() > 0){
-           var initialCalendarView = isMobile ? 'listWeek' : 'timeGridWeek';
-   
-           toolbarConf = {
-               right: 'customDayButton today prev,next',
-               center: 'title',
-               left: 'timeGridWeek,listWeek',
-           };
-       }
+        
+       var initialCalendarView = isMobile ? 'listWeek' : 'resourceTimelineWeek';       
        
        var calendar = new FullCalendar.Calendar(calendarEl, {
            schedulerLicenseKey: "{{ config('full-calendar.key') }}",
