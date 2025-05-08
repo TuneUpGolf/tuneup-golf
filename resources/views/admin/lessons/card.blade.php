@@ -51,7 +51,7 @@
         <div class="mt-auto bg-gray-200 gap-1 rounded-lg px-4 py-3 flex">
             <div class="text-center w-50">
                 <span class="text-xl font-bold">{!! $model->lesson_quantity !!}</span>
-                <div class="text-sm rtl:space-x-reverse">Number of Lessons</div>
+                <div class="text-sm rtl:space-x-reverse">Number of <br> Lessons</div>
 
             </div>
             <div class="text-center w-50">
