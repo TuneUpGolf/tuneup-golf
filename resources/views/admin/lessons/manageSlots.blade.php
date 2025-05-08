@@ -89,10 +89,17 @@
            left: 'listWeek,resourceTimeGridDay,resourceTimelineWeek,dayGridMonth',
        };
         
-       var initialCalendarView = isMobile ? 'listWeek' : 'resourceTimelineWeek';       
+       var initialCalendarView = 'resourceTimelineWeek';
+       var initHeight = null;
+
+       if(isMobile) {
+            initialCalendarView = 'listWeek';
+            initHeight = 'auto';
+       }
        
        var calendar = new FullCalendar.Calendar(calendarEl, {
            schedulerLicenseKey: "{{ config('full-calendar.key') }}",
+           height:initHeight,
            resourceAreaWidth: '15%',
            nowIndicator: false,
            initialView: initialCalendarView,
