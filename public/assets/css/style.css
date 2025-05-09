@@ -25885,10 +25885,7 @@ body.theme-10 .team-lists img {
   border: 1px solid #f9f9f9;
 }
 
-.fc-scroller {
-  overflow: visible !important;
-  /* height: auto !important; */
-}
+
 
 @media (max-width: 575.98px) {
 
@@ -28327,6 +28324,12 @@ body.anim-slip-from-top.modal-open .dash-header {
   .daterangepicker .ranges ul {
     width: 160px;
   }
+
+  .fc-scroller {
+    /* overflow: visible !important; */
+    height: auto !important;
+  }
+
 }
 
 .daterangepicker .ranges ul li {
@@ -30302,7 +30305,7 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
 }
 
 video.post-thumbnail {
-  object-fit:contain;
+  object-fit: contain;
 }
 
 .ctm-min-h {
@@ -30499,11 +30502,20 @@ button.lesson-btn.btn-border:hover {
   .lession-sec {
     padding: 60px 10px;
   }
+
   .order-3.order-sm-2 {
     width: 100%;
+  }
+
+  .custom-event-class {
+    display: table-row !important;
   }
 }
 
 .fc .fc-list-event:hover td {
   background-color: transparent;
+}
+
+div#calendar .fc-list-table {
+  overflow-y: auto;
 }
