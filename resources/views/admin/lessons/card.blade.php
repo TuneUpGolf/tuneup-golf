@@ -57,7 +57,7 @@
             </div>
             <div class="text-center w-50">
                 <span class="text-xl font-bold">{!! $model->required_time !!} Days</span>
-                <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
+                <div class="text-sm rtl:space-x-reverse">Expected Response <br> Time</div>
 
             </div>
         </div>
