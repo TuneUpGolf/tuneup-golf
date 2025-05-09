@@ -35,8 +35,10 @@
 .close:hover {
     color: #0071ce;
 }
-
-.dash-container {
+body.modal-open {
+    overflow-y:hidden;
+}
+body.modal-open .dash-container {
     z-index: 99999;
 }
 </style>

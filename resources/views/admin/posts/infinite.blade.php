@@ -4,6 +4,7 @@
 <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
 <li class="breadcrumb-item">{{ __('Posts') }}</li>
 @endsection
+
 @section('content')
 <div class="row">
     <div class="col-xl-12">
@@ -86,12 +87,14 @@
         if (target.classList.contains('open-full-thumbnail')) {
             fullImage.src = target.src;
             modal.style.display = "block";
+            document.body.classList.add('modal-open');
         }
     });
 
     // Close modal on close button
     closeBtn.onclick = () => {
         modal.style.display = "none";
+        document.body.classList.remove('modal-open');
     };
 
     // Close modal on outside click
