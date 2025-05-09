@@ -97,12 +97,7 @@
         document.body.classList.remove('modal-open');
     };
 
-    // Close modal on outside click
-    window.onclick = (event) => {
-        if (event.target === modal) {
-            modal.style.display = "none";
-        }
-    };
+    
     </script>
     @include('layouts.includes.datatable_js')
     @endpush

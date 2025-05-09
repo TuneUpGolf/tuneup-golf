@@ -696,9 +696,9 @@ File: style.css
   width: 100% !important;
 }
 
-.fc-list-table td {
+/* .fc-list-table td {
   width: 100% !important;
-}
+} */
 
 /* Style the tab content */
 .tabcontent {
