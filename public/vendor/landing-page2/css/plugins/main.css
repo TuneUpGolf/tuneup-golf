@@ -1321,7 +1321,7 @@ A VERTICAL event
 
 :root {
   --fc-list-event-dot-width: 10px;
-  /* --fc-list-event-hover-bg-color: #f5f5f5; */
+  --fc-list-event-hover-bg-color: #f5f5f5;
 }
 .fc-theme-standard .fc-list {
     border: 1px solid #ddd;
@@ -1418,8 +1418,8 @@ A VERTICAL event
     cursor: pointer; /* whole row will seem clickable */
   }
 .fc .fc-list-event:hover td {
-    /* background-color: #f5f5f5;
-    background-color: var(--fc-list-event-hover-bg-color, #f5f5f5); */
+    background-color: #f5f5f5;
+    background-color: var(--fc-list-event-hover-bg-color, #f5f5f5);
   }
 .fc {
 

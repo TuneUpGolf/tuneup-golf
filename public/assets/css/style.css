@@ -25887,7 +25887,7 @@ body.theme-10 .team-lists img {
 
 .fc-scroller {
   overflow: visible !important;
-  height: auto !important;
+  /* height: auto !important; */
 }
 
 @media (max-width: 575.98px) {
@@ -30502,4 +30502,8 @@ button.lesson-btn.btn-border:hover {
   .order-3.order-sm-2 {
     width: 100%;
   }
+}
+
+.fc .fc-list-event:hover td {
+  background-color: transparent;
 }
