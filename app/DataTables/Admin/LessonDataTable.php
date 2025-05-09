@@ -64,7 +64,7 @@ class LessonDataTable extends DataTable
         } else if (Auth::user()->type == Role::ROLE_ADMIN || Auth::user()->type == Role::ROLE_STUDENT) {
             return $model->newQuery()->where('tenant_id', '=', tenant('id'))->where('active_status', true);
         } else {
-            return $model->newQuery()->where('created_by', '=', Auth::user()->id);
+            return $model->newQuery()->where('created_by', '=', Auth::user()->id)->where('active_status', true);
         }
     }
 

@@ -245,11 +245,18 @@ class PurchaseDataTable extends DataTable
 
     protected function getColumns()
     {
-        return [
+        $columns = [
             Column::make('No')->title(__('Lesson Number'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-            Column::make('lesson_name')->title(__('Lesson'))->searchable(false),
-            Column::make('instructor_name')->title(__('Instructor'))->searchable(true),
-            Column::make('student_name')->title("Student")->searchable(true),
+            Column::make('lesson_name')->title(__('Lesson'))->searchable(true),
+        ];
+        if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
+            $columns[] = Column::make('student_name')->title("Student")->searchable(true);
+            $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
+
+        } elseif (Auth::user()->type == Role::ROLE_STUDENT) {
+            $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
+        }
+        return array_merge($columns, [
             Column::make('status')->title(__('Payment Status')),
             Column::make("due_date")->title(__('Submission Date'))->defaultContent()->orderable(false)->searchable(false),
             Column::make('total_amount')->title(__('Total ($)'))->orderable(false),
@@ -259,7 +266,7 @@ class PurchaseDataTable extends DataTable
                 ->width(60)
                 ->addClass('text-center')
                 ->width('20%'),
-        ];
+        ]);
     }
 
     protected function filename(): string
