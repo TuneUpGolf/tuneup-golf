@@ -15,7 +15,7 @@ return new class extends Migration
     {
         if (!Schema::hasColumn('lessons', 'is_package_lesson')) {
             Schema::table('lessons', function (Blueprint $table) {
-                $table->smallInteger('is_package_lesson')->default(1);
+                $table->tinyInteger('is_package_lesson')->default(1);
             });
         }
     }
