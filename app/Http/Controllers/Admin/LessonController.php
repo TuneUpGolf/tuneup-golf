@@ -196,7 +196,7 @@ class LessonController extends Controller
 
                 $students = $appointment->student;
                 $colors =  $appointment->is_completed?'#41d85f':($appointment->isFullyBooked()?
-                    '#f7e50a' : '#0071ce');
+                    '#c5b706' : '#0071ce');
                 
                 $startDts = $startDateTime->format('h:i a');
                 $endDts = $endDateTime->format('h:i a');
@@ -259,13 +259,13 @@ class LessonController extends Controller
 
                 $students = $appointment->student;
                 $colors =  $appointment->is_completed ? '#41d85f' : ($appointment->isFullyBooked() ?
-                    '#f7e50a' : '#0071ce');
+                    '#c5b706' : '#0071ce');
                 array_push($events, [
                     'title' => $appointment->lesson->lesson_name . ' (' . $appointment->lesson->max_students - $appointment->availableSeats() . '/' . $appointment->lesson->max_students . ')',
                     'start' => $appointment->date_time,
                     'end' => date("Y-m-d H:i:s", strtotime($appointment->date_time . " +" . $intervalString)),
                     'slot_id' => $appointment->id,
-                    'color' => $appointment->is_completed ? '#41d85f' : ($students->isNotEmpty() ? '#f7e50a' : '#0071ce'),
+                    'color' => $appointment->is_completed ? '#41d85f' : ($students->isNotEmpty() ? '#c5b706' : '#0071ce'),
                     'is_completed' => $appointment->is_completed,
                     'is_student_assigned' => $students->isNotEmpty(),
                     'student' => $students,
@@ -312,7 +312,7 @@ class LessonController extends Controller
 
                 $colors =  $appointment->is_completed ? '#41d85f' : (($type == Role::ROLE_INSTRUCTOR && $appointment->isFullyBooked() ||
                     $type == Role::ROLE_STUDENT && $students->contains('id', Auth::user()->id)) ?
-                    '#f7e50a' : '#0071ce');
+                    '#c5b706' : '#0071ce');
                 $className = $appointment->is_completed ? 'custom-completed-class' : (($type == Role::ROLE_INSTRUCTOR && $appointment->isFullyBooked() ||
                     $type == Role::ROLE_STUDENT && $students->contains('id', Auth::user()->id))
                     ? 'custom-book-class' : 'custom-available-class') . ' custom-event-class';
