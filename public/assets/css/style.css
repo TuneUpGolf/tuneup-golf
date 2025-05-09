@@ -30499,4 +30499,7 @@ button.lesson-btn.btn-border:hover {
   .lession-sec {
     padding: 60px 10px;
   }
+  .order-3.order-sm-2 {
+    width: 100%;
+  }
 }
