@@ -221,7 +221,14 @@ class ProfileController extends Controller
     public function updateAvatar(Request $request)
     {
         $disk = Storage::disk();
-        $user = User::find(auth()->id());
+
+        if (auth()->user()->type == 'Instructor') {
+            $user     = User::find(auth()->id());
+            $column   = 'avatar';
+        } else {
+            $user     = Student::find(auth()->id());
+            $column   = 'dp';
+        }
         request()->validate([
             'avatar'    => 'required',
         ]);
@@ -231,7 +238,8 @@ class ProfileController extends Controller
         $imageName      = time() . '.' . 'png';
         $imagePath      = "uploads/avatar/" . $imageName;
         $disk->put($imagePath, base64_decode($image));
-        $user->avatar   = $imagePath;
+        $user->$column   = $imagePath;
+ 
         if ($user->save()) {
             return __("Avatar updated successfully.");
         }
