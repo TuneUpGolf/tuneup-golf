@@ -402,10 +402,14 @@ class PurchaseController extends Controller
                     return response($e, 419);
                 };
             } else {
-                return throw new ValidationException(['You dont have enough lessons remaining']);
+                throw ValidationException::withMessages([
+                    'purchase_id' => 'You don\'t have enough lessons remaining',
+                ]);
             }
         } else {
-            return throw new ValidationException(['No purchase found for this ID']);
+            throw ValidationException::withMessages([
+                'purchase_id' => 'No purchase found for this ID',
+            ]);
         }
     }
     //API METHODS START
