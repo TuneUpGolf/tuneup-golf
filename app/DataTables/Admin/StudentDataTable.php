@@ -17,14 +17,18 @@ class StudentDataTable extends DataTable
             ->addIndexColumn()
             ->editColumn('name', function (Student $user) {
                 $imageSrc = $user->dp ?  asset('/storage' . '/' . tenant('id') . '/' . $user->dp) : asset('assets/img/user.png');
+                $userUrl  = route('student.show', $user->id);
                 $html =
                     '
-                <div class="flex justify-start items-center">'
+                <div class="flex justify-start items-center">
+                <a href="' . $userUrl . '" class="flex items-center text-primary hover:underline">'
                     .
                     "<img src=' " . $imageSrc . " ' width='20' class='rounded-full'/>"
                     .
                     "<span class='pl-2'>" . $user->name . " </span>" .
-                    '</div>';
+                    '</a></div>';
+
+                    
                 return $html;
             })
             ->editColumn('created_at', function ($request) {
