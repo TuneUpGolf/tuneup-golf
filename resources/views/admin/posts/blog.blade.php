@@ -1,3 +1,46 @@
+<style>
+/* Modal styling */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.modal-content {
+    margin: 5% auto;
+    display: block;
+    max-width: 90%;
+    max-height: 80%;
+    width: auto;
+    height: auto;
+
+}
+
+.close {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #0071ce;
+}
+
+.dash-container {
+    z-index: 99999;
+}
+</style>
+
 <div class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md">
     <div class="shadow rounded-2 overflow-hidden position-relative">
     @if($post->paid && !isset($purchasePost))
@@ -71,8 +114,12 @@
         @else
         <!-- <img class="rounded-md w-full" src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->file) }}"
                 alt="Post Image" /> -->
-        <img class=" w-full post-thumbnail"
+                <img class=" w-full post-thumbnail open-full-thumbnail"
             src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg" alt="Profile" />
+        <div id="imageModal" class="modal">
+            <span class="close" id="closeBtn">&times;</span>
+            <img class="modal-content" id="fullImage">
+        </div>
         @endif
 
         @else
@@ -134,5 +181,7 @@ function toggleDescription(button) {
         button.innerText = "Show Less";
     }
 }
+
+
 </script>
 @endpush

@@ -30301,6 +30301,10 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   object-fit: cover;
 }
 
+video.post-thumbnail {
+  object-fit:contain;
+}
+
 .ctm-min-h {
   min-height: 40px;
 }
