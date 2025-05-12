@@ -1106,6 +1106,17 @@ class LessonController extends Controller
         }
     }
 
+    public function deleteSlot(Request $request)
+    {
+        try {
+            if(Slots::find($request->id)->delete()) {
+                return response()->json(['message'=>'Slot deleted'], 200);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 400);
+        }
+    }
+
 
     public function getAllByInstructor(Request $request)
     {

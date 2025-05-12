@@ -75,6 +75,18 @@
 @push('css')
  <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.min.css">
+ <style>
+    .fc-event-title {
+      display: inline-block;
+      margin-right: 5px;
+    }
+    .fc-delete-btn {
+      display: inline-block;
+      cursor: pointer;
+      color: red;
+      font-weight: bold;
+    }
+ </style>
 @endpush
 @push('javascript')
  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
@@ -96,6 +108,45 @@
              slotMinTime: '5:00:00',
              slotMaxTime: '20:00:00',
              events: @json($events),
+             eventDidMount: function(info) {
+                if (type == 'Instructor') {
+                    const deleteBtn = document.createElement('span');
+                    deleteBtn.className = 'fc-delete-btn';
+                    deleteBtn.innerText = '🗑️';
+                    deleteBtn.title = 'Delete';
+                    deleteBtn.style.marginLeft = '8px';
+                    deleteBtn.style.cursor = 'pointer';
+                    deleteBtn.style.color = 'red';
+                    deleteBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const slot_id = info?.event?.extendedProps?.slot_id;
+                        if (confirm(`Do you want to delete this slot?`) && slot_id > 0) {
+                            info.event.remove();
+                            $.ajax({
+                                 url: "{{ route('slot.delete') }}",
+                                 type: 'POST',
+                                 data: {
+                                     _token: $('meta[name="csrf-token"]').attr(
+                                         'content'),
+                                     id: slot_id,
+                                 },
+                                 success: function(response) {
+                                     Swal.fire('Success',response.message,'success');
+                                 },
+                                 error: function(error) {
+                                     Swal.fire('Error', 'There was a problem deleting the slot.', error);
+                                     console.log(error);
+                                 }
+                             });
+                        }
+                    });
+                    
+                    const titleContainer = info.el.querySelector('.fc-event-title-container');
+                    if (titleContainer) {
+                        titleContainer.appendChild(deleteBtn);
+                    }
+                }
+            },
              eventClick: function(info) {
                  const slot_id = info?.event?.extendedProps?.slot_id;
                  const slot = info.event.extendedProps.slot;
