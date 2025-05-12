@@ -67,5 +67,4 @@ class Lesson extends Model
         ->where('isFeedbackComplete', false)
         ->whereHas('lesson', fn($q) => $q->where('type', self::LESSON_TYPE_ONLINE));
 }
-
 }

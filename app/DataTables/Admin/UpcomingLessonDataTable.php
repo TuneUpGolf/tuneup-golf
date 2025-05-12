@@ -13,7 +13,6 @@ class UpcomingLessonDataTable extends DataTable
 {
     public function dataTable($query)
     {
-// dd($query->get());
         $data = datatables()
             ->eloquent($query)
             ->addIndexColumn()
@@ -52,43 +51,7 @@ class UpcomingLessonDataTable extends DataTable
 
     public function query(Lesson $model)
     {
-        // if (tenant('id') == null) {
-        //     return $model->newQuery()->select(['lessons.*', 'domains.domain'])
-        //         ->join('domains', 'domains.tenant_id', '=', 'users.tenant_id')->where('type', 'Instructor')->where('created_at', '>', now());
-        // } else if (Auth::user()->type == Role::ROLE_ADMIN || Auth::user()->type == Role::ROLE_STUDENT) {
-        //     return $model->newQuery()->where('tenant_id', '=', tenant('id'))->where('active_status', true)->where('created_at', '>', now());
-        // } else {
-        //     return $model->newQuery()->where('created_by', '=', Auth::user()->id)->where('created_at', '>', now());
-        // }
-        // return $model->newQuery()->select('lessons.*')->where('created_at', '
-        // ', now());
-        // $query = $model->newQuery()->with(['pendingOnlinePurchases']);
 
-        // if (tenant('id') == null) {
-        //     $query->select(['lessons.*', 'domains.domain'])
-        //         ->join('domains', 'domains.tenant_id', '=', 'users.tenant_id')
-        //         ->where('type', 'Instructor');
-        //         // ->where('created_at', '>', now());
-        // } else if (Auth::user()->type == Role::ROLE_ADMIN || Auth::user()->type == Role::ROLE_STUDENT) {
-        //     $query->where('tenant_id', '=', tenant('id'))
-        //         ->where('active_status', true);
-        //         // ->where('created_at', '>', now());
-        // } else {
-        //     $query->where('created_by', '=', Auth::user()->id);
-        //         // ->where('created_at', '>', now());
-        // }
-        // return $query;
-
-    // $user = auth()->user(); // or Auth::user();
-    // if (Auth::user()->type == Role::ROLE_INSTRUCTOR || Auth::user()->type == Role::ROLE_STUDENT){
-    // return $model->newQuery()
-    //     ->where('type', Lesson::LESSON_TYPE_ONLINE)
-    //     ->whereHas('purchases', function ($query) use ($user) {
-    //         $query->where('status', Purchase::STATUS_COMPLETE)
-    //               ->where('isFeedbackComplete', false)
-    //               ->where('instructor_id', $user->id);
-    //     });
-    // }
     $user = auth()->user();
 
     return $model->newQuery()

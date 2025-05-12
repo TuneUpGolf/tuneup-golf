@@ -297,4 +297,5 @@ class User extends Authenticatable implements MustVerifyEmail
                 $q->where('type', Lesson::LESSON_TYPE_ONLINE);
             });
     }
+    
 }
