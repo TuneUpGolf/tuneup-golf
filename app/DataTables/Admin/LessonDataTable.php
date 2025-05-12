@@ -23,18 +23,6 @@ class LessonDataTable extends DataTable
             ->editColumn('lesson_price', function (Lesson $lesson) {
                 return UtilityFacades::amount_format($lesson->lesson_price);
             })
-            ->editColumn('created_by', function (Lesson $lesson) {
-                $imageSrc = $lesson?->user?->dp ?  asset('/storage' . '/' . tenant('id') . '/' . $lesson?->user?->dp) : asset('assets/img/logo/logo.png');
-                $html =
-                    '
-                <div class="flex justify-start items-center">'
-                    .
-                    "<img src=' " . $imageSrc . " ' width='20' class='rounded-full'/>"
-                    .
-                    "<span class='px-0'>" . $lesson->user->name . " </span>" .
-                    '</div>';
-                return $html;
-            })
             ->editColumn('type', function (Lesson $lesson) {
                 $s = Lesson::TYPE_MAPPING[$lesson->type];
 
@@ -93,6 +81,7 @@ class LessonDataTable extends DataTable
 
         return $this->builder()
             ->setTableId('lessons-table')
+            ->addTableClass('display responsive nowrap')
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->orderBy(1)
@@ -114,7 +103,7 @@ class LessonDataTable extends DataTable
             }')
             ->parameters([
                 "dom" =>  "
-                        <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'>
+                        <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12 d-none d-sm-block'>
                         <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
                         <'dataTable-container'<'col-sm-12'tr>>
                         <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
@@ -122,6 +111,27 @@ class LessonDataTable extends DataTable
                         ",
                 'buttons'   => $buttons,
                 "scrollX" => true,
+                "responsive" => [
+                    "scrollX"=> false,
+                    "details" => [
+                        "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
+                        "renderer" => "function (api, rowIdx, columns) {
+                            var data = $('<table/>').addClass('vertical-table');
+                            $.each(columns, function (i, col) {
+                                data.append(
+                                    '<tr>' +
+                                        '<td><strong>' + col.title + '</strong></td>' +
+                                        '<td>' + col.data + '</td>' +
+                                    '</tr>'
+                                );
+                            });
+                            return data;
+                        }"
+                    ]
+                ],
+                "rowCallback" => 'function(row, data, index) {
+                    $(row).addClass("custom-parent-row"); 
+                }',
                 'headerCallback' => 'function(thead, data, start, end, display) {
                     $(thead).find("th").css({
                         "background-color": "rgba(249, 252, 255, 1)",
@@ -171,7 +181,6 @@ class LessonDataTable extends DataTable
 
         return [
             Column::make('No')->title(__('#'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-            Column::make('created_by')->title(__('Instructor'))->defaultContent(),
             Column::make('lesson_name')->title(__('Name')),
             Column::make('lesson_price')->title(__('Price')),
             Column::make('lesson_quantity')->title(__('quantity')),

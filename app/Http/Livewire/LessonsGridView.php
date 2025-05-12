@@ -37,7 +37,7 @@ class LessonsGridView extends GridView
     }
 
 
-    public $maxCols = 3;
+    public $maxCols = 4;
     // protected $paginate = 4;
 
     /**
@@ -59,7 +59,9 @@ class LessonsGridView extends GridView
         $symbol = User::getCurrencySymbol($currency);
 
         return [
-            'image' =>  asset('/storage' . '/' . tenant('id') . '/' . $model?->user?->logo) ?? asset('assets/img/logo/logo.png'),
+            'image' =>  isset($model->user->logo)?
+                        asset('/storage' . '/' . tenant('id') . '/' . $model->user->logo):
+                        asset('assets/img/logo/logo.png'),
             'title' => $model->lesson_name,
             'subtitle' => str_replace(['(', ')'], '', $symbol) . ' ' . $model->lesson_price . ' (' . strtoupper($currency) . ')',
             'description' => $model->lesson_description,

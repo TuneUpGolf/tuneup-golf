@@ -59,6 +59,7 @@ class UsersDataTable extends DataTable
     {
         return $this->builder()
             ->setTableId('users-table')
+            ->addTableClass('display responsive nowrap')
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->orderBy(1)
@@ -80,7 +81,7 @@ class UsersDataTable extends DataTable
             }')
             ->parameters([
                 "dom" =>  "
-                        <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'>
+                        <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12 d-none d-sm-block'>
                         <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
                         <'dataTable-container'<'col-sm-12'tr>>
                         <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
@@ -105,6 +106,27 @@ class UsersDataTable extends DataTable
                     ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
                 ],
                 "scrollX" => true,
+                "responsive" => [
+                    "scrollX"=> false,
+                    "details" => [
+                        "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
+                        "renderer" => "function (api, rowIdx, columns) {
+                            var data = $('<table/>').addClass('vertical-table');
+                            $.each(columns, function (i, col) {
+                                data.append(
+                                    '<tr>' +
+                                        '<td><strong>' + col.title + '</strong></td>' +
+                                        '<td>' + col.data + '</td>' +
+                                    '</tr>'
+                                );
+                            });
+                            return data;
+                        }"
+                    ]
+                ],
+                "rowCallback" => 'function(row, data, index) {
+                    $(row).addClass("custom-parent-row"); 
+                }',
                 "drawCallback" => 'function( settings ) {
                     var tooltipTriggerList = [].slice.call(
                         document.querySelectorAll("[data-bs-toggle=tooltip]")

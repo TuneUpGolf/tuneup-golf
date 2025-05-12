@@ -157,6 +157,8 @@ Route::middleware([
         Route::get('student-emailverified/{id}', [StudentController::class, 'userEmailVerified'])->name('student.email.verified');
         Route::get('student-phoneverified/{id}', [StudentController::class, 'userPhoneVerified'])->name('student.phone.verified');
         Route::post('student-status/{id}', [StudentController::class, 'userStatus'])->name('student.status');
+        Route::get('student/{id}', [StudentsController::class, 'show'])->name('student.show');
+
         Route::post('/import_students', [StudentController::class, 'importfun'])->name('student.import_students');
 
         Route::resource('lesson', LessonController::class);

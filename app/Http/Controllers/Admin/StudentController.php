@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\SendEmail;
 use App\Actions\SendSMS;
 use App\DataTables\Admin\StudentDataTable;
+use App\DataTables\Admin\StudentsPurchaseDataTable;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StudentAPIResource;
@@ -351,4 +352,11 @@ class StudentController extends Controller
             }
         }
     }
+    public function show($id)
+    {
+        $students  = Student::findOrFail($id);
+        $dataTable = new StudentsPurchaseDataTable($id); // Pass follower ID to the datatable
+        return $dataTable->render('admin.students.show', compact('students', 'dataTable'));
+    }
 }
+

@@ -383,7 +383,7 @@ File: style.css
 }
 
 .dash-sidebar.light-sidebar .dash-link .dash-arrow {
-  margin-top: 7px;
+  margin-top: 3px;
 }
 
 .dash-sidebar.light-sidebar .dash-link:active,
@@ -419,9 +419,7 @@ File: style.css
   background-color: #51459d;
 }
 
-.dash-sidebar.light-sidebar .dash-navbar > .dash-item.active > .dash-link {
-  font-weight: 700;
-}
+
 
 .dash-sidebar.light-sidebar .dash-navbar > .dash-item.active > .dash-link,
 .dash-sidebar.light-sidebar .dash-navbar > .dash-item:focus > .dash-link,
@@ -698,9 +696,9 @@ File: style.css
   width: 100% !important;
 }
 
-.fc-list-table td {
+/* .fc-list-table td {
   width: 100% !important;
-}
+} */
 
 /* Style the tab content */
 .tabcontent {
@@ -790,7 +788,7 @@ File: style.css
 }
 
 .custom-book-class {
-  background-color: #f7e50a !important;
+  background-color: #c5b706 !important;
   color: #fff !important;
 }
 .custom-available-class {
@@ -809,7 +807,7 @@ File: style.css
   border-radius: 100%;
 }
 .booked-key {
-  background-color: #f7e50a;
+  background-color: #c5b706;
   height: 20px;
   width: 20px;
   border-radius: 100%;
