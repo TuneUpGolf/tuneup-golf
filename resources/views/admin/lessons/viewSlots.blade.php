@@ -75,18 +75,6 @@
 @push('css')
  <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.min.css">
- <style>
-    .fc-event-title {
-      display: inline-block;
-      margin-right: 5px;
-    }
-    .fc-delete-btn {
-      display: inline-block;
-      cursor: pointer;
-      color: red;
-      font-weight: bold;
-    }
- </style>
 @endpush
 @push('javascript')
  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
@@ -112,7 +100,7 @@
                 if (type == 'Instructor') {
                     const deleteBtn = document.createElement('span');
                     deleteBtn.className = 'fc-delete-btn';
-                    deleteBtn.innerText = '🗑️';
+                    deleteBtn.innerHTML = `<i class="ti ti-trash text-white"></i>`;
                     deleteBtn.title = 'Delete';
                     deleteBtn.style.marginLeft = '8px';
                     deleteBtn.style.cursor = 'pointer';
