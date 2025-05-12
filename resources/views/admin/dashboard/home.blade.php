@@ -241,82 +241,97 @@ $chatcolor = '#0C7785';
         </div>
         @endif
 
-        @if (Auth::user()->type == 'Admin')
-        <div class="card dash-supports mt-2">
-            <div class="card-header">
-                <h5>{{ __('Instructor Statistics') }}</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>{{ __('Instructor Name') }}</th>
-                                <th>{{ __('Earnings') }}</th>
-                                <th>{{ __('Completed In-Person Lessons') }}</th>
-                                <th>{{ __('Completed Online Lessons') }}</th>
-                                <th>{{ __('Pending In-Person Lessons') }}</th>
-                                <th>{{ __('Pending Online Lessons') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($instructorStats as $instructor)
-                            <tr>
-                                <td>{{ $instructor->name }}</td>
-                                <td>${{ number_format($instructor->purchase->where('status', 'complete')->sum('total_amount'), 2) }}
-                                </td>
-                                <td>{{ $instructor->completed_inperson_lessons }}</td>
-                                <td>{{ $instructor->completed_online_lessons }}</td>
-                                <td>{{ $instructor->pending_inperson_lessons }}</td>
-                                <td>{{ $instructor->pending_online_lessons }}</td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="5" class="text-center">{{ __('No instructors available') }}
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+            @if (Auth::user()->type == 'Admin')
+                <div class="card dash-supports mt-2">
+                    <div class="card-header">
+                        <h5>{{ __('Instructor Statistics') }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>{{ __('Instructor Name') }}</th>
+                                        <th>{{ __('Earnings') }}</th>
+                                        <th>{{ __('Completed In-Person Lessons') }}</th>
+                                        <th>{{ __('Completed Online Lessons') }}</th>
+                                        <th>{{ __('Pending In-Person Lessons') }}</th>
+                                        <th>{{ __('Pending Online Lessons') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($instructorStats as $instructor)
+                                        <tr>
+                                            <td>{{ $instructor->name }}</td>
+                                            <td>${{ number_format($instructor->purchase->where('status', 'complete')->sum('total_amount'), 2) }}
+                                            </td>
+                                            <td>{{ $instructor->completed_inperson_lessons }}</td>
+                                            <td>{{ $instructor->completed_online_lessons }}</td>
+                                            <td>{{ $instructor->pending_inperson_lessons }}</td>
+                                            <td>{{ $instructor->pending_online_lessons }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center">{{ __('No instructors available') }}
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            @endif
+            @if (Auth::user()->type == 'Instructor' || Auth::user()->type == 'Student')
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="card">
+                            <div class="card-body table-border-style">
+                                <div class="table-responsive">
+                                    {{ $dataTable->table(['width' => '100%']) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
-        @endif
-
-    </div>
-    @endsection
+@endsection
     @push('css')
-    <link rel="stylesheet" type="text/css" href="{{ asset('vendor/daterangepicker/daterangepicker.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ asset('vendor/daterangepicker/daterangepicker.css') }}">
+        @include('layouts.includes.datatable_css')
     @endpush
     @push('javascript')
-    <script src="{{ asset('vendor/modules/moment.min.js') }}"></script>
-    <script src="{{ asset('assets/js/plugins/apexcharts.min.js') }}"></script>
-    <script src="{{ asset('vendor/daterangepicker/daterangepicker.min.js') }}"></script>
-    <script>
-    $(function() {
-        var start = moment().subtract(29, 'days');
-        var end = moment();
+        @include('layouts.includes.datatable_js')
+        {{ $dataTable->scripts() }}
+        <script src="{{ asset('vendor/modules/moment.min.js') }}"></script>
+        <script src="{{ asset('assets/js/plugins/apexcharts.min.js') }}"></script>
+        <script src="{{ asset('vendor/daterangepicker/daterangepicker.min.js') }}"></script>
+        <script>
+            $(function () {
+                var start = moment().subtract(29, 'days');
+                var end = moment();
 
-        function cb(start, end) {
-            $('.chartRange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-            var start = start.format('YYYY-MM-DD');
-            var end = end.format('YYYY-MM-DD');
-            $.ajax({
-                url: "{{ route('get.chart.data') }}",
-                type: 'POST',
-                data: {
-                    start: start,
-                    end: end,
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(result) {
-                    chartFun(result.lable, result.value);
-                },
-                error: function(data) {
-                    return data.responseJSON;
+                function cb(start, end) {
+                    $('.chartRange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                    var start = start.format('YYYY-MM-DD');
+                    var end = end.format('YYYY-MM-DD');
+                    $.ajax({
+                        url: "{{ route('get.chart.data') }}",
+                        type: 'POST',
+                        data: {
+                            start: start,
+                            end: end,
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function (result) {
+                            chartFun(result.lable, result.value);
+                        },
+                        error: function (data) {
+                            return data.responseJSON;
+                        }
+                    });
                 }
-            });
-        }
 
         function chartFun(lable, value) {
             var options = {
@@ -343,56 +358,56 @@ $chatcolor = '#0C7785';
                 },
                 colors: ['{{ $chatcolor }}'],
 
-                grid: {
-                    strokeDashArray: 4,
-                },
-                legend: {
-                    show: false,
-                },
-                markers: {
-                    size: 4,
-                    colors: ['{{ $chatcolor }}'],
-                    opacity: 0.9,
-                    strokeWidth: 2,
-                    hover: {
-                        size: 7,
-                    }
-                },
-                yaxis: {
-                    tickAmount: 3,
-                    min: 0,
+                        grid: {
+                            strokeDashArray: 4,
+                        },
+                        legend: {
+                            show: false,
+                        },
+                        markers: {
+                            size: 4,
+                            colors: ['{{ $chatcolor }}'],
+                            opacity: 0.9,
+                            strokeWidth: 2,
+                            hover: {
+                                size: 7,
+                            }
+                        },
+                        yaxis: {
+                            tickAmount: 3,
+                            min: 0,
+                        }
+                    };
+                    $("#users-chart").empty();
+                    var chart = new ApexCharts(document.querySelector("#users-chart"), options);
+                    chart.render();
                 }
-            };
-            $("#users-chart").empty();
-            var chart = new ApexCharts(document.querySelector("#users-chart"), options);
-            chart.render();
-        }
-        $('.chartRange').daterangepicker({
-            startDate: start,
-            endDate: end,
-            ranges: {
-                'Today': [moment(), moment()],
-                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                'This Month': [moment().startOf('month'), moment().endOf('month')],
-                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1,
-                    'month').endOf('month')],
-                'This Year': [moment().startOf('year'), moment().endOf('year')],
-                'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1,
-                    'year').endOf('year')],
-            }
-        }, cb);
-        cb(start, end);
-    });
-    </script>
-    {{-- {{ $dataTable->scripts() }} --}}
-    <script type="text/javascript">
-    $(document).ready(function() {
-        var html =
-            $('.dataTable-title').html(
-                "<div class='flex justify-start items-center'><div class='custom-table-header'></div><span class='font-medium text-2xl pl-4'>All Purchases</span></div>"
-            );
-    });
-    </script>
+                $('.chartRange').daterangepicker({
+                    startDate: start,
+                    endDate: end,
+                    ranges: {
+                        'Today': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1,
+                            'month').endOf('month')],
+                        'This Year': [moment().startOf('year'), moment().endOf('year')],
+                        'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1,
+                            'year').endOf('year')],
+                    }
+                }, cb);
+                cb(start, end);
+            });
+        </script>
+        {{-- {{ $dataTable->scripts() }} --}}
+        <script type="text/javascript">
+            $(document).ready(function () {
+                var html =
+                    $('.dataTable-title').html(
+                        "<div class='flex justify-start items-center'><div class='custom-table-header'></div><span class='font-medium text-2xl pl-4'>Upcoming lessons</span></div>"
+                    );
+            });
+        </script>
     @endpush
