@@ -13,10 +13,9 @@
 <div
     class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col h-full">
     <div class="relative text-center p-3 flex gap-3">
-        <!-- <img src="{{ $image }}" alt="{{ $image }}"
-            class="hover:shadow-lg cursor-pointer rounded-xl h-56 w-full object-cover"> -->
-        <img src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
-            alt="{{ $image }}" class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
+        {{-- <img src="{{ $image }}" alt="{{ $image }}"
+            class="hover:shadow-lg cursor-pointer rounded-xl h-56 w-full object-cover"> --}}
+        <img src="{{ $image }}" alt="{{ $image }}" class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
         <div class="text-left">
             <a class="font-bold text-dark text-xl"
                 href="{{ route('instructor.profile', ['instructor_id' => $model?->user?->id]) }}">
@@ -35,7 +34,7 @@
     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
         <div class="flex flex-row justify-between">
 
-            @if ($model->is_package_lesson)
+            @if ($model->is_package_lesson && request()->get('type') != 'online')
             <div class="bg-green-500 text-white text-sm font-bold px-2 py-1 rounded-full">
                 Package
                 Lesson

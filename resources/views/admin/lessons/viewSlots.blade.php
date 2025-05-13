@@ -96,6 +96,45 @@
              slotMinTime: '5:00:00',
              slotMaxTime: '20:00:00',
              events: @json($events),
+             eventDidMount: function(info) {
+                if (type == 'Instructor') {
+                    const deleteBtn = document.createElement('span');
+                    deleteBtn.className = 'fc-delete-btn';
+                    deleteBtn.innerHTML = `<i class="ti ti-trash text-white"></i>`;
+                    deleteBtn.title = 'Delete';
+                    deleteBtn.style.marginLeft = '8px';
+                    deleteBtn.style.cursor = 'pointer';
+                    deleteBtn.style.color = 'red';
+                    deleteBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const slot_id = info?.event?.extendedProps?.slot_id;
+                        if (confirm(`Do you want to delete this slot?`) && slot_id > 0) {
+                            info.event.remove();
+                            $.ajax({
+                                 url: "{{ route('slot.delete') }}",
+                                 type: 'POST',
+                                 data: {
+                                     _token: $('meta[name="csrf-token"]').attr(
+                                         'content'),
+                                     id: slot_id,
+                                 },
+                                 success: function(response) {
+                                     Swal.fire('Success',response.message,'success');
+                                 },
+                                 error: function(error) {
+                                     Swal.fire('Error', 'There was a problem deleting the slot.', error);
+                                     console.log(error);
+                                 }
+                             });
+                        }
+                    });
+                    
+                    const titleContainer = info.el.querySelector('.fc-event-title-container');
+                    if (titleContainer) {
+                        titleContainer.appendChild(deleteBtn);
+                    }
+                }
+            },
              eventClick: function(info) {
                  const slot_id = info?.event?.extendedProps?.slot_id;
                  const slot = info.event.extendedProps.slot;

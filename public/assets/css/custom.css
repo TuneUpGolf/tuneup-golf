@@ -1581,10 +1581,24 @@ body.theme-1 .bg-primary {
   }
 }
 
-
-
 /* admin plan Payment scroll */
 .flex-equal-right {
   max-width: 100%;
   overflow: scroll;
+}
+
+/* Instructor slot delete button in calendar */
+.fc-event-title {
+  display: inline-block;
+  margin-right: 5px;
+}
+.fc-delete-btn {
+  display: inline-block;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 8px;
+  position: absolute;
+  right: 7px;
+  top: 7px;
+  font-size: 14px;
 }

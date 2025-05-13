@@ -23,18 +23,6 @@ class LessonDataTable extends DataTable
             ->editColumn('lesson_price', function (Lesson $lesson) {
                 return UtilityFacades::amount_format($lesson->lesson_price);
             })
-            ->editColumn('created_by', function (Lesson $lesson) {
-                $imageSrc = $lesson?->user?->dp ?  asset('/storage' . '/' . tenant('id') . '/' . $lesson?->user?->dp) : asset('assets/img/logo/logo.png');
-                $html =
-                    '
-                <div class="flex justify-start items-center">'
-                    .
-                    "<img src=' " . $imageSrc . " ' width='20' class='rounded-full'/>"
-                    .
-                    "<span class='px-0'>" . $lesson->user->name . " </span>" .
-                    '</div>';
-                return $html;
-            })
             ->editColumn('type', function (Lesson $lesson) {
                 $s = Lesson::TYPE_MAPPING[$lesson->type];
 
@@ -193,7 +181,6 @@ class LessonDataTable extends DataTable
 
         return [
             Column::make('No')->title(__('#'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-            Column::make('created_by')->title(__('Instructor'))->defaultContent(),
             Column::make('lesson_name')->title(__('Name')),
             Column::make('lesson_price')->title(__('Price')),
             Column::make('lesson_quantity')->title(__('quantity')),
