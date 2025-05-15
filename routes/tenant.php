@@ -490,6 +490,8 @@ Route::middleware([
         Route::post('purchase/confirm', [PurchaseController::class, 'confirmPurchase']);
         Route::post('purchase/instructor/post', [PurchasePostController::class, 'purchasePost']);
         Route::post('purchase/add/video', [PurchaseController::class, 'addVideoAPI']);
+        Route::get('purchase/lesson/{id}', [PurchaseController::class, 'showLesson'])->name('purchase.show');
+        Route::delete('/purchase-feedback/{purchaseVideo}', [PurchaseController::class, 'deleteFeedback'])->name('purchase.feedback.delete');
 
 
         Route::post('follow', [FollowController::class, 'followInstructorApi']);
