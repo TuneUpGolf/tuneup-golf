@@ -9,6 +9,11 @@
                         {{ __('Your database user must have permission to CREATE DATABASE, because we need to create database when new tenant create.') }}
                     </div>
                 @endif
+                @if (session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
                 <div class="m-auto col-lg-6 col-md-8 col-xxl-4">
                     <div class="card">
                         <div class="card-header flex items-center justify-between">

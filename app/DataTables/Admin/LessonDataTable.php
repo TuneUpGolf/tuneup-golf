@@ -13,7 +13,7 @@ class LessonDataTable extends DataTable
 {
     public function dataTable($query)
     {
-
+        
         $data = datatables()
             ->eloquent($query)
             ->addIndexColumn()

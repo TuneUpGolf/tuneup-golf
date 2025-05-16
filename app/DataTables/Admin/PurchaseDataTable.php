@@ -108,7 +108,8 @@ class PurchaseDataTable extends DataTable
         // Filter query based on user role
         if ($user->type == Role::ROLE_STUDENT) {
             $query->where('purchases.student_id', $user->id)
-                ->where('purchases.status', Purchase::STATUS_COMPLETE);
+                ->where('purchases.status', Purchase::STATUS_COMPLETE)
+                ->orWhere('purchases.type','package');
         }
 
         if ($user->type == Role::ROLE_ADMIN) {
@@ -130,7 +131,6 @@ class PurchaseDataTable extends DataTable
             $query->where('purchases.instructor_id', $user->id)
                 ->where('purchases.status', Purchase::STATUS_COMPLETE);
         }
-
         return $query;
     }
 
