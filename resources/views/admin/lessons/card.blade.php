@@ -13,10 +13,9 @@
 <div
     class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col h-full">
     <div class="relative text-center p-3 flex gap-3">
-        <!-- <img src="{{ $image }}" alt="{{ $image }}"
-            class="hover:shadow-lg cursor-pointer rounded-xl h-56 w-full object-cover"> -->
-        <img src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
-            alt="{{ $image }}" class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
+        {{-- <img src="{{ $image }}" alt="{{ $image }}"
+            class="hover:shadow-lg cursor-pointer rounded-xl h-56 w-full object-cover"> --}}
+        <img src="{{ $image }}" alt="{{ $image }}" class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
         <div class="text-left">
             <a class="font-bold text-dark text-xl"
                 href="{{ route('instructor.profile', ['instructor_id' => $model?->user?->id]) }}">
@@ -41,6 +40,15 @@
     </div>
 
     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
+        <div class="flex flex-row justify-between">
+
+            @if ($model->is_package_lesson && request()->get('type') != 'online')
+            <div class="bg-green-500 text-white text-sm font-bold px-2 py-1 rounded-full">
+                Package
+                Lesson
+            </div>
+            @endif
+        </div>
 
         <span class="text-xl font-semibold text-dark">{!! $title !!}</span>
         <p class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis">
@@ -76,18 +84,20 @@
             </div>
         @endif
 
+        @if($model->type !== 'inPerson')
         <div class="mt-auto bg-gray-200 gap-1 rounded-lg px-4 py-3 flex">
             <div class="text-center w-50">
                 <span class="text-xl font-bold">{!! $model->lesson_quantity !!}</span>
-                <div class="text-sm rtl:space-x-reverse">Number of Lessons</div>
+                <div class="text-sm rtl:space-x-reverse">Number of <br> Lessons</div>
 
             </div>
             <div class="text-center w-50">
                 <span class="text-xl font-bold">{!! $model->required_time !!} Days</span>
-                <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
-            </div>
+                <div class="text-sm rtl:space-x-reverse">Expected Response <br> Time</div>
 
+            </div>
         </div>
+        @endif
 
         <div class="w-100 mt-3">
             @if ($model->type === 'online')

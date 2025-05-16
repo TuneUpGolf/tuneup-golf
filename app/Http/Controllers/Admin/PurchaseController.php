@@ -21,6 +21,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\PurchaseVideos;
+use App\DataTables\Admin\PurchaseLessonDataTable;
+use App\DataTables\Admin\PurchaseLessonVideoDataTable;
+use App\Models\Plan;
 use App\Models\Role;
 use App\Models\Slots;
 use App\Traits\ConvertVideos;
@@ -402,10 +405,14 @@ class PurchaseController extends Controller
                     return response($e, 419);
                 };
             } else {
-                return throw new ValidationException(['You dont have enough lessons remaining']);
+                throw ValidationException::withMessages([
+                    'purchase_id' => 'You don\'t have enough lessons remaining',
+                ]);
             }
         } else {
-            return throw new ValidationException(['No purchase found for this ID']);
+            throw ValidationException::withMessages([
+                'purchase_id' => 'No purchase found for this ID',
+            ]);
         }
     }
     //API METHODS START
@@ -651,14 +658,26 @@ class PurchaseController extends Controller
         }
     }
 
-    public function feedbackIndex(PurchaseVideoDataTable $dataTable)
+    public function feedbackIndex(PurchaseLessonVideoDataTable $dataTable)
     {
         if (Auth::user()->can('manage-purchases')) {
-            $purchase = Purchase::with('videos')->find(request()->purchase_id);
-            return $dataTable->with('purchase', $purchase)->render('admin.purchases.videos');
+            $purchase = Purchase::with(['videos', 'lesson', 'student', 'instructor'])
+                ->find(request()->purchase_id);
+            return view('admin.purchases.videos', compact('purchase'));
         }
     }
 
+    public function deleteFeedback(PurchaseVideos $purchaseVideo)
+    {
+        if (Auth::user()->can('manage-purchases')) {
+            // Clear the feedback field (if stored as a string)
+            $purchaseVideo->feedback = null;
+            $purchaseVideo->save();
+
+            return redirect()->back()->with('success', 'Feedback deleted successfully.');
+        }
+
+    }
     public function addFeedBack(Request $request)
     {
         $request->validate([
@@ -707,13 +726,16 @@ class PurchaseController extends Controller
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('errors', $e->getMessage());
-        };
+        }
+        {
+            $purchaseVideo = PurchaseVideos::find($request->purchase_video);
+            return view('admin.purchases.feedbackForm', compact('purchaseVideo'));
+        }
     }
-
     public function addFeedBackIndex(Request $request)
     {
         if (Auth::user()->can('manage-purchases')) {
-            $purchaseVideo = PurchaseVideos::find($request->purchase_video);
+            $purchaseVideo = PurchaseVideos::where('video_url', $request->purchase_video)->first();
             return view('admin.purchases.feedbackForm', compact('purchaseVideo'));
         }
     }
@@ -772,6 +794,15 @@ class PurchaseController extends Controller
     {
         return view('admin.purchases.index', compact('purchase'));
     }
+
+    public function showLesson(PurchaseLessonDataTable $dataTable, $lessonId)
+    {
+        $purchase          = Purchase::with('student')->findOrFail($lessonId);
+        $video             = Purchase::with('videos')->find(request()->purchase_id);
+        return $dataTable->with('purchase', $purchase)->render('admin.purchases.show', compact('purchase', 'video'));
+
+    }
+    
     public function destroy($id)
     {
         $purchase = Purchase::findOrFail($id);

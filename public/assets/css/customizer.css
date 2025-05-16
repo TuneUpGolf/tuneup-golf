@@ -696,9 +696,9 @@ File: style.css
   width: 100% !important;
 }
 
-.fc-list-table td {
+/* .fc-list-table td {
   width: 100% !important;
-}
+} */
 
 /* Style the tab content */
 .tabcontent {
@@ -788,7 +788,7 @@ File: style.css
 }
 
 .custom-book-class {
-  background-color: #f7e50a !important;
+  background-color: #c5b706 !important;
   color: #fff !important;
 }
 .custom-available-class {
@@ -807,7 +807,7 @@ File: style.css
   border-radius: 100%;
 }
 .booked-key {
-  background-color: #f7e50a;
+  background-color: #c5b706;
   height: 20px;
   width: 20px;
   border-radius: 100%;

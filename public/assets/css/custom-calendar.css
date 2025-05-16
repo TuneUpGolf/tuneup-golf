@@ -1,0 +1,21 @@
+#instructor_id {
+max-width: 250px;
+}
+.fc-button-group  .fc-button {
+margin-left: 0;
+}
+#calendar .fc-scroller {
+overflow: auto !important;
+}
+@media (max-width:575px){
+    .ctm-justify-center-sm {
+    justify-content:center;
+    }
+    .ctm-justify-center-sm .w-full {
+    margin: 0 auto;
+    }
+}
+
+.fc-timeline-now-indicator-container {
+    display: none !important;
+}

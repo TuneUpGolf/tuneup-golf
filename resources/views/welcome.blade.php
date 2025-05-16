@@ -159,7 +159,7 @@
                     Trusted by Industry leading Golf Club, Instructors, Acadmies, and
                     Teaching Professionals.
                 </p>
-            </div> -->
+            </div>
             <div class="d-flex flex-column gap-4 google">
                 <div>
                     <img src="{{ asset('assets/images/landing-page-images/Google Play.png') }}" alt="" />

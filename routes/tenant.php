@@ -157,6 +157,8 @@ Route::middleware([
         Route::get('student-emailverified/{id}', [StudentController::class, 'userEmailVerified'])->name('student.email.verified');
         Route::get('student-phoneverified/{id}', [StudentController::class, 'userPhoneVerified'])->name('student.phone.verified');
         Route::post('student-status/{id}', [StudentController::class, 'userStatus'])->name('student.status');
+        Route::get('student/{id}', [StudentsController::class, 'show'])->name('student.show');
+
         Route::post('/import_students', [StudentController::class, 'importfun'])->name('student.import_students');
 
         Route::resource('lesson', LessonController::class);
@@ -171,6 +173,7 @@ Route::middleware([
         Route::post('lesson/slot/booking', [LessonController::class, 'bookSlotApi'])->name('slot.book');
         Route::post('lesson/slot/admin', [LessonController::class, 'bookAdminSlot'])->name('slot.admin');
         Route::post('lesson/slot/update', [LessonController::class, 'updateSlot'])->name('slot.update');
+        Route::post('lesson/slot/delete', [LessonController::class, 'deleteSlot'])->name('slot.delete');
 
         //purchase
         Route::resource('purchase', PurchaseController::class);
@@ -487,6 +490,8 @@ Route::middleware([
         Route::post('purchase/confirm', [PurchaseController::class, 'confirmPurchase']);
         Route::post('purchase/instructor/post', [PurchasePostController::class, 'purchasePost']);
         Route::post('purchase/add/video', [PurchaseController::class, 'addVideoAPI']);
+        Route::get('purchase/lesson/{id}', [PurchaseController::class, 'showLesson'])->name('purchase.show');
+        Route::delete('/purchase-feedback/{purchaseVideo}', [PurchaseController::class, 'deleteFeedback'])->name('purchase.feedback.delete');
 
 
         Route::post('follow', [FollowController::class, 'followInstructorApi']);

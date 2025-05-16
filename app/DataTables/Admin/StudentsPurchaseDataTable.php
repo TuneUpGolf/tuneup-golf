@@ -1,5 +1,4 @@
 <?php
-
 namespace App\DataTables\Admin;
 
 use App\Models\Lesson;
@@ -10,8 +9,14 @@ use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class PurchaseDataTable extends DataTable
+class StudentsPurchaseDataTable extends DataTable
 {
+    protected $studentId;
+
+    public function __construct($studentId = null)
+    {
+        $this->studentId = $studentId;
+    }
     public function dataTable($query)
     {
         return datatables()
@@ -28,9 +33,9 @@ class PurchaseDataTable extends DataTable
                 $query->where('students.name', 'like', "%{$keyword}%");
             })
             ->editColumn('instructor_name', function ($purchase) {
-                $imageSrc = $purchase->instructor->dp
-                    ? asset('/storage' . '/' . tenant('id') . '/' . $purchase->instructor->dp)
-                    : asset('assets/img/logo/logo.png');
+                $imageSrc = $purchase->instructor->avatar
+                ? $purchase->instructor->avatar
+                : asset('assets/img/logo/logo.png');
 
                 return '
                     <div class="flex justify-start items-center">
@@ -39,33 +44,29 @@ class PurchaseDataTable extends DataTable
                     </div>';
             })
             ->editColumn('lesson_name', function ($purchase) {
-                $s                    = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
-                $lesson_type          = $purchase->lesson->type ?? null;
+                $s           = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
+                $lesson_type = $purchase->lesson->type ?? null;
+
                 $lesson_active_status = $purchase->lesson->active_status;
                 $badgeClass           = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? 'bg-green-600' : 'bg-cyan-500';
-                $deletedText          = ! $lesson_active_status ? ' <span class="text-gray-500 italic"> deleted</span>' : '';
-                $lessonName           = e($purchase->lesson_name);
-                $truncatedLessonName  = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
 
-                $url = route('purchase.show', $purchase->id);
+                // Check if lesson is deleted
+                $deletedText = ! $lesson_active_status ? ' <span class="text-gray-500 italic"> deleted</span>' : '';
 
-                // Check user role
-                if (Auth::user()->type == 'Instructor') {
-                    $lessonLink = '<a href="' . $url . '" class="text-blue-600 hover:underline mr-2" title="' . $lessonName . '">' . $truncatedLessonName . '</a>';
-                } else {
-                    $lessonLink = '<span class="text-gray-800 mr-2" title="' . $lessonName . '">' . $truncatedLessonName . '</span>';
-                }
+                // Truncate lesson name if it exceeds 16 characters
+                $lessonName          = e($purchase->lesson_name);
+                $truncatedLessonName = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
 
                 return '
-        <div class="flex justify-between items-center">
-            ' . $lessonLink . '
-            <label class="badge rounded-pill ' . $badgeClass . ' p-2 px-3">' . e($s) . '</label>' . $deletedText . '
-        </div>';
+                    <div class="flex justify-between">
+                        <span class="mr-2" title="' . $lessonName . '">' . $truncatedLessonName . $deletedText . '</span>
+                        <label class="badge rounded-pill ' . $badgeClass . ' p-2 px-3">' . e($s) . '</label>
+                    </div>';
             })
             ->editColumn('student_name', function ($purchase) {
                 $imageSrc = $purchase->student->dp
-                    ? asset('/storage' . '/' . tenant('id') . '/' . $purchase->student->dp)
-                    : asset('assets/img/logo/logo.png');
+                ? $purchase->student->dp
+                : asset('assets/img/logo/logo.png');
 
                 return '
                     <div class="flex justify-start items-center">
@@ -74,7 +75,7 @@ class PurchaseDataTable extends DataTable
                     </div>';
             })
             ->addColumn('status', function ($purchase) {
-                $s = Purchase::STATUS_MAPPING[$purchase->status] ?? 'Unknown';
+                $s           = Purchase::STATUS_MAPPING[$purchase->status] ?? 'Unknown';
                 $statusClass = $purchase->status == Purchase::STATUS_COMPLETE ? 'bg-green-600' : 'bg-red-600';
 
                 return '<label class="badge rounded-pill ' . $statusClass . ' p-2 px-3">' . e($s) . '</label>';
@@ -88,54 +89,23 @@ class PurchaseDataTable extends DataTable
             ->rawColumns(['action', 'status', 'student_name', 'instructor_name', 'lesson_name']);
     }
 
-
     public function query(Purchase $model)
     {
-        $user = Auth::user();
-
         $query = $model->newQuery()
             ->select([
-                'purchases.*',  // Select all purchase fields
-                'lessons.lesson_name as lesson_name',  // Get lesson name
-                'instructors.name as instructor_name', // Get instructor name
-                'students.name as student_name' // Get student name
+                'purchases.*',
+                'lessons.lesson_name as lesson_name',
+                'instructors.name as instructor_name',
+                'students.name as student_name',
             ])
             ->join('lessons', 'purchases.lesson_id', '=', 'lessons.id')
             ->join('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
             ->join('students as students', 'purchases.student_id', '=', 'students.id')
-            ->orderBy('purchases.created_at', 'desc'); // Order by creation date in descending order
+            ->where('purchases.student_id', $this->studentId)
+            ->orderBy('purchases.created_at', 'desc');
 
-        // Filter query based on user role
-        if ($user->type == Role::ROLE_STUDENT) {
-            $query->where('purchases.student_id', $user->id)
-                ->where('purchases.status', Purchase::STATUS_COMPLETE)
-                ->orWhere('purchases.type','package');
-        }
-
-        if ($user->type == Role::ROLE_ADMIN) {
-            $query->where(function ($q) {
-                $q->whereHas('lesson', function ($subQuery) {
-                    $subQuery->where('is_package_lesson', true)
-                        ->orWhere('type', 'online');
-                })->where('status', 'complete')
-                    ->orWhere(function ($subQ) {
-                        $subQ->whereHas('lesson', function ($lessonQ) {
-                            $lessonQ->where('type', 'inPerson')
-                                ->where('is_package_lesson', false);
-                        })->whereIn('status', ['complete', 'incomplete']);
-                    });
-            });
-        }
-
-        if ($user->type == Role::ROLE_INSTRUCTOR) {
-            $query->where('purchases.instructor_id', $user->id)
-                ->where('purchases.status', Purchase::STATUS_COMPLETE);
-        }
         return $query;
     }
-
-
-
 
     public function html()
     {
@@ -146,21 +116,20 @@ class PurchaseDataTable extends DataTable
         if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
             unset($buttons[0]);
         }
-
+    
         return $this->builder()
             ->setTableId('purchases-table')
-            ->addTableClass('display responsive nowrap')
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->orderBy(1)
             ->language([
                 "paginate" => [
-                    "next" => '<i class="ti ti-chevron-right"></i>',
-                    "previous" => '<i class="ti ti-chevron-left"></i>'
+                    "next"     => '<i class="ti ti-chevron-right"></i>',
+                    "previous" => '<i class="ti ti-chevron-left"></i>',
                 ],
-                'lengthMenu' => __('_MENU_ entries per page'),
+                'lengthMenu'        => __('_MENU_ entries per page'),
                 "searchPlaceholder" => __('Search'),
-                'search' => ''
+                'search'            => '',
             ])
             ->initComplete('function() {
                 var table = this;
@@ -170,36 +139,14 @@ class PurchaseDataTable extends DataTable
                 var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
             }')
             ->parameters([
-                "dom" =>  "
-                <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12 d-none d-sm-block'>
-                <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
-                <'dataTable-container'<'col-sm-12'tr>>
-                <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
-                <'col-sm-7'p>>
-                ",
-                'buttons'   => $buttons,
-                "scrollX" => true,
-                "responsive" => [
-                    "scrollX"=> false,
-                    "details" => [
-                        "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
-                        "renderer" => "function (api, rowIdx, columns) {
-                            var data = $('<table/>').addClass('vertical-table');
-                            $.each(columns, function (i, col) {
-                                data.append(
-                                    '<tr>' +
-                                        '<td><strong>' + col.title + '</strong></td>' +
-                                        '<td>' + col.data + '</td>' +
-                                    '</tr>'
-                                );
-                            });
-                            return data;
-                        }"
-                    ]
-                ],
-                "rowCallback" => 'function(row, data, index) {
-                    $(row).addClass("custom-parent-row"); 
-                }',
+                "dom" => "
+                    <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'>
+                    <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
+                    <'dataTable-container'<'col-sm-12'tr>>
+                ", 
+                'buttons'        => $buttons,
+                "scrollX"        => true,
+                "paging"         => false, 
                 'headerCallback' => 'function(thead, data, start, end, display) {
                     $(thead).find("th").css({
                         "background-color": "rgba(249, 252, 255, 1)",
@@ -209,50 +156,47 @@ class PurchaseDataTable extends DataTable
                     });
                 }',
                 'rowCallback' => 'function(row, data, index) {
-                    // Make the first column bold
                     $("td", row).css("font-family", "Helvetica");
                     $("td", row).css("font-weight", "300");
                 }',
-                "drawCallback" => 'function( settings ) {
+                "drawCallback" => 'function(settings) {
                     var tooltipTriggerList = [].slice.call(
                         document.querySelectorAll("[data-bs-toggle=tooltip]")
-                      );
-                      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    );
+                    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
                         return new bootstrap.Tooltip(tooltipTriggerEl);
-                      });
-                      var popoverTriggerList = [].slice.call(
+                    });
+                    var popoverTriggerList = [].slice.call(
                         document.querySelectorAll("[data-bs-toggle=popover]")
-                      );
-                      var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                    );
+                    var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
                         return new bootstrap.Popover(popoverTriggerEl);
-                      });
-                      var toastElList = [].slice.call(document.querySelectorAll(".toast"));
-                      var toastList = toastElList.map(function (toastEl) {
+                    });
+                    var toastElList = [].slice.call(document.querySelectorAll(".toast"));
+                    var toastList = toastElList.map(function(toastEl) {
                         return new bootstrap.Toast(toastEl);
-                      });
-                }'
+                    });
+                }',
             ])->language([
                 'buttons' => [
                     'create' => __('Choose Your Coach'),
-                    'print' => __('Print'),
-                    'reset' => __('Reset'),
+                    'print'  => __('Print'),
+                    'reset'  => __('Reset'),
                     'reload' => __('Reload'),
-                    'excel' => __('Excel'),
-                    'csv' => __('CSV'),
-                ]
+                    'excel'  => __('Excel'),
+                    'csv'    => __('CSV'),
+                ],
             ]);
     }
-
+    
     protected function getColumns()
     {
         $columns = [
             Column::make('No')->title(__('Lesson Number'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-            Column::make('lesson_name')->title(__('Lesson'))->searchable(true),
+            Column::make('lesson_name')->title(__('Lesson'))->searchable(false),
         ];
         if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
             $columns[] = Column::make('student_name')->title("Student")->searchable(true);
-            $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
-
         } elseif (Auth::user()->type == Role::ROLE_STUDENT) {
             $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
         }

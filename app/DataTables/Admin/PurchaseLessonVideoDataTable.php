@@ -1,5 +1,4 @@
 <?php
-
 namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
@@ -10,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class PurchaseVideoDataTable extends DataTable
+class PurchaseLessonVideoDataTable extends DataTable
 {
 
 
@@ -51,7 +50,7 @@ class PurchaseVideoDataTable extends DataTable
         return $model->newQuery()->where('purchase_id', $this->purchase->id);
     }
 
-    public function html() 
+    public function html()
     {
         return $this->builder()
             ->setTableId('purchases-table')
@@ -144,7 +143,7 @@ class PurchaseVideoDataTable extends DataTable
         $columns = [
             Column::make('No')->title(__('No'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
             Column::make('purchase_id')->title(__('Purchase')),
-            Column::make('instructor_id')->title(__('Instructor Name')),
+            Column::make('instructor_id')->title(__('instructor Name')),
             Column::make('video')->title(__('Video'))->searchable(false),
             Column::make('feedback')->title(__('Feedback')),
             Column::make('created_at')->title(__('Created At')),

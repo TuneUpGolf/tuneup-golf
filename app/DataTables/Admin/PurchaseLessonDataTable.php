@@ -1,5 +1,4 @@
 <?php
-
 namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
@@ -10,11 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class PurchaseVideoDataTable extends DataTable
+class PurchaseLessonDataTable extends DataTable
 {
-
-
-
     public function dataTable($query)
     {
         return datatables()
@@ -24,17 +20,21 @@ class PurchaseVideoDataTable extends DataTable
 
                 return $purchaseVideo->purchase_id;
             })
+            ->editColumn('note', function (PurchaseVideos $purchaseVideo) {
+                $note = $purchaseVideo->note ? nl2br(e($purchaseVideo->note)) : "No note provided";
+                return '<div style="white-space: pre-wrap; word-wrap: break-word; max-width: 400px;">' . $note . '</div>';
+            })
             ->editColumn('instructor_id', function () {
                 $instructor_name = User::find($this->purchase->instructor_id);
                 return $instructor_name->name;
             })
             ->editColumn('video', function (PurchaseVideos $purchaseVideo) {
-                $video = $purchaseVideo;
+                $video = $purchaseVideo->video_url;
                 return view('admin.purchases.renderVideo', compact('video'));
             })
             ->editColumn('feedback', function (PurchaseVideos $purchaseVideo) {
-                $feedback = $purchaseVideo->feedback ? $purchaseVideo->feedback : "Feedback pending";
-                return $feedback;
+                $feedback = $purchaseVideo->feedback ? nl2br(e($purchaseVideo->feedback)) : "Feedback pending";
+                return '<div style="white-space: pre-wrap; word-wrap: break-word; max-width: 400px;">' . $feedback . '</div>';
             })
             ->editColumn('created_at', function ($request) {
                 $created_at = UtilityFacades::date_time_format($request->created_at);
@@ -43,7 +43,7 @@ class PurchaseVideoDataTable extends DataTable
             ->addColumn('action', function (PurchaseVideos $purchaseVideo) {
                 return view('admin.purchases.purchaseVideoAction', compact('purchaseVideo'));
             })
-            ->rawColumns(['action', 'logo_image']);
+            ->rawColumns(['action', 'logo_image', 'feedback', 'note']);
     }
 
     public function query(PurchaseVideos $model)
@@ -51,7 +51,7 @@ class PurchaseVideoDataTable extends DataTable
         return $model->newQuery()->where('purchase_id', $this->purchase->id);
     }
 
-    public function html() 
+    public function html()
     {
         return $this->builder()
             ->setTableId('purchases-table')
@@ -80,13 +80,7 @@ class PurchaseVideoDataTable extends DataTable
                              <'dataTable-container'<'col-sm-12'tr>>
                              <'dataTable-bottom row'<'col-sm-5'i><'col-sm-7'p>>
                                ",
-                'buttons'   => [
-                    ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
-                                    window.location = '" . route('purchase.create') . "';
-                               }"],
-                    ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
-                    ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
-                ],
+
                 "scrollX" => true,
                 "responsive" => [
                     "scrollX"=> false,
@@ -127,15 +121,6 @@ class PurchaseVideoDataTable extends DataTable
                         return new bootstrap.Toast(toastEl);
                       });
                 }'
-            ])->language([
-                'buttons' => [
-                    'create' => __('Create'),
-                    'print' => __('Print'),
-                    'reset' => __('Reset'),
-                    'reload' => __('Reload'),
-                    'excel' => __('Excel'),
-                    'csv' => __('CSV'),
-                ]
             ]);
     }
 
@@ -143,8 +128,7 @@ class PurchaseVideoDataTable extends DataTable
     {
         $columns = [
             Column::make('No')->title(__('No'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-            Column::make('purchase_id')->title(__('Purchase')),
-            Column::make('instructor_id')->title(__('Instructor Name')),
+            Column::make('note')->title(__('Note')),
             Column::make('video')->title(__('Video'))->searchable(false),
             Column::make('feedback')->title(__('Feedback')),
             Column::make('created_at')->title(__('Created At')),
@@ -154,6 +138,7 @@ class PurchaseVideoDataTable extends DataTable
                 ->width(60)
                 ->addClass('text-center')
                 ->width('20%'),
+
         ];
 
         if (Auth::user()->type == Role::ROLE_STUDENT) {
