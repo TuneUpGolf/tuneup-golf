@@ -192,10 +192,9 @@ trait PurchaseTrait
             ]);
 
             $purchase = Purchase::find($request?->purchase_id);
-
             if ($purchase && Auth::user()->can('create-purchases') && !!$purchase->instructor->is_stripe_connected) {
                 $session = $this->createSessionForPayment($purchase, true);
-
+                
                 if (empty($session->url)) {
                     throw new \Exception('Failed to generate payment link');
                 }

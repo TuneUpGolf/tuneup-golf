@@ -24,7 +24,7 @@ class LessonsGridView extends GridView
                     $q->where('is_stripe_connected', true);
                 });
         } elseif (request()->query('type') == Lesson::LESSON_TYPE_INPERSON) {
-            $query->where('type', Lesson::LESSON_TYPE_INPERSON)
+            $query->with('packages')->whereIn('type',[Lesson::LESSON_TYPE_INPERSON, Lesson::LESSON_TYPE_PACKAGE])
                 ->where(function ($q) {
                     $q->where('payment_method', '!=', 'online')
                         ->orWhereHas('user', function ($q) {

@@ -1,4 +1,4 @@
-@if ($purchase->status !== 'complete' && Auth::user()->type == 'Student')
+@if ($purchase->status !== 'complete' && Auth::user()->type == 'Student' && $purchase->type != 'package')
     @can('create-purchases')
         {!! Form::open([
             'method' => 'POST',
@@ -11,6 +11,12 @@
         </a>
         {!! Form::close() !!}
     @endcan
+@endif 
+@if ($purchase->type == 'package' && $purchase->isFullyBooked())
+        <a class="'btn btn-sm small btn btn-info ' " href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}"
+            data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">
+            <i class="ti ti-eye text-white"></i>
+        </a>
 @endif
 @if (
     $purchase->status == 'complete' &&

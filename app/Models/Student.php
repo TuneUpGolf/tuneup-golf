@@ -117,4 +117,8 @@ class Student extends User implements MustVerifyEmail
             }
         }
     }
+    public function studentSlots() : HasMany
+    {
+        return $this->hasMany(StudentSlot::class);
+    }
 }
