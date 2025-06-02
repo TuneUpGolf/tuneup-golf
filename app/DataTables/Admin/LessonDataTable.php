@@ -62,6 +62,9 @@ class LessonDataTable extends DataTable
             ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
                 window.location = '" . route('lesson.create', ["type" => 'online']) . "';
            }"],
+           ['extend' => 'create', 'text' => 'Set Availability', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
+                window.location = '" . route('slot.create') . "';
+           }"],
             [
                 'extend' => 'collection',
                 'className' => 'btn btn-light-secondary me-1 dropdown-toggle',

@@ -40,15 +40,6 @@
     </div>
 
     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-        <div class="flex flex-row justify-between">
-
-            @if ($model->is_package_lesson && request()->get('type') != 'online')
-            <div class="bg-green-500 text-white text-sm font-bold px-2 py-1 rounded-full">
-                Package
-                Lesson
-            </div>
-            @endif
-        </div>
 
         <span class="text-xl font-semibold text-dark">{!! $title !!}</span>
         <p class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis">
@@ -66,25 +57,18 @@
                 </h2>
                 <p class="text-sm text-gray-500 mb-3">Save more with multi-lesson packages</p>
                 <form class="space-y-3">
-                    <select class="form-select" name="package_slot" id="package_slot">
+                    <select class="form-select" name="package_slot" id="package_slot_{{ $model->id}}">
                         <option value="0">Select Package</option>
                         @foreach ($model->packages as $package)
                             <option value="{{ $package->price }}">{!! $package->number_of_slot !!} Lesson &nbsp;-&nbsp;
                                 ${!! $package->price !!} CAD</option>
-                            {{-- <label class="flex items-center justify-between p-2 border rounded-lg cursor-pointer hover:bg-gray-50">
-                        <div class="flex items-center space-x-3">
-                            <input type="radio" name="lesson" value="3" class="form-radio text-blue-600">
-                            <span class="text-gray-700 font-medium">{!!  $package->number_of_slot !!} Lesson</span>
-                        </div>
-                        <span class="text-gray-800 font-semibold">${!! $package->price !!} CAD</span>
-                    </label> --}}
                         @endforeach
                     </select>
                 </form>
             </div>
         @endif
 
-        @if($model->type !== 'inPerson')
+        @if($model->type == 'online')
         <div class="mt-auto bg-gray-200 gap-1 rounded-lg px-4 py-3 flex">
             <div class="text-center w-50">
                 <span class="text-xl font-bold">{!! $model->lesson_quantity !!}</span>
@@ -98,7 +82,6 @@
             </div>
         </div>
         @endif
-
         <div class="w-100 mt-3">
             @if ($model->type === 'online')
                 {!! Form::open([
@@ -141,7 +124,7 @@
                             </button>
                         @else
                             <button class="lesson-btn"
-                                onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}' ,'{{ $model->lesson_price }}')">
+                                onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}' ,'{{ $model->lesson_price }}', {{ $model->id}})">
                                 Purchase
                             </button>
                         @endif
@@ -172,9 +155,9 @@
 @push('javascript')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function openBookingPopup(allSlots, type, price) {
+        function openBookingPopup(allSlots, type, price, lessonId) {
             if (type == 'package') {
-                price = $("#package_slot").val();
+                price = $("#package_slot_"+lessonId).val();
                 if (price == 0) {
                     alert('Please select package option');
                     return;

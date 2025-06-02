@@ -175,7 +175,13 @@ class LessonController extends Controller
     {
         if (Auth::user()->can('create-lessons')) {
             $lesson = Lesson::find($request->get('lesson_id'));
-            return view('admin.lessons.addSlot', compact('lesson'));
+            if($lesson) {
+                 return view('admin.lessons.addSlot', compact('lesson'));
+            } else {
+                $lesson = Lesson::doesntHave('slots')->withMax('packages','number_of_slot')->where('type','package')->get()->toArray();
+                return view('admin.lessons.setAvailability', compact('lesson'));
+            }
+           
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -312,7 +318,11 @@ class LessonController extends Controller
                     return $slot->availableSeats() > 0 || $slot->student->contains('id', $authUser->id);
                 });
             }
-
+            if($lesson->type == 'package') {
+                $purchasedSlot = Purchase::where(['lesson_id'=>request()->get('lesson_id'),'student_id'=>$authUser->id,'type'=>'package'])->first();
+                $slots = collect(array_slice($slots->all(), 0, $purchasedSlot->purchased_slot));
+                
+            }
             foreach ($slots as $appointment) {
 
                 $n = $appointment->lesson->lesson_duration;
@@ -345,7 +355,6 @@ class LessonController extends Controller
                     'className' => $className,
                 ]);
             }
-
             $lesson_id = request()->get('lesson_id');
             $authId = Auth::user()->id;
             $students = Student::where('active_status', true)->where('isGuest', false)->get();
@@ -1213,5 +1222,77 @@ class LessonController extends Controller
         $lesson->update(['active_status' => false]);
 
         return redirect()->route('lesson.index')->with('success', 'Lesson disabled successfully!');
+    }
+    public function addAvailabilitySlots(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'lesson_id' => 'required|array',
+                'start_date' => 'required',
+                'start_time' => 'required|date_format:H:i',
+                'end_time' => 'required|date_format:H:i',
+                'location'  => 'required|string|max:255',
+            ]);
+
+            $selectedDates = explode(",",$request->start_date);
+
+            $lessons = Lesson::withMax('packages','number_of_slot')->find($request->get('lesson_id'));
+            $slots = [];
+            $check = 0;
+            $startTime = Carbon::parse($request->start_time); // e.g. '10:00'
+            $endTime = Carbon::parse($request->end_time);     // e.g. '12:15'
+            $lessonMinutes = $endTime->diffInMinutes($startTime);
+            $selectedDates = explode(",",$request->start_date);
+            foreach($lessons as $lesson) {
+                $lessonDuration = $lesson->lesson_duration * 60;
+                if($lessonMinutes != $lessonDuration) {
+                    $check = 1;
+                     return redirect()->back()->with('errors', 'Please select valid package lessons to book availability');
+                }
+            }
+            if($check == 0) {
+                foreach($lessons as $lesson) {
+                    $slotsDates = array_slice($selectedDates, 0, $lesson->packages_max_number_of_slot);
+                    foreach($slotsDates as $date) {
+                        $time = $request->start_time;
+                        $combinedDateTime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
+                        $slotData = [
+                            'lesson_id' => $lesson->id,
+                            'date_time' => $combinedDateTime,
+                            'location'  => $request->location
+                        ];
+                        $slot = Slots::updateOrCreate($slotData);
+                        array_push($slots, $slot);
+                    }
+                }
+            }
+            
+            // Send push notifications for new lessons
+            $students = Student::whereHas('pushToken')
+                ->with('pushToken')
+                ->get()
+                ->pluck('pushToken.token')
+                ->toArray();
+
+            if (!empty($students)) {
+                foreach($lessons as $lesson) {
+                $title = "New Lessons Available!";
+                $body  = "{$lesson->user->name} has created new lesson opportunities: {$lesson->lesson_name}. Check now!";
+                SendPushNotification::dispatch($students, $title, $body);
+                }
+            }
+
+            // Return based on redirect parameter
+            return $request->get('redirect') == 1
+                ? redirect()->route('lesson.index')->with('success', 'Slots Successfully Added')
+                : response()->json([
+                    'message' => 'Consecutive Slots for the given range are successfully created',
+                    'slots' => $slots
+                ]);
+        } catch (\Exception $e) {
+            return $request->get('redirect') == 1
+                ? redirect()->back()->with('error', $e->getMessage())
+                : response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
+        }
     }
 }
