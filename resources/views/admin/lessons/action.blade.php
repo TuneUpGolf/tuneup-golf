@@ -1,5 +1,5 @@
 @can('manage-lessons')
-    @if ($lesson->type === 'inPerson' || $lesson->type == 'package')
+    @if ($lesson->type === 'inPerson')
         <a class="'btn btn-sm small btn btn-info ' " href="{{ route('slot.view', ['lesson_id' => $lesson->id]) }}"
             data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">
             <i class="ti ti-eye text-white"></i>
