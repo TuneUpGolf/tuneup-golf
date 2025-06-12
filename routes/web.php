@@ -6,55 +6,53 @@ use App\Http\Controllers\Admin\FollowController;
 use App\Http\Controllers\Admin\Payment\StripeController as PaymentStripeController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\PurchasePostController;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\Superadmin\ChangeDomainController;
+use App\Http\Controllers\Superadmin\ConversionsController;
+use App\Http\Controllers\Superadmin\CouponController;
+use App\Http\Controllers\Superadmin\EmailTemplateController;
+use App\Http\Controllers\Superadmin\FaqController;
 use App\Http\Controllers\Superadmin\HomeController;
+use App\Http\Controllers\Superadmin\LandingPageController;
 use App\Http\Controllers\Superadmin\LanguageController;
 use App\Http\Controllers\Superadmin\LoginSecurityController;
 use App\Http\Controllers\Superadmin\ModuleController;
-use App\Http\Controllers\Superadmin\OfflineRequestController;
-use App\Http\Controllers\Superadmin\PlanController;
-use App\Http\Controllers\Superadmin\ProfileController;
-use App\Http\Controllers\Superadmin\ChangeDomainController;
-use App\Http\Controllers\Superadmin\ConversionsController;
-use App\Http\Controllers\Superadmin\EmailTemplateController;
-use App\Http\Controllers\Superadmin\RequestDomainController;
-use App\Http\Controllers\Superadmin\RoleController;
-use App\Http\Controllers\Superadmin\SupportTicketController;
-use App\Http\Controllers\Superadmin\SettingsController;
-use App\Http\Controllers\Superadmin\UserController;
-use App\Http\Controllers\Superadmin\CouponController;
-use App\Http\Controllers\Superadmin\FaqController;
-use App\Http\Controllers\Superadmin\LandingPageController;
-use App\Http\Controllers\Superadmin\SmsTemplateController;
-use App\Http\Controllers\Superadmin\TestimonialController;
 use App\Http\Controllers\Superadmin\NotificationsSettingController;
+use App\Http\Controllers\Superadmin\OfflineRequestController;
 use App\Http\Controllers\Superadmin\PageSettingController;
+use App\Http\Controllers\Superadmin\Payment\AamarpayController;
+use App\Http\Controllers\Superadmin\Payment\BenefitPaymentController;
+use App\Http\Controllers\Superadmin\Payment\CashFreeController;
 use App\Http\Controllers\Superadmin\Payment\CoingateController;
-use App\Http\Controllers\Superadmin\Payment\ToyyibpayController;
-use App\Http\Controllers\Superadmin\Payment\SSPayController;
-use App\Http\Controllers\Superadmin\Payment\StripeController;
-use App\Http\Controllers\Superadmin\Payment\RazorpayPaymentController;
-use App\Http\Controllers\Superadmin\Payment\SkrillPaymentController;
-use App\Http\Controllers\Superadmin\Payment\PaytmController;
-use App\Http\Controllers\Superadmin\Payment\PayuMoneyController;
-use App\Http\Controllers\Superadmin\Payment\PaystackController;
-use App\Http\Controllers\Superadmin\Payment\PaytabController;
-use App\Http\Controllers\Superadmin\Payment\PayPalController;
-use App\Http\Controllers\Superadmin\Payment\PayfastController;
+use App\Http\Controllers\Superadmin\Payment\EasebuzzPaymentController;
+use App\Http\Controllers\Superadmin\Payment\FlutterwaveController;
+use App\Http\Controllers\Superadmin\Payment\IyziPayController;
 use App\Http\Controllers\Superadmin\Payment\MercadoController;
 use App\Http\Controllers\Superadmin\Payment\MolliePaymentController;
-use App\Http\Controllers\Superadmin\Payment\FlutterwaveController;
-use App\Http\Controllers\Superadmin\Payment\AamarpayController;
-use App\Http\Controllers\Superadmin\Payment\CashFreeController;
-use App\Http\Controllers\Superadmin\Payment\EasebuzzPaymentController;
-use App\Http\Controllers\Superadmin\Payment\IyziPayController;
-use App\Http\Controllers\Superadmin\Payment\BenefitPaymentController;
+use App\Http\Controllers\Superadmin\Payment\PayfastController;
+use App\Http\Controllers\Superadmin\Payment\PayPalController;
+use App\Http\Controllers\Superadmin\Payment\PaystackController;
+use App\Http\Controllers\Superadmin\Payment\PaytabController;
+use App\Http\Controllers\Superadmin\Payment\PaytmController;
+use App\Http\Controllers\Superadmin\Payment\PayuMoneyController;
+use App\Http\Controllers\Superadmin\Payment\RazorpayPaymentController;
+use App\Http\Controllers\Superadmin\Payment\SkrillPaymentController;
+use App\Http\Controllers\Superadmin\Payment\SSPayController;
+use App\Http\Controllers\Superadmin\Payment\StripeController;
+use App\Http\Controllers\Superadmin\Payment\ToyyibpayController;
+use App\Http\Controllers\Superadmin\PlanController;
+use App\Http\Controllers\Superadmin\ProfileController;
+use App\Http\Controllers\Superadmin\RequestDomainController;
+use App\Http\Controllers\Superadmin\RoleController;
+use App\Http\Controllers\Superadmin\SettingsController;
+use App\Http\Controllers\Superadmin\SmsTemplateController;
+use App\Http\Controllers\Superadmin\SupportTicketController;
+use App\Http\Controllers\Superadmin\TestimonialController;
+use App\Http\Controllers\Superadmin\UserController;
 use App\Mail\Admin\RequestDemoMail;
 use App\Models\RequestDemo;
 use AWS\CRT\HTTP\Request;
-use Illuminate\Http\Request as HttpRequest;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Route;
 use Spatie\MailTemplates\Models\MailTemplate;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
 
@@ -135,7 +133,6 @@ Route::group(['middleware' => ['auth', 'Setting', 'xss', '2fa']], function () {
     Route::get('users/{id}/impersonate', [UserController::class, 'impersonate'])->name('users.impersonate');
     Route::post('user-status/{id}', [UserController::class, 'userStatus'])->name('user.status');
 
-
     // coupon
     Route::resource('coupon', CouponController::class);
     Route::get('coupon/show', [CouponController::class, 'show'])->name('coupons.show');
@@ -180,7 +177,7 @@ Route::group(['middleware' => ['auth', 'Setting', 'xss', '2fa']], function () {
     });
 
     //profile
-    Route::get('profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::get('profile/edit', [ProfileController::class, 'index'])->name('profile.view');
     Route::delete('/profile-destroy/delete', [ProfileController::class, 'destroy'])->name('profile.delete');
     Route::get('profile-status', [ProfileController::class, 'profileStatus'])->name('profile.status');
     Route::post('update-avatar', [ProfileController::class, 'updateAvatar'])->name('update.avatar');
@@ -409,30 +406,29 @@ Route::get('/clear-cache', function () {
 Route::post('/request/submit', function () {
 
     $all = request()->validate([
-        'name' => 'required',
-        'email' => 'required',
-        'phone' => 'required',
-        'clubName' => 'required',
-        'message' => 'required',
+        'name'                 => 'required',
+        'email'                => 'required',
+        'phone'                => 'required',
+        'clubName'             => 'required',
+        'message'              => 'required',
         'g-recaptcha-response' => 'required',
     ], [
         'g-recaptcha-response.required' => 'Please complete the CAPTCHA.', // Custom error message
     ]);
 
-
     RequestDemo::create([
-        'name' => $all['name'],
-        'email' => $all['email'],
-        'phone' => $all['phone'],
+        'name'     => $all['name'],
+        'email'    => $all['email'],
+        'phone'    => $all['phone'],
         'clubName' => $all['clubName'],
-        'message' => $all['message'],
+        'message'  => $all['message'],
     ]);
 
     MailTemplate::firstOrCreate([
-        'mailable' => RequestDemoMail::class,
-        'subject' => 'Demo Requested by , {{ name }}',
+        'mailable'      => RequestDemoMail::class,
+        'subject'       => 'Demo Requested by , {{ name }}',
         'html_template' => '<p>Hello, a demo was requested by {{name}} , email : {{email}} , phone : {{phone_number}} , club name : {{clubName}}. Message : {{message}} </p>',
-        'text_template' => 'Hello, {{ name }}.'
+        'text_template' => 'Hello, {{ name }}.',
     ]);
 
     SendEmail::dispatch('matt@tuneup.golf', new RequestDemoMail(request()->all()));
