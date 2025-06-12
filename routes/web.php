@@ -185,7 +185,7 @@ Route::group(['middleware' => ['auth', 'Setting', 'xss', '2fa']], function () {
     Route::get('profile-status', [ProfileController::class, 'profileStatus'])->name('profile.status');
     Route::post('update-avatar', [ProfileController::class, 'updateAvatar'])->name('update.avatar');
     Route::post('profile/basicinfo/update/', [ProfileController::class, 'BasicInfoUpdate'])->name('profile.update.basicinfo');
-    Route::post('update-login-details', [ProfileController::class, 'LoginDetails'])->name('update.login.details');
+    Route::post('update-login', [ProfileController::class, 'LoginDetails'])->name('update.login.details');
 
     //setting
     Route::get('settings', [SettingsController::class, 'index'])->name('settings');
