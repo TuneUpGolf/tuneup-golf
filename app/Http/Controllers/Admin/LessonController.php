@@ -90,11 +90,11 @@ class LessonController extends Controller
             ]);
             $validatedData['lesson_quantity'] = 1;
             $validatedData['required_time'] = 0;
-            !empty($validatedData['is_package_lesson']) && $validatedData['is_package_lesson'] == "1" ? $validatedData['is_package_lesson'] = true : $validatedData['is_package_lesson'] = false;
+            !empty($validatedData['is_package_lesson']) && $validatedData['is_package_lesson'] == 1 ? $validatedData['is_package_lesson'] = true : $validatedData['is_package_lesson'] = false;
         }
         // Assuming 'created_by' is the ID of the currently authenticated instructor
         $validatedData['created_by'] = Auth::user()->id;
-        $validatedData['type'] = ($request->is_package_lesson == "1") ? 'package' : $request->type;
+        $validatedData['type'] = ($request->is_package_lesson == 1) ? 'package' : $request->type;
         $validatedData['payment_method'] = $request->type === Lesson::LESSON_TYPE_INPERSON ? $request->payment_method : Lesson::LESSON_PAYMENT_ONLINE;
         $validatedData['tenant_id'] = Auth::user()->tenant_id;
         $validatedData['lesson_price'] = $request->lesson_price ?? 0;
@@ -127,11 +127,10 @@ class LessonController extends Controller
     public function update(Request $request, $lessonId)
     {
         $lesson = Lesson::findOrFail($lessonId);
-
         $validatedData = $request->validate([
             'lesson_name'          => 'required|string|max:255',
             'lesson_description'   => 'required|string',
-            'lesson_price'         => 'required|numeric',
+            'lesson_price'         => 'required_if:is_package_lesson,1|numeric',
             'lesson_quantity'      => 'integer',
             'required_time'        => 'integer',
             'lesson_duration'      => 'numeric',
@@ -143,14 +142,23 @@ class LessonController extends Controller
         $validatedData['created_by'] = Auth::user()->id;
 
         $lesson->update($validatedData);
-
+        if ($lesson->is_package_lesson == 1 && !empty($request->package_lesson)) {
+            foreach ($request->package_lesson as $packages) {
+                PackageLesson::create([
+                    'tenant_id' => Auth::user()->tenant_id,
+                    'lesson_id' => $lessonId,
+                    'number_of_slot' => $packages['no_of_slot'],
+                    'price' => $packages['price'],
+                ]);
+            }
+        }
         return redirect()->route('lesson.index', $lesson)->with('success', 'Lesson updated successfully.');
     }
 
     public function edit($id)
     {
         if (Auth::user()->can('edit-lessons')) {
-            $user   = Lesson::find($id);
+            $user   = Lesson::with('packages')->find($id);
             if (Auth::user()->type == 'Admin') {
                 $roles      = Role::where('name', '!=', 'Super Admin')->where('name', '!=', 'Admin')->pluck('name', 'name');
                 $domains    = Domain::pluck('domain', 'domain')->all();
@@ -178,7 +186,7 @@ class LessonController extends Controller
             if($lesson) {
                  return view('admin.lessons.addSlot', compact('lesson'));
             } else {
-                $lesson = Lesson::doesntHave('slots')->withMax('packages','number_of_slot')->where('type','package')->get()->toArray();
+                $lesson = Lesson::doesntHave('slots')->withMax('packages','number_of_slot')->whereIn('type',['package','inPerson'])->get()->toArray();
                 return view('admin.lessons.setAvailability', compact('lesson'));
             }
            
@@ -785,7 +793,7 @@ class LessonController extends Controller
             ]);
             $newPurchase->save();
     
-            if ($slot->lesson->is_package_lesson) {
+            if ($slot->lesson->payment_method == 'online') {
                 request()->merge(['purchase_id' => $newPurchase->id]);
                 request()->setMethod('POST');
     
@@ -1252,7 +1260,8 @@ class LessonController extends Controller
             }
             if($check == 0) {
                 foreach($lessons as $lesson) {
-                    $slotsDates = array_slice($selectedDates, 0, $lesson->packages_max_number_of_slot);
+                    $totalSlot = isset($lesson->packages_max_number_of_slot) && !empty($lesson->packages_max_number_of_slot) ? $lesson->packages_max_number_of_slot : count($selectedDates);
+                    $slotsDates = array_slice($selectedDates, 0, $totalSlot);
                     foreach($slotsDates as $date) {
                         $time = $request->start_time;
                         $combinedDateTime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
