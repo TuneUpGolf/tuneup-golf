@@ -31,11 +31,18 @@
                             <!-- Package Lesson Checkbox -->
                             <div class="form-group">
                                 <div class="form-check">
-                                    {!! Form::checkbox('is_package_lesson', 1, false, [
+                                    {!! Form::radio('is_package_lesson', 1, false, [
                                         'class' => 'form-check-input',
-                                        'id' => 'is_package_lesson',
+                                        'id' => 'radio_package_lesson',
                                     ]) !!}
-                                    {{ Form::label('is_package_lesson', __('Package Lesson'), ['class' => 'form-check-label']) }}
+                                    {{ Form::label('radio_package_lesson', __('Package Lesson'), ['class' => 'form-check-label']) }}
+                                </div>
+                                <div class="form-check">
+                                    {!! Form::radio('is_package_lesson', 0, false, [
+                                        'class' => 'form-check-input',
+                                        'id' => 'radio_pre_sets_dates',
+                                    ]) !!}
+                                    {{ Form::label('radio_pre_sets_dates', __('Pre-sets date Lesson'), ['class' => 'form-check-label']) }}
                                 </div>
                             </div>
                             <!-- Name -->
@@ -190,184 +197,82 @@
     <script src="{{ asset('vendor/intl-tel-input/utils.min.js') }}"></script>
 
     <script>
-        // // $('.add-more-package').hide().prop('disabled', true);
-        // //$("#package_type").hide();
-        // $("#number_slot").hide();
-        // //$('#number_slot input').prop('disabled', true).prop('required', false);
-        // //$('#number_slot select').prop('disabled', true).prop('required', false);
-        // $(".add-more-package").hide();
-        // const priceInput = document.querySelector('input[name="package_lesson[0][price]"]');
-        // priceInput.removeAttribute('required'); // when hiding
-        // priceInput.setAttribute('required', ''); // when showing again
+        document.addEventListener('DOMContentLoaded', function() {
+            //const paymentMethodSelect = document.getElementById('payment_method');
+            //const hiddenPaymentMethod = document.getElementById('hidden_payment_method');
+            const packageNote = document.getElementById('package_note');
+            const lessonPriceWrapper = document.getElementById('lesson_price');
+            const lessonPriceInput = lessonPriceWrapper.querySelector('input[name="lesson_price"]');
+            const errorMessage = document.getElementById('bouncer-error_lesson_price');
+            const numberSlotSection = $("#number_slot");
+            const addMoreButton = $(".add-more-package");
+            const packageContainer = $('#package-options-container');
 
-       
+            let packageCount = 1;
 
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     let packageLessonCheckbox = document.getElementById('is_package_lesson');
-        //     let paymentMethodSelect = document.getElementById('payment_method');
-        //     let hiddenPaymentMethod = document.getElementById('hidden_payment_method');
-        //     let packageNote = document.getElementById('package_note');
+            numberSlotSection.hide();
+            addMoreButton.hide();
 
-        //     const slotInput = document.querySelector('select[name="package_lesson[0][no_of_slot]"]');
-        //     slotInput.removeAttribute('required'); // when hiding
-        //     slotInput.setAttribute('required', ''); // when showing again
+            const initialPriceInput = document.querySelector('input[name="package_lesson[0][price]"]');
+            const initialSlotSelect = document.querySelector('select[name="package_lesson[0][no_of_slot]"]');
+            initialPriceInput.removeAttribute('required');
+            initialSlotSelect.removeAttribute('required');
 
-        //     function togglePackageLessonSettings() {
-        //         if (packageLessonCheckbox.checked) {
-        //             paymentMethodSelect.value = 'online';
-        //             paymentMethodSelect.setAttribute('disabled', 'disabled');
-        //             hiddenPaymentMethod.value = 'online'; // Ensure it's sent in form data
-        //             packageNote.classList.remove('d-none'); // Show the price note
-        //         } else {
-        //             paymentMethodSelect.removeAttribute('disabled');
-        //             packageNote.classList.add('d-none'); // Hide the price note
-        //         }
-        //     }
+            function togglePackageLessonSettings() {
+                const selectedValue = document.querySelector('input[name="is_package_lesson"]:checked')?.value;
 
-        //     packageLessonCheckbox.addEventListener('change', togglePackageLessonSettings);
-        //     togglePackageLessonSettings(); // Run on page load
-        // });
-        // //const price = document.getElementById('lesson_price');
-        // $("#is_package_lesson").change(function() {
-        //     const wrapper = document.getElementById('lesson_price');
-        //     const input = wrapper.querySelector('input[name="lesson_price"]');
-        //     const errorMessage = document.getElementById('bouncer-error_lesson_price');
-        //     if ($(this).prop("checked") == true) {
-        //         //$("#package_type").show();
-        //         $("#number_slot").show();
-        //         $('.add-more-package').show();
-        //         $(this).val(1);
-        //         wrapper.style.display = 'none';
-        //         input.disabled = true;
-        //         input.removeAttribute('required');
+                if (selectedValue == 1) {
+                    // paymentMethodSelect.value = 'online';
+                    // paymentMethodSelect.setAttribute('disabled', 'disabled');
+                    // hiddenPaymentMethod.value = 'online';
+                    packageNote?.classList.remove('d-none');
 
-        //         // Remove error message if present
-        //         if (errorMessage) {
-        //             errorMessage.remove();
-        //         }
-        //         // Also reset the error class
-        //         input.classList.remove('error');
-        //         input.setAttribute('aria-invalid', 'false');
+                    numberSlotSection.show();
+                    addMoreButton.show();
 
-        //     } else {
-        //         $("#number_slot").remove();
-        //        // $("#package_type").hide();
-        //         $("#number_slot").hide();
-        //         $('.add-more-package').hide();
-        //         $(this).val(0);
-        //         wrapper.style.display = 'block';
-        //         input.disabled = false;
-        //         input.setAttribute('required', 'required');
-        //     }
-        // });
-        // $(document).ready(function() {
-           
-        //     let count = 1;
-        //     $('.add-more-package').on('click', function() {
-        //         let cloned = $('#number_slot:first').clone();
-        //         // Clear values
-        //         cloned.find('select').val('');
-        //         cloned.find('input').val('');
+                    lessonPriceWrapper.style.display = 'none';
+                    lessonPriceInput.disabled = true;
+                    lessonPriceInput.removeAttribute('required');
 
-        //         // Optional: Adjust the names to have array format
-        //         cloned.find('select').attr('name', `package_lesson[${count}][no_of_slot]`);
-        //         cloned.find('input').attr('name', `package_lesson[${count}][price]`);
+                    if (errorMessage) errorMessage.remove();
+                    lessonPriceInput.classList.remove('error');
+                    lessonPriceInput.setAttribute('aria-invalid', 'false');
 
-        //         $('#package-options-container').append(cloned);
-        //         count++;
-        //     });
-        // });
-        
-        
-        document.addEventListener('DOMContentLoaded', function () {
-        const packageLessonCheckbox = document.getElementById('is_package_lesson');
-        const paymentMethodSelect = document.getElementById('payment_method');
-        const hiddenPaymentMethod = document.getElementById('hidden_payment_method');
-        const packageNote = document.getElementById('package_note');
-        const lessonPriceWrapper = document.getElementById('lesson_price');
-        const lessonPriceInput = lessonPriceWrapper.querySelector('input[name="lesson_price"]');
-        const errorMessage = document.getElementById('bouncer-error_lesson_price');
-        const numberSlotSection = $("#number_slot");
-        const addMoreButton = $(".add-more-package");
-        const packageContainer = $('#package-options-container');
+                    initialPriceInput.setAttribute('required', '');
+                    initialSlotSelect.setAttribute('required', '');
+                } else {
+                    //paymentMethodSelect.removeAttribute('disabled');
+                    packageNote?.classList.add('d-none');
 
-        let packageCount = 1;
+                    numberSlotSection.hide();
+                    addMoreButton.hide();
 
-        // Initial state setup
-        numberSlotSection.hide();
-        addMoreButton.hide();
+                    lessonPriceWrapper.style.display = 'block';
+                    lessonPriceInput.disabled = false;
+                    lessonPriceInput.setAttribute('required', 'required');
 
-        // Remove and re-add 'required' on original package input elements
-        const initialPriceInput = document.querySelector('input[name="package_lesson[0][price]"]');
-        const initialSlotSelect = document.querySelector('select[name="package_lesson[0][no_of_slot]"]');
-        initialPriceInput.removeAttribute('required');
-        initialSlotSelect.removeAttribute('required');
-
-        /**
-         * Toggle package-related fields and payment method depending on checkbox
-         */
-        function togglePackageLessonSettings() {
-            const isChecked = packageLessonCheckbox.checked;
-
-            if (isChecked) {
-                paymentMethodSelect.value = 'online';
-                paymentMethodSelect.setAttribute('disabled', 'disabled');
-                hiddenPaymentMethod.value = 'online';
-                packageNote.classList.remove('d-none');
-
-                numberSlotSection.show();
-                addMoreButton.show();
-                $(packageLessonCheckbox).val(1);
-
-                lessonPriceWrapper.style.display = 'none';
-                lessonPriceInput.disabled = true;
-                lessonPriceInput.removeAttribute('required');
-
-                if (errorMessage) errorMessage.remove();
-                lessonPriceInput.classList.remove('error');
-                lessonPriceInput.setAttribute('aria-invalid', 'false');
-
-                // Set required again
-                initialPriceInput.setAttribute('required', '');
-                initialSlotSelect.setAttribute('required', '');
-            } else {
-                paymentMethodSelect.removeAttribute('disabled');
-                packageNote.classList.add('d-none');
-
-                numberSlotSection.hide();
-                addMoreButton.hide();
-                $(packageLessonCheckbox).val(0);
-
-                lessonPriceWrapper.style.display = 'block';
-                lessonPriceInput.disabled = false;
-                lessonPriceInput.setAttribute('required', 'required');
-
-                // Remove required attributes when hiding
-                initialPriceInput.removeAttribute('required');
-                initialSlotSelect.removeAttribute('required');
+                    initialPriceInput.removeAttribute('required');
+                    initialSlotSelect.removeAttribute('required');
+                }
             }
-        }
 
-        packageLessonCheckbox.addEventListener('change', togglePackageLessonSettings);
-        togglePackageLessonSettings(); // Run on initial load
+            // Bind change event to both radios
+            document.querySelectorAll('input[name="is_package_lesson"]').forEach(function(radio) {
+                radio.addEventListener('change', togglePackageLessonSettings);
+            });
 
-        /**
-         * Add more package rows
-         */
-        addMoreButton.on('click', function () {
-            const newPackage = $('#number_slot:first').clone();
+            // Initial setup
+            togglePackageLessonSettings();
 
-            // Reset values
-            newPackage.find('select').val('');
-            newPackage.find('input').val('');
-
-            // Rename input fields with updated index
-            newPackage.find('select').attr('name', `package_lesson[${packageCount}][no_of_slot]`);
-            newPackage.find('input').attr('name', `package_lesson[${packageCount}][price]`);
-
-            packageContainer.append(newPackage);
-            packageCount++;
+            addMoreButton.on('click', function() {
+                const newPackage = $('#number_slot:first').clone();
+                newPackage.find('select').val('');
+                newPackage.find('input').val('');
+                newPackage.find('select').attr('name', `package_lesson[${packageCount}][no_of_slot]`);
+                newPackage.find('input').attr('name', `package_lesson[${packageCount}][price]`);
+                packageContainer.append(newPackage);
+                packageCount++;
+            });
         });
-    });
     </script>
 @endpush

@@ -35,7 +35,7 @@ class LessonDataTable extends DataTable
                 if ($lesson->type == Lesson::LESSON_TYPE_INPERSON) {
                     return '<label class="badge rounded-pill bg-cyan-500 p-2 px-3">' . $s . '</label>';
                 }
-                return '<label class="badge rounded-pill bg-green-600 p-2 px-3">' . $s . '</label>';
+                return '<label class="badge rounded-pill bg-yellow-600 p-2 px-3">' . $s . '</label>';
             })
             ->addColumn('action', function (Lesson $lesson) {
                 return view('admin.lessons.action', compact('lesson'));
