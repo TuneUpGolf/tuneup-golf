@@ -21,7 +21,7 @@
                         ]) !!}
 
                         <!-- Package Lesson Checkbox (Disabled if it's a package lesson) -->
-                        @if ($user->is_package_lesson)
+                        @if ($user->type == 'package')
                             <div class="form-group">
                                 <div class="form-check">
                                     {!! Form::checkbox('is_package_lesson', 1, true, [
@@ -46,16 +46,44 @@
                                 'placeholder' => __('Enter Description'),
                             ]) !!}
                         </div>
-                        <div class="form-group">
-                            {{ Form::label('price', __('Price ($)'), ['class' => 'form-label']) }}
-                            {!! Form::number('lesson_price', null, [
-                                'class' => 'form-control',
-                                'required',
-                                'placeholder' => __('Enter Price'),
-                            ]) !!}
-                        </div>
-
-                        @if ($user->type !== 'inPerson')
+                        @if ($user->type == 'package')
+                            <div class="form-group">
+                        <div class="flex gap-1 itmes-center mb-2 cursor-pointer add-more-package">
+                                <i class="ti ti-plus text-2xl"></i><span>Add Package Options</span>
+                            </div>
+                            @foreach ($user->packages as $package)
+                           
+                                <div class="flex gap-2 mb-2 slots" id="number_slot">
+                                    <div class="form-group w-50">
+                                        {{ Form::label('no_of_slot', __('Package Size'), ['class' => 'form-label']) }}
+                                        <select type="dropdown" name="exist_package_lesson[{{ $loop->index }}][no_of_slot]"
+                                            class="form-control" required disabled>
+                                            <option value="">No. of slot</option>
+                                            @for ($i = 1; $i <= 10; $i++)
+                                                <option value={{ $i }} {{ $package->number_of_slot == $i ? 'selected' : '' }} disabled>
+                                                    {{ $i }} </option>
+                                            @endfor
+                                        </select>
+                                    </div>
+                                    <!-- Price -->
+                                    <div class="form-group w-50 price-field">
+                                        {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
+                                        <input type="number" class="form-control" name="exist_package_lesson[{{ $loop->index }}][price]"
+                                            placeholder="Enter Price" value="{{ $package->price }}" disabled />
+                                    </div>
+                                </div>
+                            @endforeach
+                         @else
+                            <div class="form-group">
+                                {{ Form::label('price', __('Price ($)'), ['class' => 'form-label']) }}
+                                {!! Form::number('lesson_price', null, [
+                                    'class' => 'form-control',
+                                    'required',
+                                    'placeholder' => __('Enter Price'),
+                                ]) !!}
+                            </div>
+                        @endif
+                        @if ($user->type !== 'inPerson' && $user->type !== 'package')
                             <div class="form-group">
                                 {{ Form::label('quantity', __('Quantity'), ['class' => 'form-label']) }}
                                 {!! Form::number('lesson_quantity', null, [
@@ -73,7 +101,7 @@
                             </div>
                         @endif
 
-                        @if ($user->type === 'inPerson')
+                        @if ($user->type === 'inPerson' || $user->type === 'package')
                             <div class="form-group">
                                 {{ Form::label('lesson_duration', __('Duration (hours)'), ['class' => 'form-label']) }}
                                 {!! Form::select(
@@ -136,4 +164,32 @@
     <script src="{{ asset('vendor/intl-tel-input/jquery.mask.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/intlTelInput-jquery.min.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/utils.min.js') }}"></script>
+    
+    <script type="text/javascript">
+        $(document).ready(function () {
+            let index = 1;
+            // Add more package options dynamically
+            $('.add-more-package').on('click', function () {
+                const newPackage = `
+                    <div class="flex gap-2 mb-2" id="number_slot">
+                        <div class="form-group w-50">
+                            {{ Form::label('no_of_slot', __('Package Size'), ['class' => 'form-label']) }}
+                            <select type="dropdown" name="package_lesson[${index}][no_of_slot]" class="form-control" required>
+                                <option value="">No. of slot</option>
+                                @for ($i = 1; $i <= 10; $i++)
+                                    <option value="{{ $i }}">{{ $i }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="form-group w-50 price-field">
+                            {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
+                            <input type="number" class="form-control" name="package_lesson[${index}][price]"
+                                placeholder="Enter Price" required />
+                        </div>
+                    </div>`;
+                $(this).after(newPackage);
+                index++;
+            });
+        });
+    </script>
 @endpush

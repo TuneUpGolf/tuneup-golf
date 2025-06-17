@@ -18,10 +18,12 @@ class Lesson extends Model
     const LESSON_PAYMENT_CASH = 'cash';
     const LESSON_PAYMENT_ONLINE = 'online';
     const LESSON_PAYMENT_BOTH = 'both';
+    const LESSON_TYPE_PACKAGE = 'package';
 
     const TYPE_MAPPING = [
         "inPerson"  => "In-Person",
         "online" => "Online",
+        "package"=>"Package"
     ];
 
 
@@ -38,7 +40,9 @@ class Lesson extends Model
         'payment_method',
         'lesson_duration',
         'max_students',
-        'is_package_lesson'
+        'is_package_lesson',
+        'package_lesson_type',
+        'number_of_slots'
     ];
 
     protected $casts = [
@@ -59,5 +63,9 @@ class Lesson extends Model
     public function purchases(): HasMany
     {
         return $this->hasMany(Purchase::class, 'lesson_id');
+    }
+    public function packages(): HasMany
+    {
+        return $this->hasMany(PackageLesson::class, 'lesson_id');
     }
 }

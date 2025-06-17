@@ -13,7 +13,7 @@ class LessonDataTable extends DataTable
 {
     public function dataTable($query)
     {
-
+        
         $data = datatables()
             ->eloquent($query)
             ->addIndexColumn()
@@ -35,7 +35,7 @@ class LessonDataTable extends DataTable
                 if ($lesson->type == Lesson::LESSON_TYPE_INPERSON) {
                     return '<label class="badge rounded-pill bg-cyan-500 p-2 px-3">' . $s . '</label>';
                 }
-                return '<label class="badge rounded-pill bg-green-600 p-2 px-3">' . $s . '</label>';
+                return '<label class="badge rounded-pill bg-yellow-600 p-2 px-3">' . $s . '</label>';
             })
             ->addColumn('action', function (Lesson $lesson) {
                 return view('admin.lessons.action', compact('lesson'));
@@ -61,6 +61,9 @@ class LessonDataTable extends DataTable
         $buttons = [
             ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
                 window.location = '" . route('lesson.create', ["type" => 'online']) . "';
+           }"],
+           ['extend' => 'create', 'text' => 'Set Availability', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
+                window.location = '" . route('slot.create') . "';
            }"],
             [
                 'extend' => 'collection',

@@ -31,14 +31,20 @@
                             <!-- Package Lesson Checkbox -->
                             <div class="form-group">
                                 <div class="form-check">
-                                    {!! Form::checkbox('is_package_lesson', 1, false, [
+                                    {!! Form::radio('is_package_lesson', 1, false, [
                                         'class' => 'form-check-input',
-                                        'id' => 'is_package_lesson',
+                                        'id' => 'radio_package_lesson',
                                     ]) !!}
-                                    {{ Form::label('is_package_lesson', __('Package Lesson'), ['class' => 'form-check-label']) }}
+                                    {{ Form::label('radio_package_lesson', __('Package Lesson'), ['class' => 'form-check-label']) }}
+                                </div>
+                                <div class="form-check">
+                                    {!! Form::radio('is_package_lesson', 0, false, [
+                                        'class' => 'form-check-input',
+                                        'id' => 'radio_pre_sets_dates',
+                                    ]) !!}
+                                    {{ Form::label('radio_pre_sets_dates', __('Pre-sets date Lesson'), ['class' => 'form-check-label']) }}
                                 </div>
                             </div>
-
                             <!-- Name -->
                             <div class="form-group">
                                 {{ Form::label('name', __('Name'), ['class' => 'form-label']) }}
@@ -54,9 +60,40 @@
                                     'placeholder' => __('Enter Description'),
                                 ]) !!}
                             </div>
-
-                            <!-- Price -->
-                            <div class="form-group">
+                            <div class="flex gap-1 itmes-center mb-2 cursor-pointer add-more-package">
+                                <i class="ti ti-plus text-2xl"></i><span>Add Package Options</span>
+                            </div>
+                            <div id="package-options-container">
+                                <div class="flex gap-2" id="number_slot">
+                                    <div class="form-group  w-50">
+                                        {{ Form::label('no_of_slot', __('Package Size'), ['class' => 'form-label']) }}
+                                        <select type="dropdwon" name="package_lesson[0][no_of_slot]" class="form-control"
+                                            required>
+                                            <option value="">No. of slot</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                            <option value="6">6</option>
+                                            <option value="7">7</option>
+                                            <option value="8">8</option>
+                                            <option value="9">9</option>
+                                            <option value="10">10</option>
+                                        </select>
+                                    </div>
+                                    <!-- Price -->
+                                    <div class="form-group  w-50 price-field">
+                                        {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
+                                        <input type="number" class="form-control" name="package_lesson[0][price]"
+                                            placeholder="Enter Price" required />
+                                    </div>
+                                </div>
+                            </div>
+                            <small id="package_note" class="text-muted d-none">
+                                {{ __('Since this is a package lesson, the price should account for all booked slots.') }}
+                            </small>
+                            <div class="form-group" id="lesson_price">
                                 {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
                                 {!! Form::number('lesson_price', null, [
                                     'class' => 'form-control',
@@ -64,11 +101,7 @@
                                     'placeholder' => __('Enter Price'),
                                     'min' => 1,
                                 ]) !!}
-                                <small id="package_note" class="text-muted d-none">
-                                    {{ __('Since this is a package lesson, the price should account for all booked slots.') }}
-                                </small>
                             </div>
-
                             <!-- Lesson Duration -->
                             <div class="form-group">
                                 {{ Form::label('lesson_duration', __('Duration'), ['class' => 'form-label']) }}
@@ -137,6 +170,25 @@
 @push('css')
     <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.min.css">
+    <style>
+        .price-field::after {
+            content: "\eb84";
+            font-family: tabler-icons;
+            position: absolute;
+            top: 36px;
+            left: 10px;
+            font-size: 17px;
+
+        }
+
+        .price-field {
+            position: relative;
+        }
+
+        .price-field input {
+            padding-left: 30px;
+        }
+    </style>
 @endpush
 
 @push('javascript')
@@ -146,25 +198,81 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            let packageLessonCheckbox = document.getElementById('is_package_lesson');
-            let paymentMethodSelect = document.getElementById('payment_method');
-            let hiddenPaymentMethod = document.getElementById('hidden_payment_method');
-            let packageNote = document.getElementById('package_note');
+            //const paymentMethodSelect = document.getElementById('payment_method');
+            //const hiddenPaymentMethod = document.getElementById('hidden_payment_method');
+            const packageNote = document.getElementById('package_note');
+            const lessonPriceWrapper = document.getElementById('lesson_price');
+            const lessonPriceInput = lessonPriceWrapper.querySelector('input[name="lesson_price"]');
+            const errorMessage = document.getElementById('bouncer-error_lesson_price');
+            const numberSlotSection = $("#number_slot");
+            const addMoreButton = $(".add-more-package");
+            const packageContainer = $('#package-options-container');
+
+            let packageCount = 1;
+
+            numberSlotSection.hide();
+            addMoreButton.hide();
+
+            const initialPriceInput = document.querySelector('input[name="package_lesson[0][price]"]');
+            const initialSlotSelect = document.querySelector('select[name="package_lesson[0][no_of_slot]"]');
+            initialPriceInput.removeAttribute('required');
+            initialSlotSelect.removeAttribute('required');
 
             function togglePackageLessonSettings() {
-                if (packageLessonCheckbox.checked) {
-                    paymentMethodSelect.value = 'online';
-                    paymentMethodSelect.setAttribute('disabled', 'disabled');
-                    hiddenPaymentMethod.value = 'online'; // Ensure it's sent in form data
-                    packageNote.classList.remove('d-none'); // Show the price note
+                const selectedValue = document.querySelector('input[name="is_package_lesson"]:checked')?.value;
+
+                if (selectedValue == 1) {
+                    // paymentMethodSelect.value = 'online';
+                    // paymentMethodSelect.setAttribute('disabled', 'disabled');
+                    // hiddenPaymentMethod.value = 'online';
+                    packageNote?.classList.remove('d-none');
+
+                    numberSlotSection.show();
+                    addMoreButton.show();
+
+                    lessonPriceWrapper.style.display = 'none';
+                    lessonPriceInput.disabled = true;
+                    lessonPriceInput.removeAttribute('required');
+
+                    if (errorMessage) errorMessage.remove();
+                    lessonPriceInput.classList.remove('error');
+                    lessonPriceInput.setAttribute('aria-invalid', 'false');
+
+                    initialPriceInput.setAttribute('required', '');
+                    initialSlotSelect.setAttribute('required', '');
                 } else {
-                    paymentMethodSelect.removeAttribute('disabled');
-                    packageNote.classList.add('d-none'); // Hide the price note
+                    //paymentMethodSelect.removeAttribute('disabled');
+                    packageNote?.classList.add('d-none');
+
+                    numberSlotSection.hide();
+                    addMoreButton.hide();
+
+                    lessonPriceWrapper.style.display = 'block';
+                    lessonPriceInput.disabled = false;
+                    lessonPriceInput.setAttribute('required', 'required');
+
+                    initialPriceInput.removeAttribute('required');
+                    initialSlotSelect.removeAttribute('required');
                 }
             }
 
-            packageLessonCheckbox.addEventListener('change', togglePackageLessonSettings);
-            togglePackageLessonSettings(); // Run on page load
+            // Bind change event to both radios
+            document.querySelectorAll('input[name="is_package_lesson"]').forEach(function(radio) {
+                radio.addEventListener('change', togglePackageLessonSettings);
+            });
+
+            // Initial setup
+            togglePackageLessonSettings();
+
+            addMoreButton.on('click', function() {
+                const newPackage = $('#number_slot:first').clone();
+                newPackage.find('select').val('');
+                newPackage.find('input').val('');
+                newPackage.find('select').attr('name', `package_lesson[${packageCount}][no_of_slot]`);
+                newPackage.find('input').attr('name', `package_lesson[${packageCount}][price]`);
+                packageContainer.append(newPackage);
+                packageCount++;
+            });
         });
     </script>
 @endpush

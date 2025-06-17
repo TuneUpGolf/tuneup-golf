@@ -25,6 +25,8 @@ class Purchase extends Model
         'slot_id',
         'total_amount',
         'friend_names',
+        'type',
+        'purchased_slot'
     ];
     protected $guarded = [
         'status', // Completed or not
@@ -77,5 +79,15 @@ class Purchase extends Model
     public function payment()
     {
         return $this->hasOne(Payment::class);
+    }
+    // Check if the slot is fully booked
+    public function isFullyBooked(): mixed
+    {
+        $bookedSlotCount = \App\Models\StudentSlot::where('student_id', $this->student_id)
+            ->whereHas('slot', function ($query) {
+                $query->where('lesson_id', $this->lesson_id);
+            })->count();
+
+        return $bookedSlotCount < $this->purchased_slot;
     }
 }

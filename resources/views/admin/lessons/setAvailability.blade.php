@@ -1,5 +1,5 @@
 @extends('layouts.main')
-@section('title', __('Add Slot to ' . $lesson->lesson_name))
+@section('title', __('Set Availability for lesson'))
 @section('content')
     <div class="main-content">
         <section class="section">
@@ -17,42 +17,28 @@
                 <div class="m-auto col-lg-6 col-md-8 col-xxl-4">
                     <div class="card">
                         <div class="card-header flex items-center justify-between">
-                            <h5>{{ __('Create Slot') }}</h5>
-                            @if (isset($lesson->lesson_duration))
-                                <p>{{ __('Lesson Duration : ' . $lesson->lesson_duration . 'hour(s)') }}
-                                </p>
-                            @else
-                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-                                    <a class="text-white" href="{{ route('lesson.edit', $lesson->id) }}">
-                                        {{ __('Set Lesson Duration') }}
-                                    </a>
-                                </button>
-                            @endif
+                            <h5>{{ __('Set Availability') }}</h5>
 
                         </div>
                         <div class="card-body">
                             {!! Form::open([
-                                'route' => ['slot.add', ['redirect' => 1, 'lesson_id' => $lesson->id]],
+                                'route' => ['slot.availability', ['redirect' => 1]],
                                 'method' => 'Post',
                                 'data-validate',
                                 'files' => 'true',
                                 'enctype' => 'multipart/form-data',
                             ]) !!}
                             <div class="form-group ">
-                                {{ Form::label('start_date', __('Start Date'), ['class' => 'form-label']) }}
-                                {{ Form::input('date', 'start_date', null, ['id' => 'start_date', 'class' => 'form-control']) }}
+                                {{ Form::label('start_date', __('Select Dates'), ['class' => 'form-label']) }}
+                                {{ Form::input('text', 'start_date', 'null', ['id' => 'start_date', 'class' => 'form-control date','required','autocomplete' => 'off']) }}
                             </div>
-                            <div class="form-group ">
-                                {{ Form::label('end_date', __('End Date'), ['class' => 'form-label']) }}
-                                {{ Form::input('date', 'end_date', null, ['id' => 'end_date', 'class' => 'form-control']) }}
-                            </div>
-                            <div class="form-group ">
+                            <div class="form-group">
                                 {{ Form::label('start_time', __('Start Time'), ['class' => 'form-label']) }}
-                                {{ Form::input('time', 'start_time', null, ['id' => 'start_time', 'class' => 'form-control']) }}
+                                {{ Form::input('time', 'start_time', null, ['id' => 'start_time', 'class' => 'form-control','required']) }}
                             </div>
                             <div class="form-group ">
                                 {{ Form::label('end_time', __('End Time'), ['class' => 'form-label']) }}
-                                {{ Form::input('time', 'end_time', null, ['id' => 'end_time', 'class' => 'form-control']) }}
+                                {{ Form::input('time', 'end_time', null, ['id' => 'end_time', 'class' => 'form-control','required']) }}
                             </div>
                             <div class="form-group">
                                 {{ Form::label('location', __('Location'), ['class' => 'form-label']) }}
@@ -61,6 +47,18 @@
                                     'required',
                                     'placeholder' => __('Enter Location'),
                                 ]) !!}
+                            </div>
+                            <div class="form-group">
+                                 {{ Form::label('package_lesson', __('Select Package Lesson'), ['class' => 'form-label']) }}
+                                 <br>
+                                 @if (!empty($lesson))
+                                    @foreach ($lesson as $le)
+                                        <input type="checkbox" name="lesson_id[]" class="form-check-input" value={{ $le['id'] }}> {{ $le['lesson_name']}}  <span style="color:gray"> @if (isset($le['lesson_duration']))  {{ __('Lesson Duration : ' . $le['lesson_duration'] . 'hour(s)') }} @endif </span>
+                                        <br>
+                                    @endforeach
+                                 @else
+                                 {{ Form::label('package_lesson', __('No Lesson available'), ['class' => 'form-label']) }}
+                                 @endif
                             </div>
                         </div>
                         <div class="card-footer">
@@ -84,5 +82,18 @@
     <script src="{{ asset('vendor/intl-tel-input/jquery.mask.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/intlTelInput-jquery.min.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/utils.min.js') }}"></script>
+    {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script> --}}
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css"
+        rel="stylesheet" />
+    </script>
+
+    <script type="text/javascript">
+        $('.date').datepicker({
+            startDate: new Date(),
+            multidate: true,
+            format: 'yyyy-mm-dd'
+        });
+        $('.date').datepicker('setDates', [new Date(2014, 2, 5), new Date(2014, 3, 5)])
     </script>
 @endpush
