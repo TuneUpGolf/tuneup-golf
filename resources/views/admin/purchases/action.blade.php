@@ -41,20 +41,10 @@
     @endcan
 @endif
 
-@php
-$video = $purchase->videos->toArray();
-$vid = end($video);
-@endphp
-
 @if ($purchase->status == 'complete' && Auth::user()->type == 'Instructor' && $purchase->lesson->type === 'online')
     @can('manage-purchases')
-        <a class="btn btn-sm small btn btn-warning"
-            {{-- @if($vid)
-                href="{{ route('purchase.feedback.create', ['purchase_video' => $vid['video_url']]) }}"
-            @else --}}
-                href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}"
-            {{-- @endif --}}
-            data-bs-toggle="tooltip"
+        <a class="btn btn-sm small btn btn-warning "
+            href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-original-title="{{ __('Provide Feedback') }}">
             <i class="ti ti-plus text-white"></i>
         </a>
