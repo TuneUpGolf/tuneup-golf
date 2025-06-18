@@ -78,7 +78,7 @@ class PurchaseController extends Controller
                         'lesson_id' => $lesson->id,
                         'coupon_id' => $coupon,
                         'tenenat_id' => Auth::user()->tenant_id,
-
+                        'purchased_slot' => 0,
                     ]);
                     $newPurchase->total_amount = $total_amount;
                     $newPurchase->status = Purchase::STATUS_INCOMPLETE;

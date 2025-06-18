@@ -18,7 +18,7 @@
             <i class="ti ti-eye text-white"></i>
         </a>
 @endif
-@if (
+{{-- @if (
     $purchase->status == 'complete' &&
         $purchase->lesson->lesson_quantity !== $purchase->lessons_used &&
         Auth::user()->type == 'Student' &&
@@ -30,7 +30,7 @@
             <i class="ti ti-plus text-white"></i>
         </a>
     @endcan
-@endif
+@endif --}}
 @if ($purchase->status == 'complete' && Auth::user()->type == 'Student' && $purchase->lesson->type === 'online')
     @can('manage-purchases')
         <a class="btn btn-sm small btn btn-warning "

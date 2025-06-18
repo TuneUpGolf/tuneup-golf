@@ -24,6 +24,7 @@ $purchaseVideo = $purchase->videos->first();
     <div class="video-section-col flex gap-4">
         <div class="video-wrap border-r border-gray-400 pr-4">
             <video width='320' height='240' controls autoplay="autoplay" loop muted src="{{ $purchase->videos->first()->video_url }}" class="w-80 h-60 rounded-lg"></video>
+            @if(auth()->user()->type == 'Instructor')
             <div class="flex gap-1 mt-3">
 
                 <a href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}"
@@ -37,6 +38,7 @@ $purchaseVideo = $purchase->videos->first();
                     Analyze
                 </a>
             </div>
+            @endif
         </div>
         <div>
             <ul>
@@ -73,21 +75,22 @@ $purchaseVideo = $purchase->videos->first();
 
     </div>
     <div class="feedback-sec border border-gray rounded-lg p-3 w-full">
-        <h2 class="font-bold text-3xl mb-3 border-b border-gray-500 mb-3 pb-2">Feedback
-            Provided</h2>
+        <h2 class="font-bold text-3xl mb-3 border-b border-gray-500 mb-3 pb-2">Feedback</h2>
         <div class="">
             <p class="text-2xl text-gray-700 font-bold">{{ $purchase->lesson->created_at->format('F j, Y') }}</p>
-            <p class="text-gray-500">Instructor Name:</p>
-            <p class="text-xl font-semibold">{{ $purchase->instructor->name }}</p>
+            <p class="text-gray-500">{{ auth()->user()->name == $purchase->student->name?'Your Note':'Note by '.$purchase->student->name }}:</p>
+            <p class="text-xl font-semibold">{{ $purchaseVideo->note }}</p>
 
+            @if($purchaseVideo->feedback)
             <br>
-            <p class="text-gray-500">Feedback:</p>
+            <p class="text-gray-500">{{ auth()->user()->type == 'Instructor'?'Your feedback':'Feedback' }}</p>
             <p class="text-xl font-semibold">{{ $purchaseVideo->feedback }}</p>
-
+            @endif
 
             <div class="flex items-start gap-3 mt-4">
+                @if($purchase->videos->first()->video_url )
                 <img class="w-20 h-32"  src="{{ asset('storage/'.Auth::user()->tenant_id.'/uploads/golf.jpeg') }}" alt="Thumbnail" id="videoThumbnail">
-
+                @endif
                 <!-- Modal -->
                 <div id="videoModal" class="modal">
                 <span class="close">&times;</span>
@@ -99,12 +102,18 @@ $purchaseVideo = $purchase->videos->first();
                         </video>
                     </div>
                 </div>
+                
+                @if(auth()->user()->type == 'Instructor')
                 <div class="flex gap-2">
                     <a href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}"
                         class="btn btn-outline-secondary rounded-pill px-4 py-2 d-flex align-items-center gap-1">
-                        <i class="ti ti-pencil text-2xl"></i> Edit
+                        @if(trim($purchaseVideo->feedback))
+                        <i class="ti ti-pencil text-2xl"></i> Edit Feedback
+                        @else
+                        <i class="ti ti-plus text-2xl"></i> Provide Feedback
+                        @endif
                     </a>
-
+                    @if(trim($purchaseVideo->feedback))
                     <form action="{{ route('purchase.feedback.delete', $purchaseVideo->id) }}" method="POST"
                         onsubmit="return confirm('Are you sure you want to delete this feedback?');">
                         @csrf
@@ -114,7 +123,9 @@ $purchaseVideo = $purchase->videos->first();
                             <i class="ti ti-trash text-2xl"></i> Delete
                         </button>
                     </form>
+                    @endif
                 </div>
+                @endif
             </div>
         </div>
     </div>
