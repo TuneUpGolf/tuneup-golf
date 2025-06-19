@@ -1,4 +1,5 @@
 <?php
+
 namespace App\DataTables\Admin;
 
 use App\Models\Lesson;
@@ -34,8 +35,8 @@ class StudentsPurchaseDataTable extends DataTable
             })
             ->editColumn('instructor_name', function ($purchase) {
                 $imageSrc = $purchase->instructor->avatar
-                ? $purchase->instructor->avatar
-                : asset('assets/img/logo/logo.png');
+                    ? $purchase->instructor->avatar
+                    : asset('assets/img/logo/logo.png');
 
                 return '
                     <div class="flex justify-start items-center">
@@ -65,8 +66,8 @@ class StudentsPurchaseDataTable extends DataTable
             })
             ->editColumn('student_name', function ($purchase) {
                 $imageSrc = $purchase->student->dp
-                ? $purchase->student->dp
-                : asset('assets/img/logo/logo.png');
+                    ? $purchase->student->dp
+                    : asset('assets/img/logo/logo.png');
 
                 return '
                     <div class="flex justify-start items-center">
@@ -116,7 +117,7 @@ class StudentsPurchaseDataTable extends DataTable
         if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
             unset($buttons[0]);
         }
-    
+
         return $this->builder()
             ->setTableId('purchases-table')
             ->columns($this->getColumns())
@@ -143,10 +144,10 @@ class StudentsPurchaseDataTable extends DataTable
                     <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'>
                     <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
                     <'dataTable-container'<'col-sm-12'tr>>
-                ", 
+                ",
                 'buttons'        => $buttons,
                 "scrollX"        => true,
-                "paging"         => false, 
+                "paging"         => false,
                 'headerCallback' => 'function(thead, data, start, end, display) {
                     $(thead).find("th").css({
                         "background-color": "rgba(249, 252, 255, 1)",
@@ -188,7 +189,7 @@ class StudentsPurchaseDataTable extends DataTable
                 ],
             ]);
     }
-    
+
     protected function getColumns()
     {
         $columns = [
@@ -201,15 +202,14 @@ class StudentsPurchaseDataTable extends DataTable
             $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
         }
         return array_merge($columns, [
-            Column::make('status')->title(__('Payment Status')),
-            Column::make("due_date")->title(__('Submission Date'))->defaultContent()->orderable(false)->searchable(false),
-            Column::make('total_amount')->title(__('Total ($)'))->orderable(false),
-            Column::computed('action')->title(__('Actions'))
+            Column::computed('action')->title(__('Provide Feedback'))
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)
-                ->addClass('text-center')
-                ->width('20%'),
+                ->addClass('text-center'),
+            Column::make('status')->title(__('Payment Status')),
+            Column::make("due_date")->title(__('Submission Date'))->defaultContent()->orderable(false)->searchable(false),
+            Column::make('total_amount')->title(__('Total ($)'))->orderable(false),
         ]);
     }
 

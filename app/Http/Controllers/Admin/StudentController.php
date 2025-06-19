@@ -181,7 +181,7 @@ class StudentController extends Controller
     {
 
         try {
-        	
+
             request()->validate([
                 'name'          => 'required|max:50',
                 'email'         => 'required|email|unique:students,email|unique:users,email',
@@ -211,8 +211,8 @@ class StudentController extends Controller
             }
 
             $user->save();
-	$newUserData = ['name'=>$request->name,'unhashedPass'=>$request->password];
-	//$newUserData 
+            $newUserData = ['name' => $request->name, 'unhashedPass' => $request->password];
+            //$newUserData 
             // $studentPhone = Str::of($userData['country_code'])->append($userData['dial_code'])->append($userData['phone'])->value();
 
             SendEmail::dispatch($request->email,  new WelcomeMail($newUserData));
@@ -355,8 +355,7 @@ class StudentController extends Controller
     public function show($id)
     {
         $students  = Student::findOrFail($id);
-        $dataTable = new StudentsPurchaseDataTable($id); // Pass follower ID to the datatable
+        $dataTable = new StudentsPurchaseDataTable($id);
         return $dataTable->render('admin.students.show', compact('students', 'dataTable'));
     }
 }
-
