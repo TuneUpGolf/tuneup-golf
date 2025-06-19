@@ -35,7 +35,7 @@
     @can('manage-purchases')
         <a class="btn btn-sm small btn btn-warning "
             href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
-            data-bs-placement="bottom" data-bs-original-title="{{ __('Pending Feedback') }}">
+            data-bs-placement="bottom" data-bs-original-title="{{ __('View Feedback') }}">
             <i class="ti ti-eye text-white"></i>
         </a>
     @endcan
@@ -43,10 +43,19 @@
 
 @if ($purchase->status == 'complete' && Auth::user()->type == 'Instructor' && $purchase->lesson->type === 'online')
     @can('manage-purchases')
+        @php
+        $purchaseVideo = $purchase->videos->first();
+        @endphp
         <a class="btn btn-sm small btn btn-warning "
-            href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
+            href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}" data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-original-title="{{ __('Provide Feedback') }}">
             <i class="ti ti-plus text-white"></i>
+        </a>
+
+        <a class="btn btn-sm small btn btn-warning "
+            href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
+            data-bs-placement="bottom" data-bs-original-title="{{ __('View Feedback') }}">
+            <i class="ti ti-eye text-white"></i>
         </a>
     @endcan
 @endif
