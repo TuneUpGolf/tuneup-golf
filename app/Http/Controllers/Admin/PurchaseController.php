@@ -712,7 +712,9 @@ class PurchaseController extends Controller
                     'name' => $purchaseVideo->purchase->lesson->user->name,
                 ]);
 
-                SendPushNotification::dispatch($purchaseVideo->purchase->student->pushToken->token, 'Feedback Recieved', $message);
+                if (isset($purchaseVideo->purchase->student->pushToken->token)) {
+                    SendPushNotification::dispatch($purchaseVideo->purchase->student->pushToken->token, 'Feedback Recieved', $message);
+                }
 
                 if (($purchaseVideo->purchase->lessons_used == $purchaseVideo->purchase->lesson->lesson_quantity) && !!isEmpty($allPurchaseVideosFeedback)) {
                     $purchase = Purchase::find($purchaseVideo->purchase_id);
@@ -724,6 +726,7 @@ class PurchaseController extends Controller
                 }
             }
         } catch (\Exception $e) {
+            report($e);
             return redirect()->back()->with('errors', $e->getMessage());
         } {
             $purchaseVideo = PurchaseVideos::find($request->purchase_video);
