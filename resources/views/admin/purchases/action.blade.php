@@ -60,7 +60,7 @@
     @endcan
 @endif
 
-@if ($purchase->status == 'incomplete' && Auth::user()->type == 'Instructor')
+{{-- @if ($purchase->status == 'incomplete' && Auth::user()->type == 'Instructor')
     @can('manage-purchases')
         <svg
         data-bs-toggle="tooltip"
@@ -138,7 +138,7 @@
         </g>
         </svg>
     @endcan
-@endif
+@endif --}}
 
 @can('delete-purchases')
     {!! Form::open([
