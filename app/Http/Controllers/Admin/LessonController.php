@@ -186,7 +186,7 @@ class LessonController extends Controller
             if($lesson) {
                  return view('admin.lessons.addSlot', compact('lesson'));
             } else {
-                $lesson = Lesson::withMax('packages','number_of_slot')->whereIn('type',['package','inPerson'])->get()->toArray();
+                $lesson = Lesson::withMax('packages','number_of_slot')->whereIn('type',['package','inPerson'])->where('created_by',Auth::user()->id)->get()->toArray();
                 return view('admin.lessons.setAvailability', compact('lesson'));
             }
            
