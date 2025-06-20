@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use App\Models\PackageLesson;
-
+use Illuminate\Support\Facades\DB;
 class LessonController extends Controller
 {
     use PurchaseTrait;
@@ -186,7 +186,7 @@ class LessonController extends Controller
             if($lesson) {
                  return view('admin.lessons.addSlot', compact('lesson'));
             } else {
-                $lesson = Lesson::doesntHave('slots')->withMax('packages','number_of_slot')->whereIn('type',['package','inPerson'])->get()->toArray();
+                $lesson = Lesson::withMax('packages','number_of_slot')->whereIn('type',['package','inPerson'])->get()->toArray();
                 return view('admin.lessons.setAvailability', compact('lesson'));
             }
            
@@ -1242,40 +1242,60 @@ class LessonController extends Controller
                 'location'  => 'required|string|max:255',
             ]);
 
-            $selectedDates = explode(",",$request->start_date);
-
-            $lessons = Lesson::withMax('packages','number_of_slot')->find($request->get('lesson_id'));
+            $conflictErrors = [];
+            $slotsToCreate = [];
             $slots = [];
-            $check = 0;
-            $startTime = Carbon::parse($request->start_time); // e.g. '10:00'
-            $endTime = Carbon::parse($request->end_time);     // e.g. '12:15'
-            $lessonMinutes = $endTime->diffInMinutes($startTime);
-            $selectedDates = explode(",",$request->start_date);
-            foreach($lessons as $lesson) {
-                $lessonDuration = $lesson->lesson_duration * 60;
-                if($lessonMinutes != $lessonDuration) {
-                    $check = 1;
-                     return redirect()->back()->with('errors', 'Please select valid package lessons to book availability');
-                }
-            }
-            if($check == 0) {
-                foreach($lessons as $lesson) {
-                    $totalSlot = isset($lesson->packages_max_number_of_slot) && !empty($lesson->packages_max_number_of_slot) ? $lesson->packages_max_number_of_slot : count($selectedDates);
-                    $slotsDates = array_slice($selectedDates, 0, $totalSlot);
-                    foreach($slotsDates as $date) {
-                        $time = $request->start_time;
-                        $combinedDateTime = Carbon::createFromFormat('Y-m-d H:i', "$date $time");
-                        $slotData = [
-                            'lesson_id' => $lesson->id,
-                            'date_time' => $combinedDateTime,
-                            'location'  => $request->location
-                        ];
-                        $slot = Slots::updateOrCreate($slotData);
-                        array_push($slots, $slot);
+            
+            $lessons = Lesson::whereIn('id', $validatedData['lesson_id'])->get();
+            $selectedDates = explode(",", $request->start_date);
+            foreach ($lessons as $lesson) {
+                foreach ($selectedDates as $date) {
+
+                    $slotStart = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $validatedData['start_time']);
+                    $slotEnd   = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $validatedData['end_time']);
+                    $totalMinutes = $slotStart->diffInMinutes($slotEnd);
+
+                    $lessonMinutes = $lesson->lesson_duration * 60;
+
+                    $maxSlots = floor($totalMinutes / $lessonMinutes);
+
+                    $currentSlotStart = $slotStart->copy();
+
+                    // Check if any slot overlaps with this time range
+                    for ($i = 0; $i < $maxSlots; $i++) {
+                        $currentSlotEnd = $currentSlotStart->copy()->addMinutes($lessonMinutes)->subMinute(); // to allow adjacent slots
+
+                        $conflict = Slots::where('lesson_id', $lesson->id)
+                            ->whereBetween('date_time', [$currentSlotStart, $currentSlotEnd])
+                            ->exists();
+
+                        if ($conflict) {
+                            $conflictErrors[] = "Slot conflict for lesson '{$lesson->lesson_name}' on {$date} at {$currentSlotStart->format('H:i')}.";
+                        } else {
+                            $slotsToCreate[] = [
+                                'lesson_id' => $lesson->id,
+                                'date_time' => $currentSlotStart->copy(),
+                                'location'  => $request->location
+                            ];
+                        }
+
+                        $currentSlotStart->addMinutes($lessonMinutes);
                     }
                 }
             }
-            
+
+            if (!empty($conflictErrors)) {
+                return back()->withErrors(['conflicts' => $conflictErrors])->withInput();
+            }
+
+            // ✅ No conflicts — create all slots inside a DB transaction
+            DB::transaction(function () use ($slotsToCreate) {
+                foreach ($slotsToCreate as $slot) {
+                    Slots::create($slot);
+                    array_push($slots, $slot);
+                }
+            });
+
             // Send push notifications for new lessons
             $students = Student::whereHas('pushToken')
                 ->with('pushToken')
