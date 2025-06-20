@@ -1292,7 +1292,6 @@ class LessonController extends Controller
             DB::transaction(function () use ($slotsToCreate) {
                 foreach ($slotsToCreate as $slot) {
                     Slots::create($slot);
-                    array_push($slots, $slot);
                 }
             });
 
@@ -1316,7 +1315,7 @@ class LessonController extends Controller
                 ? redirect()->route('lesson.index')->with('success', 'Slots Successfully Added')
                 : response()->json([
                     'message' => 'Consecutive Slots for the given range are successfully created',
-                    'slots' => $slots
+                    'slots' => $slotsToCreate
                 ]);
         } catch (\Exception $e) {
             return $request->get('redirect') == 1
