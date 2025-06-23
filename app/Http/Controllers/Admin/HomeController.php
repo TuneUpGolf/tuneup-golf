@@ -9,7 +9,6 @@ use App\Facades\UtilityFacades;
 use App\Models\DocumentGenrator;
 use App\Models\Event;
 use App\Models\Lesson;
-use App\Models\Order;
 use App\Models\Plan;
 use App\Models\Posts;
 use App\Models\Purchase;
@@ -35,11 +34,18 @@ class HomeController extends Controller
         });
         return view('welcome', compact('plans'));
     }
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         $userType = $user->type;
         $tenantId = tenant('id');
+
+        if ($userType == Role::ROLE_STUDENT) {
+            $tab = $request->get('view');
+            $activeTab = !empty($tab) ? $tab : 'in-person';
+            $dataTable = new PurchaseDataTable($tab);
+            return $dataTable->render('admin.dashboard.tab-view', compact('activeTab', 'dataTable'));
+        }
 
         // Common Queries
         $paymentTypes = UtilityFacades::getpaymenttypes();
@@ -48,10 +54,6 @@ class HomeController extends Controller
         $posts = Posts::latest()->take(6)->get();
         $events = Event::latest()->take(5)->get();
         $supports = tenancy()->central(fn($tenant) => SupportTicket::where('tenant_id', $tenant->id)->latest()->take(7)->get());
-
-        if ($userType == Role::ROLE_STUDENT) {
-            return $this->studentDashboard($user, $paymentTypes, $documents, $documentsDatas, $posts, $events, $supports);
-        }
 
         // Fetch Plan Expiration
         $planExpiredDate = $userType == AuthServiceProvider::ADMIN_TYPE
@@ -130,29 +132,6 @@ class HomeController extends Controller
 
         return [$completed, $inprogress];
     }
-
-    // Student Dashboard
-    private function studentDashboard($user, $paymentTypes, $documents, $documentsDatas, $posts, $events, $supports)
-    {
-        $purchaseComplete = Purchase::where('student_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', true)->count();
-        $purchaseInprogress = Purchase::where('student_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', false)->count();
-        $inPersonCompleted = Purchase::where('student_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON))->where('isFeedbackComplete', true)->count();
-        $inPersonPending = Purchase::where('student_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON))->where('isFeedbackComplete', false)->count();
-        return view('admin.dashboard.home', compact(
-            'user',
-            'paymentTypes',
-            'documents',
-            'documentsDatas',
-            'posts',
-            'events',
-            'supports',
-            'purchaseComplete',
-            'purchaseInprogress',
-            'inPersonCompleted',
-            'inPersonPending'
-        ));
-    }
-
 
     public function sales(SalesDataTable $dataTable)
     {

@@ -12,6 +12,13 @@ use Yajra\DataTables\Services\DataTable;
 
 class PurchaseDataTable extends DataTable
 {
+    protected $tab;
+
+    public function __construct($tab = null)
+    {
+        $this->tab = $tab;
+    }
+
     public function dataTable($query)
     {
         return datatables()
@@ -108,8 +115,10 @@ class PurchaseDataTable extends DataTable
         // Filter query based on user role
         if ($user->type == Role::ROLE_STUDENT) {
             $query->where('purchases.student_id', $user->id)
-                ->where('purchases.status', Purchase::STATUS_COMPLETE)
-                ->orWhere('purchases.type','package');
+                ->orWhere('purchases.type', 'package');
+            if ($this->tab == 'my-lessons') {
+                $query = $query->where('purchases.status', Purchase::STATUS_COMPLETE);
+            }
         }
 
         if ($user->type == Role::ROLE_ADMIN) {
@@ -180,7 +189,7 @@ class PurchaseDataTable extends DataTable
                 'buttons'   => $buttons,
                 "scrollX" => true,
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {
@@ -252,7 +261,6 @@ class PurchaseDataTable extends DataTable
         if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
             $columns[] = Column::make('student_name')->title("Student")->searchable(true);
             $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
-
         } elseif (Auth::user()->type == Role::ROLE_STUDENT) {
             $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
         }
