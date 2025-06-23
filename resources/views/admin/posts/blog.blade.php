@@ -45,7 +45,7 @@ body.modal-open .dash-container {
 </style>
 @endpush
 
-<div class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md">
+<div @if(request()->get('view') == '')class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md" @endif>
     <div class="shadow rounded-2 overflow-hidden position-relative">
     @if($post->paid && !isset($purchasePost))
       <?php $cls  = 'p-3 position-absolute left-0 top-0 z-10 w-full'; ?>
