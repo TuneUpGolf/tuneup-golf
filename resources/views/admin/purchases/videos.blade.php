@@ -11,11 +11,6 @@
         <h2 class="font-bold text-3xl mb-3">Purchase User Details</h2>
 
     </div>
-    <a href="#"
-        class="rounded-pill px-3 py-2 w-auto bg-primary text-white text-lg font-bold flex itmes-center gap-1 ">
-        <i class="ti ti-brand-hipchat text-2xl"></i>
-        Chat
-    </a>
 </div>
 @php
 $purchaseVideo = $purchase->videos->first();
@@ -89,7 +84,7 @@ $purchaseVideo = $purchase->videos->first();
 
             <div class="flex items-start gap-3 mt-4">
                 @if($purchase->videos->first()->video_url )
-                <img class="w-20 h-32"  src="{{ asset('storage/'.Auth::user()->tenant_id.'/uploads/golf.jpeg') }}" alt="Thumbnail" id="videoThumbnail">
+                <img class="w-15 h-10"  src="{{ asset('/assets/images/video-thumbanail.jpeg') }}" alt="Thumbnail" id="videoThumbnail">
                 @endif
                 <!-- Modal -->
                 <div id="videoModal" class="modal">
