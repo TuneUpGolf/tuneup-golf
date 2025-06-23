@@ -1,3 +1,4 @@
+@push('css')
 <style>
 /* Modal styling */
 .modal {
@@ -42,6 +43,7 @@ body.modal-open .dash-container {
     z-index: 99999;
 }
 </style>
+@endpush
 
 <div class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md">
     <div class="shadow rounded-2 overflow-hidden position-relative">

@@ -65,7 +65,7 @@
                <button class="tablinks {{ $activeTab == 'my-lessons' ? 'active' : '' }}" onclick="openCity(event, 'my-lessons')">My Lessons</button>
                </hr>
             </div>
-            <div class="card">
+            <div class="card tabcontent">
                 <div class="flex flex-col w-100">
                   @if($activeTab == 'my-lessons')
                   {{ $dataTable->table(['width' => '100%']) }}
