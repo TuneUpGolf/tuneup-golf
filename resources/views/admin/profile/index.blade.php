@@ -41,7 +41,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="avatar me-3">
-                            <img src="{{ asset('storage/'.tenant()->id.'/'.$user->dp) }}" class="img-user wid-80 rounded-circle">
+                            <img src="{{ asset('storage/'.tenant()->id.'/'.($user->avatar??$user->dp)) }}" class="img-user wid-80 rounded-circle">
                         </div>
                         <div class="d-block d-sm-flex align-items-center justify-content-between w-100">
                             <div class="mb-3 mb-sm-0">
