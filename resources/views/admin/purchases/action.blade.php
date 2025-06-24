@@ -14,7 +14,7 @@
 @endif
 @if ($purchase->type == 'package' && $purchase->isFullyBooked())
         <a class="'btn btn-sm small btn btn-info ' " href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}"
-            data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">
+            data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Provide Feedback') }}">
             <i class="ti ti-eye text-white"></i>
         </a>
 @endif
