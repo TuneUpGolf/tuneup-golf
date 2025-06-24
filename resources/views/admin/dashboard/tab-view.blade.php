@@ -61,8 +61,8 @@
             <div class="tab">
                <button class="tablinks {{ $activeTab == 'in-person' ? 'active' : '' }}" onclick="openCity(event, 'in-person')">In-Person Lessons</button>
                <button class="tablinks {{ $activeTab == 'online'  ? 'active' : ''}}" onclick="openCity(event, 'online')">Online Lessons</button>
-               <button class="tablinks {{ $activeTab == 'posts'  ? 'active' : ''}}" onclick="openCity(event, 'posts')">Posts</button>
                <button class="tablinks {{ $activeTab == 'my-lessons' ? 'active' : '' }}" onclick="openCity(event, 'my-lessons')">My Lessons</button>
+               <button class="tablinks {{ $activeTab == 'posts'  ? 'active' : ''}}" onclick="openCity(event, 'posts')">Tips & Drills</button>
                </hr>
             </div>
             <div class="card tabcontent">
@@ -70,8 +70,8 @@
                   @if($activeTab == 'my-lessons')
                   {{ $dataTable->table(['width' => '100%']) }}
                   @push('javascript')
-                  @include('layouts.includes.datatable_js')
-                  {{ $dataTable->scripts() }}
+                     @include('layouts.includes.datatable_js')
+                     {{ $dataTable->scripts() }}
                   @endpush
                   @else
                   <livewire:student-dashboard-view />

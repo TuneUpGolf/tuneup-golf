@@ -269,7 +269,7 @@
                             </li>
                         @endcan
                     @endif
-                    @if (Auth::user()->type == 'Student')
+                    {{-- @if (Auth::user()->type == 'Student')
                         <li class="dash-item dash-hasmenu {{ request()->is('lesson*') ? 'active' : '' }}">
                             <a class="dash-link"
                                 href="{{ route('lesson.available', ['type' => 'inPerson']) }}">
@@ -277,16 +277,18 @@
                                 <span class="dash-mtext">{{ __('Start Lesson') }}</span>
                             </a>
                         </li>
+                    @endif --}}
+                    
+                    @if (Auth::user()->type != 'Student')
+                        @can('manage-purchases')
+                            <li class="dash-item dash-hasmenu {{ request()->is('purchase*') ? 'active' : '' }}">
+                                <a class="dash-link" href="{{ route('purchase.index') }}">
+                                <span class="dash-micon"><i class="ti ti-messages"></i></span>
+                                    <span class="dash-mtext">{{ __('Purchased Lessons') }}</span>
+                                </a>
+                            </li>
+                        @endcan
                     @endif
-
-                    @can('manage-purchases')
-                        <li class="dash-item dash-hasmenu {{ request()->is('purchase*') ? 'active' : '' }}">
-                            <a class="dash-link" href="{{ route('purchase.index') }}">
-                            <span class="dash-micon"><i class="ti ti-messages"></i></span>
-                                <span class="dash-mtext">{{ __('Purchased Lessons') }}</span>
-                            </a>
-                        </li>
-                    @endcan
                     @if (Auth::user()->type === 'Student')
                         <li class="dash-item dash-hasmenu {{ request()->is('instructor*') ? 'active' : '' }}">
                             <a class="dash-link" href="{{ route('instructor.profiles') }}">
