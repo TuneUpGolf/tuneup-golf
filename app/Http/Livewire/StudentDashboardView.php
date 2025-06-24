@@ -69,8 +69,8 @@ class StudentDashboardView extends GridView
         $symbol = User::getCurrencySymbol($currency);
 
         return [
-            'image' =>  isset($model->user->logo) ?
-                asset('/storage' . '/' . tenant('id') . '/' . $model->user->logo) :
+            'image' =>  isset($model->user->avatar) ?
+                asset('/storage' . '/' . tenant('id') . '/' . $model->user->avatar) :
                 asset('assets/img/logo/logo.png'),
             'title' => $model->lesson_name,
             'subtitle' => str_replace(['(', ')'], '', $symbol) . ' ' . $model->lesson_price . ' (' . strtoupper($currency) . ')',
