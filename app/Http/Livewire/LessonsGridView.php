@@ -24,7 +24,7 @@ class LessonsGridView extends GridView
                     $q->where('is_stripe_connected', true);
                 });
         } elseif (request()->query('type') == Lesson::LESSON_TYPE_INPERSON) {
-            $query->with('packages')->whereIn('type',[Lesson::LESSON_TYPE_INPERSON, Lesson::LESSON_TYPE_PACKAGE])
+            $query->with('packages')->whereIn('type', [Lesson::LESSON_TYPE_INPERSON, Lesson::LESSON_TYPE_PACKAGE])
                 ->where(function ($q) {
                     $q->where('payment_method', '!=', 'online')
                         ->orWhereHas('user', function ($q) {
@@ -59,9 +59,9 @@ class LessonsGridView extends GridView
         $symbol = User::getCurrencySymbol($currency);
 
         return [
-            'image' =>  isset($model->user->logo)?
-                        asset('/storage' . '/' . tenant('id') . '/' . $model->user->logo):
-                        asset('assets/img/logo/logo.png'),
+            'image' =>  isset($model->user->avatar) ?
+                asset('/storage' . '/' . tenant('id') . '/' . $model->user->avatar) :
+                asset('assets/img/logo/logo.png'),
             'title' => $model->lesson_name,
             'subtitle' => str_replace(['(', ')'], '', $symbol) . ' ' . $model->lesson_price . ' (' . strtoupper($currency) . ')',
             'description' => $model->lesson_description,

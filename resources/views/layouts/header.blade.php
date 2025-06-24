@@ -292,7 +292,7 @@
                             <a class="dash-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
                                 href="javascript:void(0);" role="button" aria-haspopup="false" aria-expanded="false">
                                 <span>
-                                    <img alt="image" src="{{ asset(Auth::user()->avatar_image) }}"
+                                    <img alt="image" src="{{ asset(Auth::user()->avatar_image??'storage/'.tenant()->id.'/'.Auth::user()->dp) }}"
                                         class="rounded-circle mr-1">
                                 </span>
                                 <span class="hide-mob ms-2">{{ __('Hi,') }} {{ Auth::user()->name }}</span>
