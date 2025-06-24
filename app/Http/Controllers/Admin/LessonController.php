@@ -721,6 +721,7 @@ class LessonController extends Controller
 
             return response('Unauthorized', 401);
         } catch (\Exception $e) {
+            report($e);
             throw new Exception($e->getMessage());
         }
     }
@@ -747,13 +748,15 @@ class LessonController extends Controller
             ]);
 
             // Attach friends to the slot
-            foreach ($friendNames as $friendName) {
-                $slot->student()->attach($bookingStudentId, [
-                    'isFriend' => true,
-                    'friend_name' => $friendName,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+            if (!empty($friendNames)) {
+                foreach ($friendNames as $friendName) {
+                    $slot->student()->attach($bookingStudentId, [
+                        'isFriend' => true,
+                        'friend_name' => $friendName,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
             }
         } else {
             if ($slot->student()->count() + $totalNewBookings > $slot->lesson->max_students) {
@@ -783,10 +786,10 @@ class LessonController extends Controller
                 'coupon_id' => null,
                 'tenant_id' => Auth::user()->tenant_id,
                 'total_amount' => $totalAmount,
-                'purchased_slot' => ($purchasedSlot) ? $purchasedSlot->number_of_slot : "",
+                'purchased_slot' => isset($purchasedSlot) ? $purchasedSlot->number_of_slot : 1,
                 'status' => Purchase::STATUS_INCOMPLETE,
                 'lessons_used' => 0,
-                'friend_names' => json_encode($friendNames), // Store friends' names
+                'friend_names' => !empty($friendNames) ? json_encode($friendNames) : null, // Store friends' names
             ]);
             $newPurchase->save();
 
@@ -797,7 +800,7 @@ class LessonController extends Controller
                 return request()->redirect == 1 ? $this->confirmPurchaseWithRedirect(request(), false) :
                     $this->confirmPurchaseWithRedirect(request(), true);
             }
-            if ($slot->lesson->type != 'package') {
+            if ($slot->lesson->type != 'package' && !empty($friendNames)) {
                 // Attach main student to the slot
                 $slot->student()->attach($bookingStudentId, [
                     'isFriend' => false,
@@ -805,6 +808,7 @@ class LessonController extends Controller
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
+
 
                 // Attach friends to the slot
                 foreach ($friendNames as $friendName) {
