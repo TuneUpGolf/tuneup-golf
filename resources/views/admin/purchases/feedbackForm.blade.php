@@ -1,5 +1,5 @@
 @extends('layouts.main')
-@section('title', __('Create Purchase'))
+@section('title', __(auth()->user()->type == 'Instructor'?'Provide Feedback':'Create Purchase'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('purchase.index') }}">{{ __('Purchase') }}</a></li>
@@ -15,15 +15,17 @@
                     </div>
                     <div class="card-body">
                         {!! Form::open([
-                            'route' => ['purchase.feedback.add', ['purchase_video_id' => $purchaseVideo->id, 'redirect' => '1']],
+                            'route' => 'purchase.feedback.add',
                             'method' => 'Post',
                             'enctype' => 'multipart/form-data',
                             'class' => 'form-horizontal',
                             'data-validate',
                         ]) !!}
                         <div class="row">
+                            <input type="hidden" name="purchase_id" value="{{ $purchase->id }}"/>
+                            <input type="hidden" name="redirect" value="1"/>
                             <div class="form-group">
-                                {{ Form::label('fdbk_video', _('Feedback Video'), ['class' => 'form-label']) }}
+                                {{ Form::label('fdbk_video', _('Feedback File'), ['class' => 'form-label']) }}
                                 {{ Form::file('fdbk_video[]', ['class' => 'form-control', 'required', 'multiple']) }}
                             </div>
                             <div class="form-group">

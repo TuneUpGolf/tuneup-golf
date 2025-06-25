@@ -14,7 +14,7 @@
 @endif
 @if ($purchase->type == 'package' && $purchase->isFullyBooked())
         <a class="'btn btn-sm small btn btn-info ' " href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}"
-            data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Provide Feedback') }}">
+            data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">
             <i class="ti ti-eye text-white"></i>
         </a>
 @endif
@@ -31,7 +31,7 @@
         </a>
     @endcan
 @endif --}}
-@if ($purchase->status == 'complete' && Auth::user()->type == 'Student' && $purchase->lesson->type === 'online')
+@if ($purchase->status == 'complete' && Auth::user()->type == 'Student')
     @can('manage-purchases')
         <a class="btn btn-sm small btn btn-warning "
             href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
@@ -41,22 +41,24 @@
     @endcan
 @endif
 
-@if ($purchase->status == 'complete' && Auth::user()->type == 'Instructor' && $purchase->lesson->type === 'online')
+@if ($purchase->status == 'complete' && Auth::user()->type == 'Instructor')
     @can('manage-purchases')
         @php
         $purchaseVideo = $purchase->videos->first();
         @endphp
         <a class="btn btn-sm small btn btn-warning "
-            href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}" data-bs-toggle="tooltip"
+            href="{{ route('purchase.feedback.create', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-original-title="{{ __('Provide Feedback') }}">
             <i class="ti ti-plus text-white"></i>
         </a>
 
+        @if($purchaseVideo->video_url??false)
         <a class="btn btn-sm small btn btn-warning "
             href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-original-title="{{ __('View Feedback') }}">
             <i class="ti ti-eye text-white"></i>
         </a>
+        @endif
     @endcan
 @endif
 

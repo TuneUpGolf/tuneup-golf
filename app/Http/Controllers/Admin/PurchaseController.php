@@ -681,12 +681,18 @@ class PurchaseController extends Controller
     {
         $request->validate([
             'feedback' => 'required',
-            'purchase_video_id' => 'required',
+            'purchase_id' => 'required',
             'fdbk_video' => 'required',
         ]);
-
         try {
-            if (Auth::user()->can('manage-purchases') && $purchaseVideo = PurchaseVideos::find($request->purchase_video_id)) {
+            $purchaseVideo = PurchaseVideos::where('purchase_id', $request->purchase_id)->first();
+            if (!$purchaseVideo) {
+                $purchaseVideo = PurchaseVideos::create([
+                    'purchase_id' => $request->purchase_id,
+                    'isFeedbackComplete' => 0,
+                ]);
+            }
+            if (Auth::user()->can('manage-purchases')) {
                 $purchaseVideo->feedback = $request->feedback;
 
                 if ($request?->hasFile('fdbk_video')) {
@@ -722,7 +728,7 @@ class PurchaseController extends Controller
                     $purchase->save();
                 }
                 if ($request->redirect == 1) {
-                    return redirect()->route('purchase.feedback.index', ['purchase_id' => $purchaseVideo->purchase_id])->with('success', 'Feedback Added Successfully');
+                    return redirect(session('previous_url', '/default'))->with('success', 'Feedback Added Successfully');
                 }
             }
         } catch (\Exception $e) {
@@ -736,8 +742,11 @@ class PurchaseController extends Controller
     public function addFeedBackIndex(Request $request)
     {
         if (Auth::user()->can('manage-purchases')) {
-            $purchaseVideo = PurchaseVideos::where('video_url', $request->purchase_video)->first();
-            return view('admin.purchases.feedbackForm', compact('purchaseVideo'));
+            session()->put('previous_url', url()->previous());
+            $purchase = Purchase::find($request->purchase_id);
+            $purchaseVideo = $purchase->videos->first();
+
+            return view('admin.purchases.feedbackForm', compact('purchase', 'purchaseVideo'));
         }
     }
     public function getStudentPurchases(Request $request)
