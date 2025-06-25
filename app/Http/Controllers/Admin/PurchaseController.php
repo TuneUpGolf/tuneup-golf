@@ -661,8 +661,16 @@ class PurchaseController extends Controller
     public function feedbackIndex(PurchaseLessonVideoDataTable $dataTable)
     {
         if (Auth::user()->can('manage-purchases')) {
-            $purchase = Purchase::with(['videos', 'lesson', 'student', 'instructor'])
-                ->find(request()->purchase_id);
+            $purchase = Purchase::with([
+                'videos' => function ($query) {
+                    $query->with('feedbackContent', function ($query) {
+                        $query->orderBy('id', 'desc')->first();
+                    })->orderBy('id', 'desc')->first();
+                },
+                'lesson',
+                'student',
+                'instructor'
+            ])->find(request()->purchase_id);
             return view('admin.purchases.videos', compact('purchase'));
         }
     }
@@ -683,6 +691,11 @@ class PurchaseController extends Controller
             'feedback' => 'required',
             'purchase_id' => 'required',
             'fdbk_video' => 'required',
+            'fdbk_video.*' => 'file|mimetypes:image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain,application/zip',
+        ], [
+            'fdbk_video.required'       => 'Please upload at least one file.',
+            'fdbk_video.*.file'         => 'Each uploaded item must be a valid file.',
+            'fdbk_video.*.mimetypes'    => 'Only images, videos, or documents are allowed.',
         ]);
         try {
             $purchaseVideo = PurchaseVideos::where('purchase_id', $request->purchase_id)->first();
@@ -702,7 +715,7 @@ class PurchaseController extends Controller
                         FeedbackContent::create([
                             'purchase_video_id' => $purchaseVideo->id,
                             'url' => $path,
-                            'type' => $type,
+                            'type' => in_array($type, ['image', 'video']) ? $type : $file->getMimeType(),
                         ]);
                     }
                 }

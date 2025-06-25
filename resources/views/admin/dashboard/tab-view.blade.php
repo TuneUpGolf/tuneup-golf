@@ -58,7 +58,7 @@
                </div>
             </div>
             --}}
-            <div class="tab">
+            <div class="tab dashboard-tab">
                <button class="tablinks {{ $activeTab == 'in-person' ? 'active' : '' }}" onclick="openCity(event, 'in-person')">In-Person Lessons</button>
                <button class="tablinks {{ $activeTab == 'online'  ? 'active' : ''}}" onclick="openCity(event, 'online')">Online Lessons</button>
                <button class="tablinks {{ $activeTab == 'my-lessons' ? 'active' : '' }}" onclick="openCity(event, 'my-lessons')">My Lessons</button>
