@@ -7,13 +7,13 @@
             'route' => ['purchase-confirm-redirect', ['purchase_id' => $purchase->id]],
             'id' => 'confirm-form-' . $purchase->id,
         ]) !!}
-        {{ Form::button(__('Confirm'), ['type' => 'submit', 'class' => 'btn btn-sm small btn btn-info ']) }}
+        {{ Form::button(__('Make Payment'), ['type' => 'submit', 'class' => 'btn btn-sm small btn btn-info ']) }}
         <i class="ti ti-eye text-white"></i>
         </a>
         {!! Form::close() !!}
     @endcan
 @endif
-@if ($purchase->type == 'package' && $purchase->isFullyBooked() && $user->type == 'Student')
+@if (in_array($purchase->type, ['package', 'inPerson']) && $purchase->isFullyBooked() && $user->type == 'Student' && $purchase->status == 'complete')
         <a class="'btn btn-sm small btn btn-info ' " href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}"
             data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">
             <svg width="800px" height="800px" viewBox="0 0 1024 1024" class="icon"  version="1.1" xmlns="http://www.w3.org/2000/svg">
