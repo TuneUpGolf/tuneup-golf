@@ -661,8 +661,16 @@ class PurchaseController extends Controller
     public function feedbackIndex(PurchaseLessonVideoDataTable $dataTable)
     {
         if (Auth::user()->can('manage-purchases')) {
-            $purchase = Purchase::with(['videos', 'lesson', 'student', 'instructor'])
-                ->find(request()->purchase_id);
+            $purchase = Purchase::with([
+                'videos' => function ($query) {
+                    $query->with('feedbackContent', function ($query) {
+                        $query->orderBy('id', 'desc')->first();
+                    })->orderBy('id', 'desc')->first();
+                },
+                'lesson',
+                'student',
+                'instructor'
+            ])->find(request()->purchase_id);
             return view('admin.purchases.videos', compact('purchase'));
         }
     }
@@ -681,12 +689,23 @@ class PurchaseController extends Controller
     {
         $request->validate([
             'feedback' => 'required',
-            'purchase_video_id' => 'required',
+            'purchase_id' => 'required',
             'fdbk_video' => 'required',
+            'fdbk_video.*' => 'file|mimetypes:image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain,application/zip',
+        ], [
+            'fdbk_video.required'       => 'Please upload at least one file.',
+            'fdbk_video.*.file'         => 'Each uploaded item must be a valid file.',
+            'fdbk_video.*.mimetypes'    => 'Only images, videos, or documents are allowed.',
         ]);
-
         try {
-            if (Auth::user()->can('manage-purchases') && $purchaseVideo = PurchaseVideos::find($request->purchase_video_id)) {
+            $purchaseVideo = PurchaseVideos::where('purchase_id', $request->purchase_id)->first();
+            if (!$purchaseVideo) {
+                $purchaseVideo = PurchaseVideos::create([
+                    'purchase_id' => $request->purchase_id,
+                    'isFeedbackComplete' => 0,
+                ]);
+            }
+            if (Auth::user()->can('manage-purchases')) {
                 $purchaseVideo->feedback = $request->feedback;
 
                 if ($request?->hasFile('fdbk_video')) {
@@ -696,7 +715,7 @@ class PurchaseController extends Controller
                         FeedbackContent::create([
                             'purchase_video_id' => $purchaseVideo->id,
                             'url' => $path,
-                            'type' => $type,
+                            'type' => in_array($type, ['image', 'video']) ? $type : $file->getMimeType(),
                         ]);
                     }
                 }
@@ -722,7 +741,7 @@ class PurchaseController extends Controller
                     $purchase->save();
                 }
                 if ($request->redirect == 1) {
-                    return redirect()->route('purchase.feedback.index', ['purchase_id' => $purchaseVideo->purchase_id])->with('success', 'Feedback Added Successfully');
+                    return redirect(session('previous_url', '/default'))->with('success', 'Feedback Added Successfully');
                 }
             }
         } catch (\Exception $e) {
@@ -736,8 +755,11 @@ class PurchaseController extends Controller
     public function addFeedBackIndex(Request $request)
     {
         if (Auth::user()->can('manage-purchases')) {
-            $purchaseVideo = PurchaseVideos::where('video_url', $request->purchase_video)->first();
-            return view('admin.purchases.feedbackForm', compact('purchaseVideo'));
+            session()->put('previous_url', url()->previous());
+            $purchase = Purchase::find($request->purchase_id);
+            $purchaseVideo = $purchase->videos->first();
+
+            return view('admin.purchases.feedbackForm', compact('purchase', 'purchaseVideo'));
         }
     }
     public function getStudentPurchases(Request $request)
