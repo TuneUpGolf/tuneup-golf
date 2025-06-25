@@ -13,7 +13,7 @@
         {!! Form::close() !!}
     @endcan
 @endif
-@if ($purchase->type == 'package' && $purchase->isFullyBooked())
+@if ($purchase->type == 'package' && $purchase->isFullyBooked() && $user->type == 'Student')
         <a class="'btn btn-sm small btn btn-info ' " href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}"
             data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">
             <svg width="800px" height="800px" viewBox="0 0 1024 1024" class="icon"  version="1.1" xmlns="http://www.w3.org/2000/svg">
@@ -38,25 +38,14 @@
 @endif --}}
 @if ($purchase->status == 'complete' && $user->type == 'Instructor')
     @can('manage-purchases')
-        @php
-        $purchaseVideo = $purchase->videos->first();
-        @endphp
         <a class="btn btn-sm small btn btn-warning "
             href="{{ route('purchase.feedback.create', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-original-title="{{ __('Provide Feedback') }}">
             <i class="ti ti-plus text-white"></i>
         </a>
-
-        @if($purchaseVideo->video_url??false)
-        <a class="btn btn-sm small btn btn-warning "
-            href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
-            data-bs-placement="bottom" data-bs-original-title="{{ __('View Feedback') }}">
-            <i class="ti ti-eye text-white"></i>
-        </a>
-        @endif
     @endcan
 @endif
-@if ($purchase->status == 'complete' && in_array($user->type, ['Student', 'Instructor']))
+@if ($purchase->status == 'complete' && in_array($user->type, ['Student', 'Instructor']) && $purchaseVideo = $purchase->videos->first())
     @can('manage-purchases')
         <a class="btn btn-sm small btn btn-warning "
             href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
