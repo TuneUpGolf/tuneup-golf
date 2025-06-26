@@ -707,7 +707,6 @@ class LessonController extends Controller
 
             $slot = Slots::with('lesson', 'student')->findOrFail(request()->slot_id);
             if (Auth::user()->type == Role::ROLE_STUDENT && Auth::user()->active_status == 1 && !!$slot) {
-
                 return $this->handleStudentBookingAPI($slot, request());
             }
 
@@ -830,13 +829,14 @@ class LessonController extends Controller
             'A slot has been booked for :date with :student for the in-person lesson :lesson.'
         );
 
-        return false
-            ? redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Slot Successfully Booked.')
-            : response()->json([
-                'message' => 'Slot successfully reserved.',
-                'slot' => new SlotAPIResource($slot),
-                'friend_names' => $friendNames
-            ], 200);
+        return redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Slot Successfully Booked.');
+        // return false
+        //     ? redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Slot Successfully Booked.')
+        //     : response()->json([
+        //         'message' => 'Slot successfully reserved.',
+        //         'slot' => new SlotAPIResource($slot),
+        //         'friend_names' => $friendNames
+        //     ], 200);
     }
 
 

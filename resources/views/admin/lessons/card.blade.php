@@ -10,6 +10,11 @@
     'hasDefaultAction' => false,
     'selected' => false,
 ])
+@php
+    $firstSlot = $model->slots->first();
+    $bookedCount = $firstSlot?->student()->count();
+    $availableSlots = $firstSlot?($firstSlot->lesson->max_students - (int)$bookedCount):0;
+@endphp
 <div
     class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col h-full">
     <div class="relative text-center p-3 flex gap-3">
@@ -23,6 +28,7 @@
             </a>
             <div class="text-lg font-bold tracking-tight text-primary">
                 {!! $subtitle !!}
+                {!! $availableSlots > 0?"<p>$availableSlots Slots available.</p>":'' !!}
             </div>
             <div class="text-sm font-medium text-gray-500 italic">
                 {{-- <span class="">({!! \App\Models\Purchase::where('lesson_id', $model->id)->where('status',
@@ -98,10 +104,10 @@
             @if ($model->type === 'inPerson' || $model->type == 'package')
                 @if ($model->is_package_lesson)
                     @php
-                        $firstSlot = $model->slots->first();
                         $allSlots = $model->slots;
                     @endphp
-                    @if ($firstSlot && !$firstSlot->isFullyBooked())
+                    @if ($firstSlot)
+                    {{-- @if ($firstSlot && !$firstSlot->isFullyBooked()) --}}
                         {{-- @php
                             $isAlreadyBooked = false;
                             if ($model->type === 'inPerson') {
@@ -126,10 +132,16 @@
                                 Purchase
                             </button>
                         @endif --}}
-                        <button class="lesson-btn"
-                            onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}' ,'{{ $model->lesson_price }}', {{ $model->id}})">
-                            Purchase
-                        </button>
+                        @if($firstSlot->isFullyBooked())
+                            <a href="{{ route('slot.view', ['lesson_id' => $model->id]) }}">
+                                <button class="lesson-btn">Purchase</button>
+                            </a>
+                        @else
+                            <button class="lesson-btn"
+                                onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}' ,'{{ $model->lesson_price }}', {{ $model->id}})">
+                                Purchase
+                            </button>
+                        @endif
                     @else
                         <button class="lesson-btn opacity-50 cursor-not-allowed" disabled>
                             No Slots Available
