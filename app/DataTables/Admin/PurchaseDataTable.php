@@ -12,6 +12,13 @@ use Yajra\DataTables\Services\DataTable;
 
 class PurchaseDataTable extends DataTable
 {
+    protected $tab;
+
+    public function __construct($tab = null)
+    {
+        $this->tab = $tab;
+    }
+
     public function dataTable($query)
     {
         return datatables()
@@ -39,28 +46,28 @@ class PurchaseDataTable extends DataTable
                     </div>';
             })
             ->editColumn('lesson_name', function ($purchase) {
-                $s = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
-                $lesson_type = $purchase->lesson->type ?? null;
+                $s                    = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
+                $lesson_type          = $purchase->lesson->type ?? null;
+                $lesson_active_status = $purchase->lesson->active_status;
+                $badgeClass           = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? 'bg-green-600' : 'bg-cyan-500';
+                $deletedText          = ! $lesson_active_status ? ' <span class="text-gray-500 italic"> deleted</span>' : '';
+                $lessonName           = e($purchase->lesson_name);
+                $truncatedLessonName  = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
 
-                if ($lesson_type == Lesson::LESSON_TYPE_INPERSON && $purchase->lesson->is_package_lesson) {
-                    $s .= ' - PL'; // Append "- PL" for package lessons
+                $url = route('purchase.show', $purchase->id);
+
+                // Check user role
+                if (Auth::user()->type == 'Instructor') {
+                    $lessonLink = '<a href="' . $url . '" class="text-blue-600 hover:underline mr-2" title="' . $lessonName . '">' . $truncatedLessonName . '</a>';
+                } else {
+                    $lessonLink = '<span class="text-gray-800 mr-2" title="' . $lessonName . '">' . $truncatedLessonName . '</span>';
                 }
 
-                $lesson_active_status = $purchase->lesson->active_status;
-                $badgeClass = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? 'bg-green-600' : 'bg-cyan-500';
-
-                // Check if lesson is deleted
-                $deletedText = !$lesson_active_status ? ' <span class="text-gray-500 italic"> deleted</span>' : '';
-
-                // Truncate lesson name if it exceeds 16 characters
-                $lessonName = e($purchase->lesson_name);
-                $truncatedLessonName = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
-
                 return '
-                    <div class="flex justify-between">
-                        <span class="mr-2" title="' . $lessonName . '">' . $truncatedLessonName . $deletedText . '</span>
-                        <label class="badge rounded-pill ' . $badgeClass . ' p-2 px-3">' . e($s) . '</label>
-                    </div>';
+        <div class="flex justify-between items-center">
+            ' . $lessonLink . '
+            <label class="badge rounded-pill ' . $badgeClass . ' p-2 px-3">' . e($s) . '</label>' . $deletedText . '
+        </div>';
             })
             ->editColumn('student_name', function ($purchase) {
                 $imageSrc = $purchase->student->dp
@@ -108,7 +115,7 @@ class PurchaseDataTable extends DataTable
         // Filter query based on user role
         if ($user->type == Role::ROLE_STUDENT) {
             $query->where('purchases.student_id', $user->id)
-                ->where('purchases.status', Purchase::STATUS_COMPLETE);
+                ->orWhere('purchases.type', 'package');
         }
 
         if ($user->type == Role::ROLE_ADMIN) {
@@ -130,7 +137,6 @@ class PurchaseDataTable extends DataTable
             $query->where('purchases.instructor_id', $user->id)
                 ->where('purchases.status', Purchase::STATUS_COMPLETE);
         }
-
         return $query;
     }
 
@@ -140,8 +146,8 @@ class PurchaseDataTable extends DataTable
     public function html()
     {
         $buttons = [
-            ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
-            ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
+            // ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
+            // ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
         ];
         if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
             unset($buttons[0]);
@@ -170,6 +176,10 @@ class PurchaseDataTable extends DataTable
                 var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
             }')
             ->parameters([
+                "columnDefs" => [
+                    ["responsivePriority" => 1, "targets" => 1],
+                    ["responsivePriority" => 2, "targets" => 4],
+                ],
                 "dom" =>  "
                 <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12 d-none d-sm-block'>
                 <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
@@ -180,7 +190,7 @@ class PurchaseDataTable extends DataTable
                 'buttons'   => $buttons,
                 "scrollX" => true,
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {
@@ -252,7 +262,6 @@ class PurchaseDataTable extends DataTable
         if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
             $columns[] = Column::make('student_name')->title("Student")->searchable(true);
             $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
-
         } elseif (Auth::user()->type == Role::ROLE_STUDENT) {
             $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
         }

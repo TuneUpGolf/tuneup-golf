@@ -29,6 +29,8 @@ use Exception;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
+use App\Models\PackageLesson;
+use Illuminate\Support\Facades\DB;
 
 class LessonController extends Controller
 {
@@ -68,7 +70,6 @@ class LessonController extends Controller
     // Method to create a new lesson
     public function store(Request $request)
     {
-
         if ($request->type === Lesson::LESSON_PAYMENT_ONLINE)
             $validatedData = $request->validate([
                 'lesson_name'          => 'required|string|max:255',
@@ -81,7 +82,7 @@ class LessonController extends Controller
             $validatedData = $request->validate([
                 'lesson_name'          => 'required|string|max:255',
                 'lesson_description'   => 'required|string',
-                'lesson_price'         => 'required|numeric',
+                'lesson_price'         => 'required_if:is_package_lesson,0|numeric',
                 'lesson_duration'      => 'required|numeric',
                 'payment_method'       => ['required', 'in:online,cash,both'],
                 'slots'                => 'array',
@@ -90,20 +91,31 @@ class LessonController extends Controller
             ]);
             $validatedData['lesson_quantity'] = 1;
             $validatedData['required_time'] = 0;
-            !empty($validatedData['is_package_lesson']) && $validatedData['is_package_lesson'] == "1" ? $validatedData['is_package_lesson'] = true : $validatedData['is_package_lesson'] = false;
+            !empty($validatedData['is_package_lesson']) && $validatedData['is_package_lesson'] == 1 ? $validatedData['is_package_lesson'] = true : $validatedData['is_package_lesson'] = false;
         }
         // Assuming 'created_by' is the ID of the currently authenticated instructor
         $validatedData['created_by'] = Auth::user()->id;
-        $validatedData['type'] = $request->type;
+        $validatedData['type'] = ($request->is_package_lesson == 1) ? 'package' : $request->type;
         $validatedData['payment_method'] = $request->type === Lesson::LESSON_TYPE_INPERSON ? $request->payment_method : Lesson::LESSON_PAYMENT_ONLINE;
         $validatedData['tenant_id'] = Auth::user()->tenant_id;
+        $validatedData['lesson_price'] = $request->lesson_price ?? 0;
         $lesson = Lesson::create($validatedData);
+
         $students = Student::whereHas('pushToken')
             ->with('pushToken')
             ->get()
             ->pluck('pushToken.token')
             ->toArray();
-
+        if ($request->is_package_lesson == 1 && !empty($request->package_lesson)) {
+            foreach ($request->package_lesson as $packages) {
+                PackageLesson::create([
+                    'tenant_id' => Auth::user()->tenant_id,
+                    'lesson_id' => $lesson->id,
+                    'number_of_slot' => $packages['no_of_slot'],
+                    'price' => $packages['price'],
+                ]);
+            }
+        }
         if (!empty($students)) {
             $title = "New Lesson Available!";
             $body = Auth::user()->name . " has created a new lesson: " . $lesson->lesson_name;
@@ -116,11 +128,10 @@ class LessonController extends Controller
     public function update(Request $request, $lessonId)
     {
         $lesson = Lesson::findOrFail($lessonId);
-
         $validatedData = $request->validate([
             'lesson_name'          => 'required|string|max:255',
             'lesson_description'   => 'required|string',
-            'lesson_price'         => 'required|numeric',
+            'lesson_price'         => 'required_if:is_package_lesson,1|numeric',
             'lesson_quantity'      => 'integer',
             'required_time'        => 'integer',
             'lesson_duration'      => 'numeric',
@@ -132,14 +143,23 @@ class LessonController extends Controller
         $validatedData['created_by'] = Auth::user()->id;
 
         $lesson->update($validatedData);
-
+        if ($lesson->is_package_lesson == 1 && !empty($request->package_lesson)) {
+            foreach ($request->package_lesson as $packages) {
+                PackageLesson::create([
+                    'tenant_id' => Auth::user()->tenant_id,
+                    'lesson_id' => $lessonId,
+                    'number_of_slot' => $packages['no_of_slot'],
+                    'price' => $packages['price'],
+                ]);
+            }
+        }
         return redirect()->route('lesson.index', $lesson)->with('success', 'Lesson updated successfully.');
     }
 
     public function edit($id)
     {
         if (Auth::user()->can('edit-lessons')) {
-            $user   = Lesson::find($id);
+            $user   = Lesson::with('packages')->find($id);
             if (Auth::user()->type == 'Admin') {
                 $roles      = Role::where('name', '!=', 'Super Admin')->where('name', '!=', 'Admin')->pluck('name', 'name');
                 $domains    = Domain::pluck('domain', 'domain')->all();
@@ -164,7 +184,12 @@ class LessonController extends Controller
     {
         if (Auth::user()->can('create-lessons')) {
             $lesson = Lesson::find($request->get('lesson_id'));
-            return view('admin.lessons.addSlot', compact('lesson'));
+            if ($lesson) {
+                return view('admin.lessons.addSlot', compact('lesson'));
+            } else {
+                $lesson = Lesson::withMax('packages', 'number_of_slot')->whereIn('type', ['package', 'inPerson'])->where('created_by', Auth::user()->id)->where('active_status', true)->get()->toArray();
+                return view('admin.lessons.setAvailability', compact('lesson'));
+            }
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -186,7 +211,7 @@ class LessonController extends Controller
 
             $type = Auth::user()->type;
             foreach ($slots as $appointment) {
-                if(isset($appointment->lesson->user->id)){
+                if (isset($appointment->lesson->user->id)) {
                     $n = $appointment->lesson->lesson_duration;
                     $startDateTime = Carbon::parse($appointment->date_time);
                     $whole = floor($n);
@@ -195,19 +220,19 @@ class LessonController extends Controller
                     $endDateTime = $startDateTime->copy()->addHours($whole)->addMinutes($minutes);
 
                     $students = $appointment->student;
-                    $colors =  $appointment->is_completed?'#41d85f':($appointment->isFullyBooked()?
+                    $colors =  $appointment->is_completed ? '#41d85f' : ($appointment->isFullyBooked() ?
                         '#c5b706' : '#0071ce');
-                    
+
                     $startDts = $startDateTime->format('h:i a');
                     $endDts = $endDateTime->format('h:i a');
 
                     array_push($events, [
-                        'title' => substr($appointment->lesson->lesson_name, 0, 10).
-                        ' (' . $appointment->lesson->max_students - $appointment->availableSeats() . '/' . $appointment->lesson->max_students . ') ',
+                        'title' => substr($appointment->lesson->lesson_name, 0, 10) .
+                            ' (' . $appointment->lesson->max_students - $appointment->availableSeats() . '/' . $appointment->lesson->max_students . ') ',
                         // 'start' => $appointment->date_time,
-                        'extendedProps'=>[
-                           'details' => $startDts == $endDts?$startDts:$startDts.' - '. $endDts,
-                           'location' => $appointment->location,
+                        'extendedProps' => [
+                            'details' => $startDts == $endDts ? $startDts : $startDts . ' - ' . $endDts,
+                            'location' => $appointment->location,
                         ],
                         'start' => $startDateTime->format('Y-m-d H:i:s'),
                         'end' => $endDateTime->format('Y-m-d H:i:s'),
@@ -224,11 +249,11 @@ class LessonController extends Controller
                         'className' => ($appointment->is_completed ? 'custom-completed-class' : ($appointment->isFullyBooked() ? 'custom-book-class' : 'custom-available-class')) . ' custom-event-class',
                     ]);
 
-                    if(!in_array($appointment->lesson->user->id, $resources)) {
+                    if (!in_array($appointment->lesson->user->id, $resources)) {
                         $resources[$appointment->lesson->user->id] =
-                            ['id' => $appointment->lesson->user->id, 'title' => $appointment->lesson->user->name, 'eventColor'=>$colors];
+                            ['id' => $appointment->lesson->user->id, 'title' => $appointment->lesson->user->name, 'eventColor' => $colors];
                     }
-              }
+                }
             }
             $resources = array_values($resources);
             $lesson_id = request()->get('lesson_id');
@@ -301,7 +326,9 @@ class LessonController extends Controller
                     return $slot->availableSeats() > 0 || $slot->student->contains('id', $authUser->id);
                 });
             }
-
+            if ($lesson->type == 'package' && $purchasedSlot = Purchase::where(['lesson_id' => request()->get('lesson_id'), 'student_id' => $authUser->id, 'type' => 'package'])->first()) {
+                $slots = collect(array_slice($slots->all(), 0, $purchasedSlot->purchased_slot));
+            }
             foreach ($slots as $appointment) {
 
                 $n = $appointment->lesson->lesson_duration;
@@ -334,7 +361,6 @@ class LessonController extends Controller
                     'className' => $className,
                 ]);
             }
-
             $lesson_id = request()->get('lesson_id');
             $authId = Auth::user()->id;
             $students = Student::where('active_status', true)->where('isGuest', false)->get();
@@ -512,12 +538,12 @@ class LessonController extends Controller
 
             $lesson = Lesson::find($request->get('lesson_id'));
 
-            if (!$lesson || $lesson->type != Lesson::LESSON_TYPE_INPERSON) {
+            // if (!$lesson || $lesson->type != Lesson::LESSON_TYPE_INPERSON) {
+            if (!$lesson) {
                 return $request->get('redirect') == 1
                     ? redirect()->back()->with('error', 'In-Person lesson not found.')
                     : response()->json(['error' => 'In-Person lesson not found.'], 404);
             }
-
             // Prevent adding slots if it's a package lesson with completed purchases
             if ($lesson->is_package_lesson && $lesson->purchases()->where('status', Purchase::STATUS_COMPLETE)->exists()) {
                 return $request->get('redirect') == 1
@@ -664,7 +690,6 @@ class LessonController extends Controller
     public function bookSlotApi()
     {
         try {
-
             $friendNames = request()->input('friend_names');
             if (is_string($friendNames)) {
                 request()->merge(['friend_names' => json_decode(request()->friend_names, true) ?? []]);
@@ -681,10 +706,9 @@ class LessonController extends Controller
             // Convert JSON string to array (just in case)
 
             $slot = Slots::with('lesson', 'student')->findOrFail(request()->slot_id);
-
             if (Auth::user()->type == Role::ROLE_STUDENT && Auth::user()->active_status == 1 && !!$slot) {
 
-                return $this->handleStudentBookingAPI($slot);
+                return $this->handleStudentBookingAPI($slot, request());
             }
 
             if (Auth::user()->type == Role::ROLE_INSTRUCTOR && Auth::user()->active_status == 1 && !!$slot && $slot->lesson->created_by == Auth::user()->id) {
@@ -697,11 +721,12 @@ class LessonController extends Controller
 
             return response('Unauthorized', 401);
         } catch (\Exception $e) {
+            report($e);
             throw new Exception($e->getMessage());
         }
     }
 
-    private function handleStudentBookingAPI($slot)
+    private function handleStudentBookingAPI($slot, $request)
     {
 
         $bookingStudentId = Auth::user()->id;
@@ -712,61 +737,89 @@ class LessonController extends Controller
         }
         $totalNewBookings = count($friendNames) + 1;
 
-
-        if ($slot->student()->count() + $totalNewBookings > $slot->lesson->max_students) {
-            return request()->redirect == 1
-                ? redirect()->back()->with('error', 'Sorry, the number of booked slots exceeds the limit.')
-                : response()->json(['error' => 'Sorry, the number of booked slots exceeds the limit.'], 422);
-        }
-
-        if ($slot->student()->where('students.id', $bookingStudentId)->exists()) {
-            return request()->redirect == 1
-                ? redirect()->back()->with('error', 'You have already booked this slot')
-                : response()->json(['error' => 'You have already booked this slot.'], 422);
-        }
-
-        // Calculate total price for student and friends
-        $totalAmount = $slot->lesson->lesson_price * $totalNewBookings;
-
-        // Create purchase entry
-        $newPurchase = new Purchase([
-            'student_id' => $bookingStudentId,
-            'instructor_id' => $slot->lesson->created_by,
-            'lesson_id' => $slot->lesson_id,
-            'slot_id' => $slot->id,
-            'coupon_id' => null,
-            'tenant_id' => Auth::user()->tenant_id,
-            'total_amount' => $totalAmount,
-            'status' => Purchase::STATUS_INCOMPLETE,
-            'lessons_used' => 0,
-            'friend_names' => json_encode($friendNames), // Store friends' names
-        ]);
-        $newPurchase->save();
-
-        if ($slot->lesson->is_package_lesson) {
-            request()->merge(['purchase_id' => $newPurchase->id]);
-            request()->setMethod('POST');
-
-            return request()->redirect == 1 ? $this->confirmPurchaseWithRedirect(request(), false) :
-                $this->confirmPurchaseWithRedirect(request(), true);
-        }
-
-        // Attach main student to the slot
-        $slot->student()->attach($bookingStudentId, [
-            'isFriend' => false,
-            'friend_name' => null,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        // Attach friends to the slot
-        foreach ($friendNames as $friendName) {
+        $checkPackageBooking = Purchase::where(['student_id' => $bookingStudentId, 'lesson_id' => $slot->lesson_id, 'type' => $slot->lesson->type])->first();
+        if (!empty($checkPackageBooking) && $slot->lesson->type == 'package') {
+            // Attach main student to the slot
             $slot->student()->attach($bookingStudentId, [
-                'isFriend' => true,
-                'friend_name' => $friendName,
+                'isFriend' => false,
+                'friend_name' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+
+            // Attach friends to the slot
+            if (!empty($friendNames)) {
+                foreach ($friendNames as $friendName) {
+                    $slot->student()->attach($bookingStudentId, [
+                        'isFriend' => true,
+                        'friend_name' => $friendName,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        } else {
+            if ($slot->student()->count() + $totalNewBookings > $slot->lesson->max_students) {
+                return request()->redirect == 1
+                    ? redirect()->back()->with('error', 'Sorry, the number of booked slots exceeds the limit.')
+                    : response()->json(['error' => 'Sorry, the number of booked slots exceeds the limit.'], 422);
+            }
+
+            if ($slot->student()->where('students.id', $bookingStudentId)->exists()) {
+                return request()->redirect == 1
+                    ? redirect()->back()->with('error', 'You have already booked this slot')
+                    : response()->json(['error' => 'You have already booked this slot.'], 422);
+            }
+            $lessonPrice = !empty($slot->lesson->type == 'package') ? $request->package_price : $slot->lesson->lesson_price;
+            if ($slot->lesson->type == 'package') {
+                $purchasedSlot =  PackageLesson::where(['price' => $lessonPrice, 'lesson_id' => $slot->lesson_id])->first();
+            }
+            // Calculate total price for student and friends
+            $totalAmount = $lessonPrice * $totalNewBookings;
+            // Create purchase entry
+            $newPurchase = new Purchase([
+                'student_id' => $bookingStudentId,
+                'instructor_id' => $slot->lesson->created_by,
+                'lesson_id' => $slot->lesson_id,
+                'type' => $slot->lesson->type,
+                'slot_id' => $slot->id,
+                'coupon_id' => null,
+                'tenant_id' => Auth::user()->tenant_id,
+                'total_amount' => $totalAmount,
+                'purchased_slot' => isset($purchasedSlot) ? $purchasedSlot->number_of_slot : 1,
+                'status' => Purchase::STATUS_INCOMPLETE,
+                'lessons_used' => 0,
+                'friend_names' => !empty($friendNames) ? json_encode($friendNames) : null, // Store friends' names
+            ]);
+            $newPurchase->save();
+
+            if ($slot->lesson->payment_method == 'online') {
+                request()->merge(['purchase_id' => $newPurchase->id]);
+                request()->setMethod('POST');
+
+                return request()->redirect == 1 ? $this->confirmPurchaseWithRedirect(request(), false) :
+                    $this->confirmPurchaseWithRedirect(request(), true);
+            }
+            if ($slot->lesson->type != 'package' && !empty($friendNames)) {
+                // Attach main student to the slot
+                $slot->student()->attach($bookingStudentId, [
+                    'isFriend' => false,
+                    'friend_name' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+
+                // Attach friends to the slot
+                foreach ($friendNames as $friendName) {
+                    $slot->student()->attach($bookingStudentId, [
+                        'isFriend' => true,
+                        'friend_name' => $friendName,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
         }
 
         // Send booking notifications
@@ -1109,8 +1162,8 @@ class LessonController extends Controller
     public function deleteSlot(Request $request)
     {
         try {
-            if(Slots::find($request->id)->delete()) {
-                return response()->json(['message'=>'Slot deleted'], 200);
+            if (Slots::find($request->id)->delete()) {
+                return response()->json(['message' => 'Slot deleted'], 200);
             }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 400);
@@ -1178,5 +1231,97 @@ class LessonController extends Controller
         $lesson->update(['active_status' => false]);
 
         return redirect()->route('lesson.index')->with('success', 'Lesson disabled successfully!');
+    }
+    public function addAvailabilitySlots(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'lesson_id' => 'required|array',
+                'start_date' => 'required',
+                'start_time' => 'required|date_format:H:i',
+                'end_time' => 'required|date_format:H:i',
+                'location'  => 'required|string|max:255',
+            ]);
+
+            $conflictErrors = [];
+            $slotsToCreate = [];
+            $slots = [];
+
+            $lessons = Lesson::whereIn('id', $validatedData['lesson_id'])->get();
+            $selectedDates = explode(",", $request->start_date);
+            foreach ($lessons as $lesson) {
+                foreach ($selectedDates as $date) {
+
+                    $slotStart = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $validatedData['start_time']);
+                    $slotEnd   = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $validatedData['end_time']);
+                    $totalMinutes = $slotStart->diffInMinutes($slotEnd);
+
+                    $lessonMinutes = $lesson->lesson_duration * 60;
+
+                    $maxSlots = floor($totalMinutes / $lessonMinutes);
+
+                    $currentSlotStart = $slotStart->copy();
+
+                    // Check if any slot overlaps with this time range
+                    for ($i = 0; $i < $maxSlots; $i++) {
+                        $currentSlotEnd = $currentSlotStart->copy()->addMinutes($lessonMinutes)->subMinute(); // to allow adjacent slots
+
+                        $conflict = Slots::where('lesson_id', $lesson->id)
+                            ->whereBetween('date_time', [$currentSlotStart, $currentSlotEnd])
+                            ->exists();
+
+                        if ($conflict) {
+                            $conflictErrors[] = "Slot conflict for lesson '{$lesson->lesson_name}' on {$date} at {$currentSlotStart->format('H:i')}.";
+                        } else {
+                            $slotsToCreate[] = [
+                                'lesson_id' => $lesson->id,
+                                'date_time' => $currentSlotStart->copy(),
+                                'location'  => $request->location
+                            ];
+                        }
+
+                        $currentSlotStart->addMinutes($lessonMinutes);
+                    }
+                }
+            }
+
+            if (!empty($conflictErrors)) {
+                return back()->withErrors(['conflicts' => $conflictErrors])->withInput();
+            }
+
+            // ✅ No conflicts — create all slots inside a DB transaction
+            DB::transaction(function () use ($slotsToCreate) {
+                foreach ($slotsToCreate as $slot) {
+                    Slots::create($slot);
+                }
+            });
+
+            // Send push notifications for new lessons
+            $students = Student::whereHas('pushToken')
+                ->with('pushToken')
+                ->get()
+                ->pluck('pushToken.token')
+                ->toArray();
+
+            if (!empty($students)) {
+                foreach ($lessons as $lesson) {
+                    $title = "New Lessons Available!";
+                    $body  = "{$lesson->user->name} has created new lesson opportunities: {$lesson->lesson_name}. Check now!";
+                    SendPushNotification::dispatch($students, $title, $body);
+                }
+            }
+
+            // Return based on redirect parameter
+            return $request->get('redirect') == 1
+                ? redirect()->route('lesson.index')->with('success', 'Slots Successfully Added')
+                : response()->json([
+                    'message' => 'Consecutive Slots for the given range are successfully created',
+                    'slots' => $slotsToCreate
+                ]);
+        } catch (\Exception $e) {
+            return $request->get('redirect') == 1
+                ? redirect()->back()->with('error', $e->getMessage())
+                : response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
+        }
     }
 }

@@ -1494,9 +1494,12 @@ body.theme-1 .bg-primary {
     content: "\ea5f" !important;
     font-family: tabler-icons !important;
   }
-  table.dataTable.dtr-inline.collapsed>tbody>tr.parent>td.dtr-control:before, table.dataTable.dtr-inline.collapsed>tbody>tr.parent>th.dtr-control:before {
+
+  table.dataTable.dtr-inline.collapsed>tbody>tr.parent>td.dtr-control:before,
+  table.dataTable.dtr-inline.collapsed>tbody>tr.parent>th.dtr-control:before {
     content: "\ea62" !important;
   }
+
   table.vertical-table {
     background-color: #ffffff;
     width: 100%;
@@ -1561,6 +1564,7 @@ body.theme-1 .bg-primary {
     padding: 7px;
     justify-content: center;
   }
+
   .dt-buttons .btn>span {
     justify-content: center;
     gap: 0;
@@ -1592,6 +1596,7 @@ body.theme-1 .bg-primary {
   display: inline-block;
   margin-right: 5px;
 }
+
 .fc-delete-btn {
   display: inline-block;
   cursor: pointer;
@@ -1601,4 +1606,9 @@ body.theme-1 .bg-primary {
   right: 7px;
   top: 7px;
   font-size: 14px;
+}
+
+.dashboard-tab {
+  display: flex;
+  flex-wrap: wrap;
 }

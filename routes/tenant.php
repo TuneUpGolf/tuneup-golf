@@ -168,6 +168,7 @@ Route::middleware([
         Route::get('get/all', [LessonController::class, 'getAll']);
         Route::get('lesson/slot/create', [LessonController::class, 'createSlot'])->name('slot.create');
         Route::post('lesson/slot/add', [LessonController::class, 'addConsectuiveSlots'])->name('slot.add');
+        Route::post('lesson/slot/add/availability', [LessonController::class, 'addAvailabilitySlots'])->name('slot.availability');
         Route::get('lesson/slot/view', [LessonController::class, 'viewSlots'])->name('slot.view');
         Route::post('lesson/slot/done', [LessonController::class, 'completeSlot'])->name('slot.complete');
         Route::post('lesson/slot/booking', [LessonController::class, 'bookSlotApi'])->name('slot.book');
@@ -490,6 +491,8 @@ Route::middleware([
         Route::post('purchase/confirm', [PurchaseController::class, 'confirmPurchase']);
         Route::post('purchase/instructor/post', [PurchasePostController::class, 'purchasePost']);
         Route::post('purchase/add/video', [PurchaseController::class, 'addVideoAPI']);
+        Route::get('purchase/lesson/{id}', [PurchaseController::class, 'showLesson'])->name('purchase.show');
+        Route::delete('/purchase-feedback/{purchaseVideo}', [PurchaseController::class, 'deleteFeedback'])->name('purchase.feedback.delete');
 
 
         Route::post('follow', [FollowController::class, 'followInstructorApi']);

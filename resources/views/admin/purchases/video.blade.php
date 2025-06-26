@@ -17,7 +17,7 @@
                         {!! Form::open([
                             'route' => [
                                 'purchase.video.add',
-                                ['purchase_id' => $purchase->id, 'redirect' => true, 'checkout' => request()->checkout],
+                                ['purchase_id' => $purchase->id??null, 'redirect' => true, 'checkout' => request()->checkout],
                             ],
                             'method' => 'POST',
                             'data-validate',

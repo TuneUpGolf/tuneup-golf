@@ -1,10 +1,10 @@
 @extends('layouts.main')
 
-@section('title', __('User Detail'))
+@section('title', __('Purchase Detail'))
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Student') }}</li>
+    <li class="breadcrumb-item">{{ __('Purchase') }}</li>
 @endsection
 
 @section('content')
@@ -17,14 +17,12 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
                         <div class="me-3">
-                            <img src="{{ isset($students->dp)?
-                            asset('storage/'.tenant()->id.'/'.$students->dp):
-                            url('assets/img/user.png') }}" class="img-user wid-80 rounded-circle" alt="Avatar">
+                            <img src="{{ $purchase->student->dp }}" class="img-user wid-80 rounded-circle" alt="Avatar">
                         </div>
                         <div>
-                            <h4 class="mb-1 text-white">{{ $students->name }}</h4>
-                            <p class="mb-0 text-sm text-white-50">{{ $students->email }}</p>
-                            <p class="mb-0 text-sm text-white-50">{{ $students->name }}</p>
+                            <h4 class="mb-1 text-white">{{ $purchase->student->name }}</h4>
+                            <p class="mb-0 text-sm text-white-50">{{ $purchase->student->email}}</p>
+                            <p class="mb-0 text-sm text-white-50">{{ $purchase->student->name}}</p>
                         </div>
                     </div>
                 </div>
@@ -45,6 +43,8 @@
         </div>
     </div>
 </div>
+
+
 @endsection
 
 @push('css')
@@ -54,6 +54,15 @@
     {{-- Purchases table styles --}}
     @include('layouts.includes.datatable_css')
 
+    <style>
+        .card-body{
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .upload-files {
+            width:105px;
+        }
+    </style>
 @endpush
 
 @push('javascript')
@@ -63,6 +72,8 @@
     <script src="{{ asset('vendor/intl-tel-input/jquery.mask.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/intlTelInput-jquery.min.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/utils.min.js') }}"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
     {{-- Purchases table JS --}}
     @include('layouts.includes.datatable_js')
@@ -74,6 +85,7 @@
             );
         });
     </script>
+
 
     {{-- Profile cropper and phone logic --}}
     <script>
@@ -137,15 +149,7 @@
                 $("#avatar-updater").addClass("d-none");
             });
 
-            $("#phone").intlTelInput({
-                geoIpLookup: function(callback) {
-                    $.get("http://ipinfo.io", function() {}, "jsonp").always(function(resp) {
-                        callback('{{ $students->country_code }}');
-                    });
-                },
-                initialCountry: "auto",
-                separateDialCode: true,
-            });
+
 
             $('#phone').on('countrychange', function() {
                 $(this).val('');
