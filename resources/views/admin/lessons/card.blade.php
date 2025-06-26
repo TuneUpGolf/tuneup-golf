@@ -102,7 +102,7 @@
                         $allSlots = $model->slots;
                     @endphp
                     @if ($firstSlot && !$firstSlot->isFullyBooked())
-                        @php
+                        {{-- @php
                             $isAlreadyBooked = false;
                             if ($model->type === 'inPerson') {
                                 $isAlreadyBooked = $model->slots->contains(function ($slot) {
@@ -115,9 +115,7 @@
                                 });
                             }
                         @endphp
-                        @php
-                            
-                        @endphp
+                        
                         @if ($isAlreadyBooked)
                             <button class="lesson-btn opacity-50 cursor-not-allowed" disabled>
                                 Already Enrolled
@@ -127,7 +125,11 @@
                                 onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}' ,'{{ $model->lesson_price }}', {{ $model->id}})">
                                 Purchase
                             </button>
-                        @endif
+                        @endif --}}
+                        <button class="lesson-btn"
+                            onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}' ,'{{ $model->lesson_price }}', {{ $model->id}})">
+                            Purchase
+                        </button>
                     @else
                         <button class="lesson-btn opacity-50 cursor-not-allowed" disabled>
                             No Slots Available
