@@ -170,85 +170,103 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function openBookingPopup(allSlots, type, price, lessonId) {
+
             if (type == 'package') {
                 price = $("#package_slot_"+lessonId).val();
                 if (price == 0) {
-                    alert('Please select package option');
+                    alert('Price cannot be 0!');
                     return;
                 }
             } else {
                 price = price;
             }
-            if (!allSlots || allSlots.length === 0) {
-                console.error("No slots available!");
-                return;
-            }
-            const firstSlot = allSlots[0]; // Extract first slot dynamically
-            document.getElementById('slotIdInput').value = firstSlot.id;
             document.getElementById('packagePrice').value = price;
 
-            const availableSeats = firstSlot.lesson.max_students - firstSlot.student.length;
-            const lesson = firstSlot.lesson;
+            const firstSlot = allSlots[0];
+            document.getElementById('slotIdInput').value = firstSlot.id;
 
-            // Format All Slots' Date & Time
-            let slotDetailsHtml = "";
-            allSlots.forEach((s, index) => {
-                const formattedTime = new Intl.DateTimeFormat('en-US', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'short',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                }).format(new Date(s.date_time.replace(/-/g, "/")));
 
-                slotDetailsHtml += `
-            <div class="slot-item">
-                <span><strong>Slot ${index + 1}:</strong> ${formattedTime}</span><br/>
-            </div>
-        `;
-            });
+            document.getElementById("friendNamesInput").value = JSON.stringify([]);
+            document.getElementById("bookingForm").submit();
+        //     if (type == 'package') {
+        //         price = $("#package_slot_"+lessonId).val();
+        //         if (price == 0) {
+        //             alert('Please select package option');
+        //             return;
+        //         }
+        //     } else {
+        //         price = price;
+        //     }
+        //     if (!allSlots || allSlots.length === 0) {
+        //         console.error("No slots available!");
+        //         return;
+        //     }
+        //     const firstSlot = allSlots[0]; // Extract first slot dynamically
+        //     document.getElementById('slotIdInput').value = firstSlot.id;
+        //     document.getElementById('packagePrice').value = price;
 
-            Swal.fire({
-                title: "Slot Details",
-                html: `
-        <div style="text-align: left; font-size: 14px;">
-            <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
-            <span><strong>Location:</strong> ${firstSlot.location}</span><br/>
-            <span><strong>Available Spots:</strong> ${availableSeats}</span><br/>
-            <div class="slot-list">
-                <h6 class="mt-2"><strong>Slots Available:</strong></h6>
-                ${slotDetailsHtml}
-            </div>
-            <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
-            <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
-        </div>
-        `,
-                showCancelButton: true,
-                confirmButtonText: "Book Slot",
-                cancelButtonText: "Cancel",
-                preConfirm: () => {
-                    const friendNames = document.getElementById('studentFriends')?.value.trim();
-                    const friendNamesArray = friendNames ? friendNames.split(',').map(name => name.trim()) : [];
+        //     const availableSeats = firstSlot.lesson.max_students - firstSlot.student.length;
+        //     const lesson = firstSlot.lesson;
 
-                    // Ensure it's passed as an array
-                    document.getElementById("friendNamesInput").value = JSON.stringify(friendNamesArray);
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: "Processing...",
-                        text: "Please wait while we confirm your booking...",
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
+        //     // Format All Slots' Date & Time
+        //     let slotDetailsHtml = "";
+        //     allSlots.forEach((s, index) => {
+        //         const formattedTime = new Intl.DateTimeFormat('en-US', {
+        //             weekday: 'long',
+        //             day: 'numeric',
+        //             month: 'short',
+        //             hour: '2-digit',
+        //             minute: '2-digit',
+        //             hour12: true
+        //         }).format(new Date(s.date_time.replace(/-/g, "/")));
 
-                    // Submit the hidden form
-                    document.getElementById("bookingForm").submit();
-                }
-            });
+        //         slotDetailsHtml += `
+        //     <div class="slot-item">
+        //         <span><strong>Slot ${index + 1}:</strong> ${formattedTime}</span><br/>
+        //     </div>
+        // `;
+        //     });
+
+        //     Swal.fire({
+        //         title: "Slot Details",
+        //         html: `
+        // <div style="text-align: left; font-size: 14px;">
+        //     <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
+        //     <span><strong>Location:</strong> ${firstSlot.location}</span><br/>
+        //     <span><strong>Available Spots:</strong> ${availableSeats}</span><br/>
+        //     <div class="slot-list">
+        //         <h6 class="mt-2"><strong>Slots Available:</strong></h6>
+        //         ${slotDetailsHtml}
+        //     </div>
+        //     <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
+        //     <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
+        // </div>
+        // `,
+        //         showCancelButton: true,
+        //         confirmButtonText: "Book Slot",
+        //         cancelButtonText: "Cancel",
+        //         preConfirm: () => {
+        //             const friendNames = document.getElementById('studentFriends')?.value.trim();
+        //             const friendNamesArray = friendNames ? friendNames.split(',').map(name => name.trim()) : [];
+
+        //             // Ensure it's passed as an array
+        //             document.getElementById("friendNamesInput").value = JSON.stringify(friendNamesArray);
+        //         }
+        //     }).then((result) => {
+        //         if (result.isConfirmed) {
+        //             Swal.fire({
+        //                 title: "Processing...",
+        //                 text: "Please wait while we confirm your booking...",
+        //                 allowOutsideClick: false,
+        //                 didOpen: () => {
+        //                     Swal.showLoading();
+        //                 }
+        //             });
+
+        //             // Submit the hidden form
+        //             document.getElementById("bookingForm").submit();
+        //         }
+        //     });
         }
     </script>
 @endpush
