@@ -13,7 +13,7 @@ class LessonDataTable extends DataTable
 {
     public function dataTable($query)
     {
-        
+
         $data = datatables()
             ->eloquent($query)
             ->addIndexColumn()
@@ -24,7 +24,7 @@ class LessonDataTable extends DataTable
                 return UtilityFacades::amount_format($lesson->lesson_price);
             })
             ->editColumn('type', function (Lesson $lesson) {
-                $s = Lesson::TYPE_MAPPING[$lesson->type];
+                $s = Lesson::TYPE_MAPPING[$lesson->type] ?? ucfirst($lesson->type);
 
                 if ($lesson->type == Lesson::LESSON_TYPE_INPERSON && $lesson->is_package_lesson)
                     $s .= ' - PL';
@@ -62,7 +62,7 @@ class LessonDataTable extends DataTable
             ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
                 window.location = '" . route('lesson.create', ["type" => 'online']) . "';
            }"],
-           ['extend' => 'create', 'text' => 'Set Availability', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
+            ['extend' => 'create', 'text' => 'Set Availability', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
                 window.location = '" . route('slot.create') . "';
            }"],
             [
@@ -115,7 +115,7 @@ class LessonDataTable extends DataTable
                 'buttons'   => $buttons,
                 "scrollX" => true,
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {
