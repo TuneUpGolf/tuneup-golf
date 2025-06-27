@@ -30,14 +30,8 @@
                     </div>
 
                     <div class="d-flex align-items-lg-center mt-3 mt-lg-0">
-                        <button class="request-text border-0 rounded-pill demo" style="background-color: #0033a1">
-                            <a class="text-white" href="{{ url('request-demo') }}" style="text-decoration: none">
-                                Request a Demo</a>
-                        </button>
-                        <button class="request-text border-0 rounded-pill demo mx-2" style="background-color: #0033a1">
-                            <a class="text-white" href="{{ route('login') }}" style="text-decoration: none">
-                                Login</a>
-                        </button>
+                        <a class="request-text border-0 rounded-pill demo text-white" href="{{ url('request-demo') }}" style="background-color: #0033a1; text-decoration: none ">Request a Demo</a>
+                        <a class=" request-text border-0 rounded-pill demo mx-2 text-white" href="{{ route('login') }}" style=" background-color: #0033a1; text-decoration: none">Login</a>
                     </div>
                 </div>
             </div>
