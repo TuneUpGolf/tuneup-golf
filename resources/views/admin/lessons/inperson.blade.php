@@ -140,14 +140,14 @@
                             <!-- Payment Method -->
                             <div class="form-group">
                                 {{ Form::label('payment_method', __('Payment Method'), ['class' => 'form-label']) }}
-                                {!! Form::select('payment_method', ['online' => 'Online', 'cash' => 'Cash', 'both' => 'Both'], null, [
+                                {!! Form::select('payment_method', ['online' => 'Online', 'cash' => 'Cash'], null, [
                                     'class' => 'form-control',
                                     'data-trigger',
                                     'required',
                                     'id' => 'payment_method',
                                 ]) !!}
                                 <!-- Hidden input to store payment method when disabled -->
-                                {!! Form::hidden('payment_method', 'online', ['id' => 'hidden_payment_method']) !!}
+                                {{-- {!! Form::hidden('payment_method', 'online', ['id' => 'hidden_payment_method']) !!} --}}
                             </div>
 
                         </div>
