@@ -70,7 +70,7 @@ class LessonController extends Controller
     // Method to create a new lesson
     public function store(Request $request)
     {
-        if ($request->type === Lesson::LESSON_PAYMENT_ONLINE)
+        if ($request->type === Lesson::LESSON_PAYMENT_ONLINE) {
             $validatedData = $request->validate([
                 'lesson_name'          => 'required|string|max:255',
                 'lesson_description'   => 'required|string',
@@ -78,13 +78,14 @@ class LessonController extends Controller
                 'lesson_quantity'      => 'required|integer',
                 'required_time'        => 'required|integer',
             ]);
+        }
         if ($request->type === Lesson::LESSON_TYPE_INPERSON) {
             $validatedData = $request->validate([
                 'lesson_name'          => 'required|string|max:255',
                 'lesson_description'   => 'required|string',
                 'lesson_price'         => 'required_if:is_package_lesson,0|numeric',
                 'lesson_duration'      => 'required|numeric',
-                'payment_method'       => ['required', 'in:online,cash,both'],
+                'payment_method'       => ['required', 'in:online,cash'],
                 'slots'                => 'array',
                 'max_students'         => 'required|integer|min:1',
                 'is_package_lesson'    => 'string',
@@ -96,7 +97,7 @@ class LessonController extends Controller
         // Assuming 'created_by' is the ID of the currently authenticated instructor
         $validatedData['created_by'] = Auth::user()->id;
         $validatedData['type'] = ($request->is_package_lesson == 1) ? 'package' : $request->type;
-        $validatedData['payment_method'] = $request->type === Lesson::LESSON_TYPE_INPERSON ? $request->payment_method : Lesson::LESSON_PAYMENT_ONLINE;
+        $validatedData['payment_method'] = $request->payment_method;
         $validatedData['tenant_id'] = Auth::user()->tenant_id;
         $validatedData['lesson_price'] = $request->lesson_price ?? 0;
         $lesson = Lesson::create($validatedData);
@@ -135,7 +136,7 @@ class LessonController extends Controller
             'lesson_quantity'      => 'integer',
             'required_time'        => 'integer',
             'lesson_duration'      => 'numeric',
-            'payment_method'       => 'in:online,cash,both',
+            'payment_method'       => 'in:online,cash',
             'max_students'         => 'integer|min:1',
         ]);
 
@@ -384,7 +385,7 @@ class LessonController extends Controller
                     'required_time'        => 'integer',
                     'lesson_duration'      => 'numeric|between:0,99.99',
                     'type'                 => ['required', 'in:online,inPerson'],
-                    'payment_method'       => ['required', 'in:online,cash,both'],
+                    'payment_method'       => ['required', 'in:online,cash'],
                     'slots'                => 'array',
                     'max_students'         => 'integer|min:1',
                     'is_package_lesson'    => 'boolean',
@@ -735,9 +736,10 @@ class LessonController extends Controller
             $friendNames = array_filter(explode(',', $friendNames));
         }
         $totalNewBookings = count($friendNames) + 1;
-
         $checkPackageBooking = Purchase::where(['student_id' => $bookingStudentId, 'lesson_id' => $slot->lesson_id, 'type' => $slot->lesson->type])->first();
+
         if (!empty($checkPackageBooking) && $slot->lesson->type == 'package') {
+
             // Attach main student to the slot
             $slot->student()->attach($bookingStudentId, [
                 'isFriend' => false,
