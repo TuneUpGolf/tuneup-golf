@@ -97,7 +97,7 @@ class LessonController extends Controller
         // Assuming 'created_by' is the ID of the currently authenticated instructor
         $validatedData['created_by'] = Auth::user()->id;
         $validatedData['type'] = ($request->is_package_lesson == 1) ? 'package' : $request->type;
-        $validatedData['payment_method'] = $request->payment_method;
+        $validatedData['payment_method'] = $request->payment_method ?? Lesson::LESSON_PAYMENT_ONLINE;
         $validatedData['tenant_id'] = Auth::user()->tenant_id;
         $validatedData['lesson_price'] = $request->lesson_price ?? 0;
         $lesson = Lesson::create($validatedData);
