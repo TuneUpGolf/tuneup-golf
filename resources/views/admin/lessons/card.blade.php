@@ -174,7 +174,7 @@
             if (type == 'package') {
                 price = $("#package_slot_"+lessonId).val();
                 if (price == 0) {
-                    alert('Price cannot be 0!');
+                    alert('Please select package option!');
                     return;
                 }
             } else {
