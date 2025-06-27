@@ -13,9 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->enum('payment_country', ['usa', 'other'])->default('usa');
-        });
+        if (!Schema::hasColumn('users', 'payment_country')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->enum('payment_country', ['usa', 'other'])->default('usa');
+            });
+        }
     }
 
     /**
@@ -25,8 +27,10 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
+        if (Schema::hasColumn('users', 'payment_country')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropColumn('payment_country');
+            });
+        }
     }
 };
