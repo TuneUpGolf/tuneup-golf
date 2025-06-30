@@ -482,18 +482,22 @@
                                          'content'),
                                      slot_id: slot_id,
                                      friend_names: result.value.friendNames || "",
-                                     redirect: 1,
+                                     redirect: 0,
                                  },
                                  success: function(response) {
-                                     Swal.fire({
-                                         icon: 'success',
-                                         title: 'Booking Successful',
-                                         text: response.message ||
-                                             'You have successfully booked the slot.',
-                                     }).then(() => {
-                                         location
-                                             .reload(); // Reload page to update UI
-                                     });
+                                    if(response.payment_url){
+                                        window.location.href = response.payment_url;
+                                    }else{
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Booking Successful',
+                                            text: response.message ||
+                                                'You have successfully booked the slot.',
+                                        }).then(() => {
+                                            location
+                                                .reload(); // Reload page to update UI
+                                        });
+                                    }
                                  },
                                  error: function(xhr) {
                                      Swal.fire({
