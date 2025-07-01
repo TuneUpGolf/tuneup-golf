@@ -666,6 +666,7 @@ class LessonController extends Controller
                         'total_amount'  => $slot->lesson->lesson_price,
                         'status'        => Purchase::STATUS_INCOMPLETE,
                         'lessons_used'  => 0,
+                        'purchased_slot' => 1
                     ]);
 
                     // Send notification for each new student
