@@ -229,33 +229,34 @@ class PurchaseController extends Controller
                 Stripe::setApiKey(config('services.stripe.secret'));
                 $session = Session::retrieve($purchase->session_id);
 
-                // if ($session->payment_status == "paid") {
-                $purchase->status = Purchase::STATUS_COMPLETE;
-                $purchase->save();
+                if ($session->payment_status == "paid") {
+                    $purchase->status = Purchase::STATUS_COMPLETE;
+                    $purchase->save();
 
-                if (isset($slot)) {
-                    // If the slot is a package lesson, attach student and their friends
-                    if (!!$slot->lesson->is_package_lesson) {
+                    if (isset($slot)) {
+                        // If the slot is a package lesson, attach student and their friends
+                        // if (!!$slot->lesson->is_package_lesson) {
                         $slots = $slot->lesson->slots; // Fetch all slots of the lesson
-
-                        foreach ($slots as $lessonSlot) {
-                            // Attach student to all slots
-                            $lessonSlot->student()->attach($purchase->student_id, [
-                                'isFriend' => false,
-                                'friend_name' => null,
-                                'created_at' => now(),
-                                'updated_at' => now(),
-                            ]);
-
-                            // Attach friends if any were included in the purchase
-                            $friendNames = json_decode($purchase->friend_names, true) ?? [];
-                            foreach ($friendNames as $friendName) {
+                        if (!!$slot->lesson->is_package_lesson) {
+                            foreach ($slots as $lessonSlot) {
+                                // Attach student to all slots
                                 $lessonSlot->student()->attach($purchase->student_id, [
-                                    'isFriend' => true,
-                                    'friend_name' => $friendName,
+                                    'isFriend' => false,
+                                    'friend_name' => null,
                                     'created_at' => now(),
                                     'updated_at' => now(),
                                 ]);
+
+                                // Attach friends if any were included in the purchase
+                                $friendNames = json_decode($purchase->friend_names, true) ?? [];
+                                foreach ($friendNames as $friendName) {
+                                    $lessonSlot->student()->attach($purchase->student_id, [
+                                        'isFriend' => true,
+                                        'friend_name' => $friendName,
+                                        'created_at' => now(),
+                                        'updated_at' => now(),
+                                    ]);
+                                }
                             }
                         }
 
@@ -266,36 +267,36 @@ class PurchaseController extends Controller
                             'You have successfully paid for the package lesson. You are now eligible to attend all upcoming slots.',
                             null,
                         );
-                    } else {
-                        // Send standard notification for single-slot purchases
-                        $this->sendSlotNotification(
-                            $slot,
-                            'Slot Payment Completed',
-                            'Your lesson with :instructor, for :date has been marked as completed.',
-                            null,
-                        );
-                    }
+                        // } else {
+                        //     // Send standard notification for single-slot purchases
+                        //     $this->sendSlotNotification(
+                        //         $slot,
+                        //         'Slot Payment Completed',
+                        //         'Your lesson with :instructor, for :date has been marked as completed.',
+                        //         null,
+                        //     );
+                        // }
 
-                    if (Purchase::where('slot_id', $slot->id)->where('status', Purchase::STATUS_INCOMPLETE)->doesntExist() && !$slot->lesson->is_package_lesson) {
-                        $slot->is_completed = true;
-                        $purchase->isFeedbackComplete = true;
-                        $slot->save();
-                        $this->sendSlotNotification(
-                            $slot,
-                            'Slot Completed',
-                            null,
-                            'Your Slot for the in-person lesson :lesson at :date has been completed.'
-                        );
+                        // if (Purchase::where('slot_id', $slot->id)->where('status', Purchase::STATUS_INCOMPLETE)->doesntExist() && !$slot->lesson->is_package_lesson) {
+                        //     $slot->is_completed = true;
+                        //     $purchase->isFeedbackComplete = true;
+                        //     $slot->save();
+                        //     $this->sendSlotNotification(
+                        //         $slot,
+                        //         'Slot Completed',
+                        //         null,
+                        //         'Your Slot for the in-person lesson :lesson at :date has been completed.'
+                        //     );
+                        // }
+                    } else {
+                        // Non-slot purchases
+                        SendEmail::dispatch($purchase->student->email, new PurchaseCompleted($purchase));
+                        $message = __('Hello, :name, a purchase has been confirmed for :ammount against your account.', [
+                            'name' => $purchase->student->name,
+                            'ammount' => $purchase->total_amount,
+                        ]);
+                        SendPushNotification::dispatch($purchase?->student?->pushToken?->token, 'Purchase Confirmed', $message);
                     }
-                    // } else {
-                    //     // Non-slot purchases
-                    //     SendEmail::dispatch($purchase->student->email, new PurchaseCompleted($purchase));
-                    //     $message = __('Hello, :name, a purchase has been confirmed for :ammount against your account.', [
-                    //         'name' => $purchase->student->name,
-                    //         'ammount' => $purchase->total_amount,
-                    //     ]);
-                    //     SendPushNotification::dispatch($purchase?->student?->pushToken?->token, 'Purchase Confirmed', $message);
-                    // }
                 }
 
                 if ($request->query('redirect') == 1) {

@@ -728,7 +728,6 @@ class LessonController extends Controller
 
     private function handleStudentBookingAPI($slot, $request)
     {
-
         $bookingStudentId = Auth::user()->id;
 
         $friendNames = request()->friend_names ?? [];
@@ -738,8 +737,7 @@ class LessonController extends Controller
         $totalNewBookings = count($friendNames) + 1;
         $checkPackageBooking = Purchase::where(['student_id' => $bookingStudentId, 'lesson_id' => $slot->lesson_id, 'type' => $slot->lesson->type])->first();
 
-        if (!empty($checkPackageBooking) && $slot->lesson->type == 'package') {
-
+        if (!empty($checkPackageBooking)) {
             // Attach main student to the slot
             $slot->student()->attach($bookingStudentId, [
                 'isFriend' => false,
@@ -760,6 +758,7 @@ class LessonController extends Controller
                 }
             }
         } else {
+
             if ($slot->student()->count() + $totalNewBookings > $slot->lesson->max_students) {
                 return request()->redirect == 1
                     ? redirect()->back()->with('error', 'Sorry, the number of booked slots exceeds the limit.')
@@ -788,7 +787,9 @@ class LessonController extends Controller
                 'tenant_id' => Auth::user()->tenant_id,
                 'total_amount' => $totalAmount,
                 'purchased_slot' => isset($purchasedSlot) ? $purchasedSlot->number_of_slot : 1,
-                'status' => Purchase::STATUS_INCOMPLETE,
+                'status' => $slot->lesson->payment_method == Lesson::LESSON_PAYMENT_CASH ?
+                    Purchase::STATUS_COMPLETE :
+                    Purchase::STATUS_INCOMPLETE,
                 'lessons_used' => 0,
                 'friend_names' => !empty($friendNames) ? json_encode($friendNames) : null, // Store friends' names
             ]);
@@ -797,29 +798,8 @@ class LessonController extends Controller
             if ($slot->lesson->payment_method == 'online') {
                 request()->merge(['purchase_id' => $newPurchase->id]);
                 request()->setMethod('POST');
-
                 return request()->redirect == 1 ? $this->confirmPurchaseWithRedirect(request(), false) :
                     $this->confirmPurchaseWithRedirect(request(), true);
-            }
-            if ($slot->lesson->type != 'package' && !empty($friendNames)) {
-                // Attach main student to the slot
-                $slot->student()->attach($bookingStudentId, [
-                    'isFriend' => false,
-                    'friend_name' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-
-                // Attach friends to the slot
-                foreach ($friendNames as $friendName) {
-                    $slot->student()->attach($bookingStudentId, [
-                        'isFriend' => true,
-                        'friend_name' => $friendName,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
             }
         }
 
@@ -831,7 +811,13 @@ class LessonController extends Controller
             'A slot has been booked for :date with :student for the in-person lesson :lesson.'
         );
 
-        return redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Slot Successfully Booked.');
+        return response()->json([
+            'message' => 'Slot successfully reserved.',
+            'slot' => new SlotAPIResource($slot),
+            'friend_names' => $friendNames
+        ], 200);
+
+        // return redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Slot Successfully Booked.');
         // return false
         //     ? redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Slot Successfully Booked.')
         //     : response()->json([
@@ -911,30 +897,32 @@ class LessonController extends Controller
 
             $students = $slot->student;
 
-            if ($slot->lesson->is_package_lesson) {
-                $hasIncompletePurchases = Purchase::where('slot_id', $slot->id)
-                    ->where('status', '!=', Purchase::STATUS_COMPLETE)
-                    ->exists();
+            // if ($slot->lesson->is_package_lesson) {
+            $hasIncompletePurchases = Purchase::where('slot_id', $slot->id)
+                ->where('status', '!=', Purchase::STATUS_COMPLETE)
+                ->exists();
 
-                if ($hasIncompletePurchases) {
-
-                    return request()->get('redirect') == 1
-                        ? redirect()->back()->with('error', 'Cannot complete this slot until all payments are completed.')
-                        : response()->json(['error' => 'Cannot complete this slot until all payments are completed.'], 422);
-                }
-
-                // If all purchases are complete, mark slot as completed and exit
-                $slot->is_completed = true;
-                $slot->save();
+            if ($hasIncompletePurchases) {
 
                 return request()->get('redirect') == 1
-                    ? redirect()->back()->with('success', 'Slot Successfully Completed.')
-                    : response()->json(['message' => 'Slot successfully marked as completed', 'slot' => new SlotAPIResource($slot)]);
+                    ? redirect()->back()->with('error', 'Cannot complete this slot until all payments are completed.')
+                    : response()->json(['error' => 'Cannot complete this slot until all payments are completed.'], 422);
             }
 
+            // If all purchases are complete, mark slot as completed and exit
+            $slot->is_completed = true;
+            $slot->save();
 
-            if (($slot->lesson->payment_method === Lesson::LESSON_PAYMENT_BOTH && request()->payment_method === Lesson::LESSON_PAYMENT_CASH)
-                || $slot->lesson->payment_method === Lesson::LESSON_PAYMENT_CASH || $students->isEmpty()
+            return request()->get('redirect') == 1
+                ? redirect()->back()->with('success', 'Slot Successfully Completed.')
+                : response()->json(['message' => 'Slot successfully marked as completed', 'slot' => new SlotAPIResource($slot)]);
+            // }
+
+
+            if (
+                request()->payment_method === Lesson::LESSON_PAYMENT_CASH ||
+                $slot->lesson->payment_method === Lesson::LESSON_PAYMENT_CASH ||
+                $students->isEmpty()
             ) {
                 $slot->is_completed = true;
                 $slot->save();
