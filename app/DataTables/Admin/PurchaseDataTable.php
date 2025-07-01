@@ -46,11 +46,6 @@ class PurchaseDataTable extends DataTable
                     </div>';
             })
             ->editColumn('lesson_name', function ($purchase) {
-                $s                    = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
-                $lesson_type          = $purchase->lesson->type ?? null;
-                $lesson_active_status = $purchase->lesson->active_status;
-                $badgeClass           = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? 'bg-green-600' : 'bg-cyan-500';
-                $deletedText          = ! $lesson_active_status ? ' <span class="text-gray-500 italic"> deleted</span>' : '';
                 $lessonName           = e($purchase->lesson_name);
                 $truncatedLessonName  = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
 
@@ -64,10 +59,18 @@ class PurchaseDataTable extends DataTable
                 }
 
                 return '
-        <div class="flex justify-between items-center">
-            ' . $lessonLink . '
-            <label class="badge rounded-pill ' . $badgeClass . ' p-2 px-3">' . e($s) . '</label>' . $deletedText . '
-        </div>';
+                <div class="flex justify-between items-center">
+                    ' . $lessonLink . '
+                </div>';
+            })
+            ->addColumn('deleted', function ($purchase) {
+                return ! $purchase->lesson->active_status ? ' <span class="text-gray-500 italic"> Deleted</span>' : 'Active';
+            })
+            ->addColumn('pill', function ($purchase) {
+                $s = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
+                $lesson_type = $purchase->lesson->type ?? null;
+                $badgeClass = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? 'bg-green-600' : 'bg-cyan-500';
+                return '<label class="badge rounded-pill ' . $badgeClass . ' p-2 px-3">' . e($s) . '</label>';
             })
             ->editColumn('student_name', function ($purchase) {
                 $imageSrc = $purchase->student->dp
@@ -92,7 +95,7 @@ class PurchaseDataTable extends DataTable
             ->addColumn('action', function ($purchase) {
                 return view('admin.purchases.action', compact('purchase'));
             })
-            ->rawColumns(['action', 'status', 'student_name', 'instructor_name', 'lesson_name']);
+            ->rawColumns(['action', 'status', 'student_name', 'instructor_name', 'lesson_name', 'pill', 'deleted']);
     }
 
 
@@ -258,6 +261,8 @@ class PurchaseDataTable extends DataTable
         $columns = [
             Column::make('No')->title(__('Lesson Number'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
             Column::make('lesson_name')->title(__('Lesson'))->searchable(true),
+            Column::make('pill')->title('')->searchable(false)->orderable(false),
+            Column::make('deleted')->title('')->searchable(false)->orderable(false),
         ];
         if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
             $columns[] = Column::make('student_name')->title("Student")->searchable(true);

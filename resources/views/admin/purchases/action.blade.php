@@ -36,7 +36,7 @@
         </a>
     @endcan
 @endif --}}
-@if ($purchase->status == 'complete' && $user->type == 'Instructor')
+@if ($user->type == 'Instructor')
     @can('manage-purchases')
         <a class="btn btn-sm small btn btn-warning "
             href="{{ route('purchase.feedback.create', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
@@ -45,7 +45,7 @@
         </a>
     @endcan
 @endif
-@if ($purchase->status == 'complete' && in_array($user->type, ['Student', 'Instructor']) && $purchaseVideo = $purchase->videos->first())
+@if (in_array($user->type, ['Student', 'Instructor']) && $purchaseVideo = $purchase->videos->first())
     @can('manage-purchases')
         <a class="btn btn-sm small btn btn-warning "
             href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
