@@ -772,11 +772,13 @@ class LessonController extends Controller
                     : response()->json(['error' => 'You have already booked this slot.'], 422);
             }
             $lessonPrice = !empty($slot->lesson->type == 'package') ? $request->package_price : $slot->lesson->lesson_price;
+
             if ($slot->lesson->type == 'package') {
                 $purchasedSlot =  PackageLesson::where(['price' => $lessonPrice, 'lesson_id' => $slot->lesson_id])->first();
             }
             // Calculate total price for student and friends
             $totalAmount = $lessonPrice * $totalNewBookings;
+
             // Create purchase entry
             $newPurchase = new Purchase([
                 'student_id' => $bookingStudentId,
@@ -787,7 +789,7 @@ class LessonController extends Controller
                 'coupon_id' => null,
                 'tenant_id' => Auth::user()->tenant_id,
                 'total_amount' => $totalAmount,
-                'purchased_slot' => isset($purchasedSlot) ? $purchasedSlot->number_of_slot : 1,
+                'purchased_slot' => $purchasedSlot->number_of_slot ?? 1,
                 'status' => $slot->lesson->payment_method == Lesson::LESSON_PAYMENT_CASH ?
                     Purchase::STATUS_COMPLETE :
                     Purchase::STATUS_INCOMPLETE,
@@ -812,20 +814,13 @@ class LessonController extends Controller
             'A slot has been booked for :date with :student for the in-person lesson :lesson.'
         );
 
-        return response()->json([
-            'message' => 'Slot successfully reserved.',
-            'slot' => new SlotAPIResource($slot),
-            'friend_names' => $friendNames
-        ], 200);
-
-        // return redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Slot Successfully Booked.');
-        // return false
-        //     ? redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Slot Successfully Booked.')
-        //     : response()->json([
-        //         'message' => 'Slot successfully reserved.',
-        //         'slot' => new SlotAPIResource($slot),
-        //         'friend_names' => $friendNames
-        //     ], 200);
+        return request()->redirect == 1
+            ? redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Purchase Successful.')
+            : response()->json([
+                'message' => 'Slot successfully reserved.',
+                'slot' => new SlotAPIResource($slot),
+                'friend_names' => $friendNames
+            ], 200);
     }
 
 
