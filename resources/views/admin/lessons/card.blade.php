@@ -102,7 +102,7 @@
             @endif
 
             @if ($model->type === 'inPerson' || $model->type == 'package')
-                @if ($model->is_package_lesson)
+                {{-- @if ($model->is_package_lesson) --}}
                     @php
                         $allSlots = $model->slots;
                     @endphp
@@ -147,13 +147,13 @@
                             No Slots Available
                         </button>
                     @endif
-                @else
+                {{-- @else
                     <div>
                         <a href="{{ route('slot.view', ['lesson_id' => $model->id]) }}">
                             <button class="lesson-btn">Purchase</button>
                         </a>
                     </div>
-                @endif
+                @endif --}}
             @endif
         </div>
     </div>
@@ -162,7 +162,6 @@
         <input type="hidden" id="packagePrice" name="package_price">
         <input type="hidden" id="slotIdInput" name="slot_id">
         <input type="hidden" id="friendNamesInput" name="friend_names">
-
     </form>
 </div>
 
