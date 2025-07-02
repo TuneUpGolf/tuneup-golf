@@ -1,5 +1,10 @@
 @php $user = Auth::user(); @endphp
-@if ($purchase->status !== 'complete' && $user->type == 'Student' && $purchase->type != 'package')
+@if (
+        $purchase->status !== 'complete' &&
+        $purchase->lesson->payment_method != 'cash' &&
+        $user->type == 'Student' &&
+        $purchase->type != 'package'
+    )
     @can('create-purchases')
         {!! Form::open([
             'method' => 'POST',
@@ -13,7 +18,11 @@
         {!! Form::close() !!}
     @endcan
 @endif
-@if (in_array($purchase->type, ['package', 'inPerson']) && in_array($user->type, ['Student', 'Instructor']) && $purchase->status == 'complete')
+@if (
+        in_array($purchase->type, ['package', 'inPerson']) &&
+        in_array($user->type, ['Student', 'Instructor']) &&
+        ($purchase->status == 'complete' || $purchase->lesson->payment_method == 'cash')
+    )
         <a class="'btn btn-sm small btn btn-info ' " href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}"
             data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">
             <svg width="800px" height="800px" viewBox="0 0 1024 1024" class="icon"  version="1.1" xmlns="http://www.w3.org/2000/svg">
