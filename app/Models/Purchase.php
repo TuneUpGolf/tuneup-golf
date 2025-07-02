@@ -26,7 +26,8 @@ class Purchase extends Model
         'total_amount',
         'friend_names',
         'type',
-        'purchased_slot'
+        'purchased_slot',
+        'status'
     ];
     protected $guarded = [
         'status', // Completed or not
