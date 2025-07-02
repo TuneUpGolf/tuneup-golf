@@ -790,9 +790,7 @@ class LessonController extends Controller
                 'tenant_id' => Auth::user()->tenant_id,
                 'total_amount' => $totalAmount,
                 'purchased_slot' => $purchasedSlot->number_of_slot ?? 1,
-                'status' => $slot->lesson->payment_method == Lesson::LESSON_PAYMENT_CASH ?
-                    Purchase::STATUS_COMPLETE :
-                    Purchase::STATUS_INCOMPLETE,
+                'status' => Purchase::STATUS_INCOMPLETE,
                 'lessons_used' => 0,
                 'friend_names' => !empty($friendNames) ? json_encode($friendNames) : null, // Store friends' names
             ]);
@@ -892,36 +890,26 @@ class LessonController extends Controller
 
 
             $students = $slot->student;
+            if ($slot->lesson->payment_method != Lesson::LESSON_PAYMENT_CASH) {
+                $hasIncompletePurchases = Purchase::where('slot_id', $slot->id)
+                    ->where('status', '!=', Purchase::STATUS_COMPLETE)
+                    ->exists();
 
-            // if ($slot->lesson->is_package_lesson) {
-            $hasIncompletePurchases = Purchase::where('slot_id', $slot->id)
-                ->where('status', '!=', Purchase::STATUS_COMPLETE)
-                ->exists();
+                if ($hasIncompletePurchases) {
 
-            if ($hasIncompletePurchases) {
-
-                return request()->get('redirect') == 1
-                    ? redirect()->back()->with('error', 'Cannot complete this slot until all payments are completed.')
-                    : response()->json(['error' => 'Cannot complete this slot until all payments are completed.'], 422);
+                    return request()->get('redirect') == 1
+                        ? redirect()->back()->with('error', 'Cannot complete this slot until all payments are completed.')
+                        : response()->json(['error' => 'Cannot complete this slot until all payments are completed.'], 422);
+                }
             }
-
-            // If all purchases are complete, mark slot as completed and exit
             $slot->is_completed = true;
             $slot->save();
-
-            return request()->get('redirect') == 1
-                ? redirect()->back()->with('success', 'Slot Successfully Completed.')
-                : response()->json(['message' => 'Slot successfully marked as completed', 'slot' => new SlotAPIResource($slot)]);
-            // }
-
 
             if (
                 request()->payment_method === Lesson::LESSON_PAYMENT_CASH ||
                 $slot->lesson->payment_method === Lesson::LESSON_PAYMENT_CASH ||
                 $students->isEmpty()
             ) {
-                $slot->is_completed = true;
-                $slot->save();
                 $this->sendSlotNotification(
                     $slot,
                     'Slot Completed',
@@ -941,7 +929,7 @@ class LessonController extends Controller
                 if (!$purchase)
                     continue;
 
-                if (($slot->lesson->payment_method === Lesson::LESSON_PAYMENT_BOTH && request()->payment_method === Lesson::LESSON_PAYMENT_ONLINE)
+                if ((request()->payment_method === Lesson::LESSON_PAYMENT_ONLINE)
                     || $slot->lesson->payment_method === Lesson::LESSON_PAYMENT_ONLINE
                 ) {
                     $session = $this->createSessionForPayment($purchase, false, $slot->id);
@@ -954,7 +942,12 @@ class LessonController extends Controller
                     $purchase->save();
                 }
             }
-            if (($slot->lesson->payment_method === Lesson::LESSON_PAYMENT_BOTH && request()->payment_method === Lesson::LESSON_PAYMENT_ONLINE)
+
+            return request()->get('redirect') == 1
+                ? redirect()->back()->with('success', 'Slot Successfully Completed.')
+                : response()->json(['message' => 'Slot successfully marked as completed', 'slot' => new SlotAPIResource($slot)]);
+
+            if ((request()->payment_method === Lesson::LESSON_PAYMENT_ONLINE)
                 || $slot->lesson->payment_method === Lesson::LESSON_PAYMENT_ONLINE
             ) {
                 if (request()->get('redirect') == 1)
