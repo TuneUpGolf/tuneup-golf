@@ -110,6 +110,9 @@ class PurchaseDataTable extends DataTable
                 'instructors.name as instructor_name', // Get instructor name
                 'students.name as student_name' // Get student name
             ])
+            ->whereHas('slots', function ($q) {
+                $q->has('student');
+            })
             ->join('lessons', 'purchases.lesson_id', '=', 'lessons.id')
             ->join('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
             ->join('students as students', 'purchases.student_id', '=', 'students.id')

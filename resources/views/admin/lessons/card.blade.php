@@ -132,7 +132,7 @@
                                 Purchase
                             </button>
                         @endif --}}
-                        @if($firstSlot->isFullyBooked())
+                        @if($firstSlot->isFullyBooked() || $model->payment_method == 'cash')
                             <a href="{{ route('slot.view', ['lesson_id' => $model->id]) }}">
                                 <button class="lesson-btn">Purchase</button>
                             </a>
