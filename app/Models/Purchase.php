@@ -69,7 +69,7 @@ class Purchase extends Model
 
     public function slots(): HasMany
     {
-        return $this->hasMany(Slots::class);
+        return $this->hasMany(Slots::class, 'id', 'slot_id');
     }
 
     public function videos()
