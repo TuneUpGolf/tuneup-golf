@@ -57,6 +57,7 @@ class AuthenticatedSessionController extends Controller
         if (!empty($user)) {
             $credentials = $request->only('email', 'password');
             if (Auth::guard($current_guard)->attempt($credentials)) {
+
                 if (!empty($current_domain) && !empty($user->tenant_id)) {
                     $user_admin = tenancy()->central(function ($tenant) {
                         return User::where('tenant_id', $tenant->id)->where('type', 'Admin')->first();
@@ -71,7 +72,7 @@ class AuthenticatedSessionController extends Controller
                     if ($user->phone_verified_at == ''  && UtilityFacades::getsettings('sms_verification') == '1') {
                         return redirect()->route('smsindex.noticeverification');
                     } else {
-                        return redirect()->intended(RouteServiceProvider::HOME);
+                        return redirect()->intended($user->type == 'Admin' ? '/lesson/manage/slot' : RouteServiceProvider::HOME);
                     }
                 } else {
                     $user = User::where('email', $request->email)->first();

@@ -1,12 +1,13 @@
 @php
     $users = \Auth::user();
+    $userType = $users->type;
     $currantLang = $users->currentLanguage();
     $languages = Utility::languages();
 @endphp
 <nav class="dash-sidebar light-sidebar {{ Utility::getsettings('transparent_layout') == 1 ? 'transprent-bg' : '' }}">
     <div class="navbar-wrapper navbar-border">
         <div class="m-header justify-content-center header-set">
-            <a href="{{ route('home') }}" class="text-center b-brand header-image-set">
+            <a href="{{ $userType === 'Admin'?route('slot.manage'):route('home') }}" class="text-center b-brand header-image-set">
                 <!-- ========   change your logo hear   ============ -->
                 @if ($users->dark_layout == 1)
                     <img src="{{ Utility::getsettings('app_logo') ? Utility::getpath('logo/app-logo.png') : asset('assets/images/app-logo.png') }}"
@@ -18,15 +19,14 @@
             </a>
         </div>
         <div class="navbar-content flex flex-col justify-between">
-
             <ul class="dash-navbar">
                 <li class="dash-item dash-hasmenu">
-                    <a href="{{ route('home') }}" class="dash-link">
-                    <span class="dash-micon"><i class="ti ti-dashboard"></i></span>
-                    <span class="dash-mtext">{{ __('Dashboard') }}</span>
+                    <a href="{{ $userType === 'Admin'?route('slot.manage'):route('home') }}" class="dash-link">
+                        <span class="dash-micon"><i class="ti ti-dashboard"></i></span>
+                        <span class="dash-mtext">{{ __('Dashboard') }}</span>
                     </a>
                 </li>
-                @if ($users->type == 'Super Admin')
+                @if ($userType == 'Super Admin')
                     <li
                         class="dash-item dash-hasmenu {{ request()->is('users*') || request()->is('roles*') ? 'active dash-trigger' : 'collapsed' }}">
                         <a href="#!" class="dash-link">
@@ -196,7 +196,7 @@
                         </ul>
                     </li>
                 @endif
-                @if ($users->type != 'Super Admin')
+                @if ($userType != 'Super Admin')
                     @canany(['manage-user', 'manage-role', 'manage-students'])
                         <li
                             class="dash-item dash-hasmenu {{ request()->is('student*') || request()->is('users*') || request()->is('roles*') || request()->is('instructor*') ? 'active dash-trigger' : 'collapsed' }}">
@@ -229,10 +229,13 @@
                             </ul>
                         </li>
                     @endcanany
-                    @if (Auth::user()->type != 'Student')
-                        <li class="dash-item dash-hasmenu {{ request()->is('lesson*') ? 'active' : '' }}">
+                    @if ($userType != 'Student')
+                        <li class="dash-item dash-hasmenu {{
+                            ($userType != 'Admin' && request()->is('lesson*'))||
+                            ($userType === 'Admin' && request()->is('home'))
+                            ? 'active' : '' }}">
                             @can('manage-lessons')
-                            <li class="dash-item dash-hasmenu {{ request()->is('lesson*') ? 'active' : '' }}">
+                            <li class="dash-item dash-hasmenu {{ ($userType != 'Admin' && request()->is('lesson*')) ? 'active' : '' }}">
                                 <a href="#!" class="dash-link">
                                 <span class="dash-micon"><i class="ti ti-notebook"></i></span>
                                     <span class="dash-mtext">{{ __('Lessons') }}</span>
@@ -244,10 +247,10 @@
                                         <a class="dash-link"
                                             href="{{ route('lesson.index') }}">{{ __('Manage Lessons') }}</a>
                                     </li>
-                                    @if (Auth::user()->type === 'Admin')
-                                        <li class="dash-item {{ request()->is('lesson/manage/slot') ? 'active' : '' }}">
+                                    @if ($userType == 'Admin')
+                                        <li class="dash-item {{ request()->is('home') ? 'active' : '' }}">
                                             <a class="dash-link"
-                                                href="{{ route('slot.manage') }}">{{ __('Admin Bookings') }}</a>
+                                                href="{{ route('home') }}">{{ __('Statistics') }}</a>
                                         </li>
                                     @else
                                         <li class="dash-item {{ request()->is('lesson/manage/slot') ? 'active' : '' }}">
@@ -269,7 +272,7 @@
                             </li>
                         @endcan
                     @endif
-                    {{-- @if (Auth::user()->type == 'Student')
+                    {{-- @if ($userType == 'Student')
                         <li class="dash-item dash-hasmenu {{ request()->is('lesson*') ? 'active' : '' }}">
                             <a class="dash-link"
                                 href="{{ route('lesson.available', ['type' => 'inPerson']) }}">
@@ -279,7 +282,7 @@
                         </li>
                     @endif --}}
                     
-                    @if (Auth::user()->type != 'Student')
+                    @if ($userType != 'Student')
                         @can('manage-purchases')
                             <li class="dash-item dash-hasmenu {{ request()->is('purchase*') ? 'active' : '' }}">
                                 <a class="dash-link" href="{{ route('purchase.index') }}">
@@ -289,7 +292,7 @@
                             </li>
                         @endcan
                     @endif
-                    @if (Auth::user()->type === 'Student')
+                    @if ($userType === 'Student')
                         <li class="dash-item dash-hasmenu {{ request()->is('instructor*') ? 'active' : '' }}">
                             <a class="dash-link" href="{{ route('instructor.profiles') }}">
                             <span class="dash-micon"><i class="ti ti-user"></i></span>
@@ -297,7 +300,7 @@
                             </a>
                         </li>
                     @endif
-                    @if (Auth::user()->type === 'Instructor')
+                    @if ($userType === 'Instructor')
                         <li class="dash-item dash-hasmenu">
                             <a class="dash-link" rel="noopener noreferrer"
                                 href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid }}"
@@ -333,7 +336,7 @@
                                             href="{{ route('blogs.manage') }}">{{ __('Manage Posts') }}</a>
                                     </li>
                                 @endcan
-                                @if ($users->type == 'Admin')
+                                @if ($userType == 'Admin')
                                     @can('manage-blog')
                                         <li class="dash-item {{ request()->is('blogs/manage/report') ? 'active' : '' }}">
                                             <a class="dash-link"
@@ -369,13 +372,13 @@
                                         <a class="dash-link" href="{{ route('plans.index') }}">{{ __('Plans') }}</a>
                                     </li>
                                 @endcan
-                                @if ($users->type == 'Admin')
+                                @if ($userType == 'Admin')
                                     <li class="dash-item {{ request()->is('myplan*') ? 'active' : '' }}">
                                         <a class="dash-link"
                                             href="{{ route('plans.myplan') }}">{{ __('My Plans') }}</a>
                                     </li>
                                 @endif
-                                @if ($users->type === 'Student')
+                                @if ($userType === 'Student')
                                     <li class="dash-item {{ request()->is('follow*') ? 'active' : '' }}">
                                         <a class="dash-link"
                                             href="{{ route('follow.subsctiptions') }}">{{ __('My Subscriptions') }}</a>
@@ -384,7 +387,7 @@
                             </ul>
                         </li>
                     @endcanany
-                    @if ($users->type == 'Admin')
+                    @if ($userType == 'Admin')
                         {{-- <li
                             class="dash-item dash-hasmenu {{ request()->is('Offline*') || request()->is('sales*') ? 'active dash-trigger' : 'collapsed' }}">
                             <a href="#!" class="dash-link"><span class="dash-micon"><i
@@ -454,7 +457,7 @@
                             </ul>
                         </li> --}}
                     @endif
-                    @if (Auth::user()->type == 'Admin')
+                    @if ($userType == 'Admin')
                         <li
                             class="dash-item dash-hasmenu {{ request()->is('email-template*') || request()->is('sms-template*') || request()->is('settings*') ? 'active dash-trigger' : 'collapsed' }}">
 
