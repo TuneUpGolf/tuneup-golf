@@ -62,7 +62,7 @@ class LessonDataTable extends DataTable
             ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
                 window.location = '" . route('lesson.create', ["type" => 'online']) . "';
            }"],
-            ['extend' => 'create', 'text' => 'Set Availability', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
+            ['extend' => 'create', 'text' => '<i class="fa fa-calendar"  aria-hidden="true"></i>&nbsp;Set Availability', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
                 window.location = '" . route('slot.create') . "';
            }"],
             [
@@ -76,8 +76,8 @@ class LessonDataTable extends DataTable
                     ["extend" => "pdf", "text" => '<i class="fas fa-file-pdf"></i> PDF', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
                 ],
             ],
-            ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
-            ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
+            // ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
+            // ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
         ];
         if (Auth::user()->type == Role::ROLE_STUDENT)
             unset($buttons[0]);
@@ -171,8 +171,8 @@ class LessonDataTable extends DataTable
                     'create' => __('Create'),
                     'export' => __('Export'),
                     'print' => __('Print'),
-                    'reset' => __('Reset'),
-                    'reload' => __('Reload'),
+                    // 'reset' => __('Reset'),
+                    // 'reload' => __('Reload'),
                     'excel' => __('Excel'),
                     'csv' => __('CSV'),
                 ]

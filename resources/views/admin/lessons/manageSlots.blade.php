@@ -1,8 +1,8 @@
-@extends('layouts.main') @section('title', __('Admin Bookings')) @section('breadcrumb') 
+@extends('layouts.main') @section('title', __('Dashboard')) @section('breadcrumb') 
 <li class="breadcrumb-item"><a
    href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
 <li class="breadcrumb-item"><a href="{{ route('lesson.index') }}">{{ __('Lesson') }}</a></li>
-<li class="breadcrumb-item">{{ __('Admin Bookings') }}</li>
+<li class="breadcrumb-item">{{ __('Dashboard') }}</li>
 @endsection
 @section('content')
 <div class="main-content">
