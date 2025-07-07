@@ -66,6 +66,27 @@
 @stack('scripts')
 @endsection
 @push('css')
+<style>
+    .choices__inner {
+        text-align: left;
+    }
+    .choices__list--dropdown {
+        height: 0;
+        z-index: 1;
+    }
+    .choices__list--dropdown.is-active {
+        height: auto;
+    }
+    .swal2-actions {
+        z-index: 0 !important;
+    }
+    .swal2-html-container {
+        overflow: visible !important;
+    }
+    .choices__list--dropdown .choices__item {
+        text-align: left;
+    }
+</style>
 <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.min.css">
 @endpush
@@ -281,7 +302,13 @@
             ${unbookButtonHtml} ${completeSlotButtonHtml}
         </div>
 `,
-
+                        @if(Auth::user()->type == 'Instructor')
+                         didOpen: () => {
+                            const choices = new Choices(document.getElementById('student_id'), {
+                                        searchEnabled: true
+                                 });
+                         },
+                         @endif
                         showCancelButton: true,
                         confirmButtonText: "Book",
                         cancelButtonText: 'Close',
