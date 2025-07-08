@@ -49,9 +49,9 @@
                                 ]) !!}
                             </div>
                             <div class="form-group">
-                                 {{ Form::label('package_lesson', __('Select Package Lesson'), ['class' => 'form-label']) }}
+                                @if (!empty($lesson))
+                                 {{ Form::label('package_lesson', __('This Availability Applies To'), ['class' => 'form-label']) }}
                                  <br>
-                                 @if (!empty($lesson))
                                     @foreach ($lesson as $le)
                                         <input type="checkbox" name="lesson_id[]" class="form-check-input" value={{ $le['id'] }}> {{ $le['lesson_name']}}  <span style="color:gray"> @if (isset($le['lesson_duration']))  {{ __('Lesson Duration : ' . $le['lesson_duration'] . 'hour(s)') }} @endif </span>
                                         <br>
