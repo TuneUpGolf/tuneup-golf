@@ -105,6 +105,10 @@ class LessonDataTable extends DataTable
                 var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
             }')
             ->parameters([
+                "columnDefs" => [
+                    ["responsivePriority" => 1, "targets" => 1],
+                    ["responsivePriority" => 2, "targets" => 2],
+                ],
                 "dom" =>  "
                         <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12 d-none d-sm-block'>
                         <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
