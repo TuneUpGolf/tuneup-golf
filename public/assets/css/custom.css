@@ -1612,3 +1612,11 @@ body.theme-1 .bg-primary {
   display: flex;
   flex-wrap: wrap;
 }
+
+@media (max-width:767px) {
+
+  table.dataTable.nowrap th,
+  table.dataTable.nowrap td:not(:first-child) {
+    white-space: break-spaces;
+  }
+}
