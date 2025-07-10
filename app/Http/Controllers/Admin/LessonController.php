@@ -12,6 +12,7 @@ use App\Http\Resources\LessonAPIResource;
 use App\Http\Resources\SlotAPIResource;
 use App\Mail\Admin\StudentPaymentLink;
 use App\Mail\Admin\SlotBookedByStudentMail;
+use App\Mail\Admin\SlotCancelledMail;
 use App\Models\Instructor;
 use App\Models\Role;
 use App\Models\User;
@@ -1084,7 +1085,6 @@ class LessonController extends Controller
             ]);
 
             $slot = Slots::find($request->slot_id);
-
             if (!$slot) {
                 throw new Exception('Slot not found', 404);
             }
@@ -1094,7 +1094,6 @@ class LessonController extends Controller
 
             if ($isInstructorOrAdmin) {
                 $slot->update($validatedData);
-
                 if ($slot->cancelled) {
                     $slot->update(['is_active' => false]);
                     $slot->update(['cancelled' => true]);
@@ -1108,11 +1107,12 @@ class LessonController extends Controller
 
                 if ($request->unbook == '1'  && $request->filled('student_ids')) {
                     $unbookedStudents = $slot->student()->whereIn('students.id', $request->student_ids)->get();
+
                     $slot->student()->detach($request->student_ids);
 
                     foreach ($unbookedStudents as $student) {
                         Purchase::where('slot_id', $slot->id)->where('student_id', $student->id)->delete();
-                        if (!$student->pivot->isFriend)
+                        if (!$student->pivot->isFriend) {
                             $this->sendSlotNotification(
                                 $slot,
                                 'Slot Unbooked',
@@ -1120,6 +1120,14 @@ class LessonController extends Controller
                                 null, // No instructor notification needed
                                 $student // Send notification only to this student
                             );
+
+                            SendEmail::dispatch($student->email, new SlotCancelledMail(
+                                $user->name,
+                                date('Y-m-d', strtotime($slot->date_time)),
+                                date('h:i A', strtotime($slot->date_time)),
+                                $slot->lesson->lesson_name
+                            ));
+                        }
                     }
                 }
 
@@ -1152,6 +1160,13 @@ class LessonController extends Controller
                     null,
                     "{$user->name}, has cancelled the lesson on :date."
                 );
+
+                SendEmail::dispatch($slot->lesson->user->email, new SlotCancelledMail(
+                    $user->name,
+                    date('Y-m-d', strtotime($slot->date_time)),
+                    date('h:i A', strtotime($slot->date_time)),
+                    $slot->lesson->lesson_name
+                ));
 
                 if ($request->redirect == "1") {
                     return redirect()->back()->with('success', 'Slot Successfully Updated');
