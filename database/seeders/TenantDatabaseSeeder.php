@@ -10,6 +10,8 @@ use App\Mail\Admin\StudentPaymentLink;
 use App\Mail\Admin\VideoAdded;
 use App\Mail\Admin\WelcomeMail;
 use App\Mail\Admin\WelcomeMailStudent;
+use App\Mail\Admin\SlotBookedByStudentMail;
+use App\Mail\Admin\SlotCancelledMail;
 use App\Models\Faq;
 use App\Models\FooterSetting;
 use Illuminate\Database\Seeder;
@@ -822,6 +824,20 @@ class TenantDatabaseSeeder extends Seeder
             'html_template' => '<p><strong>Hi {{name}}</strong></p>
             <p><strong>Email {{email}}</strong></p>
             <p><strong>Register Successfully</strong></p>',
+            'text_template' => null,
+        ]);
+
+        MailTemplate::firstOrCreate(['mailable' => SlotBookedByStudentMail::class], [
+            'mailable' => \App\Mail\Admin\SlotBookedByStudentMail::class,
+            'subject' => '{{name}} scheduled a lesson on {{date}} at {{time}}',
+            'html_template' => '<p><strong>{{name}} has scheduled a lesson on {{date}} at {{time}}</strong></p> <p><strong>Thank you</strong></p>',
+            'text_template' => null,
+        ]);
+
+        MailTemplate::firstOrCreate(['mailable' => SlotCancelledMail::class], [
+            'mailable' => \App\Mail\Admin\SlotCancelledMail::class,
+            'subject' => '{{name}} cancelled the slot booked on {{date}} at {{time}}',
+            'html_template' => '<p><strong>{{name}} has cancelled the slot booked on {{date}} at {{time}} for {{lesson}} lesson.</strong></p> <p><strong>Thank you</strong></p>',
             'text_template' => null,
         ]);
 
