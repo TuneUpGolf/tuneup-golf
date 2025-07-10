@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\SendEmail;
 use App\Actions\SendPushNotification;
 use App\DataTables\Admin\PurchaseDataTable;
-use App\DataTables\Admin\PurchaseVideoDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PurchaseAPIResource;
 use App\Http\Resources\PurchaseVideoAPIResource;
@@ -23,12 +22,11 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\PurchaseVideos;
 use App\DataTables\Admin\PurchaseLessonDataTable;
 use App\DataTables\Admin\PurchaseLessonVideoDataTable;
-use App\Models\Plan;
+use App\Mail\Admin\SlotBookedByStudentMail;
 use App\Models\Role;
 use App\Models\Slots;
 use App\Traits\ConvertVideos;
 use App\Traits\PurchaseTrait;
-use Illuminate\Support\Facades\Response as FacadesResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
@@ -36,7 +34,8 @@ use Stripe\Checkout\Session;
 use Stripe\Stripe;
 use Error;
 use Exception;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Spatie\MailTemplates\Models\MailTemplate;
+use Illuminate\Support\Facades\Mail;
 
 use function PHPUnit\Framework\isEmpty;
 
@@ -267,6 +266,15 @@ class PurchaseController extends Controller
                             'You have successfully paid for the package lesson. You are now eligible to attend all upcoming slots.',
                             null,
                         );
+
+                        if ($bookingStudent = $purchase->student->name ?? false) {
+                            SendEmail::dispatch($slot->lesson->user->email, new SlotBookedByStudentMail(
+                                $bookingStudent->name,
+                                date('Y-m-d', strtotime($slot->date_time)),
+                                date('h:i A', strtotime($slot->date_time))
+                            ));
+                        }
+
                         // } else {
                         //     // Send standard notification for single-slot purchases
                         //     $this->sendSlotNotification(

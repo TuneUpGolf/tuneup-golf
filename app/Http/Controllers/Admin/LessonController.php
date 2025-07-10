@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Actions\SendEmail;
 use App\Actions\SendPushNotification;
+use Illuminate\Support\Facades\Mail;
 use App\DataTables\Admin\LessonDataTable;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\LessonAPIResource;
 use App\Http\Resources\SlotAPIResource;
 use App\Mail\Admin\StudentPaymentLink;
+use App\Mail\Admin\SlotBookedByStudentMail;
 use App\Models\Instructor;
 use App\Models\Role;
 use App\Models\User;
@@ -31,6 +33,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use App\Models\PackageLesson;
 use Illuminate\Support\Facades\DB;
+use Spatie\MailTemplates\Models\MailTemplate;
 
 class LessonController extends Controller
 {
@@ -729,7 +732,8 @@ class LessonController extends Controller
 
     private function handleStudentBookingAPI($slot, $request)
     {
-        $bookingStudentId = Auth::user()->id;
+        $bookingStudent = Auth::user();
+        $bookingStudentId = $bookingStudent->id;
 
         $friendNames = request()->friend_names ?? [];
         if (!is_array($friendNames)) {
@@ -831,6 +835,12 @@ class LessonController extends Controller
             'A slot has been booked for :date with :instructor for the in-person lesson :lesson.',
             'A slot has been booked for :date with :student for the in-person lesson :lesson.'
         );
+
+        SendEmail::dispatch($slot->lesson->user->email, new SlotBookedByStudentMail(
+            $bookingStudent->name,
+            date('Y-m-d', strtotime($slot->date_time)),
+            date('h:i A', strtotime($slot->date_time))
+        ));
 
         return request()->redirect == 1
             ? redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Purchase Successful.')
