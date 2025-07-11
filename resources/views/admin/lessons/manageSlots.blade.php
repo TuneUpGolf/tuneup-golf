@@ -71,6 +71,27 @@
 <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid/main.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid/main.css" rel="stylesheet" />
 <link href="{{ asset('assets/css/custom-calendar.css') }}" rel="stylesheet" />
+<style>
+    .choices__inner {
+        text-align: left;
+    }
+    .choices__list--dropdown {
+        height: 0;
+        z-index: 1;
+    }
+    .choices__list--dropdown.is-active {
+        height: auto;
+    }
+    .swal2-actions {
+        z-index: 0 !important;
+    }
+    .swal2-html-container {
+        overflow: visible !important;
+    }
+    .choices__list--dropdown .choices__item {
+        text-align: left;
+    }
+</style>
 @endpush
 @push('javascript')
 {{-- <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script> --}}
@@ -216,6 +237,11 @@
                        ${unbookButtonHtml}
                    </div>
                    `,
+                   didOpen: () => {
+                            const choices = new Choices(document.getElementById('student_id'), {
+                                        searchEnabled: true
+                                 });
+                         },
                            didRender: () => {
                                document.getElementById("unbookBtn")?.addEventListener(
                                    "click",

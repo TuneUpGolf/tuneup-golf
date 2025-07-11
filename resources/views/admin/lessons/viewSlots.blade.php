@@ -218,13 +218,12 @@
                             </select>
                         </div>
                         </form>`,
-                        @if(Auth::user()->type == 'Instructor')
+                        
                          didOpen: () => {
                             const choices = new Choices(document.getElementById('student_id'), {
                                         searchEnabled: true
                                  });
                          },
-                         @endif
                              preConfirm: () => {
                                  const studentSelect = document.getElementById('student_id');
                                  const student_ids = [...studentSelect.selectedOptions].map(
