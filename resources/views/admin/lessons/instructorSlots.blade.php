@@ -302,13 +302,12 @@
             ${unbookButtonHtml} ${completeSlotButtonHtml}
         </div>
 `,
-                        @if(Auth::user()->type == 'Instructor')
+                        
                          didOpen: () => {
                             const choices = new Choices(document.getElementById('student_id'), {
                                         searchEnabled: true
                                  });
                          },
-                         @endif
                         showCancelButton: true,
                         confirmButtonText: "Book",
                         cancelButtonText: 'Close',
