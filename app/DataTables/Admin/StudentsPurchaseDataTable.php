@@ -105,6 +105,10 @@ class StudentsPurchaseDataTable extends DataTable
             ->where('purchases.student_id', $this->studentId)
             ->orderBy('purchases.created_at', 'desc');
 
+        if (auth()->user()->type == Role::ROLE_INSTRUCTOR) {
+            $query = $query->where('lessons.created_by', auth()->user()->id);
+        }
+
         return $query;
     }
 
