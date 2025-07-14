@@ -16,13 +16,14 @@ class SendEmail
     {
         try {
             $emailEnabled = \App\Facades\UtilityFacades::getsettings('enable_email_notification') == "on";
-
             if (MailTemplate::where('mailable', get_class($mailable))->first() && $emailEnabled) {
                 Mail::mailer('smtp')->to($email)->send($mailable);
             }
         } catch (Error $e) {
+            report($e);
             return response($e->getMessage());
         } catch (\Throwable $th) {
+            report($th);
             return response()->json([
                 'status' => false,
                 'message' => $th->getMessage()
