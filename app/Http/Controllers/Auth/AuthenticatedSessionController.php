@@ -55,6 +55,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->back()->with('errors', __('Please contact administrator to activate your account.'));
         }
         if (!empty($user)) {
+            $newIntendedUri = $user->type == 'Student' ? RouteServiceProvider::HOME : '/lesson/manage/slot';
             $credentials = $request->only('email', 'password');
             if (Auth::guard($current_guard)->attempt($credentials)) {
 
@@ -72,7 +73,7 @@ class AuthenticatedSessionController extends Controller
                     if ($user->phone_verified_at == ''  && UtilityFacades::getsettings('sms_verification') == '1') {
                         return redirect()->route('smsindex.noticeverification');
                     } else {
-                        return redirect()->intended($user->type == 'Admin' ? '/lesson/manage/slot' : RouteServiceProvider::HOME);
+                        return redirect()->intended($newIntendedUri);
                     }
                 } else {
                     $user = User::where('email', $request->email)->first();
@@ -81,10 +82,10 @@ class AuthenticatedSessionController extends Controller
                     } else {
                         if (empty($user?->tenant?->domains?->first()?->domain)) {
                             $request->session()->regenerate();
-                            return redirect()->intended(RouteServiceProvider::HOME);
+                            return redirect()->intended($newIntendedUri);
                         }
                         $current_domain = $user->tenant->domains->first()?->domain;
-                        $redirectUrl = '/home';
+                        $redirectUrl = $newIntendedUri;
                         $token = tenancy()->impersonate($user->tenant, 1, $redirectUrl);
                         return redirect("http://$current_domain/tenant-impersonate/{$token->token}");
                     }

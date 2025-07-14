@@ -32,7 +32,7 @@ $chatcolor = '#0C7785';
 
 @endphp
 @extends('layouts.main')
-@section('title', __($users->type != 'Admin'?'Dashboard':'Statistics'))
+@section('title', __($users->type == 'Student'?'Dashboard':'Statistics'))
 @section('content')
 <div class="row">
     <div class="col-xxl-12">
