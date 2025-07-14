@@ -55,7 +55,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->back()->with('errors', __('Please contact administrator to activate your account.'));
         }
         if (!empty($user)) {
-            $newIntendedUri = $user->type == 'Student' ? RouteServiceProvider::HOME : '/lesson/manage/slot';
+            $newIntendedUri = in_array($user->type, [Role::ROLE_SUPER_ADMIN, Role::ROLE_STUDENT]) ? RouteServiceProvider::HOME : '/lesson/manage/slot';
             $credentials = $request->only('email', 'password');
             if (Auth::guard($current_guard)->attempt($credentials)) {
 
