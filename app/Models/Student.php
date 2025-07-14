@@ -71,7 +71,7 @@ class Student extends User implements MustVerifyEmail
     }
     public function slots(): BelongsToMany
     {
-        return $this->belongsToMany(Slots::class, 'slot_student', 'student_id', 'slot_id');
+        return $this->belongsToMany(Slots::class, 'student_slots', 'student_id', 'slot_id');
     }
     public function purchasePost(): HasMany
     {
@@ -117,7 +117,7 @@ class Student extends User implements MustVerifyEmail
             }
         }
     }
-    public function studentSlots() : HasMany
+    public function studentSlots(): HasMany
     {
         return $this->hasMany(StudentSlot::class);
     }
