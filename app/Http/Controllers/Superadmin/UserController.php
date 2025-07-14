@@ -306,7 +306,7 @@ class UserController extends Controller
         if (Auth::user()->can('impersonate-user')) {
             $user           = User::find($id);
             $currentDomain  = $user->tenant->domains->first()->actual_domain;
-            $redirectUrl    = ($user->type == Role::ROLE_ADMIN) ? '/lesson/manage/slot' : '/home';
+            $redirectUrl    = ($user->type == Role::ROLE_STUDENT) ? '/home' : '/lesson/manage/slot';
             $token          = tenancy()->impersonate($user->tenant, 1, $redirectUrl);
             return redirect("http://$currentDomain/tenant-impersonate/{$token->token}");
         } else {
