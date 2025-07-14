@@ -18,4 +18,5 @@ class Role extends Model
     const ROLE_ADMIN = "Admin";
     const ROLE_INSTRUCTOR = "Instructor";
     const ROLE_STUDENT = "Student";
+    const ROLE_SUPER_ADMIN = "Super Admin";
 }
