@@ -1,7 +1,7 @@
-@extends('layouts.main') @section('title', __('All Slots')) @section('breadcrumb') <li class="breadcrumb-item"><a
+@extends('layouts.main') @section('title', __('Dashboard')) @section('breadcrumb') <li class="breadcrumb-item"><a
         href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
 <li class="breadcrumb-item"><a href="{{ route('lesson.index') }}">{{ __('Lesson') }}</a></li>
-<li class="breadcrumb-item">{{ __('All Slots') }}</li>
+<li class="breadcrumb-item">{{ __('Dashboard') }}</li>
 @endsection
 @section('content')
 <div class="main-content">
@@ -10,8 +10,8 @@
             <div class="m-auto col-lg-6 col-md-8 col-xxl-4">
                 <div class="card">
                     <div>
-                        <div class="flex justify-between items-center card-header  w-100">
-                            <h5>{{ __('All Slots') }}</h5>
+                        <div class="justify-between items-center card-header  w-100">
+                            {{-- <h5>{{ __('All Slots') }}</h5> --}}
                             <form>
                                 <select name="lesson_id" id="lesson_id" class="form-select w-full"
                                     onchange="this.form.submit()">
