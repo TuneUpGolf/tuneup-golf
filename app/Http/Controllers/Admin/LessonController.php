@@ -613,6 +613,7 @@ class LessonController extends Controller
     public function bookAdminSlot(Request $request)
     {
         try {
+
             $request->validate([
                 'isGuest' => 'required',
                 'slot_id' => 'required',
@@ -681,6 +682,19 @@ class LessonController extends Controller
                         'A slot has been booked for :date with student ID ' . $studentId . ' for the in-person lesson :lesson.'
                     );
                 }
+            }
+
+            $studentEmails = Student::select('email')
+                ->whereIn('id', $studentIds)
+                ->pluck('email');
+
+
+            if (!$studentEmails->isEmpty()) {
+                SendEmail::dispatch($studentEmails->toArray(), new SlotBookedByStudentMail(
+                    Auth::user()->name,
+                    date('Y-m-d', strtotime($slot->date_time)),
+                    date('h:i A', strtotime($slot->date_time))
+                ));
             }
 
             if (request()->redirect == 1) {
