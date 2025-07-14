@@ -247,7 +247,7 @@
                                         <a class="dash-link"
                                             href="{{ route('lesson.index') }}">{{ __('Manage Lessons') }}</a>
                                     </li>
-                                    @if ($userType != 'Students')
+                                    @if ($userType != 'Student')
                                         <li class="dash-item {{ request()->is('home') ? 'active' : '' }}">
                                             <a class="dash-link"
                                                 href="{{ route('home') }}">{{ __('Statistics') }}</a>
