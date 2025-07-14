@@ -7,7 +7,7 @@
 <nav class="dash-sidebar light-sidebar {{ Utility::getsettings('transparent_layout') == 1 ? 'transprent-bg' : '' }}">
     <div class="navbar-wrapper navbar-border">
         <div class="m-header justify-content-center header-set">
-            <a href="{{ $userType === 'Student'?route('home'):route('slot.manage') }}" class="text-center b-brand header-image-set">
+            <a href="{{ in_array($userType, [\App\Models\Role::ROLE_SUPER_ADMIN, \App\Models\Role::ROLE_STUDENT]) ?route('home'):route('slot.manage') }}" class="text-center b-brand header-image-set">
                 <!-- ========   change your logo hear   ============ -->
                 @if ($users->dark_layout == 1)
                     <img src="{{ Utility::getsettings('app_logo') ? Utility::getpath('logo/app-logo.png') : asset('assets/images/app-logo.png') }}"
@@ -21,7 +21,7 @@
         <div class="navbar-content flex flex-col justify-between">
             <ul class="dash-navbar">
                 <li class="dash-item dash-hasmenu">
-                    <a href="{{ $userType === 'Student'?route('home'):route('slot.manage') }}" class="dash-link">
+                    <a href="{{ in_array($userType, [\App\Models\Role::ROLE_SUPER_ADMIN, \App\Models\Role::ROLE_STUDENT]) ?route('home'):route('slot.manage') }}" class="dash-link">
                         <span class="dash-micon"><i class="ti ti-dashboard"></i></span>
                         <span class="dash-mtext">{{ __('Dashboard') }}</span>
                     </a>
@@ -235,7 +235,7 @@
                             ($userType === 'Admin' && request()->is('home'))
                             ? 'active' : '' }}">
                             @can('manage-lessons')
-                            <li class="dash-item dash-hasmenu {{ ($userType == 'Student' && request()->is('lesson*')) ? 'active' : '' }}">
+                            <li class="dash-item dash-hasmenu {{ (in_array($userType, [\App\Models\Role::ROLE_SUPER_ADMIN, \App\Models\Role::ROLE_STUDENT]) && request()->is('lesson*')) ? 'active' : '' }}">
                                 <a href="#!" class="dash-link">
                                 <span class="dash-micon"><i class="ti ti-notebook"></i></span>
                                     <span class="dash-mtext">{{ __('Lessons') }}</span>
@@ -247,7 +247,7 @@
                                         <a class="dash-link"
                                             href="{{ route('lesson.index') }}">{{ __('Manage Lessons') }}</a>
                                     </li>
-                                    @if ($userType != 'Student')
+                                    @if (!in_array($users->type, [\App\Models\Role::ROLE_SUPER_ADMIN, \App\Models\Role::ROLE_STUDENT]))
                                         <li class="dash-item {{ request()->is('home') ? 'active' : '' }}">
                                             <a class="dash-link"
                                                 href="{{ route('home') }}">{{ __('Statistics') }}</a>
