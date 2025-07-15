@@ -57,10 +57,10 @@
                                     <div class="form-group w-50">
                                         {{ Form::label('no_of_slot', __('Package Size'), ['class' => 'form-label']) }}
                                         <select type="dropdown" name="exist_package_lesson[{{ $loop->index }}][no_of_slot]"
-                                            class="form-control" required disabled>
+                                            class="form-control" required >
                                             <option value="">No. of slot</option>
                                             @for ($i = 1; $i <= 10; $i++)
-                                                <option value={{ $i }} {{ $package->number_of_slot == $i ? 'selected' : '' }} disabled>
+                                                <option value={{ $i }} {{ $package->number_of_slot == $i ? 'selected' : '' }} >
                                                     {{ $i }} </option>
                                             @endfor
                                         </select>
@@ -69,7 +69,7 @@
                                     <div class="form-group w-50 price-field">
                                         {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
                                         <input type="number" class="form-control" name="exist_package_lesson[{{ $loop->index }}][price]"
-                                            placeholder="Enter Price" value="{{ $package->price }}" disabled />
+                                            placeholder="Enter Price" value="{{ $package->price }}" />
                                     </div>
                                 </div>
                             @endforeach
