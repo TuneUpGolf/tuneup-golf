@@ -62,10 +62,7 @@ class StudentDashboardView extends GridView
 
         $model->load('user');
         $tenantId = tenancy()->tenant->id;
-        $currency = tenancy()->central(function () use ($tenantId) {
-            return User::where('tenant_id', $tenantId)->value('currency');
-        });
-
+        $currency = \App\Facades\UtilityFacades::getsettings('currency');
         $symbol = User::getCurrencySymbol($currency);
 
         return [
