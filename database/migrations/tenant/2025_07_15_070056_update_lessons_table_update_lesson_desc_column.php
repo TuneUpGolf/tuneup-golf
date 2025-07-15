@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('purchasevideos', function () {
-            DB::statement("ALTER TABLE purchasevideos MODIFY note LONGTEXT NULL");
+        Schema::table('lessons', function () {
+            DB::statement("ALTER TABLE lessons MODIFY lesson_description LONGTEXT NULL");
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('purchasevideos', function () {
-            DB::statement("ALTER TABLE purchasevideos MODIFY note VARCHAR(255) NULL");
+        Schema::table('lessons', function () {
+            DB::statement("ALTER TABLE lessons MODIFY lesson_description TEXT NULL");
         });
     }
 };
