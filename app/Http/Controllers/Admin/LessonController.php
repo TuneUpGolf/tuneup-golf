@@ -756,7 +756,7 @@ class LessonController extends Controller
             $friendNames = array_filter(explode(',', $friendNames));
         }
         $totalNewBookings = count($friendNames) + 1;
-        $checkPackageBooking = Purchase::where(['student_id' => $bookingStudentId, 'lesson_id' => $slot->lesson_id, 'type' => $slot->lesson->type])->first();
+        $checkPackageBooking = Purchase::where(['student_id' => $bookingStudentId, 'type' => $slot->lesson->type])->first();
 
         if (!$bookingStudent->slots->pluck('date_time')->isEmpty()) {
             $otherSlotBooked = in_array($slot->date_time, $bookingStudent->slots->pluck('date_time')->toArray());

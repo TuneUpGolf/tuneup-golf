@@ -308,7 +308,7 @@ class PurchaseController extends Controller
                 }
 
                 if ($request->query('redirect') == 1) {
-                    return redirect(route('purchase.index'))->with('success', 'Payment Successful');
+                    return redirect()->route('slot.view', ['lesson_id' => $purchase->lesson->id])->with('success', 'Purchase Successful.');
                 }
                 return response("Purchase Confirmed Successfully");
             }
