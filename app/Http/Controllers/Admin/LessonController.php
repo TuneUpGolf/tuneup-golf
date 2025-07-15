@@ -749,32 +749,45 @@ class LessonController extends Controller
     {
         $bookingStudent = Auth::user();
         $bookingStudentId = $bookingStudent->id;
+        $otherSlotBooked = false;
 
         $friendNames = request()->friend_names ?? [];
         if (!is_array($friendNames)) {
             $friendNames = array_filter(explode(',', $friendNames));
         }
         $totalNewBookings = count($friendNames) + 1;
-        $checkPackageBooking = Purchase::where(['student_id' => $bookingStudentId, 'lesson_id' => $slot->lesson_id, 'type' => $slot->lesson->type])->first();
+        $checkPackageBooking = Purchase::where(['student_id' => $bookingStudentId, 'type' => $slot->lesson->type])->first();
+
+        if (!$bookingStudent->slots->pluck('date_time')->isEmpty()) {
+            $otherSlotBooked = in_array($slot->date_time, $bookingStudent->slots->pluck('date_time')->toArray());
+        }
 
         if (!empty($checkPackageBooking)) {
-            // Attach main student to the slot
-            $slot->student()->attach($bookingStudentId, [
-                'isFriend' => false,
-                'friend_name' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
 
-            // Attach friends to the slot
-            if (!empty($friendNames)) {
-                foreach ($friendNames as $friendName) {
-                    $slot->student()->attach($bookingStudentId, [
-                        'isFriend' => true,
-                        'friend_name' => $friendName,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
+            if ($otherSlotBooked) {
+                return request()->redirect == 1 ? redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Purchase Successful.') :
+                    response()->json(['message' => 'You have already scheduled another lesson for this date and time.'], 422);
+            }
+
+            if (request()->redirect == 0) {
+                // Attach main student to the slot
+                $slot->student()->attach($bookingStudentId, [
+                    'isFriend' => false,
+                    'friend_name' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                // Attach friends to the slot
+                if (!empty($friendNames)) {
+                    foreach ($friendNames as $friendName) {
+                        $slot->student()->attach($bookingStudentId, [
+                            'isFriend' => true,
+                            'friend_name' => $friendName,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
                 }
             }
         } else {
