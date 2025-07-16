@@ -48,15 +48,15 @@
     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
 
         <span class="text-xl font-semibold text-dark">{!! $title !!}</span>
-        <p class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis">
-            {!! \Illuminate\Support\Str::limit($description, 180, '...') !!}
-        </p>
+        <div class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis ck-content">
+            {!! $description !!}
+        </div>
 
         @if ($model->type == 'package')
             <div class="mb-3 p-3 border rounded-lg shadow-sm bg-white">
                 <h2 class="text-lg font-semibold flex items-center mb-2">
                     <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        <path stroke-linecap="round" stroke-width="2"
                             d="M8 7V3m8 4V3m-9 8h10m-10 4h6m4 8H5a2 2 0 01-2-2V7a2 2 0 012-2h3l2-2h4l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2z" />
                     </svg>
                     Package Options Available

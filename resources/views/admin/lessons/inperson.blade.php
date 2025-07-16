@@ -14,7 +14,7 @@
                         {{ __('Your database user must have permission to CREATE DATABASE, because we need to create database when new tenant create.') }}
                     </div>
                 @endif
-                <div class="m-auto col-lg-6 col-md-8 col-xxl-4">
+                <div class="m-auto col-lg-8 col-md-8 col-xxl-8">
                     <div class="card">
                         <div class="card-header">
                             <h5>{{ __('Create In-Person Lesson') }}</h5>
@@ -50,16 +50,7 @@
                                 {{ Form::label('name', __('Name'), ['class' => 'form-label']) }}
                                 {!! Form::text('lesson_name', null, ['class' => 'form-control', 'required', 'placeholder' => __('Enter name')]) !!}
                             </div>
-
-                            <!-- Description -->
-                            <div class="form-group">
-                                {{ Form::label('description', __('Description'), ['class' => 'form-label']) }}
-                                {!! Form::text('lesson_description', null, [
-                                    'class' => 'form-control',
-                                    'required',
-                                    'placeholder' => __('Enter Description'),
-                                ]) !!}
-                            </div>
+                            
                             <div class="flex gap-1 itmes-center mb-2 cursor-pointer add-more-package">
                                 <i class="ti ti-plus text-2xl"></i><span>Add Package Options</span>
                             </div>
@@ -111,10 +102,16 @@
                                         '0.5' => '30 Minutes',
                                         '0.75' => '45 Minutes',
                                         '1' => '1 Hour',
-                                        '1.5' => '1.5 Hours',
+                                        '1.25' => '1 Hour 15 Minutes',
+                                        '1.5' => '1 Hour 30 Minutes',
+                                        '1.75' => '1 Hour 45 Minutes',
                                         '2' => '2 Hours',
-                                        '2.5' => '2.5 Hours',
+                                        '2.25' => '2 Hours 15 Minutes',
+                                        '2.5' => '2 Hours 30 Minutes',
+                                        '2.75' => '2 Hours 45 Minutes',
                                         '3' => '3 Hours',
+                                        '3.25' => '3 Hours 15 Minutes',
+                                        '3.5' => '3 Hours 30 Minutes',
                                     ],
                                     null,
                                     [
@@ -148,6 +145,15 @@
                                 ]) !!}
                                 <!-- Hidden input to store payment method when disabled -->
                                 {{-- {!! Form::hidden('payment_method', 'online', ['id' => 'hidden_payment_method']) !!} --}}
+                            </div>
+                            <!-- Description -->
+                            <div class="form-group">
+                                {{ Form::label('description', __('Description'), ['class' => 'form-label']) }}
+                                {!! Form::textarea('lesson_description', null, [
+                                    'class' => 'form-control',
+                                    'required',
+                                    'placeholder' => __('Enter Description'),
+                                ]) !!}
                             </div>
 
                         </div>
@@ -195,8 +201,13 @@
     <script src="{{ asset('vendor/intl-tel-input/jquery.mask.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/intlTelInput-jquery.min.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/utils.min.js') }}"></script>
-
+    <script src="{{ asset('vendor/ckeditor/ckeditor.js') }}"></script>
     <script>
+        CKEDITOR.replace('lesson_description', {
+            filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
+            filebrowserUploadMethod: 'form'
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             //const paymentMethodSelect = document.getElementById('payment_method');
             //const hiddenPaymentMethod = document.getElementById('hidden_payment_method');
