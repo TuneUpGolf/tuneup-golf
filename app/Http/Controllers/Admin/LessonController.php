@@ -217,6 +217,7 @@ class LessonController extends Controller
                 })->where('is_active', true)->get();
 
             $type = Auth::user()->type;
+            $uniqueEvents = [];
             foreach ($slots as $appointment) {
                 if (isset($appointment->lesson->user->id)) {
                     $n = $appointment->lesson->lesson_duration;
@@ -233,10 +234,9 @@ class LessonController extends Controller
                     $startDts = $startDateTime->format('h:i a');
                     $endDts = $endDateTime->format('h:i a');
 
-                    array_push($events, [
+                    $event = [
                         'title' => substr($appointment->lesson->lesson_name, 0, 10) .
-                            ' (' . $appointment->lesson->max_students - $appointment->availableSeats() . '/' . $appointment->lesson->max_students . ') ',
-                        // 'start' => $appointment->date_time,
+                            ' (' . ($appointment->lesson->max_students - $appointment->availableSeats()) . '/' . $appointment->lesson->max_students . ') ',
                         'extendedProps' => [
                             'details' => $startDts == $endDts ? $startDts : $startDts . ' - ' . $endDts,
                             'location' => $appointment->location,
@@ -254,7 +254,20 @@ class LessonController extends Controller
                         'instructor' => $appointment->lesson->user,
                         'resourceId' => $appointment->lesson->user->id,
                         'className' => ($appointment->is_completed ? 'custom-completed-class' : ($appointment->isFullyBooked() ? 'custom-book-class' : 'custom-available-class')) . ' custom-event-class',
-                    ]);
+                    ];
+
+                    $dateTime = $event['start'];
+                    $isBooked = !empty($event['student']) && count($event['student']) > 0;
+                    if (!isset($uniqueEvents[$dateTime])) {
+                        $uniqueEvents[$dateTime] = $event;
+                    } else {
+                        $existingIsBooked = !empty($uniqueEvents[$dateTime]['student']) && count($uniqueEvents[$dateTime]['student']) > 0;
+                        // If existing is not booked and new one is booked, replace
+                        if (!$existingIsBooked && $isBooked) {
+                            $uniqueEvents[$dateTime] = $event;
+                        }
+                        // Otherwise, keep the first one (already set)
+                    }
 
                     if (!in_array($appointment->lesson->user->id, $resources)) {
                         $resources[$appointment->lesson->user->id] =
@@ -262,6 +275,7 @@ class LessonController extends Controller
                     }
                 }
             }
+            $events = array_values($uniqueEvents);
             $resources = array_values($resources);
             $lesson_id = request()->get('lesson_id');
             $instructors = User::where('type', Role::ROLE_INSTRUCTOR)->get();
