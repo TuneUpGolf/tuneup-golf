@@ -102,8 +102,10 @@ class PostsController extends Controller
                 $post->update();
                 return redirect()->route('blogs.index')->with('success', __('Post created successfully.'));
             } catch (ValidationException $e) {
+                report($e);
                 return response()->json(['error' => 'Validation failed.', 'message' => $e->errors()], 422);
             } catch (\Exception $e) {
+                report($e);
                 return response()->json(['error' => 'Error', 'message' => $e->getMessage()], 500);
             }
         } else {

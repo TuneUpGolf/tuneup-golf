@@ -28,7 +28,7 @@ class StudentDataTable extends DataTable
                     "<span class='pl-2'>" . $user->name . " </span>" .
                     '</a></div>';
 
-                    
+
                 return $html;
             })
             ->editColumn('created_at', function ($request) {
@@ -194,7 +194,7 @@ class StudentDataTable extends DataTable
                 ],
                 "scrollX" => true,
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {

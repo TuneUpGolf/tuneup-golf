@@ -92,10 +92,22 @@ class PurchaseDataTable extends DataTable
             ->editColumn('due_date', function ($purchase) {
                 return Carbon::parse($purchase->created_at)->toFormattedDateString();
             })
+            ->addColumn('remaining_slots', function ($purchase) {
+                $lesson = $purchase->lesson;
+                if (!$lesson) return '-';
+                $totalSlots = $lesson->slots()->count();
+                $maxStudents = $lesson->max_students ?? 0;
+                $totalCapacity = $totalSlots * $maxStudents;
+                $booked = $lesson->slots->reduce(function ($carry, $slot) {
+                    return $carry + $slot->student()->count();
+                }, 0);
+                $remaining = $totalCapacity - $booked;
+                return $remaining; // ' / ' . $totalCapacity;
+            })
             ->addColumn('action', function ($purchase) {
                 return view('admin.purchases.action', compact('purchase'));
             })
-            ->rawColumns(['action', 'status', 'student_name', 'instructor_name', 'lesson_name', 'pill', 'deleted']);
+            ->rawColumns(['action', 'status', 'student_name', 'instructor_name', 'lesson_name', 'pill', 'deleted', 'remaining_slots']);
     }
 
 
@@ -266,6 +278,7 @@ class PurchaseDataTable extends DataTable
             Column::make('lesson_name')->title(__('Lesson'))->searchable(true),
             Column::make('pill')->title('')->searchable(false)->orderable(false),
             Column::make('deleted')->title('')->searchable(false)->orderable(false),
+            Column::make('remaining_slots')->title(__('Remaining Slots'))->orderable(false)->searchable(false)->addClass('text-center'),
         ];
         if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
             $columns[] = Column::make('student_name')->title("Student")->searchable(true);
