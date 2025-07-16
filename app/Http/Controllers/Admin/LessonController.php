@@ -283,33 +283,52 @@ class LessonController extends Controller
                     $query->where('id', $lessonId);
                 })->where('is_active', true)->get();
 
+            $uniqueEvents = [];
             foreach ($slots as $appointment) {
-
                 $n = $appointment->lesson->lesson_duration;
                 $whole = floor($n);
                 $fraction = $n - $whole;
                 $intervalString = $whole . ' hours' . ' + ' . $fraction * 60 . ' minutes';
 
                 $students = $appointment->student;
-                $colors =  $appointment->is_completed ? '#41d85f' : ($appointment->isFullyBooked() ?
+
+                $colors =  $appointment->is_completed ? '#41d85f' : (($type == Role::ROLE_INSTRUCTOR && $appointment->isFullyBooked() ||
+                    $type == Role::ROLE_STUDENT && $students->contains('id', Auth::user()->id)) ?
                     '#c5b706' : '#0071ce');
-                array_push($events, [
-                    'title' => $appointment->lesson->lesson_name . ' (' . $appointment->lesson->max_students - $appointment->availableSeats() . '/' . $appointment->lesson->max_students . ')',
+                $className = $appointment->is_completed ? 'custom-completed-class' : (($type == Role::ROLE_INSTRUCTOR && $appointment->isFullyBooked() ||
+                    $type == Role::ROLE_STUDENT && $students->contains('id', Auth::user()->id))
+                    ? 'custom-book-class' : 'custom-available-class') . ' custom-event-class';
+
+                $event = [
+                    'title' => $appointment->lesson->lesson_name . ' (' . ($appointment->lesson->max_students - $appointment->availableSeats()) . '/' . $appointment->lesson->max_students . ')',
                     'start' => $appointment->date_time,
                     'end' => date("Y-m-d H:i:s", strtotime($appointment->date_time . " +" . $intervalString)),
                     'slot_id' => $appointment->id,
-                    'color' => $appointment->is_completed ? '#41d85f' : ($students->isNotEmpty() ? '#c5b706' : '#0071ce'),
+                    'color' => $colors,
                     'is_completed' => $appointment->is_completed,
                     'is_student_assigned' => $students->isNotEmpty(),
                     'student' => $students,
                     'slot' => $appointment,
+                    'isFullyBooked' => $appointment->isFullyBooked(),
                     'available_seats' => $appointment->availableSeats(),
-                    'lesson' => $appointment->lesson,
                     'instructor' => $appointment->lesson->user,
-                    'className' => ($appointment->is_completed ? 'custom-completed-class' : ($appointment->isFullyBooked() ? 'custom-book-class' : 'custom-available-class')) . ' custom-event-class',
-                ]);
-            }
+                    'className' => $className,
+                ];
 
+                $dateTime = $event['start'];
+                $isBooked = !empty($event['student']) && count($event['student']) > 0;
+                if (!isset($uniqueEvents[$dateTime])) {
+                    $uniqueEvents[$dateTime] = $event;
+                } else {
+                    $existingIsBooked = !empty($uniqueEvents[$dateTime]['student']) && count($uniqueEvents[$dateTime]['student']) > 0;
+                    // If existing is not booked and new one is booked, replace
+                    if (!$existingIsBooked && $isBooked) {
+                        $uniqueEvents[$dateTime] = $event;
+                    }
+                    // Otherwise, keep the first one (already set)
+                }
+            }
+            $events = array_values($uniqueEvents);
             $lesson_id = request()->get('lesson_id');
             $lessons = Lesson::where('created_by', Auth::user()->id)->where('active_status', 1)->where('type', Lesson::LESSON_TYPE_INPERSON)->get();
             $students = Student::where('active_status', true)->where('isGuest', false)->get();
