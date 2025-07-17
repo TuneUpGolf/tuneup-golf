@@ -245,12 +245,12 @@
                         buttonsStyling: false,
                     });
 
-                    if (!!lesson.is_package_lesson) {
-                        Swal.fire('Error',
-                            'Sorry, Instructors can\'t book package lesson slots for students.',
-                            'error');
-                        return; // Stop further execution
-                    }
+                    // if (!!lesson.is_package_lesson) {
+                    //     Swal.fire('Error',
+                    //         'Sorry, Instructors can\'t book package lesson slots for students.',
+                    //         'error');
+                    //     return; // Stop further execution
+                    // }
 
 
                     let completeSlotButtonHtml = '';
