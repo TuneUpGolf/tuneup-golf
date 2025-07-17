@@ -102,7 +102,7 @@ class PurchaseDataTable extends DataTable
                     return $carry + $slot->student()->count();
                 }, 0);
                 $remaining = $totalCapacity - $booked;
-                return $remaining; // ' / ' . $totalCapacity;
+                return "{$remaining}/{$totalCapacity}";
             })
             ->addColumn('action', function ($purchase) {
                 return view('admin.purchases.action', compact('purchase'));
