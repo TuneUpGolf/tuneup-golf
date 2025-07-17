@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Actions\SendEmail;
 use App\Actions\SendPushNotification;
-use Illuminate\Support\Facades\Mail;
 use App\DataTables\Admin\LessonDataTable;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
@@ -34,7 +33,6 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use App\Models\PackageLesson;
 use Illuminate\Support\Facades\DB;
-use Spatie\MailTemplates\Models\MailTemplate;
 
 class LessonController extends Controller
 {
