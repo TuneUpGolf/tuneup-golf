@@ -355,6 +355,7 @@ class LessonController extends Controller
         if (Auth::user()->can('manage-lessons')) {
             $lesson = Lesson::findOrFail(request()->get('lesson_id'));
             $slots = Slots::where('lesson_id', request()->get('lesson_id'))->with('lesson')->get();
+            $allSlots = Slots::with('lesson')->get();
             $events = [];
             $authUser = Auth::user();
             $type = $authUser->type;
@@ -367,7 +368,19 @@ class LessonController extends Controller
             if ($lesson->type == 'package' && $purchasedSlot = Purchase::where(['lesson_id' => request()->get('lesson_id'), 'student_id' => $authUser->id, 'type' => 'package'])->first()) {
                 $slots = collect(array_slice($slots->all(), 0, $purchasedSlot->purchased_slot));
             }
-            foreach ($slots as $appointment) {
+
+            $bookedDateTimes = $allSlots->filter(function ($slot) {
+                return $slot->student->isNotEmpty();
+            })->pluck('date_time')->unique();
+
+            $filteredSlots = $slots->filter(function ($slot) use ($bookedDateTimes) {
+                if ($slot->student->isNotEmpty()) {
+                    return true;
+                }
+                return !$bookedDateTimes->contains($slot->date_time);
+            });
+
+            foreach ($filteredSlots as $appointment) {
 
                 $n = $appointment->lesson->lesson_duration;
                 $whole = floor($n);
