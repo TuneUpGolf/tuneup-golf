@@ -1,3 +1,4 @@
+<div class="action-btn-fix-wraper">
 @php $user = Auth::user(); @endphp
 @if (
         $purchase->status !== 'complete' &&
@@ -8,11 +9,11 @@
     @can('create-purchases')
         {!! Form::open([
             'method' => 'POST',
-            'class' => 'd-inline',
+            'class' => 'd-flex',
             'route' => ['purchase-confirm-redirect', ['purchase_id' => $purchase->id]],
             'id' => 'confirm-form-' . $purchase->id,
         ]) !!}
-        {{ Form::button(__('Make Payment'), ['type' => 'submit', 'class' => 'btn btn-sm small btn btn-info ']) }}
+        {{ Form::button(__('Make Payment'), ['type' => 'submit', 'class' => 'btn btn-sm small btn btn-info action-btn-fix']) }}
         <i class="ti ti-eye text-white"></i>
         </a>
         {!! Form::close() !!}
@@ -23,7 +24,7 @@
         in_array($user->type, ['Student', 'Instructor']) &&
         ($purchase->status == 'complete' || $purchase->lesson->payment_method == 'cash' || $hasBooking)
     )
-        <a class="'btn btn-sm small btn btn-info ' " href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}"
+        <a class="btn btn-sm small btn btn-info action-btn-fix" href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}"
             data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">
             <svg width="800px" height="800px" viewBox="0 0 1024 1024" class="icon"  version="1.1" xmlns="http://www.w3.org/2000/svg">
                 <path d="M864 512a32 32 0 0 0-32 32v96a32 32 0 0 0 64 0v-96a32 32 0 0 0-32-32zM881.92 389.44a23.68 23.68 0 0 0-5.76-2.88 19.84 19.84 0 0 0-6.08-1.92 32 32 0 0 0-28.8 8.64A32 32 0 0 0 832 416a32 32 0 1 0 64 0 33.6 33.6 0 0 0-9.28-22.72z" fill="#FFFFFF" />
@@ -47,7 +48,7 @@
 @endif --}}
 @if ($user->type == 'Instructor')
     @can('manage-purchases')
-        <a class="btn btn-sm small btn btn-warning "
+        <a class="btn btn-sm small btn btn-warning action-btn-fix"
             href="{{ route('purchase.feedback.create', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-original-title="{{ __('Provide Feedback') }}">
             <i class="ti ti-plus text-white"></i>
@@ -56,7 +57,7 @@
 @endif
 @if (in_array($user->type, ['Student', 'Instructor']) && $purchaseVideo = $purchase->videos->first())
     @can('manage-purchases')
-        <a class="btn btn-sm small btn btn-warning "
+        <a class="btn btn-sm small btn btn-warning action-btn-fix"
             href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-original-title="{{ __('View Feedback') }}">
             <i class="ti ti-eye text-white"></i>
@@ -143,7 +144,6 @@
     @endcan
 @endif --}}
 
-<div class="action-btn-fix-wraper">
 @can('edit-purchase')
     <a class="btn btn-sm small btn btn-warning action-btn-fix" href="{{ route('purchase.edit', $purchase->id) }}" data-bs-toggle="tooltip"
         data-bs-placement="bottom" data-bs-original-title="{{ __('Edit') }}">
