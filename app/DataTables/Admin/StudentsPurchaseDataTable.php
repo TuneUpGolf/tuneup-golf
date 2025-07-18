@@ -85,7 +85,10 @@ class StudentsPurchaseDataTable extends DataTable
                 return Carbon::parse($purchase->created_at)->toFormattedDateString();
             })
             ->addColumn('action', function ($purchase) {
-                return view('admin.purchases.action', compact('purchase'));
+                $hasBooking = \App\Models\Slots::where('lesson_id', $purchase->lesson_id)
+                    ->whereHas('student')
+                    ->exists();
+                return view('admin.purchases.action', compact('purchase', 'hasBooking'));
             })
             ->rawColumns(['action', 'status', 'student_name', 'instructor_name', 'lesson_name']);
     }
