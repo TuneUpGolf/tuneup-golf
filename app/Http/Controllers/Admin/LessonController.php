@@ -301,6 +301,17 @@ class LessonController extends Controller
                 $whole = floor($n);
                 $fraction = $n - $whole;
                 $intervalString = $whole . ' hours' . ' + ' . $fraction * 60 . ' minutes';
+                $startDateTime = Carbon::parse($appointment->date_time);
+
+                $minutes = $fraction * 60;
+                $endDateTime = $startDateTime->copy()->addHours($whole)->addMinutes($minutes);
+
+                $students = $appointment->student;
+                $colors =  $appointment->is_completed ? '#41d85f' : ($appointment->isFullyBooked() ?
+                    '#c5b706' : '#0071ce');
+
+                $startDts = $startDateTime->format('h:i a');
+                $endDts = $endDateTime->format('h:i a');
 
                 $students = $appointment->student;
 
@@ -312,19 +323,25 @@ class LessonController extends Controller
                     ? 'custom-book-class' : 'custom-available-class') . ' custom-event-class';
 
                 $event = [
-                    'title' => $appointment->lesson->lesson_name . ' (' . ($appointment->lesson->max_students - $appointment->availableSeats()) . '/' . $appointment->lesson->max_students . ')',
-                    'start' => $appointment->date_time,
-                    'end' => date("Y-m-d H:i:s", strtotime($appointment->date_time . " +" . $intervalString)),
+                    'title' => substr($appointment->lesson->lesson_name, 0, 10) .
+                        ' (' . ($appointment->lesson->max_students - $appointment->availableSeats()) . '/' . $appointment->lesson->max_students . ') ',
+                    'extendedProps' => [
+                        'details' => $startDts == $endDts ? $startDts : $startDts . ' - ' . $endDts,
+                        'location' => $appointment->location,
+                    ],
+                    'start' => $startDateTime->format('Y-m-d H:i:s'),
+                    'end' => $endDateTime->format('Y-m-d H:i:s'),
                     'slot_id' => $appointment->id,
                     'color' => $colors,
                     'is_completed' => $appointment->is_completed,
                     'is_student_assigned' => $students->isNotEmpty(),
                     'student' => $students,
                     'slot' => $appointment,
-                    'isFullyBooked' => $appointment->isFullyBooked(),
                     'available_seats' => $appointment->availableSeats(),
+                    'lesson' => $appointment->lesson,
                     'instructor' => $appointment->lesson->user,
-                    'className' => $className,
+                    'resourceId' => $appointment->lesson->user->id,
+                    'className' => ($appointment->is_completed ? 'custom-completed-class' : ($appointment->isFullyBooked() ? 'custom-book-class' : 'custom-available-class')) . ' custom-event-class',
                 ];
 
                 $dateTime = $event['start'];
@@ -355,6 +372,7 @@ class LessonController extends Controller
         if (Auth::user()->can('manage-lessons')) {
             $lesson = Lesson::findOrFail(request()->get('lesson_id'));
             $slots = Slots::where('lesson_id', request()->get('lesson_id'))->with('lesson')->get();
+            $allSlots = Slots::with('lesson')->get();
             $events = [];
             $authUser = Auth::user();
             $type = $authUser->type;
@@ -367,7 +385,19 @@ class LessonController extends Controller
             if ($lesson->type == 'package' && $purchasedSlot = Purchase::where(['lesson_id' => request()->get('lesson_id'), 'student_id' => $authUser->id, 'type' => 'package'])->first()) {
                 $slots = collect(array_slice($slots->all(), 0, $purchasedSlot->purchased_slot));
             }
-            foreach ($slots as $appointment) {
+
+            $bookedDateTimes = $allSlots->filter(function ($slot) {
+                return $slot->student->isNotEmpty();
+            })->pluck('date_time')->unique();
+
+            $filteredSlots = $slots->filter(function ($slot) use ($bookedDateTimes) {
+                if ($slot->student->isNotEmpty()) {
+                    return true;
+                }
+                return !$bookedDateTimes->contains($slot->date_time);
+            });
+
+            foreach ($filteredSlots as $appointment) {
 
                 $n = $appointment->lesson->lesson_duration;
                 $whole = floor($n);
