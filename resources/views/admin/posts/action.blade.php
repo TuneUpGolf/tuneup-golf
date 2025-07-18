@@ -1,5 +1,6 @@
+<div class="action-btn-fix-wraper">
 @can('edit-blog')
-    <a class="btn btn-sm small btn btn-warning" href="{{ route('blogs.edit', $post->id) }}" data-bs-toggle="tooltip"
+    <a class="btn btn-sm small btn btn-warning action-btn-fix" href="{{ route('blogs.edit', $post->id) }}" data-bs-toggle="tooltip"
         data-bs-placement="bottom" data-bs-original-title="{{ __('Edit') }}">
         <i class="ti ti-edit text-white"></i>
     </a>
@@ -7,13 +8,14 @@
 @can('delete-blog')
     {!! Form::open([
         'method' => 'DELETE',
-        'class' => 'd-inline',
+        'class' => 'd-flex',
         'route' => ['blogs.destroy', $post->id],
         'id' => 'delete-form-' . $post->id,
     ]) !!}
-    <a href="javascript:void(0);" class="btn btn-sm small btn btn-danger show_confirm" data-bs-toggle="tooltip" data-bs-placement="bottom"
-        id="delete-form-1" data-bs-original-title="{{ __('Delete') }}">
+    <a href="javascript:void(0);" class="btn btn-sm small btn btn-danger show_confirm action-btn-fix" data-bs-toggle="tooltip"
+        data-bs-placement="bottom" id="delete-form-1" data-bs-original-title="{{ __('Delete') }}">
         <i class="ti ti-trash text-white"></i>
     </a>
     {!! Form::close() !!}
 @endcan
+</div>
