@@ -6,29 +6,29 @@
     </a>
 @endcan
 {{-- @if ($user->email_verified_at)
-    <a class="btn btn-sm small btn btn-danger" href="{{ route('user.email.verified', $user->id) }}" data-bs-toggle="tooltip"
+    <a class="btn btn-sm small btn btn-danger" href="{{ route('users.email.verified', $user->id) }}" data-bs-toggle="tooltip"
         data-bs-placement="bottom" data-bs-original-title="{{ __('Email Unverified') }}">
         <i class="ti ti-mail text-white"></i>
     </a>
 @else
-    <a class="btn btn-sm small btn btn-success " href="{{ route('user.email.verified', $user->id) }}" data-bs-toggle="tooltip"
+    <a class="btn btn-sm small btn btn-success " href="{{ route('users.email.verified', $user->id) }}" data-bs-toggle="tooltip"
         data-bs-placement="bottom" data-bs-original-title="{{ __('Email Verified') }}">
         <i class="ti ti-mail text-white"></i>
     </a>
 @endif
 @if ($user->phone_verified_at)
-    <a class="btn btn-sm small btn btn-danger" href="{{ route('user.phone.verified', $user->id) }}" data-bs-toggle="tooltip"
+    <a class="btn btn-sm small btn btn-danger" href="{{ route('users.phone.verified', $user->id) }}" data-bs-toggle="tooltip"
         data-bs-placement="bottom" data-bs-original-title="{{ __('Phone Unverified') }}">
         <i class="ti ti-message-circle text-white"></i>
     </a>
 @else
-    <a class="btn btn-sm small btn btn-success " href="{{ route('user.phone.verified', $user->id) }}" data-bs-toggle="tooltip"
+    <a class="btn btn-sm small btn btn-success " href="{{ route('users.phone.verified', $user->id) }}" data-bs-toggle="tooltip"
         data-bs-placement="bottom" data-bs-original-title="{{ __('Phone Verified') }}">
         <i class="ti ti-message-circle text-white"></i>
     </a>
 @endif --}}
 @can('edit-user')
-    <a class="btn btn-sm small btn btn-warning action-btn-fix" href="{{ route('user.edit', $user->id) }}" data-bs-toggle="tooltip"
+    <a class="btn btn-sm small btn btn-warning action-btn-fix" href="{{ route('users.edit', $user->id) }}" data-bs-toggle="tooltip"
         data-bs-placement="bottom" data-bs-original-title="{{ __('Edit') }}">
         <i class="ti ti-edit text-white"></i>
     </a>
@@ -37,7 +37,7 @@
     {!! Form::open([
         'method' => 'DELETE',
         'class' => 'd-flex',
-        'route' => ['user.destroy', $user->id],
+        'route' => ['users.destroy', $user->id],
         'id' => 'delete-form-' . $user->id,
     ]) !!}
     <a href="javascript:void(0);" class="btn btn-sm small btn btn-danger show_confirm action-btn-fix" data-bs-toggle="tooltip"

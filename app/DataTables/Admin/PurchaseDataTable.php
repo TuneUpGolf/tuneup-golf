@@ -105,7 +105,10 @@ class PurchaseDataTable extends DataTable
                 return "{$remaining}/{$totalCapacity}";
             })
             ->addColumn('action', function ($purchase) {
-                return view('admin.purchases.action', compact('purchase'));
+                $hasBooking = \App\Models\Slots::where('lesson_id', $purchase->lesson_id)
+                    ->whereHas('student')
+                    ->exists();
+                return view('admin.purchases.action', compact('purchase', 'hasBooking'));
             })
             ->rawColumns(['action', 'status', 'student_name', 'instructor_name', 'lesson_name', 'pill', 'deleted', 'remaining_slots']);
     }
