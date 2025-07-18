@@ -1736,3 +1736,16 @@ body.theme-1 .bg-primary {
   margin-bottom: 0.5em;
   padding-left: 1.5em;
 }
+body .vertical-table .action-btn-fix {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: max-content;
+    height: 24px;
+}
+.action-btn-fix-wraper{
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+}
