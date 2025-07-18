@@ -18,10 +18,10 @@
         {!! Form::close() !!}
     @endcan
 @endif
+
 @if (
-        in_array($purchase->type, ['package', 'inPerson']) &&
         in_array($user->type, ['Student', 'Instructor']) &&
-        ($purchase->status == 'complete' || $purchase->lesson->payment_method == 'cash')
+        ($purchase->status == 'complete' || $purchase->lesson->payment_method == 'cash' || $hasBooking)
     )
         <a class="'btn btn-sm small btn btn-info ' " href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}"
             data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">
