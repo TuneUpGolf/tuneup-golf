@@ -1,11 +1,8 @@
 <div class="action-btn-fix-wraper">
-@can('edit-testimonial')
     <a class="btn btn-sm small btn btn-warning action-btn-fix" href="{{ route('testimonial.edit', $testimonial->id) }}" data-bs-toggle="tooltip"
         data-bs-placement="bottom" data-bs-original-title="{{ __('Edit') }}">
         <i class="ti ti-edit text-white"></i>
     </a>
-@endcan
-@can('delete-testimonial')
     {!! Form::open([
         'method' => 'DELETE',
         'class' => 'd-flex',
@@ -17,5 +14,4 @@
         <i class="ti ti-trash text-white"></i>
     </a>
     {!! Form::close() !!}
-@endcan
 </div>
