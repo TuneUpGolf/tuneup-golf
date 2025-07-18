@@ -1,7 +1,7 @@
 <div class="action-btn-fix-wraper">
 @can('edit-support-ticket')
     <a class="btn btn-sm small btn btn-warning action-btn-fix" href="{{ route('support-ticket.edit', $supportTicket->id) }}" data-bs-toggle="tooltip"
-        data-bs-placement="bottom" data-bs-original-title="{{ __('Edit') }}">
+        data-bs-placement="bottom" data-bs-original-title="{{ __('Replay') }}">
         <i class="ti ti-corner-up-left text-white"></i>
     </a>
 @endcan
