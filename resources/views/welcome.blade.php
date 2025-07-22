@@ -166,7 +166,7 @@
                             @if ($post->file_type == 'image')
                                 <div class="relative paid-post-wrap">
                                     <img class=" w-full post-thumbnail"
-                                        src="{{ $post->file}}">
+                                        src="{{ asset('storage/'.tenant()->id.'/'.$post->file) }}">
                                     @if($post->paid)
                                         <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
                                             <div
@@ -188,7 +188,7 @@
                                 @if ($post->paid && !isset($purchasePost))
                                     <div class="relative paid-post-wrap">
                                         <video class="w-full post-thumbnail pointer-events-none opacity-50">
-                                            <source src="{{ $post->file }}" type="video/mp4">
+                                            <source src="{{ asset('storage/'.tenant()->id.'/'.$post->file) }}" type="video/mp4">
                                         </video>
                                         <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
                                             <div
@@ -208,7 +208,7 @@
                                     </div>
                                 @else
                                     <video controls class="w-full post-thumbnail">
-                                        <source src="{{ $post->file }}" type="video/mp4">
+                                        <source src="{{ asset('storage/'.tenant()->id.'/'.$post->file) }}" type="video/mp4">
                                     </video>
                                 @endif
                             @endif
