@@ -30589,3 +30589,8 @@ div#calendar .fc-list-table {
 .short-text p {
   margin-bottom: 0;
 }
+
+.hero-sec {
+  max-height: 632px;
+  background-color: #0033a1;
+}
