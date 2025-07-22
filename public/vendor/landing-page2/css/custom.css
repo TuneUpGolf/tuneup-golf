@@ -211,7 +211,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 30px;
+    height: 32px;
     /* adjust based on desired fade effect */
     background: linear-gradient(to bottom, transparent, white);
     pointer-events: none;
