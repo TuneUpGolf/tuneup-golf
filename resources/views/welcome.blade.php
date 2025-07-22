@@ -1,202 +1,272 @@
 @php
     $languages = \App\Facades\UtilityFacades::languages();
     $currency = tenancy()->central(function ($tenant) {
-        return Utility::getsettings('currency_symbol');
+    return Utility::getsettings('currency_symbol');
     });
 @endphp
 @extends('layouts.main-landing')
 @section('content')
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-white px-0 py-3">
-            <div class="container-xl">
-                <a class="navbar-brand" href="/">
-                    <img src="{{ asset('assets/images/landing-page-images/logo-1.png') }}" class="h-8" alt="...">
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
-                    aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon">
-                        <img src="{{ asset('assets/images/landing-page-images/icon-1.png') }}" class="navbar-toggler-icon"
-                            alt="...">
-                    </span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <div class="navbar-nav mx-lg-auto" id="mynav">
-                        <a class="nav-item nav-link item-custom anker active" href="/" aria-current="page">Why
-                            TuneUp?</a>
-                        <a class="nav-item nav-link item-custom anker" href="./Course.html">Golf Course Benefits</a>
-                        <a class="nav-item nav-link item-custom anker" href="./Instructor.html">Instructors</a>
-                        <a class="nav-item nav-link item-custom anker" href="./Golfer.html">Golfers</a>
-                        <a class="nav-item nav-link item-custom anker" href="./About.html">About Us</a>
-                    </div>
-
-                    <div class="d-flex align-items-lg-center mt-3 mt-lg-0">
-                        <a class="request-text border-0 rounded-pill demo text-white" href="{{ url('request-demo') }}" style="background-color: #0033a1; text-decoration: none ">Request a Demo</a>
-                        <a class=" request-text border-0 rounded-pill demo mx-2 text-white" href="{{ route('login') }}" style=" background-color: #0033a1; text-decoration: none">Login</a>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
-
-    <section>
-        <div class="hero-sec d-flex gap-5 flex-column flex-lg-row">
-            <div class="master">
-                <h4 id="hero-top" class="text-white">GET STARTED WITH TUNEUP</h4>
-                <h1 id="hero-heading" class="fw-bold text-white time">
-                    Technology To Advance Your Operation
-                </h1>
-                <p id="hero-para" class="text-white golf hero-features mt-4">
-                    Trusted by industry leading Golf Clubs, Instructors, Academies, and
-                    Teaching Professionals Worldwide.
-                </p>
-                <button id="hero-btn" class="request-text border-0 rounded-pill demo" style="background-color: #ffffff">
-                    <a href="{{ url('request-demo') }}" style="text-decoration: none">
-                        Request a Demo</a>
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <section>
-        <div class="container mt-5 management">
-            <div class="row align-items-center">
-                <div class="col-lg-4">
-                    <img src="{{ asset('assets/images/landing-page-images/effortless.png') }}" class="img-fluid"
-                        alt="" style="height: 451px" />
-                </div>
-                <div class="col-lg-7">
-                    <h1 class="fw-bold mt-3 lesson-h" style="color: #0033a1">
-                        Effortless Lesson Management
-                    </h1>
-                    <p class="golf-p features mt-2" style="line-height: 37px">
-                        TuneUp streamlines your lesson workflow. Access online
-                        submissions, track pending lessons, monitor revenue, and review
-                        student activity—all from one intuitive dashboard. Deliver a
-                        seamless experience for you and your members.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section>
-        <div class="container mt-5 management">
-            <div class="row align-items-center gap-4">
-                <div class="col-lg-7">
-
-                    <h1 class="fw-bold mt-3 lesson-h" style="color: #0033a1">
-                        Convenient Access to Your Coach
-                    </h1>
-                    <p class="golf-p features">
-                        TuneUp makes booking in-person lessons simple. View your golf
-                        professional’s availability and reserve your spot in seconds—no
-                        more back-and-forth scheduling.
-                    </p>
-                </div>
-                <div class="col-lg-4">
-                    <img src="{{ asset('assets/images/landing-page-images/convenient.png') }}" class="img-fluid"
-                        alt="" style="max-height: 451px" />
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section>
-        <div class="container mt-5 management">
-            <div class="row align-items-center">
-                <div class="col-lg-4">
-                    <img style="max-height: 500px" class="iphone-15 img-fluid"
-                        src="{{ asset('assets/images/landing-page-images/annotationimg.png') }}" alt="" />
-                </div>
-                <div class="col-lg-7">
-                    <h1 class="fw-bold mt-3 lesson-h" style="color: #0033a1">
-                        Advanced Coaching Tools for Instant Feedback
-                    </h1>
-                    <p class="text-body-emphasis features golf-p">
-                        TuneUp’s advanced annotation features empower coaches to provide
-                        instant, precise instruction—whether in person or online. Utilize
-                        powerful tools like video overlays, screen recording, and our
-                        intuitive annotation tool to analyze swings and deliver impactful
-                        feedback.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="access-wrapper">
-        <div class="access-content flex-column">
-            <h1 class="text-white text-center fw-bold">
-                Stay Ahead of the Game with TuneUp
-            </h1>
-            <p class="with text-white golf-with">
-                TuneUp equips golf courses, instructors, and golfers with the tools
-                they need to succeed. Whether you're a course looking to enhance
-                member engagement, an instructor streamlining lessons, or a golfer
-                seeking personalized feedback—TuneUp delivers powerful solutions for
-                everyone.
-            </p>
-            <button class="request-text border-0 rounded-pill demo last-but" style="background-color: #576974">
-                <a class="text-white" href="request-demo" style="text-decoration: none">
-                    Request a Demo</a>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.css" />
+<link rel="stylesheet" href="{{ asset('vendor/tailwind.css') }}" />
+<link rel="stylesheet" href="{{ asset('assets/css/customizer.css') }}">
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-white px-0 py-3">
+        <div class="container ctm-container">
+            <a class="navbar-brand" href="/">
+                <img src="{{ asset('assets/images/landing-page-images/logo-1.png') }}" class="h-8" alt="...">
+            </a>
+            <button class="request-text border-0 rounded-pill demo px-4 py-2 bg-primary">
+                <a class="text-white font-bold" href="{{ route('login') }}" style="text-decoration: none">
+                    Login/Signup</a>
             </button>
         </div>
-    </section>
+    </nav>
+</header>
 
-    <footer class="foot mt-0">
-        <div class="d-flex justify-content-between container footer-one">
-            <div class="d-flex flex-column gap-4">
-                <div>
+<section class="landing-hero">
+    <div class="hero-sec">
+        <img class="w-full" src="{{ $instructorDetails->banner_image ?? asset('assets/images/landing-page-images/banner1.png') }}" alt="hero-banner">
+    </div>
+</section>
+<section class="lession-sec">
+    <div class="container ctm-container">
+        <h2 class="font-bold text-4xl mb-2">{{ $instructorDetails->name }}</h2>
+        <p class="text-xl max-w-2xl text-gray-600">{{ $instructorDetails->bio }}</p>
+    </div>
+    <div class="container-fluid lessions-slider pt-5">
+        @if(!$instructorDetails->lessons->isEmpty())
+            @foreach ($instructorDetails->lessons as $lesson)
+                @if($lesson->active_status)
+                    <div class="px-3 py-4">
+                        <div class=" bg-white rounded-lg shadow h-100  flex flex-col">
+                            <div class="relative text-center p-3 flex gap-3">
+                                <img src="{{ asset('storage/'.tenant()->id.'/'.$instructorDetails->avatar) }}"
+                                    alt="{{ $instructorDetails->name }}"
+                                    class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
+                                <div class="text-left">
+                                    <a class="font-bold text-dark text-xl"
+                                        href="{{ route('login') }}">
+                                        {{ $instructorDetails->name }}
+                                    </a>
+                                    <div class="text-lg font-bold tracking-tight text-primary">
+                                        {{ $currency}} {{ $lesson->lesson_price }} (USD)
+                                    </div>
+                                </div>
+                            </div>
 
-                    <img src="{{ asset('assets/images/landing-page-images/logo (5).png') }}" alt="" />
-                </div>
-                <p class="text-white fot-golf word-spacing-5">
-                    Trusted by Industry leading Golf Club, Instructors, Acadmies, and
-                    Teaching Professionals.
-                </p>
-            </div>
-            <div class="d-flex flex-column gap-4 google">
-                <div>
-                    <img src="{{ asset('assets/images/landing-page-images/Google Play.png') }}" alt="" />
-                </div>
-                <div>
-                    <img src="{{ asset('assets/images/landing-page-images/App Store.png') }}" alt="" />
-                </div>
-            </div>
+                            <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
+                                <span class="text-xl font-semibold text-dark">{{ $lesson->lesson_name }}</span>
+                                <div class="description-wrapper relative">
+                                    <div class="short-text break-all clamp-text" id="lessonDesc">
+                                        {!! $lesson->lesson_description !!}
+                                    </div>
+                                    <a href="#" class="read-toggle text-blue-600 font-medium mt-1 inline-block" onclick="toggleRead(this); return false;">
+                                        ...Read More >>
+                                    </a>
+                                </div>
+
+                                <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3">
+                                    <div class="text-center">
+                                        <span class="text-xl font-bold">{{ $lesson->required_time }} Days</span>
+                                        <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
+                                    </div>
+                                </div>
+                                <div class="w-100 mt-3">
+                                    {{-- <form method="POST"
+                                        action="{{ route('login') }}"
+                                        accept-charset="UTF-8" enctype="multipart/form-data" class="form-horizontal"
+                                        data-validate="" novalidate="true"><input name="_token" type="hidden"
+                                            value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH">
+                                        <button type="submit" class="lesson-btn py-2">Purchase</button>
+                                    </form> --}}
+                                    <a href="{{ route('login') }}">
+                                        <button type="submit" class="lesson-btn py-2">Purchase</button>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+        @endif
+    </div>
+</section>
+
+<section class="lession-sec subscription-sec">
+    <div class="container ctm-container">
+        <h2 class="font-bold text-4xl mb-2">Subscription Plans</h2>
+        <p class="text-xl text-gray-600">
+            Subscription plans give you full access to your coach's posts, training content, and the ability to connect directly.
+        </p>
+        <div class="subscription-slider pt-5">
+            @if(!$plans->isEmpty())
+                @foreach($plans as $plan)
+                    <div class="px-3 py-4">
+                        <div class="bg-white subs-feature rounded-lg shadow popular-wrap position-relative h-100">
+                            @if($plan->is_chat_enabled && $plan->is_feed_enabled)
+                                <div class="rounded-pill px-4 py-2 popular-plan w-auto bg-primary text-white font-bold position-absolute" style="top: -22px; left: 50%; transform: translateX(-50%);">
+                                    POPULAR
+                                </div>
+                            @endif
+                            <div class="relative px-3 py-4  flex flex-col">
+                                <p class="text-3xl font-bold mb-1">{{ $plan->name }}</p>
+                                <div class="flex gap-2 items-center my-2 ">
+                                    <p class=" text-6xl font-bold">{{ $currency . ' ' . $plan->price }} /</p>
+                                    <p class="text-2xl text-gray-600">{{ $plan->duration . ' ' . $plan->durationtype }}</p>
+                                    
+                                </div>
+                                <a href="{{ route('login') }}" class="lesson-btn text-center font-bold text-lg mt-auto">
+                                    Purchase
+                                </a>
+                            </div>
+                            <div class="border-t border-gray-300"></div>
+                            <div class="p-3">
+                                <p class="font-semibold text-xl mb-2">Features</p>
+                                <p class="text-gray-600">
+                                {!! $plan->description !!}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
         </div>
-    </footer>
-    <footer class="foot-two">
-        <div class="d-flex justify-content-between align-items-center container footer-two">
-            <div class="text-white m-0">
-                <p class="fot-p">© 2025 Tuneup. All rights reserved.</p>
-            </div>
-            <div class="icon">
-                <img src="{{ asset('assets/images/landing-page-images/Facebook.png') }}" alt="" />
-                <img src="{{ asset('assets/images/landing-page-images/Twitter.png') }}" alt="" />
-                <img src="{{ asset('assets/images/landing-page-images/Instagram.png') }}" alt="" />
-                <img src="{{ asset('assets/images/landing-page-images/Github.png') }}" alt="" />
-                <img src="{{ asset('assets/images/landing-page-images/LinkedIn.png') }}" alt="" />
-            </div>
+    </div>
+</section>
+
+<section class="lession-sec feed-sec">
+    <div class="container ctm-container">
+        <h2 class="font-bold text-4xl mb-2">Feed</h2>
+
+        <div class="flex flex-wrap gap-5 w-100">
+            @if(!$instructorDetails->post->isEmpty())
+                @foreach ($instructorDetails->post as $post)
+                    <div class="max-w-sm w-full">
+                        <div class="shadow rounded-2 overflow-hidden position-relative">
+                            @if($post->paid && !isset($purchasePost))
+                                <?php $cls  = 'p-3 position-absolute left-0 top-0 z-1 w-full'; ?>
+                            @else
+                                <?php $cls  = 'p-3 position-absolute left-0 top-0 z-1 w-full custom-gradient'; ?>
+                            @endif
+                            <div class="{{ $cls }}">
+                                <div class="flex justify-between items-center w-full">
+                                    <div class="flex items-center gap-3">
+                                        <img class="w-16 h-16 rounded-full"
+                                            src="{{ asset('storage/'.tenant()->id.'/'.$instructorDetails->avatar) }}"
+                                            alt="Profile">
+                                        <div>
+                                            <p class="text-xl text-white font-bold mb-0 leading-tight">
+                                                {{ $instructorDetails->name }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @if ($post->file_type == 'image')
+                                <div class="relative paid-post-wrap">
+                                    <img class=" w-full post-thumbnail"
+                                        src="{{ $post->file}}">
+                                    @if($post->paid)
+                                        <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
+                                            <div
+                                                class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
+                                                <i class="ti ti-lock-open"></i>
+                                            </div>
+                                            <a href="{{ route('login') }}">
+                                                <div
+                                                    class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
+                                                    <i class="ti ti-lock-open text-2xl lh-sm"></i>
+                                                    <button type="submit" class="btn p-0 pl-1 text-white border-0">Unlock for -
+                                                        {{ $currency . ' ' . $post->price }}</button>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
+                            @else
+                                @if ($post->paid && !isset($purchasePost))
+                                    <div class="relative paid-post-wrap">
+                                        <video class="w-full post-thumbnail pointer-events-none opacity-50">
+                                            <source src="{{ $post->file }}" type="video/mp4">
+                                        </video>
+                                        <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
+                                            <div
+                                                class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
+                                                <i class="ti ti-lock-open"></i>
+                                            </div>
+
+                                            <a href="{{ route('login') }}">
+                                                <div
+                                                    class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
+                                                    <i class="ti ti-lock-open text-2xl lh-sm"></i>
+                                                    <button type="submit" class="btn p-0 pl-1 text-white border-0">Unlock for -
+                                                        {{ $currency . ' ' . $post->price }}</button>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                @else
+                                    <video controls class="w-full post-thumbnail">
+                                        <source src="{{ $post->file }}" type="video/mp4">
+                                    </video>
+                                @endif
+                            @endif
+
+
+                            <div class="px-4 py-2 border-t border-gray-500">
+                                <h1 class="text-xl font-bold truncate">
+                                    {{ $post->title }}
+                                </h1>
+                                <div class="description-wrapper relative">
+                                    <div class="short-text clamp-text text-gray-500 text-md mt-1 font-medium">
+                                        {!! $post->description !!}
+                                    </div>
+                                    <a href="#" class="read-toggle text-blue-600 font-medium mt-1 inline-block" onclick="toggleRead(this); return false;">
+                                        ...Read More >>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
         </div>
-    </footer>
+    </div>
+</section>
+
+<footer class="foot mt-0">
+    <div class="text-center container ctm-container footer-one">
+        <div class="flex justify-center">
+            <img src="{{ asset('assets/images/landing-page-images/logo-1.png') }}" class="img-fluid" alt="" />
+        </div>
+    </div>
+</footer>
+<footer class="foot-two">
+    <div class="flex justify-content-sm-between justify-center align-items-center container footer-two">
+        <div class="text-white m-0">
+            <p class="fot-p">© 2025 Tuneup. All rights reserved.</p>
+        </div>
+        <div class="icon flex mt-2 sm-mt-0 text-3xl flex gap-3">
+            <a href="{{ $instructorDetails->social_url_fb }}" class="text-gray-800"><i class="ti ti-brand-facebook"></i></a>
+            <a href="{{ $instructorDetails->social_url_x }}" class="text-gray-800"><i class="ti ti-brand-twitter"></i></a>
+            <a href="{{ $instructorDetails->social_url_ig }}" class="text-gray-800"><i class="ti ti-brand-instagram"></i></a>
+            <a href="{{ $instructorDetails->social_url_yt }}" class="text-gray-800"><i class="ti ti-brand-youtube"></i></a>
+            <a href="{{ $instructorDetails->social_url_ln }}" class="text-gray-800"><i class="ti ti-brand-linkedin"></i></a>
+        </div>
+    </div>
+</footer>
 @endsection
-@push('javascript')
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const navLinks = document.querySelectorAll("#mynav .nav-link");
+@push('css')
+    <style>
+        .lessions-slider  .slick-track
+        {
+            display: flex !important;
+        }
 
-            navLinks.forEach((link) => {
-                link.addEventListener("click", () => {
-                    navLinks.forEach((nav) => nav.classList.remove("active"));
-                    link.classList.add("active");
-                });
-            });
-        });
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
-        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous">
-    </script>
+        .lessions-slider  .slick-slide
+        {
+            height: inherit !important;
+        }
+    </style>
 @endpush

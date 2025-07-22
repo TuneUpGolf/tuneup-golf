@@ -26,8 +26,8 @@
     {{-- <link rel="stylesheet" href="{{ asset('vendor/landing-page2/css/landingpage-2.css') }}"> --}}
     <link rel="stylesheet" href="{{ asset('assets/css/globle.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/media.css') }}">
-    {{-- <link rel="stylesheet" href="{{ asset('vendor/landing-page2/css/landingpage2-responsive.css') }}">
-    <link rel="stylesheet" href="{{ asset('vendor/landing-page2/css/custom.css') }}"> --}}
+    {{-- <link rel="stylesheet" href="{{ asset('vendor/landing-page2/css/landingpage2-responsive.css') }}">--}}
+    <link rel="stylesheet" href="{{ asset('vendor/landing-page2/css/custom.css') }}">
     {{-- Front Payment Coupon Checkbox --}}
     {{-- <link rel="stylesheet" href="{{ asset('assets/fonts/tabler-icons.min.css') }}"> --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -44,11 +44,6 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-    }
-
-    .hero-sec {
-        max-height: 632px;
-        background-color: #0033a1;
     }
 
     #hero-top {
@@ -196,6 +191,25 @@
 
     @include('layouts.includes.alerts')
     @stack('javascript')
+    <script>
+        function toggleRead(link) {
+            const wrapper = link.closest('.description-wrapper');
+            wrapper.classList.toggle('expanded');
+
+            link.textContent = wrapper.classList.contains('expanded')
+                ? '<< Read Less'
+                : '...Read More >>';
+        }
+        
+        $(document).ready(function () {
+            $('.description-wrapper .short-text').each(function () {
+                if ($(this).height() < 25) {
+                    $(this).addClass('single-line')
+                    $(this).siblings('.read-toggle').addClass('d-none');
+                }
+            });
+        });
+    </script>
 </body>
 @if (Utility::getsettings('cookie_setting_enable') == 'on')
     @include('layouts.cookie_consent')
