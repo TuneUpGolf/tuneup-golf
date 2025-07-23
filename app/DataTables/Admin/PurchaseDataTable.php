@@ -173,7 +173,7 @@ class PurchaseDataTable extends DataTable
     public function html()
     {
         $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select'><option value=''>- Lesson Type -</option>";
-        foreach (\App\Models\Lesson::TYPE_MAPPING as $key => $label) {
+        foreach (Lesson::TYPE_MAPPING as $key => $label) {
             $lessonTypeFilter .= "<option value='" . $key . "'>" . $label . "</option>";
         }
         $lessonTypeFilter .= "</select>";
