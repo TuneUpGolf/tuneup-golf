@@ -26,13 +26,13 @@ class PurchaseDataTable extends DataTable
             ->smart(false)
             ->addIndexColumn()
             ->filterColumn('lesson_name', function ($query, $keyword) {
-                $query->where('lessons.lesson_name', 'like', "%{$keyword}%");
+                $query->orWhere('lessons.lesson_name', 'like', "%{$keyword}%");
             })
             ->filterColumn('instructor_name', function ($query, $keyword) {
-                $query->where('instructors.name', 'like', "%{$keyword}%");
+                $query->orWhere('instructors.name', 'like', "%{$keyword}%");
             })
             ->filterColumn('student_name', function ($query, $keyword) {
-                $query->where('students.name', 'like', "%{$keyword}%");
+                $query->orWhere('students.name', 'like', "%{$keyword}%");
             })
             ->editColumn('instructor_name', function ($purchase) {
                 $imageSrc = $purchase->instructor->dp
