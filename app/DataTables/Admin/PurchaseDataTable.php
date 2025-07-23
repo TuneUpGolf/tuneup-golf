@@ -133,6 +133,11 @@ class PurchaseDataTable extends DataTable
             ->join('students as students', 'purchases.student_id', '=', 'students.id')
             ->orderBy('purchases.created_at', 'desc'); // Order by creation date in descending order
 
+        // Filter by lesson type if provided
+        if (request()->has('lesson_type') && request('lesson_type')) {
+            $query->where('lessons.type', request('lesson_type'));
+        }
+
         // Filter query based on user role
         if ($user->type == Role::ROLE_STUDENT) {
             $query->where('purchases.student_id', $user->id)
@@ -158,6 +163,7 @@ class PurchaseDataTable extends DataTable
             $query->where('purchases.instructor_id', $user->id)
                 ->where('purchases.status', Purchase::STATUS_COMPLETE);
         }
+
         return $query;
     }
 
@@ -166,10 +172,18 @@ class PurchaseDataTable extends DataTable
 
     public function html()
     {
+        $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select'><option value=''>- Lesson Type -</option>";
+        foreach (Lesson::TYPE_MAPPING as $key => $label) {
+            $lessonTypeFilter .= "<option value='" . $key . "'>" . $label . "</option>";
+        }
+        $lessonTypeFilter .= "</select>";
+
         $buttons = [
             // ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
             // ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
+
         ];
+
         if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
             unset($buttons[0]);
         }
@@ -195,6 +209,17 @@ class PurchaseDataTable extends DataTable
                 searchInput.removeClass(\'form-control form-control-sm\');
                 searchInput.addClass(\'dataTable-input\');
                 var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
+                
+                $(".dataTable-search").prepend("' . $lessonTypeFilter . '");
+                $(".dataTable-search").addClass("d-flex");
+
+                $("#lessonTypeFilter").on("change", function() {
+                    table.api().ajax.reload();
+                });
+
+                $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
+                    data.lesson_type = $("#lessonTypeFilter").val();
+                });
             }')
             ->parameters([
                 "columnDefs" => [
