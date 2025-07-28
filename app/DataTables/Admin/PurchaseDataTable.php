@@ -135,13 +135,12 @@ class PurchaseDataTable extends DataTable
 
         // Filter by lesson type if provided
         if (request()->has('lesson_type') && request('lesson_type')) {
-            $query->where('lessons.type', request('lesson_type'));
+            $query->where('purchases.type', request('lesson_type'));
         }
 
         // Filter query based on user role
         if ($user->type == Role::ROLE_STUDENT) {
-            $query->where('purchases.student_id', $user->id)
-                ->orWhere('purchases.type', 'package');
+            $query->where('purchases.student_id', $user->id);
         }
 
         if ($user->type == Role::ROLE_ADMIN) {
