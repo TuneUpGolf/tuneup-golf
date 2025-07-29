@@ -104,7 +104,9 @@
             @if ($model->type === 'inPerson' || $model->type == 'package')
                 {{-- @if ($model->is_package_lesson) --}}
                     @php
-                        $allSlots = $model->slots;
+                        $allSlots = $model->slots->filter(function($slot) {
+                            return !$slot->isFullyBooked();
+                        })->values();
                     @endphp
                     @if ($firstSlot)
                     {{-- @if ($firstSlot && !$firstSlot->isFullyBooked()) --}}
