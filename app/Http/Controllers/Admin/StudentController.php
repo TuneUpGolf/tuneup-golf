@@ -22,10 +22,18 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Stancl\Tenancy\Database\Models\Domain;
 use App\Mail\Admin\WelcomeMail;
+use App\Models\Plan;
+use App\Models\User;
+use App\Services\ChatService;
 use Exception;
 
 class StudentController extends Controller
 {
+    protected $chatService;
+    public function __construct(ChatService $chatService)
+    {
+        $this->chatService = $chatService;
+    }
 
     public function index(StudentDataTable $dataTable)
     {
@@ -356,6 +364,19 @@ class StudentController extends Controller
     {
         $students  = Student::findOrFail($id);
         $dataTable = new StudentsPurchaseDataTable($id);
-        return $dataTable->render('admin.students.show', compact('students', 'dataTable'));
+        $token     = $this->chatService->getChatToken($students->chat_user_id);
+        $isSubscribed = $this->isSubscribed($students);
+        return $dataTable->render('admin.students.show', compact('students', 'dataTable', 'token', 'isSubscribed'));
+    }
+
+    public function isSubscribed($user)
+    {
+        $instructor = User::where('tenant_id', tenant('id'))->where('id', $user->follows?->first()?->instructor_id)->first();
+        if ($instructor) {
+            $chatEnabledPlanId = Plan::where('instructor_id', $instructor->id)
+                ->where('is_chat_enabled', true)->pluck('id')->toArray();
+            return in_array($user->plan_id, $chatEnabledPlanId);
+        }
+        return false;
     }
 }

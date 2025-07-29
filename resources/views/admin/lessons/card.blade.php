@@ -164,7 +164,7 @@
         <input type="hidden" id="friendNamesInput" name="friend_names">
     </form>
 </div>
-
+{{-- @dump($model->is_package_lesson) --}}
 @push('javascript')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -183,10 +183,9 @@
 
             //const firstSlot = allSlots[0];
             //document.getElementById('slotIdInput').value = firstSlot.id;
+            //document.getElementById("friendNamesInput").value = JSON.stringify([]);
+            //document.getElementById("bookingForm").submit();
 
-
-            document.getElementById("friendNamesInput").value = JSON.stringify([]);
-            // document.getElementById("bookingForm").submit();
             if (type == 'package') {
                 price = $("#package_slot_"+lessonId).val();
                 if (price == 0) {
