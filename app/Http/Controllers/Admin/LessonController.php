@@ -367,9 +367,6 @@ class LessonController extends Controller
                     return $slot->availableSeats() > 0 || $slot->student->contains('id', $authUser->id);
                 });
             }
-            if ($lesson->type == 'package' && $purchasedSlot = Purchase::where(['lesson_id' => request()->get('lesson_id'), 'student_id' => $authUser->id, 'type' => 'package'])->first()) {
-                $slots = collect(array_slice($slots->all(), 0, $purchasedSlot->purchased_slot));
-            }
 
             $bookedDateTimes = $allSlots->filter(function ($slot) {
                 return $slot->student->isNotEmpty();
