@@ -67,7 +67,7 @@
                         <option value="0">Select Package</option>
                         @foreach ($model->packages as $package)
                             <option value="{{ $package->price }}">{!! $package->number_of_slot !!} Lesson &nbsp;-&nbsp;
-                                ${!! $package->price !!} CAD</option>
+                                ${!! $package->price !!} {{ \App\Facades\UtilityFacades::getsettings('currency') }}</option>
                         @endforeach
                     </select>
                 </form>
