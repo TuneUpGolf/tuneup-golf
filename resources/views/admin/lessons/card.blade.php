@@ -67,7 +67,7 @@
                         <option value="0">Select Package</option>
                         @foreach ($model->packages as $package)
                             <option value="{{ $package->price }}">{!! $package->number_of_slot !!} Lesson &nbsp;-&nbsp;
-                                ${!! $package->price !!} {{ Utility::getsettings('currency') }}</option>
+                                ${!! $package->price !!} {{ \App\Facades\UtilityFacades::getsettings('currency') }}</option>
                         @endforeach
                     </select>
                 </form>
@@ -104,7 +104,9 @@
             @if ($model->type === 'inPerson' || $model->type == 'package')
                 {{-- @if ($model->is_package_lesson) --}}
                     @php
-                        $allSlots = $model->slots;
+                        $allSlots = $model->slots->filter(function($slot) {
+                            return !$slot->isFullyBooked();
+                        })->values();
                     @endphp
                     @if ($firstSlot)
                     {{-- @if ($firstSlot && !$firstSlot->isFullyBooked()) --}}
@@ -132,13 +134,13 @@
                                 Purchase
                             </button>
                         @endif --}}
-                        @if($firstSlot->isFullyBooked() || $model->payment_method == 'cash')
+                        @if($firstSlot->isFullyBooked())
                             <a href="{{ route('slot.view', ['lesson_id' => $model->id]) }}">
                                 <button class="lesson-btn">Purchase</button>
                             </a>
                         @else
                             <button class="lesson-btn"
-                                onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}' ,'{{ $model->lesson_price }}', {{ $model->id}})">
+                                onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}', {{ $model->is_package_lesson }} ,'{{ $model->lesson_price }}', {{ $model->id}})">
                                 Purchase
                             </button>
                         @endif
@@ -168,104 +170,95 @@
 @push('javascript')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function openBookingPopup(allSlots, type, price, lessonId) {
-
-            if (type == 'package') {
-                price = $("#package_slot_"+lessonId).val();
+        function openBookingPopup(allSlots, type, isPackageLesson, price, lessonId) {
+            if (type === 'package') {
+                price = $("#package_slot_" + lessonId).val();
                 if (price == 0) {
                     alert('Please select package option!');
                     return;
                 }
-            } else {
-                price = price;
             }
             document.getElementById('packagePrice').value = price;
 
-            const firstSlot = allSlots[0];
-            document.getElementById('slotIdInput').value = firstSlot.id;
+            if (isPackageLesson == 1) {
+                const firstSlot = allSlots[0];
+                document.getElementById('slotIdInput').value = firstSlot.id;
+                document.getElementById("friendNamesInput").value = JSON.stringify([]);
+                document.getElementById("bookingForm").submit();
+            } else {
+                if (type === 'package') {
+                    price = $("#package_slot_" + lessonId).val();
+                    if (price == 0) {
+                        alert('Please select package option');
+                        return;
+                    }
+                }
+                if (!allSlots || allSlots.length === 0) {
+                    console.error("No slots available!");
+                    return;
+                }
+                const firstSlot = allSlots[0]; // Extract first slot dynamically
+                document.getElementById('slotIdInput').value = firstSlot.id;
+                document.getElementById('packagePrice').value = price;
 
+                const availableSeats = firstSlot.lesson.max_students - firstSlot.student.length;
+                const lesson = firstSlot.lesson;
 
-            document.getElementById("friendNamesInput").value = JSON.stringify([]);
-            document.getElementById("bookingForm").submit();
-        //     if (type == 'package') {
-        //         price = $("#package_slot_"+lessonId).val();
-        //         if (price == 0) {
-        //             alert('Please select package option');
-        //             return;
-        //         }
-        //     } else {
-        //         price = price;
-        //     }
-        //     if (!allSlots || allSlots.length === 0) {
-        //         console.error("No slots available!");
-        //         return;
-        //     }
-        //     const firstSlot = allSlots[0]; // Extract first slot dynamically
-        //     document.getElementById('slotIdInput').value = firstSlot.id;
-        //     document.getElementById('packagePrice').value = price;
+                // Format All Slots' Date & Time
+                let slotDetailsHtml = "";
+                allSlots.forEach((s, index) => {
+                    const formattedTime = new Intl.DateTimeFormat('en-US', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    }).format(new Date(s.date_time.replace(/-/g, "/")));
 
-        //     const availableSeats = firstSlot.lesson.max_students - firstSlot.student.length;
-        //     const lesson = firstSlot.lesson;
+                    slotDetailsHtml += `
+                        <div class="slot-item">
+                            <span><strong>Slot ${index + 1}:</strong> ${formattedTime}</span><br/>
+                        </div>`;
+                });
 
-        //     // Format All Slots' Date & Time
-        //     let slotDetailsHtml = "";
-        //     allSlots.forEach((s, index) => {
-        //         const formattedTime = new Intl.DateTimeFormat('en-US', {
-        //             weekday: 'long',
-        //             day: 'numeric',
-        //             month: 'short',
-        //             hour: '2-digit',
-        //             minute: '2-digit',
-        //             hour12: true
-        //         }).format(new Date(s.date_time.replace(/-/g, "/")));
-
-        //         slotDetailsHtml += `
-        //     <div class="slot-item">
-        //         <span><strong>Slot ${index + 1}:</strong> ${formattedTime}</span><br/>
-        //     </div>
-        // `;
-        //     });
-
-        //     Swal.fire({
-        //         title: "Slot Details",
-        //         html: `
-        // <div style="text-align: left; font-size: 14px;">
-        //     <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
-        //     <span><strong>Location:</strong> ${firstSlot.location}</span><br/>
-        //     <span><strong>Available Spots:</strong> ${availableSeats}</span><br/>
-        //     <div class="slot-list">
-        //         <h6 class="mt-2"><strong>Slots Available:</strong></h6>
-        //         ${slotDetailsHtml}
-        //     </div>
-        //     <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
-        //     <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
-        // </div>
-        // `,
-        //         showCancelButton: true,
-        //         confirmButtonText: "Book Slot",
-        //         cancelButtonText: "Cancel",
-        //         preConfirm: () => {
-        //             const friendNames = document.getElementById('studentFriends')?.value.trim();
-        //             const friendNamesArray = friendNames ? friendNames.split(',').map(name => name.trim()) : [];
-
-        //             // Ensure it's passed as an array
-        //             document.getElementById("friendNamesInput").value = JSON.stringify(friendNamesArray);
-        //         }
-        //     }).then((result) => {
-        //         if (result.isConfirmed) {
-        //             Swal.fire({
-        //                 title: "Processing...",
-        //                 text: "Please wait while we confirm your booking...",
-        //                 allowOutsideClick: false,
-        //                 didOpen: () => {
-        //                     Swal.showLoading();
-        //                 }
-        //             });
-
-        //             // Submit the hidden form
-        //             document.getElementById("bookingForm").submit();
-        //         }
-        //     });
+                Swal.fire({
+                    title: "Slot Details",
+                    html: `<div style="text-align: left; font-size: 14px;">
+                            <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
+                            <span><strong>Location:</strong> ${firstSlot.location}</span><br/>
+                            <span><strong>Available Spots:</strong> ${availableSeats}</span><br/>
+                            <div class="slot-list">
+                                <h6 class="mt-2"><strong>Slots Available:</strong></h6>
+                                ${slotDetailsHtml}
+                            </div>
+                            <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
+                            <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
+                        </div>`,
+                    showCancelButton: true,
+                    confirmButtonText: "Book Slot",
+                    cancelButtonText: "Cancel",
+                    preConfirm: () => {
+                        const friendNames = document.getElementById('studentFriends')?.value.trim();
+                        const friendNamesArray = friendNames ? friendNames.split(',').map(name => name.trim()) : [];
+                        // Ensure it's passed as an array
+                        document.getElementById("friendNamesInput").value = JSON.stringify(friendNamesArray);
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: "Processing...",
+                            text: "Please wait while we confirm your booking...",
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        // Submit the hidden form
+                        document.getElementById("bookingForm").submit();
+                    }
+                });
+            }
         }
     </script>
 @endpush

@@ -31,7 +31,7 @@
                             <!-- Package Lesson Checkbox -->
                             <div class="form-group">
                                 <div class="form-check">
-                                    {!! Form::radio('is_package_lesson', 1, false, [
+                                    {!! Form::radio('is_package_lesson', 1, true, [
                                         'class' => 'form-check-input',
                                         'id' => 'radio_package_lesson',
                                     ]) !!}
