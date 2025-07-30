@@ -896,26 +896,6 @@ class LessonController extends Controller
                 request()->setMethod('POST');
                 return request()->redirect == 1 ? $this->confirmPurchaseWithRedirect(request(), false) :
                     $this->confirmPurchaseWithRedirect(request(), true);
-            } elseif ($slot->lesson->payment_method == Lesson::LESSON_PAYMENT_CASH) {
-                // Attach main student to the slot
-                $slot->student()->attach($bookingStudentId, [
-                    'isFriend' => false,
-                    'friend_name' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                // Attach friends to the slot
-                if (!empty($friendNames)) {
-                    foreach ($friendNames as $friendName) {
-                        $slot->student()->attach($bookingStudentId, [
-                            'isFriend' => true,
-                            'friend_name' => $friendName,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-                    }
-                }
             }
         }
 
