@@ -95,14 +95,16 @@ class PurchaseDataTable extends DataTable
             ->addColumn('remaining_slots', function ($purchase) {
                 $lesson = $purchase->lesson;
                 if (!$lesson) return '-';
-                $totalSlots = $lesson->slots()->count();
-                $maxStudents = $lesson->max_students ?? 0;
-                $totalCapacity = $totalSlots * $maxStudents;
-                $booked = $lesson->slots->reduce(function ($carry, $slot) {
-                    return $carry + $slot->student()->count();
-                }, 0);
-                $remaining = $totalCapacity - $booked;
-                return "{$remaining}/{$totalCapacity}";
+
+                if ($lesson->is_package_lesson) {
+                    $used = \App\Models\StudentSlot::where('student_id', auth()->user()->id)
+                        ->whereHas('slot', function ($query) use ($lesson) {
+                            $query->where('lesson_id', $lesson->id);
+                        })->count();
+                    $total = $purchase->purchased_slot ?? 0;
+                    return "{$used}/{$total}";
+                }
+                return '-';
             })
             ->addColumn('action', function ($purchase) {
                 $hasBooking = \App\Models\Slots::where('lesson_id', $purchase->lesson_id)
@@ -132,7 +134,10 @@ class PurchaseDataTable extends DataTable
 
         // Filter by lesson type if provided
         if (request()->has('lesson_type') && request('lesson_type')) {
-            $query->where('purchases.type', request('lesson_type'));
+            $query->where(function ($q) {
+                $q->where('purchases.type', request('lesson_type'))
+                    ->orWhere('lessons.type', request('lesson_type'));
+            });
         }
 
         // Filter query based on user role
