@@ -179,7 +179,20 @@ class StripeController extends Controller
             });
             return $resData;
         } else {
+            if ($authUser->type == 'Student') {
+                $authUserId = 0;
+                $followerId = $authUser->id;
+            } else {
+                $authUserId = $authUser->id;
+                $followerId = null;
+            }
+            $followerId    = $authUser->type == 'Student' ? $authUserId : null;
             $plan           =  Plan::find($planID);
+            if ($plan->is_chat_enabled && is_null($authUser->chat_user_id)) {
+                return response()->json([
+                    'error' => 'Chat user ID is required to proceed with the payment.'
+                ]);
+            }
             $couponId       = '0';
             $price          = $plan->price;
             $couponCode     = null;
@@ -203,11 +216,12 @@ class StripeController extends Controller
             }
             $data = Order::create([
                 'plan_id'           => $plan->id,
-                'user_id'           => $authUser->id,
+                'user_id'           => $authUserId,
                 'amount'            => $price,
                 'discount_amount'   => $discountValue,
                 'coupon_code'       => $couponCode,
                 'status'            => 0,
+                'student_id'     => $followerId,
             ]);
 
             $resData['total_price'] = $price;
@@ -365,8 +379,9 @@ class StripeController extends Controller
 
     function paymentSuccess($data)
     {
-        $data   = Crypt::decrypt($data);
-        if (Auth::user()->type == 'Admin') {
+        $data = Crypt::decrypt($data);
+        $user = User::find(Auth::user()->id);
+        if ($user->type == 'Admin') {
             $order = tenancy()->central(function ($tenant) use ($data) {
                 $datas                  = Order::find($data['order_id']);
                 $datas->status          = 1;
@@ -402,7 +417,7 @@ class StripeController extends Controller
             $datas->status          = 1;
             $datas->payment_type    = 'stripe';
             $datas->update();
-            $user       = User::find(Auth::user()->id);
+
             $coupons    = Coupon::find($data['coupon']);
             if (!empty($coupons)) {
                 $userCoupon         = new UserCoupon();
@@ -429,13 +444,18 @@ class StripeController extends Controller
             }
             if ($plan->is_chat_enabled) {
                 $this->chatService->updateUser($user->chat_user_id, 'plan_expired_date', $planExpiredDate, $user->email);
-                $groupId = $this->chatService->createGroup($user->chat_user_id, $user->follows->first()?->influencer->chat_user_id);
+                $groupId = $this->chatService->createGroup($user->chat_user_id, $user->follows->first()?->instructor->chat_user_id);
                 if ($groupId) {
                     $user->group_id = $groupId;
                 }
             }
             $user->save();
         }
-        return redirect()->route('plans.index')->with('status', __('Payment successfully!'));
+        if ($user->type == 'Student') {
+            $instructorId = $user->follows->first()?->instructor_id;
+            return redirect()->route('instructor.profile', ['instructor_id' => $instructorId])->with('status', __('Payment successfully!'));
+        } else {
+            return redirect()->route('plans.index')->with('status', __('Payment successfully!'));
+        }
     }
 }

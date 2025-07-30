@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
@@ -105,12 +106,12 @@ class ChatService
         return $response->json()['data'];
     }
 
-    public function createGroup(string $chatUserId, string $influencerId): ?string
+    public function createGroup(string $chatUserId, string $instructorId): ?string
     {
         $token = $this->getChatToken($chatUserId);
 
         $payload = [
-            'groupMembers' => [$influencerId],
+            'groupMembers' => [$instructorId],
             'type'         => 'onetoone',
         ];
 

@@ -25,6 +25,7 @@ class Plan extends Model
         'description',
         'tenant_id',
         'active_status',
+        'is_chat_enabled',
         'discount_setting'
     ];
 }

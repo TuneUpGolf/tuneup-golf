@@ -7,6 +7,7 @@ use App\DataTables\Admin\PlanDataTable;
 use App\Facades\UtilityFacades;
 use App\Models\Order;
 use App\Models\Plan;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -74,13 +75,32 @@ class PlanController extends Controller
             if (!$paymentTypes) {
                 return redirect()->route('plans.index')->with('errors', __('Please on at list one payment type.'));
             }
+
+            $instructorId = Auth::user()->type === Role::ROLE_INSTRUCTOR ? Auth::user()->id : null;
+            $tenantId     = Auth::user()->type === Role::ROLE_INSTRUCTOR ? tenant()->id : null;
+
+            if ($instructorId) {
+                $exists = Plan::where('instructor_id', $instructorId)
+                    ->where('is_chat_enabled', $request->chat == '1' ? 1 : 0)
+                    ->where('is_feed_enabled', $request->feed == '1' ? 1 : 0)
+                    ->exists();
+
+                if ($exists) {
+                    return redirect()->route('plans.myplan')->with('failed', __('You already have a plan with the same chat and feed settings.'));
+                }
+            }
+
             Plan::create([
-                'name'          => $request->name,
-                'price'         => $request->price,
-                'duration'      => $request->duration,
-                'durationtype'  => $request->durationtype,
-                'max_users'     => $request->max_users,
-                'description'   => $request->description,
+                'name'            => $request->name,
+                'price'           => $request->price,
+                'duration'        => $request->duration,
+                'durationtype'    => $request->durationtype,
+                'tenant_id'       => $tenantId,
+                'max_users'       => $request->max_users,
+                'description'     => $_POST['description'],
+                'is_chat_enabled' => $request->chat == '1' ? 1 : 0,
+                'is_feed_enabled' => $request->feed == '1' ? 1 : 0,
+                'instructor_id'   => $instructorId,
             ]);
             return redirect()->route('plans.myplan')->with('success', __('Plan created successfully.'));
         } else {
@@ -122,13 +142,15 @@ class PlanController extends Controller
                     'duration'  => 'required',
                     'max_users' => 'required',
                 ]);
-                $plan               = Plan::find($id);
-                $plan->name         = $request->input('name');
-                $plan->price        = $request->input('price');
-                $plan->duration     = $request->input('duration');
-                $plan->durationtype = $request->input('durationtype');
-                $plan->max_users    = $request->input('max_users');
-                $plan->description  = $request->input('description');
+                $plan                  = Plan::find($id);
+                $plan->name            = $request->input('name');
+                $plan->price           = $request->input('price');
+                $plan->duration        = $request->input('duration');
+                $plan->durationtype    = $request->input('durationtype');
+                $plan->max_users       = $request->input('max_users');
+                $plan->description     = $_POST['description'];
+                $plan->is_chat_enabled = $request->input('chat') ? true : false;
+                $plan->is_feed_enabled = $request->input('feed') ? true : false;
                 $plan->save();
             }
             if (Auth::user()->type == 'Admin') {
@@ -161,7 +183,7 @@ class PlanController extends Controller
         }
     }
 
-    public function planStatus(Request $request,$id)
+    public function planStatus(Request $request, $id)
     {
         $plan   = Plan::find($id);
         $planStatus  = ($request->value == "true") ? 1 : 0;

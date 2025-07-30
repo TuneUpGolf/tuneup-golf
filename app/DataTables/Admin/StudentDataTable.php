@@ -123,6 +123,13 @@ class StudentDataTable extends DataTable
                              </label>';
                 return $status;
             })
+            ->editColumn('active_status', function (Student $user) {
+                $checked = ($user->active_status == 1) ? 'checked' : '';
+                $status  = '<label class="form-switch">
+                             <input class="form-check-input chnageStatus" class="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('follower.status', $user->id) . '" type="checkbox">
+                             </label>';
+                return $status;
+            })
             ->addColumn('action', function (Student $user) {
                 return view('admin.students.action', compact('user'));
             })
