@@ -39,7 +39,9 @@ class StudentDashboardView extends GridView
         $query = Lesson::where('active_status', true);
 
         return match ($this->currentView) {
-            'in-person' => $query->with('packages')->whereIn('type', [Lesson::LESSON_TYPE_INPERSON, Lesson::LESSON_TYPE_PACKAGE])
+            'in-person' => $query->with('packages', function ($query) {
+                return $query->orderBy('number_of_slot');
+            })->whereIn('type', [Lesson::LESSON_TYPE_INPERSON, Lesson::LESSON_TYPE_PACKAGE])
                 ->where(function ($q) {
                     $q->where('payment_method', '!=', 'online')
                         ->orWhereHas('user', function ($q) {
