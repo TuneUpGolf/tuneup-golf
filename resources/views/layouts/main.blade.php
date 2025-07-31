@@ -48,6 +48,14 @@
 </head>
 
 <body class="{{ $color }}">
+    <!-- Full Page Loader -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-content">
+            <div class="loader-spinner"></div>
+            <div class="loader-text">Processing...</div>
+        </div>
+    </div>
+
     <!-- [ Pre-loader ] start -->
     <div class="loader-bg">
         <div class="loader-track">
