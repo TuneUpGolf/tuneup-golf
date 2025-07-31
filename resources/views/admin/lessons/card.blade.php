@@ -34,7 +34,7 @@
                 {{-- <span class="">({!! \App\Models\Purchase::where('lesson_id', $model->id)->where('status',
                     'complete')->count() !!} Purchased)</span> --}}
                 <div class="flex flex-row justify-between">
-                    @if ($model->is_package_lesson)
+                    @if ($model->is_package_lesson && !$model->packages->isEmpty())
                         <div class="bg-green-500 text-white text-sm font-bold px-2 py-1 rounded-full">
                             Package
                             Lesson
