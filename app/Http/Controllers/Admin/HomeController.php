@@ -43,8 +43,9 @@ class HomeController extends Controller
         if ($userType == Role::ROLE_STUDENT) {
             $tab = $request->get('view');
             $activeTab = !empty($tab) ? $tab : 'in-person';
-            $dataTable = new PurchaseDataTable($tab);
-            return $dataTable->render('admin.dashboard.tab-view', compact('activeTab', 'dataTable'));
+            $dataTable = $activeTab == 'my-lessons' ? new PurchaseDataTable($tab) : false;
+            return $dataTable ? $dataTable->render('admin.dashboard.tab-view', compact('activeTab', 'dataTable')) :
+                view('admin.dashboard.tab-view', compact('activeTab', 'dataTable'));
         }
 
         // Common Queries
