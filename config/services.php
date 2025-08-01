@@ -51,6 +51,10 @@ return [
         'base_url' => env('CHAT_BASE_URL'),
     ],
 
+    'aws' => [
+        'base_url' => env('AWS_S3_URL'),
+    ],
+
     'stripe' => [
         'model' => Student::class,
         'key' => env('STRIPE_KEY'),

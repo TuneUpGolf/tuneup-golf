@@ -399,11 +399,11 @@ class StudentController extends Controller
 
         if ($chatUser['code'] === 200 && isset($chatUser['data']['_id'])) {
             $user->chat_user_id = $chatUser['data']['_id'];
+            $user = $user->save();
         } else {
             $user = $this->chatService->createUser($user);
         }
-
-        return $user->save();
+        return $user;
     }
 
     /**

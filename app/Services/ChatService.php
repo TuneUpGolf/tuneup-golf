@@ -14,7 +14,7 @@ class ChatService
             'name'              => $user->name,
             'email'             => $user->email,
             'country'           => ! empty($user->country_code) ? $user->country_code : 'in',
-            'phone'             => $user->phone,
+            'phone'             => preg_replace('/\D/', '', $user->phone),
             'userId'            => (string) $user->id,
             'tenant_id'         => [$user->tenant_id],
             'avatar'            => $user->avatar ?? $user->dp,
@@ -29,7 +29,7 @@ class ChatService
                 $user['chat_user_id'] = $chatUserId;
                 $user->save();
             }
-            return true;
+            return $user;
         } else {
             Log::error('Failed to create chat user', [
                 'status' => $response->status(),
