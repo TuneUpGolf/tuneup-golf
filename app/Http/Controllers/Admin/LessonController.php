@@ -202,21 +202,25 @@ class LessonController extends Controller
 
     public function manageSlots()
     {
-        $allSlots = Slots::where('is_active', true)->get();
         if (Auth::user()->type === Role::ROLE_ADMIN) {
             $payment_method = Lesson::find(request()->get('lesson_id'))?->payment_method;
             $events = [];
             $resources = [];
             $instructorId = request()->get('instructor_id');
 
-            if (!!$instructorId && $instructorId !== "-1")
-                $slots = Slots::whereHas('lesson', function ($query) use ($instructorId) {
+            if (!!$instructorId && $instructorId !== "-1") {
+                $slots = Slots::with(['lesson.user', 'student'])->whereHas('lesson', function ($query) use ($instructorId) {
                     $query->where('created_by', $instructorId);
                 })->where('is_active', true)->get();
+            } else {
+                $slots = Slots::with(['lesson.user', 'student'])->where('is_active', true)->get();
+            }
 
             $type = Auth::user()->type;
             $uniqueEvents = [];
-            foreach ($allSlots as $appointment) {
+            $studentCountArr = [];
+
+            foreach ($slots as $appointment) {
                 if (isset($appointment->lesson->user->id)) {
                     $n = $appointment->lesson->lesson_duration;
                     $startDateTime = Carbon::parse($appointment->date_time);
@@ -225,8 +229,17 @@ class LessonController extends Controller
                     $minutes = $fraction * 60;
                     $endDateTime = $startDateTime->copy()->addHours($whole)->addMinutes($minutes);
 
+                    if (!array_key_exists($appointment->id, $studentCountArr)) {
+                        $studentCountArr[$appointment->id] = $appointment->student->count();
+                    }
+                    $studentCount = $studentCountArr[$appointment->id];
+                    $maxStudents = $appointment->lesson->max_students;
+
+                    $isFullyBooked = $studentCount >= $maxStudents;
+                    $availableSeats = $maxStudents - $studentCount;
+
                     $students = $appointment->student;
-                    $colors =  $appointment->is_completed ? '#41d85f' : ($appointment->isFullyBooked() ?
+                    $colors = $appointment->is_completed ? '#41d85f' : ($isFullyBooked ?
                         '#c5b706' : '#0071ce');
 
                     $startDts = $startDateTime->format('h:i a');
@@ -234,7 +247,7 @@ class LessonController extends Controller
 
                     $event = [
                         'title' => substr($appointment->lesson->lesson_name, 0, 10) .
-                            ' (' . ($appointment->lesson->max_students - $appointment->availableSeats()) . '/' . $appointment->lesson->max_students . ') ',
+                            ' (' . ($appointment->lesson->max_students - $availableSeats) . '/' . $appointment->lesson->max_students . ') ',
                         'extendedProps' => [
                             'details' => $startDts == $endDts ? $startDts : $startDts . ' - ' . $endDts,
                             'location' => $appointment->location,
@@ -247,11 +260,11 @@ class LessonController extends Controller
                         'is_student_assigned' => $students->isNotEmpty(),
                         'student' => $students,
                         'slot' => $appointment,
-                        'available_seats' => $appointment->availableSeats(),
+                        'available_seats' => $availableSeats,
                         'lesson' => $appointment->lesson,
                         'instructor' => $appointment->lesson->user,
                         'resourceId' => $appointment->lesson->user->id,
-                        'className' => ($appointment->is_completed ? 'custom-completed-class' : ($appointment->isFullyBooked() ? 'custom-book-class' : 'custom-available-class')) . ' custom-event-class',
+                        'className' => ($appointment->is_completed ? 'custom-completed-class' : ($isFullyBooked ? 'custom-book-class' : 'custom-available-class')) . ' custom-event-class',
                     ];
 
                     if (!in_array($appointment->lesson->user->id, $resources)) {
@@ -268,21 +281,23 @@ class LessonController extends Controller
             return view('admin.lessons.manageSlots', compact('events', 'resources', 'lesson_id', 'type', 'payment_method', 'instructors', 'students'));
         }
         if (Auth::user()->type === Role::ROLE_INSTRUCTOR) {
-            $slots = Slots::whereHas('lesson', function ($query) {
-                $query->where('created_by', Auth::user()->id);
-            })->where('is_active', true)->get();
 
             $payment_method = Lesson::find(request()->get('lesson_id'))?->payment_method;
             $events = [];
             $lessonId = request()->get('lesson_id');
             $type = Auth::user()->type;
 
-            if (!!$lessonId && $lessonId !== "-1")
-                $slots = Slots::whereHas('lesson', function ($query) use ($lessonId) {
+            if (!!$lessonId && $lessonId !== "-1") {
+                $slots = Slots::with(['lesson.user', 'student'])->whereHas('lesson', function ($query) use ($lessonId) {
                     $query->where('id', $lessonId);
                 })->where('is_active', true)->get();
+            } else {
+                $slots = Slots::with(['lesson.user', 'student'])->whereHas('lesson', function ($query) {
+                    $query->where('created_by', Auth::user()->id);
+                })->where('is_active', true)->get();
+            }
 
-            $bookedDateTimes = $allSlots->filter(function ($slot) {
+            $bookedDateTimes = $slots->filter(function ($slot) {
                 return $slot->student->isNotEmpty();
             })->pluck('date_time')->unique();
 
@@ -294,6 +309,7 @@ class LessonController extends Controller
             });
 
             $uniqueEvents = [];
+            $studentCountArr = [];
             foreach ($filteredSlots as $appointment) {
                 $n = $appointment->lesson->lesson_duration;
                 $whole = floor($n);
@@ -304,25 +320,29 @@ class LessonController extends Controller
                 $minutes = $fraction * 60;
                 $endDateTime = $startDateTime->copy()->addHours($whole)->addMinutes($minutes);
 
+                if (!array_key_exists($appointment->id, $studentCountArr)) {
+                    $studentCountArr[$appointment->id] = $appointment->student->count();
+                }
+                $studentCount = $studentCountArr[$appointment->id];
+                $maxStudents = $appointment->lesson->max_students;
+
+                $isFullyBooked = $studentCount >= $maxStudents;
+                $availableSeats = $maxStudents - $studentCount;
+
                 $students = $appointment->student;
-                $colors =  $appointment->is_completed ? '#41d85f' : ($appointment->isFullyBooked() ?
+                $colors = $appointment->is_completed ? '#41d85f' : (($type == Role::ROLE_INSTRUCTOR && $isFullyBooked ||
+                    $type == Role::ROLE_STUDENT && $students->contains('id', Auth::user()->id)) ?
                     '#c5b706' : '#0071ce');
+                $className = $appointment->is_completed ? 'custom-completed-class' : (($type == Role::ROLE_INSTRUCTOR && $isFullyBooked ||
+                    $type == Role::ROLE_STUDENT && $students->contains('id', Auth::user()->id))
+                    ? 'custom-book-class' : 'custom-available-class') . ' custom-event-class';
 
                 $startDts = $startDateTime->format('h:i a');
                 $endDts = $endDateTime->format('h:i a');
 
-                $students = $appointment->student;
-
-                $colors =  $appointment->is_completed ? '#41d85f' : (($type == Role::ROLE_INSTRUCTOR && $appointment->isFullyBooked() ||
-                    $type == Role::ROLE_STUDENT && $students->contains('id', Auth::user()->id)) ?
-                    '#c5b706' : '#0071ce');
-                $className = $appointment->is_completed ? 'custom-completed-class' : (($type == Role::ROLE_INSTRUCTOR && $appointment->isFullyBooked() ||
-                    $type == Role::ROLE_STUDENT && $students->contains('id', Auth::user()->id))
-                    ? 'custom-book-class' : 'custom-available-class') . ' custom-event-class';
-
                 $uniqueEvents[] = [
                     'title' => substr($appointment->lesson->lesson_name, 0, 10) .
-                        ' (' . ($appointment->lesson->max_students - $appointment->availableSeats()) . '/' . $appointment->lesson->max_students . ') ',
+                        ' (' . ($appointment->lesson->max_students - $availableSeats) . '/' . $appointment->lesson->max_students . ') ',
                     'extendedProps' => [
                         'details' => $startDts == $endDts ? $startDts : $startDts . ' - ' . $endDts,
                         'location' => $appointment->location,
@@ -335,11 +355,11 @@ class LessonController extends Controller
                     'is_student_assigned' => $students->isNotEmpty(),
                     'student' => $students,
                     'slot' => $appointment,
-                    'available_seats' => $appointment->availableSeats(),
+                    'available_seats' => $availableSeats,
                     'lesson' => $appointment->lesson,
                     'instructor' => $appointment->lesson->user,
                     'resourceId' => $appointment->lesson->user->id,
-                    'className' => ($appointment->is_completed ? 'custom-completed-class' : ($appointment->isFullyBooked() ? 'custom-book-class' : 'custom-available-class')) . ' custom-event-class',
+                    'className' => $className,
                 ];
             }
             $events = array_values($uniqueEvents);

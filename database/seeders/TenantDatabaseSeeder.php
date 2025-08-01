@@ -716,11 +716,12 @@ class TenantDatabaseSeeder extends Seeder
             'text_template' => 'Hello, {{ name }}.'
         ]);
 
+        MailTemplate::where('mailable', StudentPaymentLink::class)->delete();
         MailTemplate::firstOrCreate([
             'mailable' => StudentPaymentLink::class,
             'subject' => 'Purchase created for {{ name }}',
-            'html_template' => '<p>Hi,  {{ name }},  I hope you enjoyed your lesson with {{instructorName}}. Please click on the link to complete the payment process : {{ link }}.</p>',
-            'text_template' => 'Hi,  {{ name }},  I hope you enjoyed your lesson with {{instructorName}}. Please click on the link to complete the payment process : {{ link }}.'
+            'html_template' => '<p>Hi,  {{ name }},  I hope you enjoyed your lesson!. If you haven\'t already completed payment for this lesson, please use the link below:<br/>{{ link }}.</p>',
+            'text_template' => 'Hi,  {{ name }},  I hope you enjoyed your lesson!. If you haven\'t already completed payment for this lesson, please use the link below: {{ link }}.'
         ]);
 
 

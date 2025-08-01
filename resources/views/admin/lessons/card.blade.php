@@ -10,11 +10,7 @@
     'hasDefaultAction' => false,
     'selected' => false,
 ])
-@php
-    $firstSlot = $model->slots->first();
-    $bookedCount = $firstSlot?->student()->count();
-    $availableSlots = $firstSlot?($firstSlot->lesson->max_students - (int)$bookedCount):0;
-@endphp
+
 <div
     class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col h-full">
     <div class="relative text-center p-3 flex gap-3">
@@ -34,7 +30,7 @@
                 {{-- <span class="">({!! \App\Models\Purchase::where('lesson_id', $model->id)->where('status',
                     'complete')->count() !!} Purchased)</span> --}}
                 <div class="flex flex-row justify-between">
-                    @if ($model->is_package_lesson)
+                    @if ($model->is_package_lesson && !$model->packages->isEmpty())
                         <div class="bg-green-500 text-white text-sm font-bold px-2 py-1 rounded-full">
                             Package
                             Lesson
@@ -67,7 +63,7 @@
                         <option value="0">Select Package</option>
                         @foreach ($model->packages as $package)
                             <option value="{{ $package->price }}">{!! $package->number_of_slot !!} Lesson &nbsp;-&nbsp;
-                                ${!! $package->price !!} {{ \App\Facades\UtilityFacades::getsettings('currency') }}</option>
+                                {{ $currencySymbol }} {!! $package->price !!} {{ $currency }}</option>
                         @endforeach
                     </select>
                 </form>
@@ -103,11 +99,6 @@
 
             @if ($model->type === 'inPerson' || $model->type == 'package')
                 {{-- @if ($model->is_package_lesson) --}}
-                    @php
-                        $allSlots = $model->slots->filter(function($slot) {
-                            return !$slot->isFullyBooked();
-                        })->values();
-                    @endphp
                     @if ($firstSlot)
                     {{-- @if ($firstSlot && !$firstSlot->isFullyBooked()) --}}
                         {{-- @php
@@ -134,7 +125,7 @@
                                 Purchase
                             </button>
                         @endif --}}
-                        @if($firstSlot->isFullyBooked())
+                        @if($isFullyBooked)
                             <a href="{{ route('slot.view', ['lesson_id' => $model->id]) }}">
                                 <button class="lesson-btn">Purchase</button>
                             </a>
