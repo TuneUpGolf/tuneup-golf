@@ -219,6 +219,7 @@
                                             "Lesson slot has been completed.",
                                             "success")
                                         .then(() => {
+                                            showPageLoader();
                                             location
                                                 .reload(); // Reload page after success
                                         });
@@ -358,6 +359,7 @@
                                     Swal.fire('Success',
                                         'Form submitted successfully!',
                                         'success');
+                                    showPageLoader();
                                     window.location.reload();
                                 },
                                 error: function(error) {
@@ -449,6 +451,7 @@
                     },
                     success: function(response) {
                         Swal.fire('Success', 'Students unbooked successfully!', 'success');
+                        showPageLoader();
                         window.location.reload();
                     },
                     error: function(error) {

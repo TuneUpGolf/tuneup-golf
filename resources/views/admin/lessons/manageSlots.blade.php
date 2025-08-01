@@ -317,6 +317,7 @@
                                    Swal.fire('Success',
                                        'Form submitted successfully!',
                                        'success');
+                                   showPageLoader();
                                    window.location.reload();
                                },
                                error: function(error) {
@@ -442,6 +443,7 @@
                    },
                    success: function(response) {
                        Swal.fire('Success', 'Students unbooked successfully!', 'success');
+                       showPageLoader();
                        window.location.reload();
                    },
                    error: function(error) {

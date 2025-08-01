@@ -259,6 +259,7 @@
                                      Swal.fire('Success',
                                          'Form submitted successfully!',
                                          'success');
+                                     showPageLoader();
                                      window.location.reload();
                                  },
                                  error: function(error) {
@@ -330,6 +331,7 @@
                                                  "Lesson slot has been completed.",
                                                  "success")
                                              .then(() => {
+                                                showPageLoader();
                                                  location
                                                      .reload(); // Reload page after success
                                              });
@@ -457,6 +459,7 @@
                                          Swal.fire('Success',
                                              'Form submitted successfully!',
                                              'success');
+                                        showPageLoader();
                                          window.location.reload();
                                      },
                                      error: function(error) {
@@ -521,6 +524,7 @@
                                             text: response.message ||
                                                 'You have successfully booked the slot.',
                                         }).then(() => {
+                                            showPageLoader();
                                             location
                                                 .reload(); // Reload page to update UI
                                         });
@@ -565,6 +569,7 @@
                                      Swal.fire("Success",
                                          "Slot unbooked successfully!",
                                          "success");
+                                     showPageLoader();
                                      window.location.reload();
                                  },
                                  error: function(error) {
