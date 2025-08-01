@@ -44,7 +44,10 @@
     </div>
 </div>
 
-
+{{-- Chat Section --}}
+@if($isSubscribed)
+    @include('admin.chat.chat', ['user' => $purchase->student->name])
+@endif
 @endsection
 
 @push('css')
@@ -78,6 +81,18 @@
     {{-- Purchases table JS --}}
     @include('layouts.includes.datatable_js')
     {{ $dataTable->scripts() }}
+    <script>
+        window.chatConfig = {
+            senderId : "{{ auth()->user()->chat_user_id }}",
+            senderImage : "{{ auth()->user()->avatar }}",
+            groupId : "{{ $purchase->follower->group_id }}",
+            recieverImage : "{{ $purchase->follower->dp }}",
+            token : "{{ $token }}",
+        }
+        window.chatBaseUrl = "{{ config('services.chat.base_url') }}";
+        window.s3BaseUrl = "{{ config('services.aws.base_url') }}";
+    </script>
+    <script src="{{ asset('assets/custom-js/chat.js') }}"></script>
     <script>
         $(document).ready(function() {
             $('.dataTable-title').html(

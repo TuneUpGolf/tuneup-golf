@@ -24,7 +24,6 @@
                         <div>
                             <h4 class="mb-1 text-white">{{ $students->name }}</h4>
                             <p class="mb-0 text-sm text-white-50">{{ $students->email }}</p>
-                            <p class="mb-0 text-sm text-white-50">{{ $students->name }}</p>
                         </div>
                     </div>
                 </div>
@@ -45,8 +44,17 @@
         </div>
     </div>
 </div>
-@endsection
 
+{{-- Chat Section --}}
+@if($students->chat_status == 1)
+ <div class="row">
+    <div class="col-xl-12">
+        @include('admin.chat.chat', ['user' => $students->name])
+    </div>
+</div>
+@endif
+
+@endsection
 @push('css')
     {{-- Profile-specific styles --}}
     <link rel="stylesheet" href="{{ asset('vendor/croppie/css/croppie.min.css') }}">
@@ -63,6 +71,21 @@
     <script src="{{ asset('vendor/intl-tel-input/jquery.mask.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/intlTelInput-jquery.min.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/utils.min.js') }}"></script>
+
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        window.chatConfig = {
+            senderId : "{{ auth()->user()->chat_user_id }}",
+            senderImage : "{{ auth()->user()->dp }}",
+            groupId : "{{ auth()->user()->group_id }}",
+            recieverImage : "{{ auth()->user()->avatar }}",
+            token : "{{ $token }}",
+        }
+        window.chatBaseUrl = "{{ config('services.chat.base_url') }}";
+        window.s3BaseUrl = "{{ config('services.aws.base_url') }}";
+    </script>
+    <script src="{{ asset('assets/custom-js/chat.js') }}"></script>
 
     {{-- Purchases table JS --}}
     @include('layouts.includes.datatable_js')
