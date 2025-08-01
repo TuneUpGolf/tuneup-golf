@@ -245,7 +245,7 @@ class LessonController extends Controller
                     $startDts = $startDateTime->format('h:i a');
                     $endDts = $endDateTime->format('h:i a');
 
-                    $event = [
+                    $uniqueEvents[] = [
                         'title' => substr($appointment->lesson->lesson_name, 0, 10) .
                             ' (' . ($appointment->lesson->max_students - $availableSeats) . '/' . $appointment->lesson->max_students . ') ',
                         'extendedProps' => [
