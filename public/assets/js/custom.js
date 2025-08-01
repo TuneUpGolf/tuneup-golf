@@ -140,4 +140,41 @@ $(document).ready(function () {
   });
 });
 
+// Page loader functions
+function showPageLoader() {
+  const pageLoader = document.getElementById('pageLoader');
+  const body = document.body;
+  pageLoader.classList.add('show');
+  body.classList.add('loading');
+}
+
+function hidePageLoader() {
+  const pageLoader = document.getElementById('pageLoader');
+  const body = document.body;
+  pageLoader.classList.remove('show');
+  body.classList.remove('loading');
+}
+
+// Show loader on form submissions
+$(document).on('submit', 'form', function () {
+  showPageLoader();
+});
+
+// Show loader on AJAX requests
+$(document).ajaxStart(function () {
+  showPageLoader();
+});
+
+// Hide loader when AJAX requests complete
+$(document).ajaxStop(function () {
+  hidePageLoader();
+});
+
+// Hide loader on form submission errors (if needed)
+$(document).on('submit', 'form', function () {
+  // Hide loader after a reasonable timeout in case of errors
+  setTimeout(function () {
+    hidePageLoader();
+  }, 10000); // 10 seconds timeout
+});
 
