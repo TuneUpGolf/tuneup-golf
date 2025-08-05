@@ -1025,6 +1025,28 @@ class LessonController extends Controller
                 request()->setMethod('POST');
                 return request()->redirect == 1 ? $this->confirmPurchaseWithRedirect(request(), false) :
                     $this->confirmPurchaseWithRedirect(request(), true);
+            } elseif ($slot->lesson->payment_method == Lesson::LESSON_PAYMENT_CASH && $slot->lesson->is_package_lesson == 0) {
+                $slots = $slot->lesson->slots; // Fetch all slots of the lesson
+                foreach ($slots as $lessonSlot) {
+                    // Attach student to all slots
+                    $lessonSlot->student()->attach($newPurchase->student_id, [
+                        'isFriend' => false,
+                        'friend_name' => null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    // Attach friends if any were included in the purchase
+                    $friendNames = json_decode($newPurchase->friend_names, true) ?? [];
+                    foreach ($friendNames as $friendName) {
+                        $lessonSlot->student()->attach($newPurchase->student_id, [
+                            'isFriend' => true,
+                            'friend_name' => $friendName,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
             }
         }
 
