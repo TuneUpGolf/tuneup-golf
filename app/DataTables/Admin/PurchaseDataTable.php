@@ -97,11 +97,13 @@ class PurchaseDataTable extends DataTable
                 if (!$lesson) return '-';
 
                 if ($lesson->is_package_lesson) {
-                    $used = \App\Models\StudentSlot::where('student_id', auth()->user()->id)
-                        ->whereHas('slot', function ($query) use ($lesson) {
-                            $query->where('lesson_id', $lesson->id);
-                        })->count();
+                    $used = \App\Models\StudentSlot::whereHas('slot', function ($query) use ($lesson) {
+                        $query->where('lesson_id', $lesson->id)->where('is_completed', 1);
+                    })->count();
                     $total = $purchase->purchased_slot ?? 0;
+
+                    $used = $used > $total ? $total : $used;
+
                     return "{$used}/{$total}";
                 }
                 return '-';
@@ -135,8 +137,7 @@ class PurchaseDataTable extends DataTable
         // Filter by lesson type if provided
         if (request()->has('lesson_type') && request('lesson_type')) {
             $query->where(function ($q) {
-                $q->where('purchases.type', request('lesson_type'))
-                    ->orWhere('lessons.type', request('lesson_type'));
+                $q->where('lessons.type', request('lesson_type'));
             });
         }
 
@@ -161,8 +162,7 @@ class PurchaseDataTable extends DataTable
         }
 
         if ($user->type == Role::ROLE_INSTRUCTOR) {
-            $query->where('purchases.instructor_id', $user->id)
-                ->where('purchases.status', Purchase::STATUS_COMPLETE);
+            $query->where('purchases.instructor_id', $user->id);
         }
 
         return $query;
