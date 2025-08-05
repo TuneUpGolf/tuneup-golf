@@ -236,7 +236,7 @@ class PurchaseController extends Controller
                         // If the slot is a package lesson, attach student and their friends
                         // if (!!$slot->lesson->is_package_lesson) {
                         $slots = $slot->lesson->slots; // Fetch all slots of the lesson
-                        if (!!$slot->lesson->is_package_lesson) {
+                        if ($slot->lesson->is_package_lesson == 0) {
                             foreach ($slots as $lessonSlot) {
                                 // Attach student to all slots
                                 $lessonSlot->student()->attach($purchase->student_id, [
