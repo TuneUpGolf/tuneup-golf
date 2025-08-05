@@ -24,6 +24,8 @@ use DatePeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Stripe\Checkout\Session;
+use Stripe\Stripe;
 
 class HomeController extends Controller
 {
@@ -42,6 +44,16 @@ class HomeController extends Controller
         $tenantId = tenant('id');
 
         if ($userType == Role::ROLE_STUDENT) {
+
+            if ($purchase = Purchase::find($request->query('purchase_id'))) {
+                Stripe::setApiKey(config('services.stripe.secret'));
+                $session = Session::retrieve($purchase->session_id);
+                if ($session->payment_status == "paid") {
+                    $purchase->status = Purchase::STATUS_COMPLETE;
+                    $purchase->save();
+                }
+            }
+
             $tab = $request->get('view');
             $activeTab = !empty($tab) ? $tab : 'in-person';
             $dataTable = $activeTab == 'my-lessons' ? new PurchaseDataTable($tab) : false;
