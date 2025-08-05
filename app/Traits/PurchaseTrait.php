@@ -153,7 +153,11 @@ trait PurchaseTrait
                 ],
                 'mode' => 'payment',
                 'customer' => Auth::user()?->stripe_cus_id ?? null,
-                'success_url' => route($purchase->lesson->type == Lesson::LESSON_TYPE_ONLINE ? 'home' : 'purchase-success', $success_params),
+                'success_url' => route(
+                    $purchase->lesson->is_package_lesson ||
+                        $purchase->lesson->type == Lesson::LESSON_TYPE_ONLINE ? 'home' : 'purchase-success',
+                    $success_params
+                ),
                 'cancel_url' => route('purchase-cancel', $cancel_params),
             ];
 

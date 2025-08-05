@@ -308,7 +308,10 @@ class PurchaseController extends Controller
                 }
 
                 if ($request->query('redirect') == 1) {
-                    return redirect()->route('slot.view', ['lesson_id' => $purchase->lesson->id])->with('success', 'Purchase Successful.');
+                    return redirect()->route(
+                        $purchase->lesson->is_package_lesson == 0 ? 'home' : 'slot.view',
+                        ['lesson_id' => $purchase->lesson->id]
+                    )->with('success', 'Purchase Successful.');
                 }
                 return response("Purchase Confirmed Successfully");
             }

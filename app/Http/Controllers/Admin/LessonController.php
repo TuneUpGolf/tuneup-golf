@@ -1065,7 +1065,10 @@ class LessonController extends Controller
         ));
 
         return request()->redirect == 1
-            ? redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Purchase Successful.')
+            ? redirect()->route(
+                $slot->lesson->is_package_lesson == 0 ? 'home' : 'slot.view',
+                ['lesson_id' => $slot->lesson_id]
+            )->with('success', 'Purchase Successful.')
             : response()->json([
                 'message' => 'Slot successfully reserved.',
                 'slot' => new SlotAPIResource($slot),
