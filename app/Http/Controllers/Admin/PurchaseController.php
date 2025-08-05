@@ -407,11 +407,13 @@ class PurchaseController extends Controller
                         $request->setMethod('POST');
                         return $this->confirmPurchaseWithRedirect($request);
                     } else if ($request->redirect == 1) {
-                        return redirect()->route('purchase.index')->with('success', 'Video Successfully Added');
+                        return redirect()->route('home')->with('success', 'Video Successfully Added');
                     }
                 } catch (\Exception $e) {
+                    report($e);
                     return redirect()->back()->with('errors', $e->getMessage());
                 } catch (Error $e) {
+                    report($e);
                     return response($e, 419);
                 };
             } else {
