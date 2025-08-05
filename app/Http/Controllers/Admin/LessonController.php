@@ -238,6 +238,11 @@ class LessonController extends Controller
             }
 
             $filteredSlots = $slots->filter(function ($slot) use ($bookedTimeRanges) {
+
+                if ($slot->lesson == null) {
+                    return false;
+                }
+
                 if ($slot->student->isNotEmpty()) {
                     return true;
                 }
