@@ -125,7 +125,7 @@ class HomeController extends Controller
         if ($user->type == "Instructor") {
             $query->whereHas('lesson', function ($q) use ($user, $lessonType) {
                 $q->where('type', $lessonType)
-                    ->where('instructor_id', $user->id);
+                    ->where('created_by', $user->id);
             });
         } else {
             $query->whereHas('lesson', function ($q) use ($lessonType) {
