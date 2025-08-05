@@ -13,6 +13,7 @@ use App\Models\Plan;
 use App\Models\Posts;
 use App\Models\Purchase;
 use App\Models\Role;
+use App\Models\Slots;
 use App\Models\Student;
 use App\Models\SupportTicket;
 use App\Models\User;
@@ -118,18 +119,22 @@ class HomeController extends Controller
     // Fetch purchase counts based on lesson type
     private function fetchPurchaseStats($user, $lessonType)
     {
-        $query = Purchase::whereHas('lesson', fn($q) => $q->where('type', $lessonType));
+        $query = Slots::where('is_active', 1);
+
 
         if ($user->type == "Instructor") {
-            $query->where('instructor_id', $user->id);
+            $query->whereHas('lesson', function ($q) use ($user, $lessonType) {
+                $q->where('type', $lessonType)
+                    ->where('instructor_id', $user->id);
+            });
+        } else {
+            $query->whereHas('lesson', function ($q) use ($lessonType) {
+                $q->where('type', $lessonType);
+            });
         }
 
-        if ($lessonType == Lesson::LESSON_TYPE_ONLINE) {
-            $query->where('status', Purchase::STATUS_COMPLETE);
-        }
-
-        $completed = (clone $query)->where('isFeedbackComplete', true)->count();
-        $inprogress = $query->where('isFeedbackComplete', false)->count();
+        $completed = (clone $query)->where('is_completed', 1)->count();
+        $inprogress = $query->where('is_completed', 0)->count();
 
         return [$completed, $inprogress];
     }
