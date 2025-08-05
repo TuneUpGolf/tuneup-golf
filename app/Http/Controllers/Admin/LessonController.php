@@ -202,7 +202,8 @@ class LessonController extends Controller
 
     public function manageSlots()
     {
-        if (Auth::user()->type === Role::ROLE_ADMIN) {
+        $type = Auth::user()->type;
+        if ($type === Role::ROLE_ADMIN) {
             $payment_method = Lesson::find(request()->get('lesson_id'))?->payment_method;
             $events = [];
             $resources = [];
@@ -216,11 +217,56 @@ class LessonController extends Controller
                 $slots = Slots::with(['lesson.user', 'student'])->where('is_active', true)->get();
             }
 
-            $type = Auth::user()->type;
+            $bookedSlots = $slots->filter(function ($slot) {
+                return $slot->student->isNotEmpty();
+            });
+
+            $bookedTimeRanges = [];
+            foreach ($bookedSlots as $bookedSlot) {
+                $startDateTime = Carbon::parse($bookedSlot->date_time);
+                $duration = $bookedSlot->lesson->lesson_duration;
+                $whole = floor($duration);
+                $fraction = $duration - $whole;
+                $minutes = $fraction * 60;
+                $endDateTime = $startDateTime->copy()->addHours($whole)->addMinutes($minutes);
+
+                $bookedTimeRanges[] = [
+                    'start' => $startDateTime,
+                    'end' => $endDateTime,
+                    'slot_id' => $bookedSlot->id
+                ];
+            }
+
+            $filteredSlots = $slots->filter(function ($slot) use ($bookedTimeRanges) {
+
+                if ($slot->lesson == null) {
+                    return false;
+                }
+
+                if ($slot->student->isNotEmpty()) {
+                    return true;
+                }
+
+                $slotStartDateTime = Carbon::parse($slot->date_time);
+                $slotDuration = $slot->lesson->lesson_duration;
+                $slotWhole = floor($slotDuration);
+                $slotFraction = $slotDuration - $slotWhole;
+                $slotMinutes = $slotFraction * 60;
+                $slotEndDateTime = $slotStartDateTime->copy()->addHours($slotWhole)->addMinutes($slotMinutes);
+
+                foreach ($bookedTimeRanges as $bookedRange) {
+                    if ($slotStartDateTime < $bookedRange['end'] && $slotEndDateTime > $bookedRange['start']) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
             $uniqueEvents = [];
             $studentCountArr = [];
 
-            foreach ($slots as $appointment) {
+            foreach ($filteredSlots as $appointment) {
                 if (isset($appointment->lesson->user->id)) {
                     $n = $appointment->lesson->lesson_duration;
                     $startDateTime = Carbon::parse($appointment->date_time);
@@ -280,12 +326,10 @@ class LessonController extends Controller
             $students = Student::where('active_status', true)->where('isGuest', false)->get();
             return view('admin.lessons.manageSlots', compact('events', 'resources', 'lesson_id', 'type', 'payment_method', 'instructors', 'students'));
         }
-        if (Auth::user()->type === Role::ROLE_INSTRUCTOR) {
-
+        if ($type === Role::ROLE_INSTRUCTOR) {
             $payment_method = Lesson::find(request()->get('lesson_id'))?->payment_method;
             $events = [];
             $lessonId = request()->get('lesson_id');
-            $type = Auth::user()->type;
 
             if (!!$lessonId && $lessonId !== "-1") {
                 $slots = Slots::with(['lesson.user', 'student'])->whereHas('lesson', function ($query) use ($lessonId) {
@@ -297,15 +341,45 @@ class LessonController extends Controller
                 })->where('is_active', true)->get();
             }
 
-            $bookedDateTimes = $slots->filter(function ($slot) {
+            $bookedSlots = $slots->filter(function ($slot) {
                 return $slot->student->isNotEmpty();
-            })->pluck('date_time')->unique();
+            });
 
-            $filteredSlots = $slots->filter(function ($slot) use ($bookedDateTimes) {
+            $bookedTimeRanges = [];
+            foreach ($bookedSlots as $bookedSlot) {
+                $startDateTime = Carbon::parse($bookedSlot->date_time);
+                $duration = $bookedSlot->lesson->lesson_duration;
+                $whole = floor($duration);
+                $fraction = $duration - $whole;
+                $minutes = $fraction * 60;
+                $endDateTime = $startDateTime->copy()->addHours($whole)->addMinutes($minutes);
+
+                $bookedTimeRanges[] = [
+                    'start' => $startDateTime,
+                    'end' => $endDateTime,
+                    'slot_id' => $bookedSlot->id
+                ];
+            }
+
+            $filteredSlots = $slots->filter(function ($slot) use ($bookedTimeRanges) {
                 if ($slot->student->isNotEmpty()) {
                     return true;
                 }
-                return !$bookedDateTimes->contains($slot->date_time);
+
+                $slotStartDateTime = Carbon::parse($slot->date_time);
+                $slotDuration = $slot->lesson->lesson_duration;
+                $slotWhole = floor($slotDuration);
+                $slotFraction = $slotDuration - $slotWhole;
+                $slotMinutes = $slotFraction * 60;
+                $slotEndDateTime = $slotStartDateTime->copy()->addHours($slotWhole)->addMinutes($slotMinutes);
+
+                foreach ($bookedTimeRanges as $bookedRange) {
+                    if ($slotStartDateTime < $bookedRange['end'] && $slotEndDateTime > $bookedRange['start']) {
+                        return false;
+                    }
+                }
+
+                return true;
             });
 
             $uniqueEvents = [];
@@ -388,15 +462,50 @@ class LessonController extends Controller
                 });
             }
 
-            $bookedDateTimes = $allSlots->filter(function ($slot) {
+            // Get booked slots with their time ranges from all slots
+            $bookedSlots = $allSlots->filter(function ($slot) {
                 return $slot->student->isNotEmpty();
-            })->pluck('date_time')->unique();
+            });
 
-            $filteredSlots = $slots->filter(function ($slot) use ($bookedDateTimes) {
+            // Create time ranges for booked slots
+            $bookedTimeRanges = [];
+            foreach ($bookedSlots as $bookedSlot) {
+                $startDateTime = Carbon::parse($bookedSlot->date_time);
+                $duration = $bookedSlot->lesson->lesson_duration;
+                $whole = floor($duration);
+                $fraction = $duration - $whole;
+                $minutes = $fraction * 60;
+                $endDateTime = $startDateTime->copy()->addHours($whole)->addMinutes($minutes);
+
+                $bookedTimeRanges[] = [
+                    'start' => $startDateTime,
+                    'end' => $endDateTime,
+                    'slot_id' => $bookedSlot->id
+                ];
+            }
+
+            $filteredSlots = $slots->filter(function ($slot) use ($bookedTimeRanges) {
+                // Always include slots that have students (booked slots)
                 if ($slot->student->isNotEmpty()) {
                     return true;
                 }
-                return !$bookedDateTimes->contains($slot->date_time);
+
+                // Check if this slot's time range overlaps with any booked time range
+                $slotStartDateTime = Carbon::parse($slot->date_time);
+                $slotDuration = $slot->lesson->lesson_duration;
+                $slotWhole = floor($slotDuration);
+                $slotFraction = $slotDuration - $slotWhole;
+                $slotMinutes = $slotFraction * 60;
+                $slotEndDateTime = $slotStartDateTime->copy()->addHours($slotWhole)->addMinutes($slotMinutes);
+
+                foreach ($bookedTimeRanges as $bookedRange) {
+                    // Check if there's any overlap between the time ranges
+                    if ($slotStartDateTime < $bookedRange['end'] && $slotEndDateTime > $bookedRange['start']) {
+                        return false; // Exclude this slot as it overlaps with a booked time range
+                    }
+                }
+
+                return true; // Include this slot as it doesn't overlap with any booked time range
             });
 
             foreach ($filteredSlots as $appointment) {
@@ -916,6 +1025,28 @@ class LessonController extends Controller
                 request()->setMethod('POST');
                 return request()->redirect == 1 ? $this->confirmPurchaseWithRedirect(request(), false) :
                     $this->confirmPurchaseWithRedirect(request(), true);
+            } elseif ($slot->lesson->payment_method == Lesson::LESSON_PAYMENT_CASH && $slot->lesson->is_package_lesson == 0) {
+                $slots = $slot->lesson->slots; // Fetch all slots of the lesson
+                foreach ($slots as $lessonSlot) {
+                    // Attach student to all slots
+                    $lessonSlot->student()->attach($newPurchase->student_id, [
+                        'isFriend' => false,
+                        'friend_name' => null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    // Attach friends if any were included in the purchase
+                    $friendNames = json_decode($newPurchase->friend_names, true) ?? [];
+                    foreach ($friendNames as $friendName) {
+                        $lessonSlot->student()->attach($newPurchase->student_id, [
+                            'isFriend' => true,
+                            'friend_name' => $friendName,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
             }
         }
 
@@ -934,7 +1065,10 @@ class LessonController extends Controller
         ));
 
         return request()->redirect == 1
-            ? redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Purchase Successful.')
+            ? redirect()->route(
+                $slot->lesson->is_package_lesson == 0 ? 'home' : 'slot.view',
+                ['lesson_id' => $slot->lesson_id]
+            )->with('success', 'Purchase Successful.')
             : response()->json([
                 'message' => 'Slot successfully reserved.',
                 'slot' => new SlotAPIResource($slot),
