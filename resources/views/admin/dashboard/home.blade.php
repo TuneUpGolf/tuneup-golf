@@ -113,7 +113,7 @@ $chatcolor = '#0C7785';
                                 <span class="font-roboto font-semibold"> {{ __('Completed Lessons') }} </span>
                             </div>
                             <p class="order-2 order-sm-3 mb-0 font-sans  bg-card-text text-2xl ml-auto">
-                                {{ $inPersonCompleted }} </p>
+                                {{ $instructorStats->first()?->completed_inperson_lessons ?? 0 }} </p>
                         </div>
 
                     </div>
@@ -139,7 +139,7 @@ $chatcolor = '#0C7785';
                                 <span class="font-roboto font-semibold"> {{ __('Upcoming  Lessons') }} </span>
                             </div>
                             <p class="order-2 order-sm-3 mb-0 font-sans  bg-card4-text text-2xl ml-auto">
-                                {{ $inPersonPending }} </p>
+                                {{ $instructorStats->first()?->pending_inperson_lessons ?? 0 }} </p>
                         </div>
 
                     </div>
