@@ -90,7 +90,7 @@ $feedbackUrl = $feedbackContent->url??false;
             @endif
 
             <div class="flex items-start gap-3 mt-4">
-                @if($feedbackContent->type != 'video' && $feedbackUrl)
+                @if($feedbackContent?->type != 'video' && $feedbackUrl)
                     <a href="{{ asset('storage/'.tenant()->id.'/'.$feedbackUrl) }}">View feedback content</a>
                  @else
                     <img class="w-15 h-10"  src="{{ asset('/assets/images/video-thumbanail.jpeg') }}" alt="Thumbnail" id="videoThumbnail">

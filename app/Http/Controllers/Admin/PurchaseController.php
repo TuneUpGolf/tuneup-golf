@@ -236,7 +236,7 @@ class PurchaseController extends Controller
                         // If the slot is a package lesson, attach student and their friends
                         // if (!!$slot->lesson->is_package_lesson) {
                         $slots = $slot->lesson->slots; // Fetch all slots of the lesson
-                        if (!!$slot->lesson->is_package_lesson) {
+                        if ($slot->lesson->is_package_lesson == 0) {
                             foreach ($slots as $lessonSlot) {
                                 // Attach student to all slots
                                 $lessonSlot->student()->attach($purchase->student_id, [
@@ -308,7 +308,10 @@ class PurchaseController extends Controller
                 }
 
                 if ($request->query('redirect') == 1) {
-                    return redirect()->route('slot.view', ['lesson_id' => $purchase->lesson->id])->with('success', 'Purchase Successful.');
+                    return redirect()->route(
+                        $purchase->lesson->is_package_lesson == 0 ? 'home' : 'slot.view',
+                        ['lesson_id' => $purchase->lesson->id]
+                    )->with('success', 'Purchase Successful.');
                 }
                 return response("Purchase Confirmed Successfully");
             }
@@ -407,11 +410,13 @@ class PurchaseController extends Controller
                         $request->setMethod('POST');
                         return $this->confirmPurchaseWithRedirect($request);
                     } else if ($request->redirect == 1) {
-                        return redirect()->route('purchase.index')->with('success', 'Video Successfully Added');
+                        return redirect()->route('home')->with('success', 'Video Successfully Added');
                     }
                 } catch (\Exception $e) {
+                    report($e);
                     return redirect()->back()->with('errors', $e->getMessage());
                 } catch (Error $e) {
+                    report($e);
                     return response($e, 419);
                 };
             } else {

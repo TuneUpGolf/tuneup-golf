@@ -171,70 +171,70 @@
                         minute: '2-digit',
                         hour12: true
                     });
-                if (isBooked && type == 'Instructor' && isPackageLesson) {
-                    // Extract list of booked students
-                    let bookedStudentsHtml =
-                        "<strong style='display: block; text-align: left; margin-bottom: 5px;'>📋 Booked Students:</strong>";
-                    bookedStudentsHtml += "<ol style='text-align: left; padding-left: 20px;'>";
+        //         if (isBooked && type == 'Instructor' && isPackageLesson) {
+        //             // Extract list of booked students
+        //             let bookedStudentsHtml =
+        //                 "<strong style='display: block; text-align: left; margin-bottom: 5px;'>📋 Booked Students:</strong>";
+        //             bookedStudentsHtml += "<ol style='text-align: left; padding-left: 20px;'>";
 
-                    if (student.length > 0) {
-                        student.forEach((student, index) => {
-                            let studentName = student.pivot.isFriend ?
-                                `${student.pivot.friend_name} (Friend: ${student.name})` :
-                                student.name;
+        //             if (student.length > 0) {
+        //                 student.forEach((student, index) => {
+        //                     let studentName = student.pivot.isFriend ?
+        //                         `${student.pivot.friend_name} (Friend: ${student.name})` :
+        //                         student.name;
 
-                            bookedStudentsHtml += `<li>${index + 1}. ${studentName}</li>`;
-                        });
-                    } else {
-                        bookedStudentsHtml += "<li>No students booked yet.</li>";
-                    }
+        //                     bookedStudentsHtml += `<li>${index + 1}. ${studentName}</li>`;
+        //                 });
+        //             } else {
+        //                 bookedStudentsHtml += "<li>No students booked yet.</li>";
+        //             }
 
-                    bookedStudentsHtml += "</ol>";
+        //             bookedStudentsHtml += "</ol>";
 
-                    Swal.fire({
-                        title: "Confirm Slot Completion",
-                        html: `
-            <p style="text-align: left;">Are you sure you want to complete this lesson slot?</p>
-            ${bookedStudentsHtml}
-        `,
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Confirm",
-                        cancelButtonText: "Cancel",
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Send AJAX request to complete slot
-                            $.ajax({
-                                url: "{{ route('slot.complete') }}",
-                                type: "POST",
-                                data: {
-                                    _token: $('meta[name="csrf-token"]').attr(
-                                        'content'),
-                                    payment_method: "online",
-                                    slot_id: slot_id,
-                                    redirect: 1,
-                                },
-                                success: function(response) {
-                                    Swal.fire("Success!",
-                                            "Lesson slot has been completed.",
-                                            "success")
-                                        .then(() => {
-                                            showPageLoader();
-                                            location
-                                                .reload(); // Reload page after success
-                                        });
-                                },
-                                error: function(xhr) {
-                                    Swal.fire("Error!",
-                                        "Something went wrong. Please try again.",
-                                        "error");
-                                }
-                            });
-                        }
-                    });
+        //             Swal.fire({
+        //                 title: "Confirm Slot Completion",
+        //                 html: `
+        //     <p style="text-align: left;">Are you sure you want to complete this lesson slot?</p>
+        //     ${bookedStudentsHtml}
+        // `,
+        //                 icon: "warning",
+        //                 showCancelButton: true,
+        //                 confirmButtonText: "Confirm",
+        //                 cancelButtonText: "Cancel",
+        //             }).then((result) => {
+        //                 if (result.isConfirmed) {
+        //                     // Send AJAX request to complete slot
+        //                     $.ajax({
+        //                         url: "{{ route('slot.complete') }}",
+        //                         type: "POST",
+        //                         data: {
+        //                             _token: $('meta[name="csrf-token"]').attr(
+        //                                 'content'),
+        //                             payment_method: "online",
+        //                             slot_id: slot_id,
+        //                             redirect: 1,
+        //                         },
+        //                         success: function(response) {
+        //                             Swal.fire("Success!",
+        //                                     "Lesson slot has been completed.",
+        //                                     "success")
+        //                                 .then(() => {
+        //                                     showPageLoader();
+        //                                     location
+        //                                         .reload(); // Reload page after success
+        //                                 });
+        //                         },
+        //                         error: function(xhr) {
+        //                             Swal.fire("Error!",
+        //                                 "Something went wrong. Please try again.",
+        //                                 "error");
+        //                         }
+        //                     });
+        //                 }
+        //             });
 
-                    return;
-                }
+        //             return;
+        //         }
 
 
                 if (!isCompleted && (type == 'Admin' || type == 'Instructor')) {
