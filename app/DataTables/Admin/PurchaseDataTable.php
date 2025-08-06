@@ -173,7 +173,7 @@ class PurchaseDataTable extends DataTable
 
     public function html()
     {
-        $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select'><option value=''>- Lesson Type -</option>";
+        $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto; max-width: 200px;'><option value=''>- Lesson Type -</option>";
         foreach (Lesson::TYPE_MAPPING as $key => $label) {
             $lessonTypeFilter .= "<option value='" . $key . "'>" . $label . "</option>";
         }
@@ -228,8 +228,8 @@ class PurchaseDataTable extends DataTable
                     ["responsivePriority" => 2, "targets" => 4],
                 ],
                 "dom" =>  "
-                <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12 d-none d-sm-block'>
-                <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
+                <'dataTable-top row'<'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
+                <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>>
                 <'dataTable-container'<'col-sm-12'tr>>
                 <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
                 <'col-sm-7'p>>
