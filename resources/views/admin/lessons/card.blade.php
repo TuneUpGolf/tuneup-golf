@@ -125,16 +125,16 @@
                                 Purchase
                             </button>
                         @endif --}}
-                        @if($isFullyBooked)
+                        {{-- @if($isFullyBooked)
                             <a href="{{ route('slot.view', ['lesson_id' => $model->id]) }}">
                                 <button class="lesson-btn">Purchase</button>
                             </a>
-                        @else
+                        @else --}}
                             <button class="lesson-btn"
                                 onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}', {{ $model->is_package_lesson }} ,'{{ $model->lesson_price }}', {{ $model->id}})">
                                 Purchase
                             </button>
-                        @endif
+                        {{-- @endif --}}
                     @else
                         <button class="lesson-btn opacity-50 cursor-not-allowed" disabled>
                             No Slots Available
