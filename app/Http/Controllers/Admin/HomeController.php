@@ -90,18 +90,21 @@ class HomeController extends Controller
 
         // Fetch Instructor Statistics for Admins (Without Student Count)
         $instructorStats = [];
+
+        $instructorStats = User::where('tenant_id', $tenantId);
         if ($userType == "Admin") {
-            $instructorStats = User::where('tenant_id', $tenantId)
-                ->where('type', Role::ROLE_INSTRUCTOR)
-                ->withCount([
-                    'lessons as lesson_count',
-                    'purchase as completed_online_lessons' => fn($query) => $query->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', true)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE)),
-                    'purchase as completed_inperson_lessons' => fn($query) => $query->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', true)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON)),
-                    'purchase as pending_online_lessons' => fn($query) => $query->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', false)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE)),
-                    'purchase as pending_inperson_lessons' => fn($query) => $query->where('isFeedbackComplete', false)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON)),
-                ])
-                ->get();
+            $instructorStats = $instructorStats->where('type', Role::ROLE_INSTRUCTOR);
+        } elseif ($userType == "Instructor") {
+            $instructorStats = $instructorStats->where('id', $user->id);
         }
+        $instructorStats = $instructorStats->withCount([
+            'lessons as lesson_count',
+            'purchase as completed_online_lessons' => fn($query) => $query->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', true)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE)),
+            'purchase as completed_inperson_lessons' => fn($query) => $query->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', true)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON)),
+            'purchase as pending_online_lessons' => fn($query) => $query->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', false)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE)),
+            'purchase as pending_inperson_lessons' => fn($query) => $query->where('isFeedbackComplete', false)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON)),
+        ])->get();
+
 
         [$purchaseComplete, $purchaseInprogress] = $this->fetchPurchaseStats($user, Lesson::LESSON_TYPE_ONLINE);
         [$inPersonCompleted, $inPersonPending] = $this->fetchPurchaseStats($user, Lesson::LESSON_TYPE_INPERSON);
