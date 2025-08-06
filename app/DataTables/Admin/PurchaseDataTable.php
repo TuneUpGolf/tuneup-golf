@@ -96,7 +96,7 @@ class PurchaseDataTable extends DataTable
                 $lesson = $purchase->lesson;
                 if (!$lesson) return '-';
 
-                if ($lesson->is_package_lesson) {
+                if ($lesson->type == Lesson::LESSON_TYPE_PACKAGE) {
                     $used = \App\Models\StudentSlot::whereHas('slot', function ($query) use ($lesson) {
                         $query->where('lesson_id', $lesson->id)->where('is_completed', 1);
                     })->count();
