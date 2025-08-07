@@ -937,18 +937,19 @@ class LessonController extends Controller
         ])->first();
 
 
-        $lesson = $slot->lesson;
-        if ($lesson->is_package_lesson && $checkPackageBooking) {
-            $used = \App\Models\StudentSlot::where('student_id', auth()->user()->id)
-                ->whereHas('slot', function ($query) use ($lesson) {
-                    $query->where('lesson_id', $lesson->id);
-                })->count();
-            $total = $checkPackageBooking->purchased_slot ?? 0;
+        // $lesson = $slot->lesson;
+        // if ($lesson->is_package_lesson && $checkPackageBooking) {
+        //     $used = \App\Models\StudentSlot::where('student_id', auth()->user()->id)
+        //         ->whereHas('slot', function ($query) use ($lesson) {
+        //             $query->where('lesson_id', $lesson->id);
+        //         })->count();
+        //     $total = $checkPackageBooking->purchased_slot ?? 0;
 
-            if ($used == $total) {
-                return response()->json(['message' => "Max slots ($total) reached for this package lesson."], 422);
-            }
-        }
+        //     if ($used == $total) {
+        //         return request()->redirect == 1 ? redirect()->back()->with('warning', "Max slots ($total) reached for this package lesson.") :
+        //             response()->json(['message' => "Max slots ($total) reached for this package lesson."], 422);
+        //     }
+        // }
 
 
         if (!$bookingStudent->slots->pluck('date_time')->isEmpty()) {
