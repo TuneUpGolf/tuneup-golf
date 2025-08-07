@@ -49,7 +49,10 @@ class PurchaseDataTable extends DataTable
                 $lessonName           = e($purchase->lesson_name);
                 $truncatedLessonName  = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
 
-                $url = route('purchase.show', $purchase->id);
+                $lesson_type = $purchase->lesson->type ?? null;
+
+                $url = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? route('purchase.feedback.index', ['purchase_id' => $purchase->id]) :
+                    route('purchase.show', $purchase->id);
 
                 // Check user role
                 if (Auth::user()->type == 'Instructor') {
