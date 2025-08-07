@@ -983,6 +983,20 @@ class LessonController extends Controller
                         ]);
                     }
                 }
+
+                // Send booking notifications
+                $this->sendSlotNotification(
+                    $slot,
+                    'Slot Booked',
+                    'A slot has been booked for :date with :instructor for the in-person lesson :lesson.',
+                    'A slot has been booked for :date with :student for the in-person lesson :lesson.'
+                );
+
+                SendEmail::dispatch($slot->lesson->user->email, new SlotBookedByStudentMail(
+                    $bookingStudent->name,
+                    date('Y-m-d', strtotime($slot->date_time)),
+                    date('h:i A', strtotime($slot->date_time))
+                ));
             }
         } else {
             if ($slot->student()->count() + $totalNewBookings > $slot->lesson->max_students) {
@@ -1048,22 +1062,22 @@ class LessonController extends Controller
                         ]);
                     }
                 }
+
+                // Send booking notifications
+                $this->sendSlotNotification(
+                    $slot,
+                    'Slot Booked',
+                    'A slot has been booked for :date with :instructor for the in-person lesson :lesson.',
+                    'A slot has been booked for :date with :student for the in-person lesson :lesson.'
+                );
+
+                SendEmail::dispatch($slot->lesson->user->email, new SlotBookedByStudentMail(
+                    $bookingStudent->name,
+                    date('Y-m-d', strtotime($slot->date_time)),
+                    date('h:i A', strtotime($slot->date_time))
+                ));
             }
         }
-
-        // Send booking notifications
-        $this->sendSlotNotification(
-            $slot,
-            'Slot Booked',
-            'A slot has been booked for :date with :instructor for the in-person lesson :lesson.',
-            'A slot has been booked for :date with :student for the in-person lesson :lesson.'
-        );
-
-        SendEmail::dispatch($slot->lesson->user->email, new SlotBookedByStudentMail(
-            $bookingStudent->name,
-            date('Y-m-d', strtotime($slot->date_time)),
-            date('h:i A', strtotime($slot->date_time))
-        ));
 
         return request()->redirect == 1
             ? redirect()->route(
