@@ -267,13 +267,13 @@ class PurchaseController extends Controller
                             null,
                         );
 
-                        if ($bookingStudent = $purchase->student->name ?? false) {
-                            SendEmail::dispatch($slot->lesson->user->email, new SlotBookedByStudentMail(
-                                $bookingStudent,
-                                date('Y-m-d', strtotime($slot->date_time)),
-                                date('h:i A', strtotime($slot->date_time))
-                            ));
-                        }
+                        // if ($bookingStudent = $purchase->student->name ?? false) {
+                        //     SendEmail::dispatch($slot->lesson->user->email, new SlotBookedByStudentMail(
+                        //         $bookingStudent,
+                        //         date('Y-m-d', strtotime($slot->date_time)),
+                        //         date('h:i A', strtotime($slot->date_time))
+                        //     ));
+                        // }
 
                         // } else {
                         //     // Send standard notification for single-slot purchases
@@ -359,7 +359,6 @@ class PurchaseController extends Controller
                             $path = $this->convertSingleVideo($localPath);
                         } else {
                             // Digital Ocean space storage
-                            $file = $request->file('video');
                             $extension = $file->getClientOriginalExtension();
                             $randomFileName = Str::random(25) . '.' . $extension;
                             //$filePath = Auth::user()->tenant_id.'/purchaseVideos/'.$randomFileName;
@@ -379,11 +378,11 @@ class PurchaseController extends Controller
                             $path = $this->convertSingleVideo($localPath);
                         } else {
                             // Digital Ocean space storage
-                            $file = $request->file('video_2');
-                            $extension = $file->getClientOriginalExtension();
+                            $extension = $file2->getClientOriginalExtension();
                             $randomFileName = Str::random(25) . '.' . $extension;
-                            $filePath = Auth::user()->tenant_id . '/purchaseVideos/' . $randomFileName;
-                            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                            // $filePath = Auth::user()->tenant_id . '/purchaseVideos/' . $randomFileName;
+                            $filePath = $currentDomain . '/' . $purchase->lesson_id . '/' . $purchase->student_id . '/' . $randomFileName;
+                            Storage::disk('spaces')->put($filePath, file_get_contents($file2), 'public');
                             $path = Storage::disk('spaces')->url($filePath);
                         }
                         $purchase_video->video_url_2 = $path;
