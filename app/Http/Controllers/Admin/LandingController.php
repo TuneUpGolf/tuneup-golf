@@ -40,20 +40,12 @@ class LandingController extends Controller
             $lang                           = UtilityFacades::getActiveLanguage();
             \App::setLocale($lang);
             $appsMultipleImageSettings      = json_decode(UtilityFacades::getsettings('apps_multiple_image_setting'));
-            $features                       = json_decode(UtilityFacades::getsettings('feature_setting'));
             $menuSettings                   = json_decode(UtilityFacades::getsettings('menu_setting'));
             $businessGrowthsSettings        = json_decode(UtilityFacades::getsettings('business_growth_setting'));
             $businessGrowthsViewSettings    = json_decode(UtilityFacades::getsettings('business_growth_view_setting'));
-            $testimonials                   = Testimonial::where('status', 1)->get();
-            $faqs                           = Faq::latest()->take(4)->get();
             $footerMainMenus                = FooterSetting::where('parent_id', 0)->get();
-            $blogs = Posts::all();
             if (UtilityFacades::getsettings('landing_page_status') == '1') {
                 return view('welcome', compact(
-                    'blogs',
-                    'features',
-                    'faqs',
-                    'testimonials',
                     'menuSettings',
                     'businessGrowthsSettings',
                     'businessGrowthsViewSettings',
@@ -142,6 +134,6 @@ class LandingController extends Controller
             $lang   = UtilityFacades::getActiveLanguage();
         }
         Cookie::queue('lang', $lang, 120);
-        return redirect()->back()->with('success',__('Language successfully changed.'));
+        return redirect()->back()->with('success', __('Language successfully changed.'));
     }
 }
