@@ -310,6 +310,12 @@ class TenantDatabaseSeeder extends Seeder
 
             ['key' => 'footer_setting_enable', 'value' => 'off'],
             ['key' => 'footer_description', 'value' => 'Analyzing Golf'],
+            ['key' => 'social_url_fb', 'value' => null],
+            ['key' => 'social_url_x', 'value' => null],
+            ['key' => 'social_url_ig', 'value' => null],
+            ['key' => 'social_url_yt', 'value' => null],
+            ['key' => 'social_url_ln', 'value' => null],
+            ['key' => 'banner_image', 'value' => null],
         ];
 
         tenancy()->central(function ($tenant) {
