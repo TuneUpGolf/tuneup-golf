@@ -9,6 +9,9 @@ use LaravelViews\Views\GridView;
 
 class LessonsGridView extends GridView
 {
+    protected $cachedCurrency = null;
+    protected $cachedCurrencySymbol = null;
+
     /**
      * Sets a model class to get the initial data
      */
@@ -51,12 +54,32 @@ class LessonsGridView extends GridView
     public function card($model)
     {
         $model->load('user');
-        $tenantId = tenancy()->tenant->id;
-        $currency = tenancy()->central(function () use ($model, $tenantId) {
-            return User::where('tenant_id', $tenantId)->value('currency');
-        });
 
-        $symbol = User::getCurrencySymbol($currency);
+        if ($this->cachedCurrency === null) {
+            $this->cachedCurrency = \App\Facades\UtilityFacades::getsettings('currency');
+        }
+        if ($this->cachedCurrencySymbol === null) {
+            $this->cachedCurrencySymbol = \App\Models\User::getCurrencySymbol($this->cachedCurrency);
+        }
+
+        $symbol = $this->cachedCurrencySymbol;
+        $currency = $this->cachedCurrency;
+
+        $firstSlot = $model->slots->first();
+        if ($firstSlot) {
+            $studentCount = $firstSlot->student->count();
+            $isFullyBooked = $studentCount >= $firstSlot->lesson->max_students;
+            $availableSlots = $firstSlot->lesson->max_students - $studentCount;
+        } else {
+            $studentCount = 0;
+            $isFullyBooked = false;
+            $availableSlots = 0;
+        }
+
+        $allSlots = ($model->type === 'inPerson' || $model->type == 'package') ?
+            $model->slots->filter(function ($slot) {
+                return $slot->student->count() < $slot->lesson->max_students;
+            })->values() : null;
 
         return [
             'image' =>  isset($model->user->avatar) ?
@@ -65,6 +88,13 @@ class LessonsGridView extends GridView
             'title' => $model->lesson_name,
             'subtitle' => str_replace(['(', ')'], '', $symbol) . ' ' . $model->lesson_price . ' (' . strtoupper($currency) . ')',
             'description' => $model->lesson_description,
+            'currency' => $currency,
+            'currencySymbol' => $symbol,
+            'firstSlot' => $firstSlot,
+            'bookedCount' => $studentCount,
+            'availableSlots' => $availableSlots,
+            'isFullyBooked' => $isFullyBooked,
+            'allSlots' => $allSlots
         ];
     }
 

@@ -42,12 +42,20 @@
     @if (Auth::user()->dark_layout == 1)
         <link rel="stylesheet" href="{{ asset('assets/css/style-dark.css') }}" id="main-style-link">
     @elseif(Auth::user()->rtl_layout != '1') --}}
-    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" id="main-style-link">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css?v=08.01.2025') }}" id="main-style-link">
     {{-- @endif --}}
     @stack('css')
 </head>
 
 <body class="{{ $color }}">
+    <!-- Full Page Loader -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-content">
+            <div class="loader-spinner"></div>
+            <div class="loader-text">Processing...</div>
+        </div>
+    </div>
+
     <!-- [ Pre-loader ] start -->
     <div class="loader-bg">
         <div class="loader-track">
@@ -156,7 +164,7 @@
 <script src="{{ asset('vendor/notifier/bootstrap-notify.min.js') }}"></script>
 {{-- toggle button --}}
 <script src="{{ asset('assets/js/plugins/bootstrap-switch-button.min.js') }}"></script>
-<script src="{{ asset('assets/js/custom.js') }}"></script>
+<script src="{{ asset('assets/js/custom.js?v=08.01.2025') }}"></script>
 
 @include('layouts.includes.alerts')
 

@@ -4,7 +4,6 @@ namespace App\Http\Livewire;
 
 use App\Models\Lesson;
 use App\Models\Post;
-use App\Models\User;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use LaravelViews\Views\GridView;
 
@@ -21,6 +20,8 @@ class StudentDashboardView extends GridView
     public $cardComponent = 'admin.lessons.card';
 
     protected $currentView;
+    protected $cachedCurrency = null;
+    protected $cachedCurrencySymbol = null;
 
     public function __construct()
     {
@@ -39,18 +40,20 @@ class StudentDashboardView extends GridView
         $query = Lesson::where('active_status', true);
 
         return match ($this->currentView) {
-            'in-person' => $query->with('packages')->whereIn('type', [Lesson::LESSON_TYPE_INPERSON, Lesson::LESSON_TYPE_PACKAGE])
+            'in-person' => $query->with(['packages' => function ($query) {
+                return $query->orderBy('number_of_slot');
+            }, 'slots.student', 'slots.lesson', 'user'])->whereIn('type', [Lesson::LESSON_TYPE_INPERSON, Lesson::LESSON_TYPE_PACKAGE])
                 ->where(function ($q) {
                     $q->where('payment_method', '!=', 'online')
                         ->orWhereHas('user', function ($q) {
                             $q->where('is_stripe_connected', true);
                         });
                 }),
-            'online' => $query->where('type', Lesson::LESSON_TYPE_ONLINE)
+            'online' => $query->with(['slots.student', 'slots.lesson', 'user'])->where('type', Lesson::LESSON_TYPE_ONLINE)
                 ->whereHas('user', function ($q) {
                     $q->where('is_stripe_connected', true);
                 }),
-            default => $query
+            default => $query->with(['slots.student', 'slots.lesson', 'user'])
         };
     }
 
@@ -61,17 +64,47 @@ class StudentDashboardView extends GridView
         }
 
         $model->load('user');
-        $tenantId = tenancy()->tenant->id;
-        $currency = \App\Facades\UtilityFacades::getsettings('currency');
-        $symbol = User::getCurrencySymbol($currency);
+
+        if ($this->cachedCurrency === null) {
+            $this->cachedCurrency = \App\Facades\UtilityFacades::getsettings('currency');
+        }
+        if ($this->cachedCurrencySymbol === null) {
+            $this->cachedCurrencySymbol = \App\Models\User::getCurrencySymbol($this->cachedCurrency);
+        }
+
+        $symbol = $this->cachedCurrencySymbol;
+        $currency = $this->cachedCurrency;
+
+        $firstSlot = $model->slots->first();
+        if ($firstSlot) {
+            $studentCount = $firstSlot->student->count();
+            $isFullyBooked = $studentCount >= $firstSlot->lesson->max_students;
+            $availableSlots = $firstSlot->lesson->max_students - $studentCount;
+        } else {
+            $studentCount = 0;
+            $isFullyBooked = false;
+            $availableSlots = 0;
+        }
+
+        $allSlots = ($model->type === 'inPerson' || $model->type == 'package') ?
+            $model->slots->filter(function ($slot) {
+                return $slot->student->count() < $slot->lesson->max_students;
+            })->values() : null;
 
         return [
-            'image' =>  isset($model->user->avatar) ?
-                asset('/storage' . '/' . tenant('id') . '/' . $model->user->avatar) :
-                asset('assets/img/logo/logo.png'),
+            'image' => isset($model->user->avatar)
+                ? asset('/storage' . '/' . tenant('id') . '/' . $model->user->avatar)
+                : asset('assets/img/logo/logo.png'),
             'title' => $model->lesson_name,
             'subtitle' => str_replace(['(', ')'], '', $symbol) . ' ' . $model->lesson_price . ' (' . strtoupper($currency) . ')',
             'description' => $model->lesson_description,
+            'currency' => $currency,
+            'currencySymbol' => $symbol,
+            'firstSlot' => $firstSlot,
+            'bookedCount' => $studentCount,
+            'availableSlots' => $availableSlots,
+            'isFullyBooked' => $isFullyBooked,
+            'allSlots' => $allSlots
         ];
     }
 

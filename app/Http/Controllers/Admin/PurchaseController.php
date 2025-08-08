@@ -236,7 +236,7 @@ class PurchaseController extends Controller
                         // If the slot is a package lesson, attach student and their friends
                         // if (!!$slot->lesson->is_package_lesson) {
                         $slots = $slot->lesson->slots; // Fetch all slots of the lesson
-                        if (!!$slot->lesson->is_package_lesson) {
+                        if ($slot->lesson->is_package_lesson == 0) {
                             foreach ($slots as $lessonSlot) {
                                 // Attach student to all slots
                                 $lessonSlot->student()->attach($purchase->student_id, [
@@ -267,13 +267,13 @@ class PurchaseController extends Controller
                             null,
                         );
 
-                        if ($bookingStudent = $purchase->student->name ?? false) {
-                            SendEmail::dispatch($slot->lesson->user->email, new SlotBookedByStudentMail(
-                                $bookingStudent,
-                                date('Y-m-d', strtotime($slot->date_time)),
-                                date('h:i A', strtotime($slot->date_time))
-                            ));
-                        }
+                        // if ($bookingStudent = $purchase->student->name ?? false) {
+                        //     SendEmail::dispatch($slot->lesson->user->email, new SlotBookedByStudentMail(
+                        //         $bookingStudent,
+                        //         date('Y-m-d', strtotime($slot->date_time)),
+                        //         date('h:i A', strtotime($slot->date_time))
+                        //     ));
+                        // }
 
                         // } else {
                         //     // Send standard notification for single-slot purchases
@@ -308,7 +308,10 @@ class PurchaseController extends Controller
                 }
 
                 if ($request->query('redirect') == 1) {
-                    return redirect()->route('slot.view', ['lesson_id' => $purchase->lesson->id])->with('success', 'Purchase Successful.');
+                    return redirect()->route(
+                        $purchase->lesson->is_package_lesson == 0 ? 'home' : 'slot.view',
+                        ['lesson_id' => $purchase->lesson->id]
+                    )->with('success', 'Purchase Successful.');
                 }
                 return response("Purchase Confirmed Successfully");
             }
@@ -356,7 +359,6 @@ class PurchaseController extends Controller
                             $path = $this->convertSingleVideo($localPath);
                         } else {
                             // Digital Ocean space storage
-                            $file = $request->file('video');
                             $extension = $file->getClientOriginalExtension();
                             $randomFileName = Str::random(25) . '.' . $extension;
                             //$filePath = Auth::user()->tenant_id.'/purchaseVideos/'.$randomFileName;
@@ -376,11 +378,11 @@ class PurchaseController extends Controller
                             $path = $this->convertSingleVideo($localPath);
                         } else {
                             // Digital Ocean space storage
-                            $file = $request->file('video_2');
-                            $extension = $file->getClientOriginalExtension();
+                            $extension = $file2->getClientOriginalExtension();
                             $randomFileName = Str::random(25) . '.' . $extension;
-                            $filePath = Auth::user()->tenant_id . '/purchaseVideos/' . $randomFileName;
-                            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                            // $filePath = Auth::user()->tenant_id . '/purchaseVideos/' . $randomFileName;
+                            $filePath = $currentDomain . '/' . $purchase->lesson_id . '/' . $purchase->student_id . '/' . $randomFileName;
+                            Storage::disk('spaces')->put($filePath, file_get_contents($file2), 'public');
                             $path = Storage::disk('spaces')->url($filePath);
                         }
                         $purchase_video->video_url_2 = $path;
@@ -407,11 +409,13 @@ class PurchaseController extends Controller
                         $request->setMethod('POST');
                         return $this->confirmPurchaseWithRedirect($request);
                     } else if ($request->redirect == 1) {
-                        return redirect()->route('purchase.index')->with('success', 'Video Successfully Added');
+                        return redirect()->route('home')->with('success', 'Video Successfully Added');
                     }
                 } catch (\Exception $e) {
+                    report($e);
                     return redirect()->back()->with('errors', $e->getMessage());
                 } catch (Error $e) {
+                    report($e);
                     return response($e, 419);
                 };
             } else {

@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Actions\SendPushNotification;
 use App\Actions\SendSMS;
+use App\Models\Lesson;
 use Illuminate\Http\Request;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
@@ -152,7 +153,11 @@ trait PurchaseTrait
                 ],
                 'mode' => 'payment',
                 'customer' => Auth::user()?->stripe_cus_id ?? null,
-                'success_url' => route('purchase-success', $success_params),
+                'success_url' => route(
+                    $purchase->lesson->is_package_lesson ||
+                        $purchase->lesson->type == Lesson::LESSON_TYPE_ONLINE ? 'home' : 'purchase-success',
+                    $success_params
+                ),
                 'cancel_url' => route('purchase-cancel', $cancel_params),
             ];
 
@@ -194,7 +199,7 @@ trait PurchaseTrait
             $purchase = Purchase::find($request?->purchase_id);
             if ($purchase && Auth::user()->can('create-purchases') && !!$purchase->instructor->is_stripe_connected) {
                 $session = $this->createSessionForPayment($purchase, true);
-                
+
                 if (empty($session->url)) {
                     throw new \Exception('Failed to generate payment link');
                 }

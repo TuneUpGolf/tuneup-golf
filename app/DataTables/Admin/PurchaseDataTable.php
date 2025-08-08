@@ -26,13 +26,13 @@ class PurchaseDataTable extends DataTable
             ->smart(false)
             ->addIndexColumn()
             ->filterColumn('lesson_name', function ($query, $keyword) {
-                $query->where('lessons.lesson_name', 'like', "%{$keyword}%");
+                $query->orWhere('lessons.lesson_name', 'like', "%{$keyword}%");
             })
             ->filterColumn('instructor_name', function ($query, $keyword) {
-                $query->where('instructors.name', 'like', "%{$keyword}%");
+                $query->orWhere('instructors.name', 'like', "%{$keyword}%");
             })
             ->filterColumn('student_name', function ($query, $keyword) {
-                $query->where('students.name', 'like', "%{$keyword}%");
+                $query->orWhere('students.name', 'like', "%{$keyword}%");
             })
             ->editColumn('instructor_name', function ($purchase) {
                 $imageSrc = $purchase->instructor->dp
@@ -49,7 +49,10 @@ class PurchaseDataTable extends DataTable
                 $lessonName           = e($purchase->lesson_name);
                 $truncatedLessonName  = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
 
-                $url = route('purchase.show', $purchase->id);
+                $lesson_type = $purchase->lesson->type ?? null;
+
+                $url = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? route('purchase.feedback.index', ['purchase_id' => $purchase->id]) :
+                    route('purchase.show', $purchase->id);
 
                 // Check user role
                 if (Auth::user()->type == 'Instructor') {
@@ -95,14 +98,18 @@ class PurchaseDataTable extends DataTable
             ->addColumn('remaining_slots', function ($purchase) {
                 $lesson = $purchase->lesson;
                 if (!$lesson) return '-';
-                $totalSlots = $lesson->slots()->count();
-                $maxStudents = $lesson->max_students ?? 0;
-                $totalCapacity = $totalSlots * $maxStudents;
-                $booked = $lesson->slots->reduce(function ($carry, $slot) {
-                    return $carry + $slot->student()->count();
-                }, 0);
-                $remaining = $totalCapacity - $booked;
-                return "{$remaining}/{$totalCapacity}";
+
+                if ($lesson->type == Lesson::LESSON_TYPE_PACKAGE) {
+                    $used = \App\Models\StudentSlot::whereHas('slot', function ($query) use ($lesson) {
+                        $query->where('lesson_id', $lesson->id)->where('is_completed', 1);
+                    })->count();
+                    $total = $purchase->purchased_slot ?? 0;
+
+                    $used = $used > $total ? $total : $used;
+
+                    return "{$used}/{$total}";
+                }
+                return '-';
             })
             ->addColumn('action', function ($purchase) {
                 $hasBooking = \App\Models\Slots::where('lesson_id', $purchase->lesson_id)
@@ -125,18 +132,21 @@ class PurchaseDataTable extends DataTable
                 'instructors.name as instructor_name', // Get instructor name
                 'students.name as student_name' // Get student name
             ])
-            ->whereHas('slots', function ($q) {
-                $q->has('student');
-            })
             ->join('lessons', 'purchases.lesson_id', '=', 'lessons.id')
             ->join('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
             ->join('students as students', 'purchases.student_id', '=', 'students.id')
             ->orderBy('purchases.created_at', 'desc'); // Order by creation date in descending order
 
+        // Filter by lesson type if provided
+        if (request()->has('lesson_type') && request('lesson_type')) {
+            $query->where(function ($q) {
+                $q->where('lessons.type', request('lesson_type'));
+            });
+        }
+
         // Filter query based on user role
         if ($user->type == Role::ROLE_STUDENT) {
-            $query->where('purchases.student_id', $user->id)
-                ->orWhere('purchases.type', 'package');
+            $query->where('purchases.student_id', $user->id);
         }
 
         if ($user->type == Role::ROLE_ADMIN) {
@@ -155,9 +165,9 @@ class PurchaseDataTable extends DataTable
         }
 
         if ($user->type == Role::ROLE_INSTRUCTOR) {
-            $query->where('purchases.instructor_id', $user->id)
-                ->where('purchases.status', Purchase::STATUS_COMPLETE);
+            $query->where('purchases.instructor_id', $user->id);
         }
+
         return $query;
     }
 
@@ -166,10 +176,18 @@ class PurchaseDataTable extends DataTable
 
     public function html()
     {
+        $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto; max-width: 200px;'><option value=''>- Lesson Type -</option>";
+        foreach (Lesson::TYPE_MAPPING as $key => $label) {
+            $lessonTypeFilter .= "<option value='" . $key . "'>" . $label . "</option>";
+        }
+        $lessonTypeFilter .= "</select>";
+
         $buttons = [
             // ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
             // ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
+
         ];
+
         if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
             unset($buttons[0]);
         }
@@ -195,6 +213,17 @@ class PurchaseDataTable extends DataTable
                 searchInput.removeClass(\'form-control form-control-sm\');
                 searchInput.addClass(\'dataTable-input\');
                 var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
+                
+                $(".dataTable-search").prepend("' . $lessonTypeFilter . '");
+                $(".dataTable-search").addClass("d-flex");
+
+                $("#lessonTypeFilter").on("change", function() {
+                    table.api().ajax.reload();
+                });
+
+                $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
+                    data.lesson_type = $("#lessonTypeFilter").val();
+                });
             }')
             ->parameters([
                 "columnDefs" => [
@@ -202,8 +231,8 @@ class PurchaseDataTable extends DataTable
                     ["responsivePriority" => 2, "targets" => 4],
                 ],
                 "dom" =>  "
-                <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12 d-none d-sm-block'>
-                <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
+                <'dataTable-top row'<'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
+                <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>>
                 <'dataTable-container'<'col-sm-12'tr>>
                 <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
                 <'col-sm-7'p>>

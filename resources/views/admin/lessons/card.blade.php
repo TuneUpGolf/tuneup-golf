@@ -10,11 +10,7 @@
     'hasDefaultAction' => false,
     'selected' => false,
 ])
-@php
-    $firstSlot = $model->slots->first();
-    $bookedCount = $firstSlot?->student()->count();
-    $availableSlots = $firstSlot?($firstSlot->lesson->max_students - (int)$bookedCount):0;
-@endphp
+
 <div
     class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col h-full">
     <div class="relative text-center p-3 flex gap-3">
@@ -34,7 +30,7 @@
                 {{-- <span class="">({!! \App\Models\Purchase::where('lesson_id', $model->id)->where('status',
                     'complete')->count() !!} Purchased)</span> --}}
                 <div class="flex flex-row justify-between">
-                    @if ($model->is_package_lesson)
+                    @if ($model->is_package_lesson && !$model->packages->isEmpty())
                         <div class="bg-green-500 text-white text-sm font-bold px-2 py-1 rounded-full">
                             Package
                             Lesson
@@ -67,7 +63,7 @@
                         <option value="0">Select Package</option>
                         @foreach ($model->packages as $package)
                             <option value="{{ $package->price }}">{!! $package->number_of_slot !!} Lesson &nbsp;-&nbsp;
-                                ${!! $package->price !!} CAD</option>
+                                {{ $currencySymbol }} {!! $package->price !!} {{ $currency }}</option>
                         @endforeach
                     </select>
                 </form>
@@ -103,9 +99,6 @@
 
             @if ($model->type === 'inPerson' || $model->type == 'package')
                 {{-- @if ($model->is_package_lesson) --}}
-                    @php
-                        $allSlots = $model->slots;
-                    @endphp
                     @if ($firstSlot)
                     {{-- @if ($firstSlot && !$firstSlot->isFullyBooked()) --}}
                         {{-- @php
@@ -132,16 +125,16 @@
                                 Purchase
                             </button>
                         @endif --}}
-                        @if($firstSlot->isFullyBooked() || $model->payment_method == 'cash')
+                        {{-- @if($isFullyBooked)
                             <a href="{{ route('slot.view', ['lesson_id' => $model->id]) }}">
                                 <button class="lesson-btn">Purchase</button>
                             </a>
-                        @else
+                        @else --}}
                             <button class="lesson-btn"
-                                onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}' ,'{{ $model->lesson_price }}', {{ $model->id}})">
+                                onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}', {{ $model->is_package_lesson }} ,'{{ $model->lesson_price }}', {{ $model->id}})">
                                 Purchase
                             </button>
-                        @endif
+                        {{-- @endif --}}
                     @else
                         <button class="lesson-btn opacity-50 cursor-not-allowed" disabled>
                             No Slots Available
@@ -168,104 +161,95 @@
 @push('javascript')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function openBookingPopup(allSlots, type, price, lessonId) {
-
-            if (type == 'package') {
-                price = $("#package_slot_"+lessonId).val();
+        function openBookingPopup(allSlots, type, isPackageLesson, price, lessonId) {
+            if (type === 'package') {
+                price = $("#package_slot_" + lessonId).val();
                 if (price == 0) {
                     alert('Please select package option!');
                     return;
                 }
-            } else {
-                price = price;
             }
             document.getElementById('packagePrice').value = price;
 
-            const firstSlot = allSlots[0];
-            document.getElementById('slotIdInput').value = firstSlot.id;
+            if (isPackageLesson == 1) {
+                const firstSlot = allSlots[0];
+                document.getElementById('slotIdInput').value = firstSlot.id;
+                document.getElementById("friendNamesInput").value = JSON.stringify([]);
+                document.getElementById("bookingForm").submit();
+            } else {
+                if (type === 'package') {
+                    price = $("#package_slot_" + lessonId).val();
+                    if (price == 0) {
+                        alert('Please select package option');
+                        return;
+                    }
+                }
+                if (!allSlots || allSlots.length === 0) {
+                    console.error("No slots available!");
+                    return;
+                }
+                const firstSlot = allSlots[0]; // Extract first slot dynamically
+                document.getElementById('slotIdInput').value = firstSlot.id;
+                document.getElementById('packagePrice').value = price;
 
+                const availableSeats = firstSlot.lesson.max_students - firstSlot.student.length;
+                const lesson = firstSlot.lesson;
 
-            document.getElementById("friendNamesInput").value = JSON.stringify([]);
-            document.getElementById("bookingForm").submit();
-        //     if (type == 'package') {
-        //         price = $("#package_slot_"+lessonId).val();
-        //         if (price == 0) {
-        //             alert('Please select package option');
-        //             return;
-        //         }
-        //     } else {
-        //         price = price;
-        //     }
-        //     if (!allSlots || allSlots.length === 0) {
-        //         console.error("No slots available!");
-        //         return;
-        //     }
-        //     const firstSlot = allSlots[0]; // Extract first slot dynamically
-        //     document.getElementById('slotIdInput').value = firstSlot.id;
-        //     document.getElementById('packagePrice').value = price;
+                // Format All Slots' Date & Time
+                let slotDetailsHtml = "";
+                allSlots.forEach((s, index) => {
+                    const formattedTime = new Intl.DateTimeFormat('en-US', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    }).format(new Date(s.date_time.replace(/-/g, "/")));
 
-        //     const availableSeats = firstSlot.lesson.max_students - firstSlot.student.length;
-        //     const lesson = firstSlot.lesson;
+                    slotDetailsHtml += `
+                        <div class="slot-item">
+                            <span><strong>Slot ${index + 1}:</strong> ${formattedTime}</span><br/>
+                        </div>`;
+                });
 
-        //     // Format All Slots' Date & Time
-        //     let slotDetailsHtml = "";
-        //     allSlots.forEach((s, index) => {
-        //         const formattedTime = new Intl.DateTimeFormat('en-US', {
-        //             weekday: 'long',
-        //             day: 'numeric',
-        //             month: 'short',
-        //             hour: '2-digit',
-        //             minute: '2-digit',
-        //             hour12: true
-        //         }).format(new Date(s.date_time.replace(/-/g, "/")));
-
-        //         slotDetailsHtml += `
-        //     <div class="slot-item">
-        //         <span><strong>Slot ${index + 1}:</strong> ${formattedTime}</span><br/>
-        //     </div>
-        // `;
-        //     });
-
-        //     Swal.fire({
-        //         title: "Slot Details",
-        //         html: `
-        // <div style="text-align: left; font-size: 14px;">
-        //     <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
-        //     <span><strong>Location:</strong> ${firstSlot.location}</span><br/>
-        //     <span><strong>Available Spots:</strong> ${availableSeats}</span><br/>
-        //     <div class="slot-list">
-        //         <h6 class="mt-2"><strong>Slots Available:</strong></h6>
-        //         ${slotDetailsHtml}
-        //     </div>
-        //     <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
-        //     <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
-        // </div>
-        // `,
-        //         showCancelButton: true,
-        //         confirmButtonText: "Book Slot",
-        //         cancelButtonText: "Cancel",
-        //         preConfirm: () => {
-        //             const friendNames = document.getElementById('studentFriends')?.value.trim();
-        //             const friendNamesArray = friendNames ? friendNames.split(',').map(name => name.trim()) : [];
-
-        //             // Ensure it's passed as an array
-        //             document.getElementById("friendNamesInput").value = JSON.stringify(friendNamesArray);
-        //         }
-        //     }).then((result) => {
-        //         if (result.isConfirmed) {
-        //             Swal.fire({
-        //                 title: "Processing...",
-        //                 text: "Please wait while we confirm your booking...",
-        //                 allowOutsideClick: false,
-        //                 didOpen: () => {
-        //                     Swal.showLoading();
-        //                 }
-        //             });
-
-        //             // Submit the hidden form
-        //             document.getElementById("bookingForm").submit();
-        //         }
-        //     });
+                Swal.fire({
+                    title: "Slot Details",
+                    html: `<div style="text-align: left; font-size: 14px;">
+                            <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
+                            <span><strong>Location:</strong> ${firstSlot.location}</span><br/>
+                            <span><strong>Available Spots:</strong> ${availableSeats}</span><br/>
+                            <div class="slot-list">
+                                <h6 class="mt-2"><strong>Slots Available:</strong></h6>
+                                ${slotDetailsHtml}
+                            </div>
+                            <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
+                            <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
+                        </div>`,
+                    showCancelButton: true,
+                    confirmButtonText: "Book Slot",
+                    cancelButtonText: "Cancel",
+                    preConfirm: () => {
+                        const friendNames = document.getElementById('studentFriends')?.value.trim();
+                        const friendNamesArray = friendNames ? friendNames.split(',').map(name => name.trim()) : [];
+                        // Ensure it's passed as an array
+                        document.getElementById("friendNamesInput").value = JSON.stringify(friendNamesArray);
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: "Processing...",
+                            text: "Please wait while we confirm your booking...",
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        // Submit the hidden form
+                        document.getElementById("bookingForm").submit();
+                    }
+                });
+            }
         }
     </script>
 @endpush
