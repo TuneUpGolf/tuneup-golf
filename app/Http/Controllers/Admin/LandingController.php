@@ -38,17 +38,15 @@ class LandingController extends Controller
             $plans  = Plan::where('active_status', 1)->get();
             return view('welcome-admin', compact('plans', 'lang'));
         } else {
-            $lang                           = UtilityFacades::getActiveLanguage();
+            $lang = UtilityFacades::getActiveLanguage();
             \App::setLocale($lang);
-            $instructorDetails = User::where('type', Role::ROLE_INSTRUCTOR)
-                ->with(['lessons', 'post', 'post.likePost'])
-                ->first();
-            $plans = Plan::where('active_status', 1)->get();
+            $instructors = User::where('type', Role::ROLE_INSTRUCTOR)
+                ->get();
+
             if (UtilityFacades::getsettings('landing_page_status') == '1') {
                 return view('welcome', compact(
                     'lang',
-                    'instructorDetails',
-                    'plans'
+                    'instructors'
                 ));
             } else {
                 return redirect()->route('home');
