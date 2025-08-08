@@ -39,6 +39,12 @@ class SettingsController extends Controller
         $data = [
             'app_name' => $request->app_name,
         ];
+        if ($request->banner_image) {
+            Storage::delete(UtilityFacades::getsettings('banner_image'));
+            $appBannerName        = 'app-banner.' . $request->banner_image->extension();
+            $request->banner_image->storeAs('banner', $appBannerName);
+            $data['banner_image']   = 'banner/' . $appBannerName;
+        }
         if ($request->app_logo) {
             Storage::delete(UtilityFacades::getsettings('app_logo'));
             $appLogoName        = 'app-logo.' . $request->app_logo->extension();
@@ -477,6 +483,14 @@ class SettingsController extends Controller
                 'linkedinsetting'   => 'off',
             ];
         }
+
+
+        $data['social_url_fb'] = $request->social_url_fb ?? null;
+        $data['social_url_x'] = $request->social_url_x ?? null;
+        $data['social_url_ig'] = $request->social_url_ig ?? null;
+        $data['social_url_yt'] = $request->social_url_yt ?? null;
+        $data['social_url_ln'] = $request->social_url_ln ?? null;
+
         foreach ($data as $key => $value) {
             UtilityFacades::storesettings([
                 'key'   => $key,
