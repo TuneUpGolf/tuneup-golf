@@ -318,38 +318,38 @@ class TenantDatabaseSeeder extends Seeder
             ['key' => 'banner_image', 'value' => null],
         ];
 
-        // tenancy()->central(function ($tenant) {
-        //     Storage::copy('logo/app-logo1.png', $tenant->id . '/logo/app-logo.png');
-        //     Storage::copy('logo/app-favicon-logo1.png', $tenant->id . '/logo/app-favicon-logo.png');
-        //     Storage::copy('logo/app-dark-logo1.png', $tenant->id . '/logo/app-dark-logo.png');
-        //     Storage::copy('avatar/avatar.png1', $tenant->id . '/avatar/avatar.png');
+        tenancy()->central(function ($tenant) {
+            Storage::copy('logo/app-logo1.png', $tenant->id . '/logo/app-logo.png');
+            Storage::copy('logo/app-favicon-logo1.png', $tenant->id . '/logo/app-favicon-logo.png');
+            Storage::copy('logo/app-dark-logo1.png', $tenant->id . '/logo/app-dark-logo.png');
+            Storage::copy('avatar/avatar.png1', $tenant->id . '/avatar/avatar.png');
 
-        //     Storage::copy('seeder-image/app.png', $tenant->id . '/seeder-image/app.png');
-        //     Storage::copy('seeder-image/1.png', $tenant->id . '/seeder-image/1.png');
-        //     Storage::copy('seeder-image/2.png', $tenant->id . '/seeder-image/2.png');
-        //     Storage::copy('seeder-image/3.png', $tenant->id . '/seeder-image/3.png');
-        //     Storage::copy('seeder-image/4.png', $tenant->id . '/seeder-image/4.png');
-        //     Storage::copy('seeder-image/5.png', $tenant->id . '/seeder-image/5.png');
-        //     Storage::copy('seeder-image/6.png', $tenant->id . '/seeder-image/6.png');
-        //     Storage::copy('seeder-image/7.png', $tenant->id . '/seeder-image/7.png');
-        //     Storage::copy('seeder-image/8.png', $tenant->id . '/seeder-image/8.png');
-        //     Storage::copy('seeder-image/9.png', $tenant->id . '/seeder-image/9.png');
-        //     Storage::copy('seeder-image/thumbnail.png', $tenant->id . '/seeder-image/thumbnail.png');
-        //     Storage::copy('seeder-image/video.webm', $tenant->id . '/seeder-image/video.webm');
-        //     Storage::copy('seeder-image/13.png', $tenant->id . '/seeder-image/13.png');
-        //     Storage::copy('seeder-image/14.png', $tenant->id . '/seeder-image/14.png');
-        //     Storage::copy('seeder-image/15.png', $tenant->id . '/seeder-image/15.png');
-        //     Storage::copy('seeder-image/16.png', $tenant->id . '/seeder-image/16.png');
-        //     Storage::copy('seeder-image/active.svg', $tenant->id . '/seeder-image/active.svg');
-        //     Storage::copy('seeder-image/security.svg', $tenant->id . '/seeder-image/security.svg');
-        //     Storage::copy('seeder-image/secretary.svg', $tenant->id . '/seeder-image/secretary.svg');
-        //     Storage::copy('seeder-image/documents.svg', $tenant->id . '/seeder-image/documents.svg');
-        //     Storage::copy('seeder-image/login.svg', $tenant->id . '/seeder-image/login.svg');
-        //     Storage::copy('seeder-image/menusection1.png', $tenant->id . '/seeder-image/menusection1.png');
-        //     Storage::copy('seeder-image/menusection2.png', $tenant->id . '/seeder-image/menusection2.png');
-        //     Storage::copy('seeder-image/menusection3.png', $tenant->id . '/seeder-image/menusection3.png');
-        //     Storage::copy('seeder-image/startview.png', $tenant->id . '/seeder-image/startview.png');
-        // });
+            Storage::copy('seeder-image/app.png', $tenant->id . '/seeder-image/app.png');
+            Storage::copy('seeder-image/1.png', $tenant->id . '/seeder-image/1.png');
+            Storage::copy('seeder-image/2.png', $tenant->id . '/seeder-image/2.png');
+            Storage::copy('seeder-image/3.png', $tenant->id . '/seeder-image/3.png');
+            Storage::copy('seeder-image/4.png', $tenant->id . '/seeder-image/4.png');
+            Storage::copy('seeder-image/5.png', $tenant->id . '/seeder-image/5.png');
+            Storage::copy('seeder-image/6.png', $tenant->id . '/seeder-image/6.png');
+            Storage::copy('seeder-image/7.png', $tenant->id . '/seeder-image/7.png');
+            Storage::copy('seeder-image/8.png', $tenant->id . '/seeder-image/8.png');
+            Storage::copy('seeder-image/9.png', $tenant->id . '/seeder-image/9.png');
+            Storage::copy('seeder-image/thumbnail.png', $tenant->id . '/seeder-image/thumbnail.png');
+            Storage::copy('seeder-image/video.webm', $tenant->id . '/seeder-image/video.webm');
+            Storage::copy('seeder-image/13.png', $tenant->id . '/seeder-image/13.png');
+            Storage::copy('seeder-image/14.png', $tenant->id . '/seeder-image/14.png');
+            Storage::copy('seeder-image/15.png', $tenant->id . '/seeder-image/15.png');
+            Storage::copy('seeder-image/16.png', $tenant->id . '/seeder-image/16.png');
+            Storage::copy('seeder-image/active.svg', $tenant->id . '/seeder-image/active.svg');
+            Storage::copy('seeder-image/security.svg', $tenant->id . '/seeder-image/security.svg');
+            Storage::copy('seeder-image/secretary.svg', $tenant->id . '/seeder-image/secretary.svg');
+            Storage::copy('seeder-image/documents.svg', $tenant->id . '/seeder-image/documents.svg');
+            Storage::copy('seeder-image/login.svg', $tenant->id . '/seeder-image/login.svg');
+            Storage::copy('seeder-image/menusection1.png', $tenant->id . '/seeder-image/menusection1.png');
+            Storage::copy('seeder-image/menusection2.png', $tenant->id . '/seeder-image/menusection2.png');
+            Storage::copy('seeder-image/menusection3.png', $tenant->id . '/seeder-image/menusection3.png');
+            Storage::copy('seeder-image/startview.png', $tenant->id . '/seeder-image/startview.png');
+        });
 
         foreach ($settings as $setting) {
             Setting::where('key', $setting['key'])->delete();
