@@ -24,6 +24,9 @@ $feedbackUrl = $feedbackContent->url??false;
         @if($purchaseVideoUrl)
         <div class="video-wrap border-r border-gray-400 pr-4">
             <video width='320' height='240' controls autoplay="autoplay" loop muted src="{{ $purchaseVideoUrl }}" class="w-80 h-60 rounded-lg"></video>
+            @if($purchaseVideo2Url)
+                <video width='320' height='240' controls autoplay="autoplay" loop muted src="{{ $purchaseVideo2Url }}" class="w-80 h-60 rounded-lg mt-5"></video>        
+            @endif
             @if(auth()->user()->type == 'Instructor')
             <div class="flex gap-1 mt-3">
 
@@ -38,9 +41,6 @@ $feedbackUrl = $feedbackContent->url??false;
                     Analyze
                 </a>
             </div>
-            @endif
-            @if($purchaseVideo2Url)
-                <video width='320' height='240' controls autoplay="autoplay" loop muted src="{{ $purchaseVideo2Url }}" class="w-80 h-60 rounded-lg mt-20"></video>        
             @endif
         </div>
         @endif
