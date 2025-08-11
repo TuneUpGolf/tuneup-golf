@@ -35,10 +35,10 @@ $banner = Utility::getsettings('banner_image');
       <div class="flex flex-wrap gap-5 w-full mt-10">
          @if(!$instructors->isEmpty())
             @foreach ($instructors as $instructor)
-            <div class="max-w-sm flex flex-col items-center text-center">
+            <div class="flex flex-col items-center text-center">
                 <a href="{{ url('/login') }}" title="{{ $instructor->name }}">
-                    <img class="h-30 rounded-full"
-                    src="{{ asset('storage/' . tenant()->id . '/' . $instructor->avatar) }}"
+                    <img class="h-25 rounded-full"
+                    src="{{ asset('storage/' . tenant()->id . '/' . $instructor->logo) }}"
                     alt="Instructor Avatar">
                     <div class="py-2">
                         <h1 class="text-xl font-bold truncate">
