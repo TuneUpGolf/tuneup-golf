@@ -43,7 +43,7 @@ class SettingsController extends Controller
             Storage::delete(UtilityFacades::getsettings('banner_image'));
             $appBannerName        = 'app-banner.' . $request->banner_image->extension();
             $request->banner_image->storeAs('banner', $appBannerName);
-            $data['banner_image']   = 'banner/' . $appBannerName;
+            $data['banner_image']   = asset('storage/' . tenant()->id . '/banner/' . $appBannerName);
         }
         if ($request->app_logo) {
             Storage::delete(UtilityFacades::getsettings('app_logo'));
