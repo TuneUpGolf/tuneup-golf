@@ -127,6 +127,45 @@
                             ]) !!}
                             <div class="card-body">
                                 <div class="row">
+
+                                    <div class="col-lg-12">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h5>{{ __('Banner') }}</h5>
+                                            </div>
+                                            <div class="p-3 card-body setting-card setting-logo-box">
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <div
+                                                            class="py-2 text-center logo-content logo-set-bg app-image-set">
+                                                            <a href="{{ Utility::getsettings('banner_image') }}"
+                                                                target="_blank">
+                                                                <img src="{{ Utility::getsettings('banner_image') }}"
+                                                                id="banner_image">
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="mt-4 choose-files">
+                                                            <label class="form-label d-block">
+                                                                <div class="m-auto bg-primary">
+                                                                    <i class="px-1 ti ti-upload"></i>
+                                                                    {{ __('Choose File Here') }}
+                                                                    <input type="file" class="form-control file"
+                                                                        accept="image/png, image/gif, image/jpeg, image/jpg"
+                                                                        id="banner_image" name="banner_image"
+                                                                        data-filename="banner_image"
+                                                                        onchange="document.getElementById('banner_image').src = window.URL.createObjectURL(this.files[0])">
+                                                                </div>
+                                                            </label>
+                                                            <p class="edit-favicon"></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="col-sm-4">
                                         <div class="card">
                                             <div class="card-header">
@@ -1722,6 +1761,45 @@
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            
+                                            <div class="form-group">
+                                                {{ Form::label('social_url_fb', __('Social URL Facebook'), ['class' => 'form-label']) }}
+                                                {!! Form::text('social_url_fb', Utility::getsettings('social_url_fb'), [
+                                                    'class' => 'form-control',
+                                                    'placeholder' => __('Enter Facebook URL'),
+                                                ]) !!}
+                                            </div>
+                                            <div class="form-group">
+                                                {{ Form::label('social_url_x', __('Social URL X'), ['class' => 'form-label']) }}
+                                                {!! Form::text('social_url_x', Utility::getsettings('social_url_x'), [
+                                                    'class' => 'form-control',
+                                                    'placeholder' => __('Enter X URL'),
+                                                ]) !!}
+                                            </div>
+                                            <div class="form-group">
+                                                {{ Form::label('social_url_ig', __('Social URL Instagram'), ['class' => 'form-label']) }}
+                                                {!! Form::text('social_url_ig', Utility::getsettings('social_url_ig'), [
+                                                    'class' => 'form-control',
+                                                    'placeholder' => __('Enter Instagram URL'),
+                                                ]) !!}
+                                            </div>
+                                            <div class="form-group">
+                                                {{ Form::label('social_url_yt', __('Social URL YouTube'), ['class' => 'form-label']) }}
+                                                {!! Form::text('social_url_yt', Utility::getsettings('social_url_yt'), [
+                                                    'class' => 'form-control',
+                                                    'placeholder' => __('Enter YouTube URL'),
+                                                ]) !!}
+                                            </div>
+                                            <div class="form-group">
+                                                {{ Form::label('social_url_ln', __('Social URL LinkedIn'), ['class' => 'form-label']) }}
+                                                {!! Form::text('social_url_ln', Utility::getsettings('social_url_ln'), [
+                                                    'class' => 'form-control',
+                                                    'placeholder' => __('Enter LinkedIn URL'),
+                                                ]) !!}
+                                            </div>
+                                                
+
                                         </div>
                                     </div>
                                 </div>

@@ -55,7 +55,7 @@ class RequestDomainController extends Controller
             $faqs                           = Faq::orderBy('order')->take(4)->get();
             $footerMainMenus                = FooterSetting::where('parent_id', 0)->get();
             if (UtilityFacades::getsettings('landing_page_status') == '1') {
-                return view('welcome', compact(
+                return view('welcome-admin', compact(
                     'plans',
                     'features',
                     'faqs',
@@ -80,7 +80,7 @@ class RequestDomainController extends Controller
             $plans                          = Plan::where('active_status', 1)->get();
             $faqs                           = Faq::orderBy('order')->take(4)->get();
             $footerMainMenus                = FooterSetting::where('parent_id', 0)->get();
-            return view('welcome', compact(
+            return view('welcome-admin', compact(
                 'plans',
                 'features',
                 'faqs',
@@ -452,7 +452,7 @@ class RequestDomainController extends Controller
         Cookie::queue('lang', $lang, 120);
         return redirect()->back()->with('success', __('Language successfully changed.'));
     }
-    
+
     /**
      * Method to load follower's landing page
      *
@@ -462,5 +462,4 @@ class RequestDomainController extends Controller
     {
         return view('welcome-follower');
     }
-
 }
