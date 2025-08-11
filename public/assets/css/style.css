@@ -30653,3 +30653,10 @@ div#calendar .fc-list-table {
 body.loading {
   overflow: hidden;
 }
+
+.custom-instructor-avatar {
+  height: 84px;
+  width: 85px;
+  margin: auto;
+  object-fit: cover;
+}
