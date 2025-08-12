@@ -106,6 +106,7 @@ class InstructorController extends Controller
                     'dial_code'     => 'required',
                     'phone'         => 'required',
                 ]);
+                $tenantId = tenant()->id;
                 $userData                      = $request->all();
                 $userData['uuid']              = Str::uuid();
                 $userData['unhashedPass']    = $userData['password'];
@@ -117,6 +118,7 @@ class InstructorController extends Controller
                 $userData['country_code']      = $request->country_code;
                 $userData['dial_code']         = $request->dial_code;
                 $userData['phone']             = str_replace(' ', '', $request->phone);
+                $userData['avatar']            = "storage/$tenantId/logo/app-favicon-logo.png";
                 $user                          = User::create($userData);
                 $user->assignRole('Instructor');
 
@@ -276,7 +278,7 @@ class InstructorController extends Controller
             $currentDomain = tenant('domains');
             $currentDomain = $currentDomain[0]->domain;
             if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
-                if($request->hasFile('video')) {
+                if ($request->hasFile('video')) {
                     $file = $request->file('video');
                     if (Str::endsWith($file->getClientOriginalName(), '.mov')) {
                         $localPath = $request->file('video')->store('AnnotationVideos');
@@ -285,7 +287,7 @@ class InstructorController extends Controller
                         $extension = $file->getClientOriginalExtension();
                         $randomFileName = Str::random(25) . '.' . $extension;
                         //$filePath = Auth::user()->tenant_id.'/AnnotationVideos/'.$randomFileName;
-                        $filePath = $currentDomain.'/'.Auth::user()->id.'/AnnotationVideos/'.$randomFileName;
+                        $filePath = $currentDomain . '/' . Auth::user()->id . '/AnnotationVideos/' . $randomFileName;
                         Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
                         $path = Storage::disk('spaces')->url($filePath);
                     }

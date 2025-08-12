@@ -30655,8 +30655,8 @@ body.loading {
 }
 
 .custom-instructor-avatar {
-  height: 84px;
-  width: 85px;
+  height: 200px;
+  width: 200px;
   margin: auto;
   object-fit: cover;
 }
