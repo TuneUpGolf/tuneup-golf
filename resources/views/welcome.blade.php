@@ -36,25 +36,61 @@ $banner = Utility::getsettings('banner_image');
       <div class="flex flex-wrap gap-5 w-full mt-10">
          @if(!$instructors->isEmpty())
             @foreach ($instructors as $instructor)
+            @php 
+               $imgSrc = $instructor->avatar == "storage/$tenantId/logo/app-favicon-logo.png"?
+               asset("storage/$tenantId/logo/app-favicon-logo.png") :
+               asset('storage/' . $tenantId . '/' . $instructor->avatar);
+            @endphp
             <div class="flex flex-col items-center text-center">
                 <a href="{{ url('/login') }}" title="{{ $instructor->name }}">
                     <img class="custom-instructor-avatar rounded"
-                    src="{{ $instructor->avatar == "storage/$tenantId/logo/app-favicon-logo.png"?
-                    asset("storage/$tenantId/logo/app-favicon-logo.png") :
-                    asset('storage/' . $tenantId . '/' . $instructor->avatar) }}"
+                    src="{{ $imgSrc }}"
                     alt="Instructor Avatar">
-                    <div class="py-2">
-                        <h1 class="text-xl font-bold truncate">
-                            {{ $instructor->name }}
-                        </h1>
-                    </div>
-                </a>
+                    <h1 class="text-xl font-bold truncate mt-2">
+                           {{ $instructor->name }}
+                     </h1>
+                  </a>
+                  <div class="py-2">
+                     <button 
+                           class="read-more-btn text-blue-600 hover:text-blue-800 underline text-sm"
+                           onclick="openInstructorPopup('{{ $instructor->name }}', '{{ $imgSrc }}', '{{ addslashes($instructor->bio) }}')"
+                     >
+                           Read More
+                     </button>
+                  </div>                
             </div>
             @endforeach
          @endif
       </div>
    </div>
 </section>
+
+<!-- Instructor Popup Modal -->
+<div id="instructorPopup" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto overflow-x-hidden">
+        <div class="relative">
+            <!-- Close Button -->
+            <button 
+                onclick="closeInstructorPopup()" 
+                class="absolute bg-gray-900 flex font-bold h-8 items-center justify-center m-2 right-2 rounded-full shadow-md text-2xl top-2 w-8 z-10"
+            >
+                ×
+            </button>
+            
+            <!-- Instructor Image -->
+            <div class="w-full overflow-hidden rounded-t-lg">
+                <img id="popupInstructorImage" class="w-full h-auto max-h-64 object-contain" src="" alt="Instructor">
+            </div>
+            
+            <!-- Instructor Info -->
+            <div class="p-6">
+                <h3 id="popupInstructorName" class="text-xl font-bold mb-3 text-gray-800"></h3>
+                <p id="popupInstructorBio" class="text-gray-600 leading-relaxed"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <footer class="foot mt-0">
    <div class="text-center container ctm-container footer-one">
       <div class="flex justify-center">
@@ -87,5 +123,65 @@ $banner = Utility::getsettings('banner_image');
    {
    height: inherit !important;
    }
+   
+   /* Popup Styles */
+   .read-more-btn {
+       transition: all 0.3s ease;
+   }
+   
+   .read-more-btn:hover {
+       transform: translateY(-1px);
+   }
+   
+   #instructorPopup {
+       transition: opacity 0.3s ease;
+   }
+   
+   #instructorPopup.show {
+       opacity: 1;
+   }
 </style>
+@endpush
+
+@push('javascript')
+<script>
+function openInstructorPopup(name, imageSrc, bio) {
+    // Set popup content
+    document.getElementById('popupInstructorName').textContent = name;
+    document.getElementById('popupInstructorImage').src = imageSrc;
+    document.getElementById('popupInstructorImage').alt = name;
+    document.getElementById('popupInstructorBio').textContent = bio;
+    
+    // Show popup
+    const popup = document.getElementById('instructorPopup');
+    popup.classList.remove('hidden');
+    popup.classList.add('show');
+    
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+}
+
+function closeInstructorPopup() {
+    const popup = document.getElementById('instructorPopup');
+    popup.classList.add('hidden');
+    popup.classList.remove('show');
+    
+    // Restore body scroll
+    document.body.style.overflow = 'auto';
+}
+
+// Close popup when clicking outside
+document.getElementById('instructorPopup').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeInstructorPopup();
+    }
+});
+
+// Close popup with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeInstructorPopup();
+    }
+});
+</script>
 @endpush
