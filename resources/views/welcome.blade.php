@@ -3,6 +3,7 @@ $languages = \App\Facades\UtilityFacades::languages();
 $currency = tenancy()->central(function ($tenant) {
 return Utility::getsettings('currency_symbol');
 });
+$tenantId = tenant("id");
 $banner = Utility::getsettings('banner_image');
 @endphp
 @extends('layouts.main-landing')
@@ -38,7 +39,9 @@ $banner = Utility::getsettings('banner_image');
             <div class="flex flex-col items-center text-center">
                 <a href="{{ url('/login') }}" title="{{ $instructor->name }}">
                     <img class="custom-instructor-avatar rounded-full"
-                    src="{{ asset('storage/' . tenant()->id . '/' . $instructor->logo) }}"
+                    src="{{ $instructor->avatar == "storage/$tenantId/logo/app-favicon-logo.png"?
+                    asset("storage/$tenantId/logo/app-favicon-logo.png") :
+                    asset('storage/' . $tenantId . '/' . $instructor->avatar) }}"
                     alt="Instructor Avatar">
                     <div class="py-2">
                         <h1 class="text-xl font-bold truncate">
