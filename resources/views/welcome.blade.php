@@ -38,7 +38,7 @@ $banner = Utility::getsettings('banner_image');
             @foreach ($instructors as $instructor)
             <div class="flex flex-col items-center text-center">
                 <a href="{{ url('/login') }}" title="{{ $instructor->name }}">
-                    <img class="custom-instructor-avatar rounded-full"
+                    <img class="custom-instructor-avatar rounded"
                     src="{{ $instructor->avatar == "storage/$tenantId/logo/app-favicon-logo.png"?
                     asset("storage/$tenantId/logo/app-favicon-logo.png") :
                     asset('storage/' . $tenantId . '/' . $instructor->avatar) }}"
