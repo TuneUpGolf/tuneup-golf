@@ -14,6 +14,7 @@ use Spatie\MailTemplates\Models\MailTemplate;
 use App\Models\Faq;
 use App\Models\FooterSetting;
 use App\Models\NotificationsSetting;
+use App\Models\Role;
 use App\Models\Testimonial;
 use App\Notifications\Admin\ConatctNotification;
 use Illuminate\Support\Facades\Cookie;
@@ -35,31 +36,17 @@ class LandingController extends Controller
             $lang   = UtilityFacades::getActiveLanguage();
             \App::setLocale($lang);
             $plans  = Plan::where('active_status', 1)->get();
-            return view('welcome', compact('plans', 'lang'));
+            return view('welcome-admin', compact('plans', 'lang'));
         } else {
-            $lang                           = UtilityFacades::getActiveLanguage();
+            $lang = UtilityFacades::getActiveLanguage();
             \App::setLocale($lang);
-            $appsMultipleImageSettings      = json_decode(UtilityFacades::getsettings('apps_multiple_image_setting'));
-            $features                       = json_decode(UtilityFacades::getsettings('feature_setting'));
-            $menuSettings                   = json_decode(UtilityFacades::getsettings('menu_setting'));
-            $businessGrowthsSettings        = json_decode(UtilityFacades::getsettings('business_growth_setting'));
-            $businessGrowthsViewSettings    = json_decode(UtilityFacades::getsettings('business_growth_view_setting'));
-            $testimonials                   = Testimonial::where('status', 1)->get();
-            $faqs                           = Faq::latest()->take(4)->get();
-            $footerMainMenus                = FooterSetting::where('parent_id', 0)->get();
-            $blogs = Posts::all();
+            $instructors = User::where('type', Role::ROLE_INSTRUCTOR)
+                ->get();
+
             if (UtilityFacades::getsettings('landing_page_status') == '1') {
                 return view('welcome', compact(
-                    'blogs',
-                    'features',
-                    'faqs',
-                    'testimonials',
-                    'menuSettings',
-                    'businessGrowthsSettings',
-                    'businessGrowthsViewSettings',
-                    'appsMultipleImageSettings',
-                    'footerMainMenus',
-                    'lang'
+                    'lang',
+                    'instructors'
                 ));
             } else {
                 return redirect()->route('home');
@@ -142,6 +129,6 @@ class LandingController extends Controller
             $lang   = UtilityFacades::getActiveLanguage();
         }
         Cookie::queue('lang', $lang, 120);
-        return redirect()->back()->with('success',__('Language successfully changed.'));
+        return redirect()->back()->with('success', __('Language successfully changed.'));
     }
 }
