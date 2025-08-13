@@ -872,8 +872,9 @@ class LessonController extends Controller
             }
 
             if (request()->redirect == 1) {
-                return redirect()->route('slot.view', ['lesson_id' => $slot?->lesson_id])
-                    ->with('success', 'Slot Successfully Booked.');
+                return response()->json(['message' => 'Slot Successfully Booked.'], 200);
+                // return redirect()->route('slot.view', ['lesson_id' => $slot?->lesson_id])
+                //     ->with('success', 'Slot Successfully Booked.');
             }
         } catch (\Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode());
