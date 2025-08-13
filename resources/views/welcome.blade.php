@@ -53,7 +53,7 @@ $banner = Utility::getsettings('banner_image');
                   <div class="py-2">
                      <button
                            class="read-more-btn text-blue-600 hover:text-blue-800 underline text-sm"
-                           onclick="openInstructorPopup('{{ $instructor->name }}', '{{ $imgSrc }}', '{{ addslashes($instructor->bio) }}')"
+                           onclick="openInstructorPopup('{{ $instructor->name }}', '{{ $imgSrc }}', '{{ addslashes( preg_replace('/\s+/', ' ', $instructor->bio)) }}')"
                      >
                            View Bio
                      </button>
