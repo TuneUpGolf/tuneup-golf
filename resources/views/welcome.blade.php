@@ -36,7 +36,7 @@ $banner = Utility::getsettings('banner_image');
       <div class="flex flex-wrap gap-5 w-full mt-10">
          @if(!$instructors->isEmpty())
             @foreach ($instructors as $instructor)
-            @php 
+            @php
                $imgSrc = $instructor->avatar == "storage/$tenantId/logo/app-favicon-logo.png"?
                asset("storage/$tenantId/logo/app-favicon-logo.png") :
                asset('storage/' . $tenantId . '/' . $instructor->avatar);
@@ -51,13 +51,13 @@ $banner = Utility::getsettings('banner_image');
                      </h1>
                   </a>
                   <div class="py-2">
-                     <button 
+                     <button
                            class="read-more-btn text-blue-600 hover:text-blue-800 underline text-sm"
                            onclick="openInstructorPopup('{{ $instructor->name }}', '{{ $imgSrc }}', '{{ addslashes($instructor->bio) }}')"
                      >
-                           Read More
+                           View Bio
                      </button>
-                  </div>                
+                  </div>
             </div>
             @endforeach
          @endif
