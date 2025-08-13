@@ -438,7 +438,7 @@ class LessonController extends Controller
             }
             $events = array_values($uniqueEvents);
             $lesson_id = request()->get('lesson_id');
-            $lessons = Lesson::where('created_by', Auth::user()->id)->where('active_status', 1)->where('type', Lesson::LESSON_TYPE_INPERSON)->get();
+            $lessons = Lesson::where('created_by', Auth::user()->id)->where('active_status', 1)->where('type', '!=', Lesson::LESSON_TYPE_ONLINE)->get();
             $students = Student::where('active_status', true)->where('isGuest', false)->get();
             return view('admin.lessons.instructorSlots', compact('events', 'lesson_id', 'type', 'payment_method', 'lessons', 'students'));
         } else {
