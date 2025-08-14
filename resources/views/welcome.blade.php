@@ -30,7 +30,16 @@ $banner = Utility::getsettings('banner_image');
       <img class="w-full" src="{{ $banner != '' ? $banner : asset('assets/images/landing-page-images/banner1.png') }}" alt="hero-banner">
    </div>
 </section>
-<section class="lession-sec feed-sec">
+
+@if(trim($admin->bio) != '')
+<section class="lession-sec">
+   <div class="container ctm-container">
+       <h2 class="font-bold text-4xl mb-2">{{ $admin->name }}</h2>
+       <p class="text-xl text-gray-600">{{ $admin->bio }}</p>
+   </div>
+</section>
+@endif
+<section class="lession-sec feed-sec pb-10">
    <div class="container ctm-container">
       <h2 class="font-bold text-4xl mb-2">Instructors</h2>
       <div class="flex flex-wrap gap-5 w-full mt-10">

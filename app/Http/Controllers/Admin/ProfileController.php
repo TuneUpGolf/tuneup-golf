@@ -90,7 +90,7 @@ class ProfileController extends Controller
     public function BasicInfoUpdate(Request $request)
     {
         $userDetail = Auth::user();
-        if ($userDetail->type === Role::ROLE_INSTRUCTOR)
+        if (in_array($userDetail->type, [Role::ROLE_INSTRUCTOR, Role::ROLE_ADMIN]))
             $user       = User::find(Auth::id());
         else
             $user       = Student::find(Auth::id());
@@ -139,6 +139,7 @@ class ProfileController extends Controller
             ], ['token' => $request->get('push_token')]);
         }
         $user->save();
+
         return redirect()->back()->with('success',  __('Account details updated successfully.'));
     }
 
@@ -239,7 +240,7 @@ class ProfileController extends Controller
         $imagePath      = "uploads/avatar/" . $imageName;
         $disk->put($imagePath, base64_decode($image));
         $user->$column   = $imagePath;
- 
+
         if ($user->save()) {
             return __("Avatar updated successfully.");
         }
