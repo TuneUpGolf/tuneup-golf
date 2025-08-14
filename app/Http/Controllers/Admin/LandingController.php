@@ -43,9 +43,13 @@ class LandingController extends Controller
             $instructors = User::where('type', Role::ROLE_INSTRUCTOR)
                 ->get();
 
+            $admin = User::where('type', Role::ROLE_ADMIN)
+                ->first();
+
             if (UtilityFacades::getsettings('landing_page_status') == '1') {
                 return view('welcome', compact(
                     'lang',
+                    'admin',
                     'instructors'
                 ));
             } else {
