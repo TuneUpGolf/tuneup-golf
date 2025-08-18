@@ -71,13 +71,13 @@
         @endif
 
         @if($model->type == 'online')
-        <div class="mt-auto bg-gray-200 gap-1 rounded-lg px-4 py-3 flex">
-            <div class="text-center w-50">
+        <div class="mt-auto bg-gray-200 gap-1 rounded-lg px-4 py-3">
+            {{-- <div class="text-center w-50">
                 <span class="text-xl font-bold">{!! $model->lesson_quantity !!}</span>
                 <div class="text-sm rtl:space-x-reverse">Number of <br> Lessons</div>
 
-            </div>
-            <div class="text-center w-50">
+            </div> --}}
+            <div class="text-center">
                 <span class="text-xl font-bold">{!! $model->required_time !!} Days</span>
                 <div class="text-sm rtl:space-x-reverse">Expected Response <br> Time</div>
 
@@ -125,16 +125,16 @@
                                 Purchase
                             </button>
                         @endif --}}
-                        @if($isFullyBooked)
+                        {{-- @if($isFullyBooked)
                             <a href="{{ route('slot.view', ['lesson_id' => $model->id]) }}">
                                 <button class="lesson-btn">Purchase</button>
                             </a>
-                        @else
+                        @else --}}
                             <button class="lesson-btn"
                                 onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}', {{ $model->is_package_lesson }} ,'{{ $model->lesson_price }}', {{ $model->id}})">
                                 Purchase
                             </button>
-                        @endif
+                        {{-- @endif --}}
                     @else
                         <button class="lesson-btn opacity-50 cursor-not-allowed" disabled>
                             No Slots Available

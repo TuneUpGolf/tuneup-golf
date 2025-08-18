@@ -113,6 +113,7 @@ Route::middleware([
         Route::get('see/blogs', [PostsController::class, 'seeAllBlogs'])->name('see.all.blogs');
         Route::get('view-blog', [PostsController::class, 'allPost'])->name('view.post');
 
+        Route::get('/', [LandingController::class, 'landingPage'])->name('landingpage');
         Route::get('pages/{slug}', [LandingPageController::class, 'pageDescription'])->name('description.page');
     });
 

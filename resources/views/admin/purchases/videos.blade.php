@@ -14,6 +14,7 @@
 @php
 $purchaseVideo = $purchase->videos->first();
 $purchaseVideoUrl = $purchaseVideo->video_url??'';
+$purchaseVideo2Url = $purchaseVideo->video_url_2??'';
 $feedback = $purchaseVideo?trim($purchaseVideo->feedback):false;
 $feedbackContent = $purchaseVideo->feedbackContent->first();
 $feedbackUrl = $feedbackContent->url??false;
@@ -23,6 +24,9 @@ $feedbackUrl = $feedbackContent->url??false;
         @if($purchaseVideoUrl)
         <div class="video-wrap border-r border-gray-400 pr-4">
             <video width='320' height='240' controls autoplay="autoplay" loop muted src="{{ $purchaseVideoUrl }}" class="w-80 h-60 rounded-lg"></video>
+            @if($purchaseVideo2Url)
+                <video width='320' height='240' controls autoplay="autoplay" loop muted src="{{ $purchaseVideo2Url }}" class="w-80 h-60 rounded-lg mt-5"></video>        
+            @endif
             @if(auth()->user()->type == 'Instructor')
             <div class="flex gap-1 mt-3">
 
@@ -40,6 +44,7 @@ $feedbackUrl = $feedbackContent->url??false;
             @endif
         </div>
         @endif
+        
         <div>
             <ul>
                 <li class="mb-4">
@@ -90,7 +95,7 @@ $feedbackUrl = $feedbackContent->url??false;
             @endif
 
             <div class="flex items-start gap-3 mt-4">
-                @if($feedbackContent->type != 'video' && $feedbackUrl)
+                @if($feedbackContent?->type != 'video' && $feedbackUrl)
                     <a href="{{ asset('storage/'.tenant()->id.'/'.$feedbackUrl) }}">View feedback content</a>
                  @else
                     <img class="w-15 h-10"  src="{{ asset('/assets/images/video-thumbanail.jpeg') }}" alt="Thumbnail" id="videoThumbnail">

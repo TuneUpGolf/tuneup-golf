@@ -22,7 +22,7 @@
 
 @if (
         in_array($user->type, ['Student', 'Instructor']) &&
-        ($purchase->status == 'complete' || $purchase->lesson->payment_method == 'cash' || $hasBooking)
+        ($purchase->status == 'complete' || $purchase->lesson->payment_method == 'cash' || $hasBooking) && $purchase->lesson->type != 'online'
     )
         <a class="btn btn-sm small btn btn-info action-btn-fix" href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}"
             data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">

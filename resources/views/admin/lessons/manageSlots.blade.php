@@ -177,12 +177,12 @@
                        buttonsStyling: false,
                    });
    
-                   if (!!lesson.is_package_lesson) {
-                       Swal.fire('Error',
-                           'Sorry, admins can\'t book package lesson slots for students.',
-                           'error');
-                       return; // Stop further execution
-                   }
+                //    if (!!lesson.is_package_lesson) {
+                //        Swal.fire('Error',
+                //            'Sorry, admins can\'t book package lesson slots for students.',
+                //            'error');
+                //        return; // Stop further execution
+                //    }
    
    
                    let bookedStudentsHtml = student.length ?

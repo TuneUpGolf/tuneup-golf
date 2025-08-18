@@ -30233,11 +30233,11 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
 
 
 /* joolee css */
-@media (min-width:575px) {
+/* @media (min-width:575px) {
   .lessions-slider .slick-list {
     padding: 0 20% 0 0 !important;
   }
-}
+} */
 
 @media (min-width:1025px) {
   .header-brand-logo {
@@ -30317,7 +30317,7 @@ video.post-thumbnail {
 }
 
 .lession-sec {
-  padding: 100px 0;
+  padding: 50px 0 0 0;
   background-color: white;
 }
 
@@ -30476,6 +30476,25 @@ button.lesson-btn.btn-border:hover {
   background: #42A439 !important;
 }
 
+.fc .fc-list-event:hover td {
+  background-color: transparent;
+}
+
+div#calendar .fc-list-table {
+  overflow-y: auto;
+}
+
+.landing-hero .hero-sec img {
+  height: 600px;
+  object-fit: cover;
+}
+
+.subscription-slider .slick-track {
+  display: flex !important;
+}
+
+
+
 @media (max-width:1024px) {
   .dash-mob-drp {
     margin-right: auto;
@@ -30510,10 +30529,69 @@ button.lesson-btn.btn-border:hover {
   .custom-event-class {
     display: table-row !important;
   }
+
+  .landing-hero .hero-sec img {
+    height: 400px;
+
+  }
+
+  .bill-detail-page td {
+    padding-left: 0 !important;
+    max-width: 50%;
+    white-space: inherit;
+  }
+
 }
 
-.fc .fc-list-event:hover td {
-  background-color: transparent;
+.subs-feature ul,
+.price-card ul,
+.short-text ul,
+.short-text ol {
+  list-style-type: disc;
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+
+.short-text ol {
+  list-style-type: decimal;
+}
+
+.subs-feature .lesson-btn:hover,
+.price-card .lesson-btn:hover {
+  color: white;
+}
+
+.price-card {
+  text-align: left;
+}
+
+.price-card ul {
+  margin-left: 0;
+}
+
+.bill-detail-page ul {
+  list-style-type: disc;
+}
+
+.lessions-slider .slick-track {
+  margin-left: 0;
+}
+
+.single-line::after {
+  content: none;
+}
+
+#Lessons ol {
+  margin-left: 0;
+}
+
+.short-text p {
+  margin-bottom: 0;
+}
+
+.hero-sec {
+  max-height: 632px;
+  background-color: #0033a1;
 }
 
 div#calendar .fc-list-table {
@@ -30574,4 +30652,11 @@ div#calendar .fc-list-table {
 /* Prevent body scroll when loader is visible */
 body.loading {
   overflow: hidden;
+}
+
+.custom-instructor-avatar {
+  height: 200px;
+  width: 200px;
+  margin: auto;
+  object-fit: cover;
 }

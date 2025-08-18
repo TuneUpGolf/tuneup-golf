@@ -108,6 +108,7 @@ class InstructorController extends Controller
                     'dial_code'     => 'required',
                     'phone'         => 'required',
                 ]);
+                $tenantId = tenant()->id;
                 $userData                      = $request->all();
                 $userData['uuid']              = Str::uuid();
                 $userData['unhashedPass']    = $userData['password'];
@@ -119,6 +120,7 @@ class InstructorController extends Controller
                 $userData['country_code']      = $request->country_code;
                 $userData['dial_code']         = $request->dial_code;
                 $userData['phone']             = str_replace(' ', '', $request->phone);
+                $userData['avatar']            = "storage/$tenantId/logo/app-favicon-logo.png";
                 $user                          = User::create($userData);
                 $user->assignRole('Instructor');
 

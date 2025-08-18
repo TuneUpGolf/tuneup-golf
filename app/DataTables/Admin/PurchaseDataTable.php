@@ -49,7 +49,10 @@ class PurchaseDataTable extends DataTable
                 $lessonName           = e($purchase->lesson_name);
                 $truncatedLessonName  = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
 
-                $url = route('purchase.show', $purchase->id);
+                $lesson_type = $purchase->lesson->type ?? null;
+
+                $url = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? route('purchase.feedback.index', ['purchase_id' => $purchase->id]) :
+                    route('purchase.show', $purchase->id);
 
                 // Check user role
                 if (Auth::user()->type == 'Instructor') {
@@ -96,12 +99,14 @@ class PurchaseDataTable extends DataTable
                 $lesson = $purchase->lesson;
                 if (!$lesson) return '-';
 
-                if ($lesson->is_package_lesson) {
-                    $used = \App\Models\StudentSlot::where('student_id', auth()->user()->id)
-                        ->whereHas('slot', function ($query) use ($lesson) {
-                            $query->where('lesson_id', $lesson->id);
-                        })->count();
+                if ($lesson->type == Lesson::LESSON_TYPE_PACKAGE) {
+                    $used = \App\Models\StudentSlot::whereHas('slot', function ($query) use ($lesson) {
+                        $query->where('lesson_id', $lesson->id)->where('is_completed', 1);
+                    })->count();
                     $total = $purchase->purchased_slot ?? 0;
+
+                    $used = $used > $total ? $total : $used;
+
                     return "{$used}/{$total}";
                 }
                 return '-';
@@ -135,8 +140,7 @@ class PurchaseDataTable extends DataTable
         // Filter by lesson type if provided
         if (request()->has('lesson_type') && request('lesson_type')) {
             $query->where(function ($q) {
-                $q->where('purchases.type', request('lesson_type'))
-                    ->orWhere('lessons.type', request('lesson_type'));
+                $q->where('lessons.type', request('lesson_type'));
             });
         }
 
@@ -161,8 +165,7 @@ class PurchaseDataTable extends DataTable
         }
 
         if ($user->type == Role::ROLE_INSTRUCTOR) {
-            $query->where('purchases.instructor_id', $user->id)
-                ->where('purchases.status', Purchase::STATUS_COMPLETE);
+            $query->where('purchases.instructor_id', $user->id);
         }
 
         return $query;
@@ -173,7 +176,7 @@ class PurchaseDataTable extends DataTable
 
     public function html()
     {
-        $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select'><option value=''>- Lesson Type -</option>";
+        $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto; max-width: 200px;'><option value=''>- Lesson Type -</option>";
         foreach (Lesson::TYPE_MAPPING as $key => $label) {
             $lessonTypeFilter .= "<option value='" . $key . "'>" . $label . "</option>";
         }
@@ -228,8 +231,8 @@ class PurchaseDataTable extends DataTable
                     ["responsivePriority" => 2, "targets" => 4],
                 ],
                 "dom" =>  "
-                <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12 d-none d-sm-block'>
-                <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
+                <'dataTable-top row'<'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
+                <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>>
                 <'dataTable-container'<'col-sm-12'tr>>
                 <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
                 <'col-sm-7'p>>

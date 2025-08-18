@@ -84,13 +84,29 @@ class StudentsPurchaseDataTable extends DataTable
             ->editColumn('due_date', function ($purchase) {
                 return Carbon::parse($purchase->created_at)->toFormattedDateString();
             })
+            ->addColumn('remaining_slots', function ($purchase) {
+                $lesson = $purchase->lesson;
+                if (!$lesson) return '-';
+
+                if ($lesson->type == Lesson::LESSON_TYPE_PACKAGE) {
+                    $used = \App\Models\StudentSlot::whereHas('slot', function ($query) use ($lesson) {
+                        $query->where('lesson_id', $lesson->id)->where('is_completed', 1);
+                    })->count();
+                    $total = $purchase->purchased_slot ?? 0;
+
+                    $used = $used > $total ? $total : $used;
+
+                    return "{$used}/{$total}";
+                }
+                return '-';
+            })
             ->addColumn('action', function ($purchase) {
                 $hasBooking = \App\Models\Slots::where('lesson_id', $purchase->lesson_id)
                     ->whereHas('student')
                     ->exists();
                 return view('admin.purchases.action', compact('purchase', 'hasBooking'));
             })
-            ->rawColumns(['action', 'status', 'student_name', 'instructor_name', 'lesson_name']);
+            ->rawColumns(['action', 'status', 'student_name', 'instructor_name', 'lesson_name', 'remaining_slots']);
     }
 
     public function query(Purchase $model)
@@ -209,6 +225,7 @@ class StudentsPurchaseDataTable extends DataTable
             $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
         }
         return array_merge($columns, [
+            Column::make('remaining_slots')->title(__('Remaining Slots'))->orderable(false)->searchable(false)->addClass('text-center'),
             Column::computed('action')->title(__('Provide Feedback'))
                 ->exportable(false)
                 ->printable(false)

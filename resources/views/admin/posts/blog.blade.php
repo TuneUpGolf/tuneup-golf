@@ -119,7 +119,7 @@ body.modal-open .dash-container {
         <!-- <img class="rounded-md w-full" src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->file) }}"
                 alt="Post Image" /> -->
                 <img class=" w-full post-thumbnail open-full-thumbnail"
-            src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg" alt="Profile" />
+            src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->file) }}" alt="Profile" />
         <div id="imageModal" class="modal">
             <span class="close" id="closeBtn">&times;</span>
             <img class="modal-content" id="fullImage">

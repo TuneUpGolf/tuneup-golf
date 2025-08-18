@@ -13,6 +13,7 @@ use App\Models\Plan;
 use App\Models\Posts;
 use App\Models\Purchase;
 use App\Models\Role;
+use App\Models\Slots;
 use App\Models\Student;
 use App\Models\SupportTicket;
 use App\Models\User;
@@ -23,6 +24,8 @@ use DatePeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Stripe\Checkout\Session;
+use Stripe\Stripe;
 
 class HomeController extends Controller
 {
@@ -41,6 +44,16 @@ class HomeController extends Controller
         $tenantId = tenant('id');
 
         if ($userType == Role::ROLE_STUDENT) {
+
+            if ($purchase = Purchase::find($request->query('purchase_id'))) {
+                Stripe::setApiKey(config('services.stripe.secret'));
+                $session = Session::retrieve($purchase->session_id);
+                if ($session->payment_status == "paid") {
+                    $purchase->status = Purchase::STATUS_COMPLETE;
+                    $purchase->save();
+                }
+            }
+
             $tab = $request->get('view');
             $activeTab = !empty($tab) ? $tab : 'in-person';
             $dataTable = $activeTab == 'my-lessons' ? new PurchaseDataTable($tab) : false;
@@ -77,18 +90,21 @@ class HomeController extends Controller
 
         // Fetch Instructor Statistics for Admins (Without Student Count)
         $instructorStats = [];
+
+        $instructorStats = User::where('tenant_id', $tenantId);
         if ($userType == "Admin") {
-            $instructorStats = User::where('tenant_id', $tenantId)
-                ->where('type', Role::ROLE_INSTRUCTOR)
-                ->withCount([
-                    'lessons as lesson_count',
-                    'purchase as completed_online_lessons' => fn($query) => $query->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', true)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE)),
-                    'purchase as completed_inperson_lessons' => fn($query) => $query->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', true)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON)),
-                    'purchase as pending_online_lessons' => fn($query) => $query->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', false)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE)),
-                    'purchase as pending_inperson_lessons' => fn($query) => $query->where('isFeedbackComplete', false)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON)),
-                ])
-                ->get();
+            $instructorStats = $instructorStats->where('type', Role::ROLE_INSTRUCTOR);
+        } elseif ($userType == "Instructor") {
+            $instructorStats = $instructorStats->where('id', $user->id);
         }
+        $instructorStats = $instructorStats->withCount([
+            'lessons as lesson_count',
+            'purchase as completed_online_lessons' => fn($query) => $query->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', true)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE)),
+            'purchase as completed_inperson_lessons' => fn($query) => $query->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', true)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON)),
+            'purchase as pending_online_lessons' => fn($query) => $query->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', false)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE)),
+            'purchase as pending_inperson_lessons' => fn($query) => $query->where('isFeedbackComplete', false)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON)),
+        ])->get();
+
 
         [$purchaseComplete, $purchaseInprogress] = $this->fetchPurchaseStats($user, Lesson::LESSON_TYPE_ONLINE);
         [$inPersonCompleted, $inPersonPending] = $this->fetchPurchaseStats($user, Lesson::LESSON_TYPE_INPERSON);
@@ -118,18 +134,22 @@ class HomeController extends Controller
     // Fetch purchase counts based on lesson type
     private function fetchPurchaseStats($user, $lessonType)
     {
-        $query = Purchase::whereHas('lesson', fn($q) => $q->where('type', $lessonType));
+        $query = Slots::where('is_active', 1);
+
 
         if ($user->type == "Instructor") {
-            $query->where('instructor_id', $user->id);
+            $query->whereHas('lesson', function ($q) use ($user, $lessonType) {
+                $q->where('type', $lessonType)
+                    ->where('created_by', $user->id);
+            });
+        } else {
+            $query->whereHas('lesson', function ($q) use ($lessonType) {
+                $q->where('type', $lessonType);
+            });
         }
 
-        if ($lessonType == Lesson::LESSON_TYPE_ONLINE) {
-            $query->where('status', Purchase::STATUS_COMPLETE);
-        }
-
-        $completed = (clone $query)->where('isFeedbackComplete', true)->count();
-        $inprogress = $query->where('isFeedbackComplete', false)->count();
+        $completed = (clone $query)->where('is_completed', 1)->count();
+        $inprogress = $query->where('is_completed', 0)->count();
 
         return [$completed, $inprogress];
     }
