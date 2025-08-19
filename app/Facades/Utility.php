@@ -124,7 +124,7 @@ class Utility
     }
     public function getsettings($value = '')
     {
-        if ($value == 'plan_setting'){
+        if ($value == 'plan_setting') {
             $value == 'plan_setting';
         }
         $setting = Setting::select('value');
@@ -808,8 +808,32 @@ class Utility
         $file_size = number_format($file_size / 1000000, 4);
         return $file_size;
     }
-    public function formatCurrency($amount) {
+    public function formatCurrency($amount)
+    {
         return '$' . number_format($amount, 2, '.', ',');
     }
 
+    /**
+     * Determine if chat is enabled for the given user.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
+     */
+    public function chatEnabled($user): bool
+    {
+        return true; // remove this when all setup completes
+        if ($user->type !== 'Follower') {
+            return false;
+        }
+
+        $today = now();
+        $planExpiryDate = $user->plan_expired_date
+            ? \Carbon\Carbon::parse($user->plan_expired_date)
+            : $today;
+
+        $chatEnabled = $user->plan->is_chat_enabled ?? 0;
+
+        return ($planExpiryDate->gte($today) && $chatEnabled === 1)
+            || ($user->chat_status == 1 && $chatEnabled === 0);
+    }
 }
