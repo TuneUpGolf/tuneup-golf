@@ -821,7 +821,6 @@ class Utility
      */
     public function chatEnabled($user): bool
     {
-        return true; // remove this when all setup completes
         if ($user->type !== 'Follower') {
             return false;
         }
