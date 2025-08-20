@@ -38,7 +38,7 @@ class PlanController extends Controller
     public function myPlan(PlanDataTable $dataTable)
     {
         if (Auth::user()->can('manage-plan')) {
-            if (Auth::user()->type == 'Admin') {
+            if (Auth::user()->type != 'Students') {
                 return $dataTable->render('admin.plans.my-plans');
             } else {
                 $plans  = Plan::where('tenant_id', null)->get();
@@ -68,8 +68,7 @@ class PlanController extends Controller
                 'price'         => 'required',
                 'duration'      => 'required',
                 'durationtype'  => 'required',
-                'max_users'     => 'required',
-                'description'   => 'max:100',
+                'max_users'     => 'required'
             ]);
             $paymentTypes = UtilityFacades::getpaymenttypes();
             if (!$paymentTypes) {
