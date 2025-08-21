@@ -141,6 +141,7 @@ Route::middleware([
         Route::get('user-emailverified/{id}', [UserController::class, 'userEmailVerified'])->name('user.email.verified');
         Route::get('user-phoneverified/{id}', [UserController::class, 'userPhoneVerified'])->name('user.phone.verified');
         Route::post('user-status/{id}', [UserController::class, 'userStatus'])->name('user.status');
+        Route::post('user-chat/{id}', [UserController::class, 'userChatStatus'])->name('user.chatstatus');
 
         //instructor
         Route::get('/instructor/import', [InstructorController::class, 'import'])->name('instructor.import');

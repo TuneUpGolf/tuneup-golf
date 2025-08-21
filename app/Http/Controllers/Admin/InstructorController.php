@@ -24,7 +24,6 @@ use App\Models\Follow;
 use App\Models\Lesson;
 use App\Models\Post;
 use App\Models\Purchase;
-use App\Models\PurchaseVideos;
 use App\Models\ReportUser;
 use App\Models\Review;
 use App\Models\Student;
@@ -33,7 +32,7 @@ use Illuminate\Support\Str;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use Laravel\Horizon\Listeners\SendNotification;
+use App\Services\ChatService;
 
 use function PHPUnit\Framework\isEmpty;
 use Illuminate\Support\Facades\Storage;
@@ -41,11 +40,14 @@ use Illuminate\Support\Facades\Storage;
 class InstructorController extends Controller
 {
     use ConvertVideos;
+    protected $chatService;
+    protected $countries;
 
-    public function __construct()
+    public function __construct(ChatService $chatService)
     {
         $path               = storage_path() . "/json/country.json";
         $this->countries    = json_decode(file_get_contents($path), true);
+        $this->chatService = $chatService;
     }
 
     public function index(InstructorDataTable $dataTable)
@@ -126,6 +128,18 @@ class InstructorController extends Controller
                     $user['logo'] = $request->file('file')->store('dp');
                 }
                 $user->update();
+
+                $chatUserDetails = $this->chatService->getUserProfile($request->email);
+
+                if ($chatUserDetails['status'] == 'success') {
+                    $this->chatService->updateUser($chatUserDetails - ['data']['_id'], 'tenant_id', tenant('id'), $chatUserDetails['data']['email']);
+                    $user->update([
+                        'chat_user_id' => $chatUserDetails['data']['_id'],
+                    ]);
+                } else {
+                    $this->chatService->createUser($user);
+                }
+
                 SendEmail::dispatch($userData['email'], new WelcomeMail($userData));
                 $message = __('Welcome, :name, you have successfully signed up!, Please login at :link', [
                     'name' => $userData['name'],

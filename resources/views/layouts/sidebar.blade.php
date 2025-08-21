@@ -372,7 +372,7 @@
                                         <a class="dash-link" href="{{ route('plans.index') }}">{{ __('Plans') }}</a>
                                     </li>
                                 @endcan
-                                @if ($userType == 'Admin')
+                                @if ($userType == 'Instructor')
                                     <li class="dash-item {{ request()->is('myplan*') ? 'active' : '' }}">
                                         <a class="dash-link"
                                             href="{{ route('plans.myplan') }}">{{ __('My Plans') }}</a>

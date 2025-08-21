@@ -47,6 +47,8 @@ class Student extends User implements MustVerifyEmail
         'social_url_fb',
         'social_url_x',
         'isGuest',
+        'chat_user_id',
+        'group_id'
     ];
     protected $hidden = [
         'password',

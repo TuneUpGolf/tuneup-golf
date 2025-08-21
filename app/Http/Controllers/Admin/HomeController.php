@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\DataTables\Admin\PurchaseDataTable;
 use App\Http\Controllers\Controller;
 use App\DataTables\Admin\SalesDataTable;
+use App\Facades\Utility;
 use App\Facades\UtilityFacades;
 use App\Models\DocumentGenrator;
 use App\Models\Event;
@@ -18,6 +19,7 @@ use App\Models\Student;
 use App\Models\SupportTicket;
 use App\Models\User;
 use App\Providers\AuthServiceProvider;
+use App\Services\ChatService;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use DatePeriod;
@@ -29,6 +31,13 @@ use Stripe\Stripe;
 
 class HomeController extends Controller
 {
+    protected $chatService;
+    protected $utility;
+    public function __construct(ChatService $chatService, Utility $utility)
+    {
+        $this->chatService = $chatService;
+        $this->utility = $utility;
+    }
 
     public function landingPage()
     {
@@ -42,6 +51,7 @@ class HomeController extends Controller
         $user = Auth::user();
         $userType = $user->type;
         $tenantId = tenant('id');
+        $tab = $request->get('view');
 
         if ($userType == Role::ROLE_STUDENT) {
 
@@ -54,11 +64,15 @@ class HomeController extends Controller
                 }
             }
 
-            $tab = $request->get('view');
-            $activeTab = !empty($tab) ? $tab : 'in-person';
-            $dataTable = $activeTab == 'my-lessons' ? new PurchaseDataTable($tab) : false;
-            return $dataTable ? $dataTable->render('admin.dashboard.tab-view', compact('activeTab', 'dataTable')) :
-                view('admin.dashboard.tab-view', compact('activeTab', 'dataTable'));
+            $instructor = User::where('type', Role::ROLE_INSTRUCTOR)->orderBy('id', 'ASC')->first();
+            $token = $tab == 'chat' ? $this->chatService->getChatToken($user->chat_user_id) : false;
+            $chatEnabled = $this->utility->chatEnabled($user);
+            $plans = Plan::with('instructor')->whereHas('instructor')->get();
+
+            $tab = !empty($tab) ? $tab : 'in-person';
+            $dataTable = $tab == 'my-lessons' ? new PurchaseDataTable($tab) : false;
+            return $dataTable ? $dataTable->render('admin.dashboard.tab-view', compact('tab', 'dataTable')) :
+                view('admin.dashboard.tab-view', compact('tab', 'dataTable', 'chatEnabled', 'token', 'instructor', 'plans'));
         }
 
         // Common Queries

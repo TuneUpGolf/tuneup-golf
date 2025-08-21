@@ -22,10 +22,18 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Stancl\Tenancy\Database\Models\Domain;
 use App\Mail\Admin\WelcomeMail;
+use App\Models\Plan;
+use App\Models\User;
+use App\Services\ChatService;
 use Exception;
 
 class StudentController extends Controller
 {
+    protected $chatService;
+    public function __construct(ChatService $chatService)
+    {
+        $this->chatService = $chatService;
+    }
 
     public function index(StudentDataTable $dataTable)
     {
@@ -352,10 +360,83 @@ class StudentController extends Controller
             }
         }
     }
+    /**
+     * Display the specified student and related chat data.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function show($id)
     {
-        $students  = Student::findOrFail($id);
+        $students = Student::findOrFail($id);
+        $instructor = User::findOrFail(auth()->id());
+
         $dataTable = new StudentsPurchaseDataTable($id);
-        return $dataTable->render('admin.students.show', compact('students', 'dataTable'));
+
+        $students = $this->ensureChatUserId($students);
+        $instructor = $this->ensureChatUserId($instructor);
+        $this->ensureGroup($students, $instructor);
+
+        $token = $this->chatService->getChatToken($students->chat_user_id);
+        $isSubscribed = $this->isSubscribed($students);
+
+        return $dataTable->render('admin.students.show', compact('students', 'dataTable', 'token', 'isSubscribed'));
+    }
+
+    /**
+     * Ensure the user has a valid chat_user_id. If not, try to fetch or create it.
+     *
+     * @param  User|Student  $user
+     * @return mixed|void
+     */
+    protected function ensureChatUserId(User|Student $user): mixed
+    {
+        if ($user->chat_user_id !== null) {
+            return $user;
+        }
+
+        $chatUser = $this->chatService->getUserProfile($user->email);
+
+        if ($chatUser['code'] === 200 && isset($chatUser['data']['_id'])) {
+            $user->chat_user_id = $chatUser['data']['_id'];
+            $user = $user->save();
+        } else {
+            $user = $this->chatService->createUser($user);
+        }
+        return $user;
+    }
+
+    /**
+     * Ensure that both student and instructor share a common chat group.
+     *
+     * @param  Student  $student
+     * @param  User     $instructor
+     * @return void
+     */
+    protected function ensureGroup(Student $student, User $instructor): void
+    {
+        if ($student->group_id !== null) {
+            return;
+        }
+
+        $groupId = $this->chatService->createGroup($student->chat_user_id, $instructor->chat_user_id);
+
+        $student->group_id = $groupId;
+        $instructor->group_id = $groupId;
+
+        $student->save();
+        $instructor->save();
+    }
+
+
+    public function isSubscribed($user)
+    {
+        $instructor = User::where('tenant_id', tenant('id'))->where('id', $user->follows?->first()?->instructor_id)->first();
+        if ($instructor) {
+            $chatEnabledPlanId = Plan::where('instructor_id', $instructor->id)
+                ->where('is_chat_enabled', true)->pluck('id')->toArray();
+            return in_array($user->plan_id, $chatEnabledPlanId);
+        }
+        return false;
     }
 }

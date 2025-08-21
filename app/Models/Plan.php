@@ -25,6 +25,13 @@ class Plan extends Model
         'description',
         'tenant_id',
         'active_status',
-        'discount_setting'
+        'is_chat_enabled',
+        'discount_setting',
+        'instructor_id'
     ];
+
+    public function instructor()
+    {
+        return $this->belongsTo(User::class, 'instructor_id', 'id')->where('created_by', '>', 0);
+    }
 }
