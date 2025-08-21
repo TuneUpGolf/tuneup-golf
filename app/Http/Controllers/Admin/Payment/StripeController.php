@@ -447,10 +447,6 @@ class StripeController extends Controller
             }
             if ($plan->is_chat_enabled) {
                 $this->chatService->updateUser($user->chat_user_id, 'plan_expired_date', $planExpiredDate, $user->email);
-                $groupId = $this->chatService->createGroup($user->chat_user_id, $plan->instructor->chat_user_id);
-                if ($groupId) {
-                    $user->group_id = $groupId;
-                }
                 $user->chat_status = true;
             }
             $user->save();

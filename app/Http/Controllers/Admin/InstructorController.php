@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\SendEmail;
 use App\Actions\SendSMS;
 use App\DataTables\Admin\InstructorDataTable;
+use App\Facades\Utility;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AnnotationVideoApiResource;
@@ -42,12 +43,14 @@ class InstructorController extends Controller
     use ConvertVideos;
     protected $chatService;
     protected $countries;
+    protected $utility;
 
-    public function __construct(ChatService $chatService)
+    public function __construct(ChatService $chatService, Utility $utility)
     {
         $path               = storage_path() . "/json/country.json";
         $this->countries    = json_decode(file_get_contents($path), true);
         $this->chatService = $chatService;
+        $this->utility = $utility;
     }
 
     public function index(InstructorDataTable $dataTable)
@@ -129,16 +132,7 @@ class InstructorController extends Controller
                 }
                 $user->update();
 
-                $chatUserDetails = $this->chatService->getUserProfile($request->email);
-
-                if ($chatUserDetails['status'] == 'success') {
-                    $this->chatService->updateUser($chatUserDetails - ['data']['_id'], 'tenant_id', tenant('id'), $chatUserDetails['data']['email']);
-                    $user->update([
-                        'chat_user_id' => $chatUserDetails['data']['_id'],
-                    ]);
-                } else {
-                    $this->chatService->createUser($user);
-                }
+                $this->utility->ensureChatUserId($user, $this->chatService);
 
                 SendEmail::dispatch($userData['email'], new WelcomeMail($userData));
                 $message = __('Welcome, :name, you have successfully signed up!, Please login at :link', [

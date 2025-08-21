@@ -8,10 +8,12 @@ use App\Models\Order;
 use App\Models\Plan;
 use App\Models\RequestDomain;
 use App\Models\Setting;
+use App\Models\Student;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Models\UserCoupon;
 use App\Notifications\Superadmin\ApproveNotification;
+use App\Services\ChatService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
@@ -834,5 +836,51 @@ class Utility
 
         return ($planExpiryDate->gte($today) && $chatEnabled === 1)
             || ($user->chat_status == 1 && $chatEnabled === 0);
+    }
+
+    /**
+     * Ensure the user has a valid chat_user_id. If not, try to fetch or create it.
+     *
+     * @param User|Student $user User details
+     * @param ChatService $chatService Chat service object
+     * 
+     * @return mixed|void
+     */
+    public function ensureChatUserId(User|Student $user, ChatService $chatService): mixed
+    {
+        if ($user->chat_user_id !== null) {
+            return $user;
+        }
+        $chatUser = $chatService->getUserProfile($user->email);
+
+        if ($chatUser['code'] === 200 && isset($chatUser['data']['_id'])) {
+            $user->chat_user_id = $chatUser['data']['_id'];
+            $user = $user->save();
+        } else {
+            $user = $chatService->createUser($user);
+        }
+        return $user;
+    }
+
+    /**
+     * Ensure that both student and instructor share a common chat group.
+     *
+     * @param Student  $student
+     * @param User     $instructor
+     * @param ChatService $chatService Chat service object
+     * @return void
+     */
+    public function ensureGroup(Student $student, User $instructor, ChatService $chatService): void
+    {
+        if ($student->group_id !== null) {
+            return;
+        }
+
+        $groupId = $chatService->createGroup($student->chat_user_id, $instructor->chat_user_id);
+
+        $student->group_id = $groupId;
+
+        $student->save();
+        $instructor->save();
     }
 }

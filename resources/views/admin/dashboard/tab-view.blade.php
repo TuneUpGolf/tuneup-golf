@@ -99,7 +99,7 @@ $isChatTab = isset($token) ? true : false;
                   @elseif($tab == 'chat')
                   <div id="Chat">
                      <div class="row">
-                        @if($chatEnabled)
+                        @if($chatEnabled && $instructor)
                               @include('admin.students.chat', ['token' => $token, 'instructor' => $instructor])
                            @else
                               @isset($plans)
