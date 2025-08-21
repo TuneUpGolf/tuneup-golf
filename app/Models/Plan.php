@@ -29,4 +29,9 @@ class Plan extends Model
         'discount_setting',
         'instructor_id'
     ];
+
+    public function instructor()
+    {
+        return $this->belongsTo(User::class, 'instructor_id', 'id')->where('created_by', '>', 0);
+    }
 }

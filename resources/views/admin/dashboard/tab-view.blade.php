@@ -1,4 +1,24 @@
-@php $isChatTab = isset($token) ? true : false; @endphp
+@php
+use Carbon\Carbon;
+$user = Auth::user();
+if ($user->type == "Admin") {
+    $currency_symbol = tenancy()->central(function ($tenant) {
+        return Utility::getsettings("currency_symbol");
+    });
+} else {
+    $currency_symbol = Utility::getsettings("currency_symbol");
+}
+if ($user->type != "Admin") {
+    $currency = Utility::getsettings("currency");
+} else {
+    $currency = tenancy()->central(function ($tenant) {
+        return Utility::getsettings("currency");
+    });
+}
+$isChatTab = isset($token) ? true : false;
+
+
+@endphp
 @extends('layouts.main')
 @section('title', __('Dashboard'))
 @section('breadcrumb')
@@ -64,7 +84,8 @@
                <button class="tablinks {{ $tab == 'online'? 'active' : '' }}" onclick="window.location.href='home?view=online'">Online Lessons</button>
                <button class="tablinks {{ $tab == 'my-lessons'? 'active' : '' }}" onclick="window.location.href='home?view=my-lessons'">My Lessons</button>
                <button class="tablinks {{ $tab == 'posts'? 'active' : '' }}" onclick="window.location.href='home?view=posts'">Tips & Drills</button>
-               <button class="tablinks {{ $tab == 'chat' ? 'active' : '' }}" onclick="window.location.href='home?view=chat'">Chat</button>
+               <button class="tablinks {{ $tab == 'subscriptions' ? 'active' : '' }}" onclick="window.location.href='home?view=subscriptions'">Subscriptions</button>
+               <button class="tablinks {{ $tab == 'chat'? 'active' : '' }}" onclick="window.location.href='home?view=chat'">Chat</button>
                </hr>
             </div>
             <div class="card tabcontent">
@@ -127,6 +148,82 @@
                            @endif
                         </div>
                      </div>
+                  @elseif($tab == 'subscriptions')
+                  <div id="Subscriptions" class="tabcontent block">
+                     <div class="row">
+                        @foreach ($plans as $plan)
+                        @if ($plan->active_status == 1)
+                        <div class="col-xl-3 col-md-6 py-4">
+                           <div class="card price-card price-1 wow animate__fadeInUp ani-fade m-0 h-100"  data-wow-delay="0.2s">
+                              <div class="rounded-lg shadow popular-wrap h-100">
+                                 <div class="px-3 pt-4 ">
+                                    <p class="text-2xl font-bold mb-1">{{ $plan->name }}</p>
+                                    <div class="flex gap-2 items-center mt-2 ">
+                                       <p class=" text-6xl font-bold">{{ $currency_symbol . ' ' . $plan->price }} /</p>
+                                       <p class="text-2xl text-gray-600">{{ $plan->duration . ' ' . $plan->durationtype }}</p>
+                                    </div>
+                                 </div>
+                                 <div class="border-t border-gray-300"></div>
+                                 <div class="px-3 py-4">
+                                    @if ($plan->id != 1)
+                                    @if ($plan->id == $user->plan_id && !empty($user->plan_expired_date) && Carbon::parse($user->plan_expired_date)->gte(now()))
+                                    <a href="javascript:void(0)" data-id="{{ $plan->id }}"
+                                       class="lesson-btn text-center font-bold text-lg mt-auto"
+                                       data-amount="{{ $plan->price }}">{{ __('Expire at') }}
+                                    {{ Carbon::parse($user->plan_expired_date)->format('d/m/Y') }}</a>
+                                    @else
+                                    <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
+                                       class="lesson-btn text-center font-bold text-lg mt-auto">
+                                       @if($plan->id == $user->plan_id)
+                                       {{ __('Renew') }}
+                                       @else
+                                       {{ __('Buy Plan') }}
+                                       @endif
+                                    </a>
+                                    @endif
+                                    @endif
+                                    <p class="font-semibold text-xl mb-2 mt-2">Features</p>
+                                    <p class="text-gray-600">
+                                       {!! $plan->description !!}
+                                    </p>
+                                    
+                                    {{-- <ul class="mt-2 pl-0">
+                                       <li class="list-unstyled d-flex">
+                                          <span class="theme-avtar">
+                                          <i class="text-primary ti ti-circle-plus"></i></span>
+                                          {{ $plan->max_users . ' ' . __('Users') }}
+                                       </li>
+                                       <li class="list-unstyled d-flex">
+                                          <span class="theme-avtar">
+                                          <i class="text-primary ti ti-circle-plus"></i></span>
+                                          {{ $plan->duration . ' ' . $plan->durationtype . ' ' . __('Duration') }}
+                                       </li>
+                                       @if ($user->type == 'Admin')
+                                       <li class="list-unstyled d-flex">
+                                          <span class="theme-avtar">
+                                          <i class="text-primary ti ti-circle-plus"></i></span>
+                                          {{ $plan->max_roles . ' ' . __('Roles') }}
+                                       </li>
+                                       <li class="list-unstyled d-flex">
+                                          <span class="theme-avtar">
+                                          <i class="text-primary ti ti-circle-plus"></i></span>
+                                          {{ $plan->max_documents . ' ' . __('Documents') }}
+                                       </li>
+                                       <li class="list-unstyled d-flex">
+                                          <span class="theme-avtar">
+                                          <i class="text-primary ti ti-circle-plus"></i></span>
+                                          {{ $plan->max_blogs . ' ' . __('Blogs') }}
+                                       </li>
+                                       @endif
+                                    </ul> --}}
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        @endif
+                        @endforeach
+                     </div>
+                  </div>
                   @else
                   <livewire:student-dashboard-view />
                   @endif

@@ -67,11 +67,12 @@ class HomeController extends Controller
             $instructor = User::where('type', Role::ROLE_INSTRUCTOR)->orderBy('id', 'ASC')->first();
             $token = $tab == 'chat' ? $this->chatService->getChatToken($user->chat_user_id) : false;
             $chatEnabled = $this->utility->chatEnabled($user);
+            $plans = Plan::with('instructor')->whereHas('instructor')->get();
 
             $tab = !empty($tab) ? $tab : 'in-person';
             $dataTable = $tab == 'my-lessons' ? new PurchaseDataTable($tab) : false;
             return $dataTable ? $dataTable->render('admin.dashboard.tab-view', compact('tab', 'dataTable')) :
-                view('admin.dashboard.tab-view', compact('tab', 'dataTable', 'chatEnabled', 'token', 'instructor'));
+                view('admin.dashboard.tab-view', compact('tab', 'dataTable', 'chatEnabled', 'token', 'instructor', 'plans'));
         }
 
         // Common Queries
