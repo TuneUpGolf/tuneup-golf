@@ -38,7 +38,7 @@ class PlanController extends Controller
     public function myPlan(PlanDataTable $dataTable)
     {
         if (Auth::user()->can('manage-plan')) {
-            if (Auth::user()->type != 'Students') {
+            if (Auth::user()->type == 'Instructor') {
                 return $dataTable->render('admin.plans.my-plans');
             } else {
                 $plans  = Plan::where('tenant_id', null)->get();
