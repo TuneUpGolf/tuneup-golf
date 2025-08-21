@@ -821,7 +821,7 @@ class Utility
      */
     public function chatEnabled($user): bool
     {
-        if ($user->type !== 'Follower') {
+        if ($user->type !== 'Student') {
             return false;
         }
 
