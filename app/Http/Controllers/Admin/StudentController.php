@@ -384,7 +384,9 @@ class StudentController extends Controller
         $token = $this->chatService->getChatToken($students->chat_user_id);
         $isSubscribed = $this->isSubscribed($students);
 
-        return $dataTable->render('admin.students.show', compact('students', 'dataTable', 'token', 'isSubscribed', 'instructor'));
+        $chatEnabled = $this->utility->chatEnabled($students);
+
+        return $dataTable->render('admin.students.show', compact('students', 'dataTable', 'token', 'isSubscribed', 'instructor', 'chatEnabled'));
     }
 
     public function isSubscribed($user)

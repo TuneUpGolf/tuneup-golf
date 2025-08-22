@@ -13,6 +13,7 @@ class StudentDataTable extends DataTable
     public function dataTable($query)
     {
 
+        $loggedInUserId = auth()->id();
         $data = datatables()
             ->eloquent($query)
             ->addIndexColumn()
@@ -124,9 +125,14 @@ class StudentDataTable extends DataTable
                              </label>';
                 return $status;
             })
-            ->addColumn('chat_enabled', function (Student $user) {
+            ->addColumn('chat_enabled', function (Student $user) use ($loggedInUserId) {
                 if (isset($user->plan->is_chat_enabled) && $user->plan->is_chat_enabled == 1) {
                     return '<span title="Student has subscription to chat">
+                        <i class="ti ti-alert-triangle" style="font-size: 25px; color:#FFC107;"></i>
+                    </span>';
+                }
+                if ($user->chat_enabled_by != $loggedInUserId) {
+                    return '<span title="Another instructor is already chatting with this student.">
                         <i class="ti ti-alert-triangle" style="font-size: 25px; color:#FFC107;"></i>
                     </span>';
                 }
