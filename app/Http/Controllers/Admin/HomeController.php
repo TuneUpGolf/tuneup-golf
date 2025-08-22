@@ -49,7 +49,7 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         $userId = Auth::id();
-        $user = Student::find($userId);
+        $user = Student::find($userId) ?? User::find($userId);
         $userType = $user->type;
         $tenantId = tenant('id');
         $tab = $request->get('view');
@@ -66,7 +66,9 @@ class HomeController extends Controller
 
             $token = false;
 
-            $instructor = User::find($user->plan?->instructor_id);
+            $instructorId = $user->plan->instructor_id ?? $user->chat_enabled_by;
+
+            $instructor = User::find($instructorId);
             if ($tab == 'chat' && $instructor) {
                 $students = $this->utility->ensureChatUserId($user, $this->chatService);
                 $instructor = $this->utility->ensureChatUserId($instructor, $this->chatService);

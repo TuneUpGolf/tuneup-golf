@@ -131,7 +131,7 @@ class StudentDataTable extends DataTable
                         <i class="ti ti-alert-triangle" style="font-size: 25px; color:#FFC107;"></i>
                     </span>';
                 }
-                if ($user->chat_enabled_by != $loggedInUserId) {
+                if ($user->chat_enabled_by != $loggedInUserId && !empty($user->chat_enabled_by)) {
                     return '<span title="Another instructor is already chatting with this student.">
                         <i class="ti ti-alert-triangle" style="font-size: 25px; color:#FFC107;"></i>
                     </span>';
