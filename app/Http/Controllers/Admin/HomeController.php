@@ -48,13 +48,13 @@ class HomeController extends Controller
     }
     public function index(Request $request)
     {
-        $userId = Auth::id();
-        $user = Student::find($userId);
+        $user = Auth::user();
         $userType = $user->type;
         $tenantId = tenant('id');
         $tab = $request->get('view');
 
         if ($userType == Role::ROLE_STUDENT) {
+            $user = Student::find($user->id);
             if ($purchase = Purchase::find($request->query('purchase_id'))) {
                 Stripe::setApiKey(config('services.stripe.secret'));
                 $session = Session::retrieve($purchase->session_id);
@@ -66,7 +66,9 @@ class HomeController extends Controller
 
             $token = false;
 
-            $instructor = User::find($user->plan?->instructor_id);
+            $instructorId = $user->plan->instructor_id ?? $user->chat_enabled_by;
+
+            $instructor = User::find($instructorId);
             if ($tab == 'chat' && $instructor) {
                 $students = $this->utility->ensureChatUserId($user, $this->chatService);
                 $instructor = $this->utility->ensureChatUserId($instructor, $this->chatService);
@@ -82,6 +84,8 @@ class HomeController extends Controller
             return $dataTable ? $dataTable->render('admin.dashboard.tab-view', compact('tab', 'dataTable')) :
                 view('admin.dashboard.tab-view', compact('tab', 'dataTable', 'chatEnabled', 'token', 'instructor', 'plans'));
         }
+
+        $user = User::find($user->id);
 
         // Common Queries
         $paymentTypes = UtilityFacades::getpaymenttypes();
