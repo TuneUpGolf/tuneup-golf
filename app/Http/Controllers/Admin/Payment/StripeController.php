@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Payment;
 
+use App\Facades\Utility;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Facades\UtilityFacades;
@@ -22,8 +23,10 @@ use App\Services\ChatService;
 class StripeController extends Controller
 {
     protected $chatService;
-    public function __construct(ChatService $chatService)
+    protected $utility;
+    public function __construct(ChatService $chatService,  Utility $utility)
     {
+        $this->utility = $utility;
         $this->chatService = $chatService;
     }
 
@@ -189,6 +192,11 @@ class StripeController extends Controller
             }
             $followerId    = $authUser->type == 'Student' ? $authUserId : null;
             $plan           =  Plan::find($planID);
+
+            if ($plan->is_chat_enabled && is_null($authUser->chat_user_id)) {
+                $this->utility->ensureChatUserId($authUser, $this->chatService);
+            }
+
             if ($plan->is_chat_enabled && is_null($authUser->chat_user_id)) {
                 return response()->json([
                     'error' => 'Chat user ID is required to proceed with the payment.'
