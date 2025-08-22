@@ -84,9 +84,11 @@ $isChatTab = isset($token) ? true : false;
                <button class="tablinks {{ $tab == 'online'? 'active' : '' }}" onclick="window.location.href='home?view=online'">Online Lessons</button>
                <button class="tablinks {{ $tab == 'my-lessons'? 'active' : '' }}" onclick="window.location.href='home?view=my-lessons'">My Lessons</button>
                <button class="tablinks {{ $tab == 'posts'? 'active' : '' }}" onclick="window.location.href='home?view=posts'">Tips & Drills</button>
+               @if ($user->type == 'Student')   
                <button class="tablinks {{ $tab == 'subscriptions' ? 'active' : '' }}" onclick="window.location.href='home?view=subscriptions'">Subscriptions</button>
                <button class="tablinks {{ $tab == 'chat'? 'active' : '' }}" onclick="window.location.href='home?view=chat'">Chat</button>
-               </hr>
+               @endif
+            </hr>
             </div>
             <div class="card tabcontent">
                <div class="flex flex-col w-100">
