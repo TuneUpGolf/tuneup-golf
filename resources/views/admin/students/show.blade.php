@@ -78,7 +78,7 @@
         window.chatConfig = {
             senderId : "{{ auth()->user()->chat_user_id }}",
             senderImage : "{{ auth()->user()->dp }}",
-            groupId : "{{ auth()->user()->group_id }}",
+            groupId : "{{ $students->group_id }}",
             recieverImage : "{{ auth()->user()->avatar }}",
             token : "{{ $token }}",
         }

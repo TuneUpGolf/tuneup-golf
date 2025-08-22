@@ -103,6 +103,10 @@ class Student extends User implements MustVerifyEmail
     {
         return $this->hasOne(PushToken::class, 'student_id');
     }
+    public function plan(): HasOne
+    {
+        return $this->hasOne(Plan::class, 'id', 'plan_id');
+    }
 
     public function sendPasswordResetNotification($token)
     {

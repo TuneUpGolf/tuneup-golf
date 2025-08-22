@@ -99,7 +99,7 @@ $isChatTab = isset($token) ? true : false;
                   @elseif($tab == 'chat')
                   <div id="Chat">
                      <div class="row">
-                        @if($chatEnabled)
+                        @if($chatEnabled && $instructor)
                               @include('admin.students.chat', ['token' => $token, 'instructor' => $instructor])
                            @else
                               @isset($plans)
@@ -109,7 +109,10 @@ $isChatTab = isset($token) ? true : false;
                                           <div class="card price-card price-1 wow animate__fadeInUp ani-fade m-0 h-100"  data-wow-delay="0.2s">
                                              <div class="rounded-lg shadow popular-wrap h-100">
                                                 <div class="px-3 pt-4 ">
-                                                   <p class="text-2xl font-bold mb-1">{{ $plan->name }}</p>
+                                                   <p class="text-2xl font-bold mb-1">
+                                                      {{ $plan->name }}
+                                                      <p class="text-gray-600">By <strong>{{ $plan->instructor->name }}</strong></p>
+                                                   </p>
                                                    <div class="flex gap-2 items-center mt-2 ">
                                                       <p class=" text-6xl font-bold">{{ $currency_symbol . ' ' . $plan->price }} /</p>
                                                       <p class="text-2xl text-gray-600">{{ $plan->duration . ' ' . $plan->durationtype }}</p>
@@ -157,7 +160,10 @@ $isChatTab = isset($token) ? true : false;
                            <div class="card price-card price-1 wow animate__fadeInUp ani-fade m-0 h-100"  data-wow-delay="0.2s">
                               <div class="rounded-lg shadow popular-wrap h-100">
                                  <div class="px-3 pt-4 ">
-                                    <p class="text-2xl font-bold mb-1">{{ $plan->name }}</p>
+                                    <p class="text-2xl font-bold mb-1">
+                                       {{ $plan->name }}
+                                       <p class="text-gray-600">By <strong>{{ $plan->instructor->name }}</strong></p>
+                                    </p>
                                     <div class="flex gap-2 items-center mt-2 ">
                                        <p class=" text-6xl font-bold">{{ $currency_symbol . ' ' . $plan->price }} /</p>
                                        <p class="text-2xl text-gray-600">{{ $plan->duration . ' ' . $plan->durationtype }}</p>

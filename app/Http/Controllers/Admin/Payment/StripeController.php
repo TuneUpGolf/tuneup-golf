@@ -8,6 +8,7 @@ use App\Facades\UtilityFacades;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Plan;
+use App\Models\Student;
 use App\Models\User;
 use App\Models\UserCoupon;
 use Carbon\Carbon;
@@ -380,8 +381,9 @@ class StripeController extends Controller
     function paymentSuccess($data)
     {
         $data = Crypt::decrypt($data);
-        $user = User::find(Auth::user()->id);
+        $user = Auth::user();
         if ($user->type == 'Admin') {
+            $user = User::find($user->id);
             $order = tenancy()->central(function ($tenant) use ($data) {
                 $datas                  = Order::find($data['order_id']);
                 $datas->status          = 1;
@@ -413,6 +415,7 @@ class StripeController extends Controller
                 $user->save();
             });
         } else {
+            $user = $user->type == 'Student' ? Student::find($user->id) : User::find($user->id);
             $datas                  = Order::find($data['order_id']);
             $datas->status          = 1;
             $datas->payment_type    = 'stripe';
@@ -444,16 +447,13 @@ class StripeController extends Controller
             }
             if ($plan->is_chat_enabled) {
                 $this->chatService->updateUser($user->chat_user_id, 'plan_expired_date', $planExpiredDate, $user->email);
-                $groupId = $this->chatService->createGroup($user->chat_user_id, $user->follows->first()?->instructor->chat_user_id);
-                if ($groupId) {
-                    $user->group_id = $groupId;
-                }
+                $user->chat_status = true;
             }
             $user->save();
         }
+
         if ($user->type == 'Student') {
-            $instructorId = $user->follows->first()?->instructor_id;
-            return redirect()->route('instructor.profile', ['instructor_id' => $instructorId])->with('status', __('Payment successfully!'));
+            return redirect()->route('home', ['view' => 'subscriptions'])->with('status', __('Payment successfully!'));
         } else {
             return redirect()->route('plans.index')->with('status', __('Payment successfully!'));
         }

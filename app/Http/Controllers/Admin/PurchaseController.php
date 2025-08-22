@@ -844,8 +844,8 @@ class PurchaseController extends Controller
         $video             = Purchase::with('videos')->find(request()->purchase_id);
         $chatEnabledPlanId = Plan::where('instructor_id', $purchase->instructor_id)
             ->where('is_chat_enabled', true)->pluck('id')->toArray();
-        $isSubscribed = in_array($purchase->follower->plan_id, $chatEnabledPlanId);
-        $token        = $this->chatService->getChatToken($purchase->follower->chat_user_id);
+        $isSubscribed = in_array($purchase->student->plan_id, $chatEnabledPlanId);
+        $token        = $this->chatService->getChatToken($purchase->student->chat_user_id);
         return $dataTable->with('purchase', $purchase)->render('admin.purchases.show', compact('purchase', 'video', 'token', 'isSubscribed'));
     }
 

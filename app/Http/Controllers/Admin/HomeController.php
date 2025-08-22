@@ -48,13 +48,13 @@ class HomeController extends Controller
     }
     public function index(Request $request)
     {
-        $user = Auth::user();
+        $userId = Auth::id();
+        $user = Student::find($userId);
         $userType = $user->type;
         $tenantId = tenant('id');
         $tab = $request->get('view');
 
         if ($userType == Role::ROLE_STUDENT) {
-
             if ($purchase = Purchase::find($request->query('purchase_id'))) {
                 Stripe::setApiKey(config('services.stripe.secret'));
                 $session = Session::retrieve($purchase->session_id);
@@ -64,8 +64,16 @@ class HomeController extends Controller
                 }
             }
 
-            $instructor = User::where('type', Role::ROLE_INSTRUCTOR)->orderBy('id', 'ASC')->first();
-            $token = $tab == 'chat' ? $this->chatService->getChatToken($user->chat_user_id) : false;
+            $token = false;
+
+            $instructor = User::find($user->plan?->instructor_id);
+            if ($tab == 'chat' && $instructor) {
+                $students = $this->utility->ensureChatUserId($user, $this->chatService);
+                $instructor = $this->utility->ensureChatUserId($instructor, $this->chatService);
+                $this->utility->ensureGroup($students, $instructor, $this->chatService);
+                $token = $this->chatService->getChatToken($user->chat_user_id);
+            }
+
             $chatEnabled = $this->utility->chatEnabled($user);
             $plans = Plan::with('instructor')->whereHas('instructor')->get();
 
