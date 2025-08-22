@@ -46,7 +46,7 @@
 </div>
 
 {{-- Chat Section --}}
-@if($students->chat_status == 1)
+@if($chatEnabled && ($students->chat_enabled_by == $instructor->id || $students->plan->instructor_id == $instructor->id))
  <div class="row">
     <div class="col-xl-12">
         @include('admin.chat.chat', ['user' => $students->name])

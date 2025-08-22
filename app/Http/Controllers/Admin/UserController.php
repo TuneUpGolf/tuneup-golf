@@ -233,6 +233,7 @@ class UserController extends Controller
         $input = ($request->value === "true") ? 1 : 0;
         if ($user) {
             $user->chat_status = $input;
+            $user->chat_enabled_by = Auth::id();
             $user->save();
         }
         return response()->json([
