@@ -132,16 +132,22 @@ class StudentDataTable extends DataTable
                 return $status;
             })
             ->addColumn('chat_enabled', function (Student $user) use ($loggedInUserId) {
+
                 if (isset($user->plan->is_chat_enabled) && $user->plan->is_chat_enabled == 1) {
-                    return '<span title="Student has subscription to chat">
-                        <i class="ti ti-alert-triangle" style="font-size: 25px; color:#FFC107;"></i>
-                    </span>';
+                    $msg = $user->plan->instructor_id != $loggedInUserId
+                        ? "The student has an active subscription to chat with another instructor."
+                        : "The student has an active subscription to chat.";
+                } elseif ($user->chat_enabled_by != $loggedInUserId && !empty($user->chat_enabled_by)) {
+                    $msg = "Another instructor is already chatting with this student.";
                 }
-                if ($user->chat_enabled_by != $loggedInUserId && !empty($user->chat_enabled_by)) {
-                    return '<span title="Another instructor is already chatting with this student.">
-                        <i class="ti ti-alert-triangle" style="font-size: 25px; color:#FFC107;"></i>
-                    </span>';
+
+                if (isset($msg)) {
+                    return sprintf(
+                        '<span title="%s"><i class="ti ti-alert-triangle" style="font-size: 25px; color:#FFC107;"></i></span>',
+                        e($msg) // escape message for safety
+                    );
                 }
+
                 $checked = ($user->chat_status == 1) ? 'checked' : '';
                 return '<label class="form-switch">
                              <input class="form-check-input chnageStatus" ' . $checked . ' class="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('user.chatstatus', $user->id) . '" type="checkbox">
