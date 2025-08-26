@@ -164,10 +164,10 @@ $isChatTab = isset($token) ? true : false;
                                  <div class="px-3 pt-4 ">
                                     <p class="text-2xl font-bold mb-1">
                                        {{ $plan->name }}
-                                       <p class="text-gray-600">By <strong>{{ $plan->instructor->name }}</strong></p>
+                                       <p class="text-gray-600"><strong>Instructor: {{ $plan->instructor->name }}</strong></p>
                                     </p>
-                                    <div class="flex gap-2 items-center mt-2 ">
-                                       <p class=" text-6xl font-bold">{{ $currency_symbol . ' ' . $plan->price }} /</p>
+                                    <div class="flex gap-1 items-center mt-2 ">
+                                       <p class="text-4xl font-bold">{{ $currency_symbol . $plan->price }}/</p>
                                        <p class="text-2xl text-gray-600">{{ $plan->duration . ' ' . $plan->durationtype }}</p>
                                     </div>
                                  </div>
@@ -190,40 +190,10 @@ $isChatTab = isset($token) ? true : false;
                                     </a>
                                     @endif
                                     @endif
-                                    <p class="font-semibold text-xl mb-2 mt-2">Features</p>
+                                    <p class="font-semibold text-xl mb-2 mt-2">Includes</p>
                                     <p class="text-gray-600">
                                        {!! $plan->description !!}
                                     </p>
-                                    
-                                    {{-- <ul class="mt-2 pl-0">
-                                       <li class="list-unstyled d-flex">
-                                          <span class="theme-avtar">
-                                          <i class="text-primary ti ti-circle-plus"></i></span>
-                                          {{ $plan->max_users . ' ' . __('Users') }}
-                                       </li>
-                                       <li class="list-unstyled d-flex">
-                                          <span class="theme-avtar">
-                                          <i class="text-primary ti ti-circle-plus"></i></span>
-                                          {{ $plan->duration . ' ' . $plan->durationtype . ' ' . __('Duration') }}
-                                       </li>
-                                       @if ($user->type == 'Admin')
-                                       <li class="list-unstyled d-flex">
-                                          <span class="theme-avtar">
-                                          <i class="text-primary ti ti-circle-plus"></i></span>
-                                          {{ $plan->max_roles . ' ' . __('Roles') }}
-                                       </li>
-                                       <li class="list-unstyled d-flex">
-                                          <span class="theme-avtar">
-                                          <i class="text-primary ti ti-circle-plus"></i></span>
-                                          {{ $plan->max_documents . ' ' . __('Documents') }}
-                                       </li>
-                                       <li class="list-unstyled d-flex">
-                                          <span class="theme-avtar">
-                                          <i class="text-primary ti ti-circle-plus"></i></span>
-                                          {{ $plan->max_blogs . ' ' . __('Blogs') }}
-                                       </li>
-                                       @endif
-                                    </ul> --}}
                                  </div>
                               </div>
                            </div>

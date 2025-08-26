@@ -16,6 +16,10 @@ class PlanController extends Controller
 {
     public function index(PlanDataTable $dataTable)
     {
+        return redirect()->route(
+            Auth::user()->type == 'Student' ? 'home'
+                : 'slot.manage'
+        );
         if (Auth::user()->can('manage-plan')) {
             if (Auth::user()->type == 'Admin') {
                 $plans  = tenancy()->central(function ($tenant) {

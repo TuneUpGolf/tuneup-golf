@@ -45,8 +45,10 @@
     </div>
 </div>
 
+@php $planInstructor = $students->plan->instructor_id??null; @endphp
+
 {{-- Chat Section --}}
-@if($chatEnabled && ($students->chat_enabled_by == $instructor->id || $students->plan->instructor_id == $instructor->id))
+@if($chatEnabled && ($students->chat_enabled_by == $instructor->id || $planInstructor == $instructor->id))
  <div class="row">
     <div class="col-xl-12">
         @include('admin.chat.chat', ['user' => $students->name])

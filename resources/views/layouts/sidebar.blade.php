@@ -366,16 +366,10 @@
                                         <a class="dash-link" href="{{ route('coupon.index') }}">{{ __('Coupons') }}</a>
                                     </li>
                                 @endcan
-                                @can('manage-plan')
-                                    <li
-                                        class="dash-item {{ request()->is('plans*') || request()->is('payment*') ? 'active' : '' }}">
-                                        <a class="dash-link" href="{{ route('plans.index') }}">{{ __('Plans') }}</a>
-                                    </li>
-                                @endcan
                                 @if ($userType == 'Instructor')
                                     <li class="dash-item {{ request()->is('myplan*') ? 'active' : '' }}">
                                         <a class="dash-link"
-                                            href="{{ route('plans.myplan') }}">{{ __('My Plans') }}</a>
+                                            href="{{ route('plans.myplan') }}">{{ __('Manage Subscription Plans') }}</a>
                                     </li>
                                 @endif
                                 @if ($userType === 'Student')
