@@ -167,7 +167,7 @@ $isChatTab = isset($token) ? true : false;
                                        <p class="text-gray-600"><strong>Instructor: {{ $plan->instructor->name }}</strong></p>
                                     </p>
                                     <div class="flex gap-1 items-center mt-2 ">
-                                       <p class="text-4xl font-bold">{{ $currency_symbol . $plan->price }}.99/</p>
+                                       <p class="text-4xl font-bold">{{ $currency_symbol . $plan->price }}/</p>
                                        <p class="text-2xl text-gray-600">{{ $plan->duration . ' ' . $plan->durationtype }}</p>
                                     </div>
                                  </div>
