@@ -1,8 +1,10 @@
+@php $title = request()->is('all-chat') ? 'All Chats':'Students'; @endphp
 @extends('layouts.main')
-@section('title', __('Students'))
+@section('title', __($title))
+@section('title', __($title))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Students') }}</li>
+    <li class="breadcrumb-item">{{ __($title) }}</li>
 @endsection
 @section('content')
     <div class="row">
@@ -27,7 +29,7 @@
         $(document).ready(function() {
             var html =
                 $('.dataTable-title').html(
-                    "<div class='flex justify-start items-center'><div class='custom-table-header'></div><span class='font-medium text-2xl pl-4'>All Students</span></div>"
+                    "<div class='flex justify-start items-center'><div class='custom-table-header'></div><span class='font-medium text-2xl pl-4'>{{$title}}</span></div>"
                 );
         });
     </script>

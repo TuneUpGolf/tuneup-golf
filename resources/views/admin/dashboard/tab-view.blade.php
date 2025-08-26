@@ -139,7 +139,7 @@ $isChatTab = isset($token) ? true : false;
                                                 </a>
                                                 @endif
                                                 @endif
-                                                <p class="font-semibold text-xl mb-2 mt-2">Includes</p>
+                                                <p class="font-semibold text-xl mb-2 mt-2">Includes:</p>
                                                 <p class="text-gray-600">
                                                    {!! $plan->description !!}
                                                 </p>
@@ -190,7 +190,7 @@ $isChatTab = isset($token) ? true : false;
                                     </a>
                                     @endif
                                     @endif
-                                    <p class="font-semibold text-xl mb-2 mt-2">Includes</p>
+                                    <p class="font-semibold text-xl mb-2 mt-2">Includes:</p>
                                     <p class="text-gray-600">
                                        {!! $plan->description !!}
                                     </p>
