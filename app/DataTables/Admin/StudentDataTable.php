@@ -10,16 +10,22 @@ use Yajra\DataTables\Services\DataTable;
 
 class StudentDataTable extends DataTable
 {
+    public $module;
+
+    public function __construct()
+    {
+        $this->module = request()->is('student') ? 'student' : 'all-chat';
+    }
+
     public function dataTable($query)
     {
-
         $loggedInUserId = auth()->id();
         $data = datatables()
             ->eloquent($query)
             ->addIndexColumn()
             ->editColumn('name', function (Student $user) {
                 $imageSrc = $user->dp ?  asset('/storage' . '/' . tenant('id') . '/' . $user->dp) : asset('assets/img/user.png');
-                $userUrl  = route('student.show', $user->id);
+                $userUrl  = route($this->module . '.show', $user->id);
                 $html =
                     '
                 <div class="flex justify-start items-center">

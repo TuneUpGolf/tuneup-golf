@@ -399,4 +399,51 @@ class StudentController extends Controller
         }
         return false;
     }
+
+    /**
+     * Update the chat status of a given student.
+     *
+     * @param  \Illuminate\Http\Request  $request  The HTTP request instance containing the 'value' field.
+     * @param  int  $id  The ID of the student whose chat status should be updated.
+     * @return \Illuminate\Http\JsonResponse  Returns a JSON response indicating success.
+     */
+    public function userChatStatus(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        $user  = Student::find($id);
+        $input = ($request->value === "true") ? 1 : 0;
+
+        if ($user) {
+            $user->chat_status = $input;
+            $user->save();
+        }
+
+        return response()->json([
+            'is_success' => true,
+            'message'    => __('Student chat status changed successfully.'),
+        ]);
+    }
+
+    /**
+     * Display the student chat interface for the authenticated user.
+     * 
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse  Returns the chat view or a redirect response.
+     */
+    public function studentChat(): \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+    {
+        $user = Auth::user();
+
+        if (!$this->utility->chatEnabled($user)) {
+            return redirect()
+                ->route('home')
+                ->with('error', 'Chat feature not available!');
+        }
+
+        $influencer = User::where('tenant_id', tenant('id'))
+            ->where('id', $user->follows->first()->influencer_id)
+            ->first();
+
+        $token = $this->chatService->getChatToken(Auth::user()->chat_user_id);
+
+        return view('admin.students.chat', compact('influencer', 'token'));
+    }
 }
