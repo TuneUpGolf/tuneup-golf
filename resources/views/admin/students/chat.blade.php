@@ -73,11 +73,17 @@
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
+        @php 
+            $tenantId = tenant()->id;
+            $userDp = auth()->user()->dp;
+            $instructorDp = $instructor->avatar;
+        @endphp
+        
         window.chatConfig = {
             senderId : "{{ auth()->user()->chat_user_id }}",
-            senderImage : "{{ auth()->user()->dp }}",
+            senderImage : '{{ url("/storage/$tenantId/$userDp") }}',
             groupId : "{{ auth()->user()->group_id }}",
-            recieverImage : "{{ $instructor->avatar }}",
+            recieverImage : '{{ url("/storage/$tenantId/$instructorDp") }}',
             token : "{{ $token }}",
         }
         window.chatBaseUrl = "{{ config('services.chat.base_url') }}";

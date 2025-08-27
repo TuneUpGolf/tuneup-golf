@@ -82,11 +82,18 @@
     @include('layouts.includes.datatable_js')
     {{ $dataTable->scripts() }}
     <script>
+
+        @php 
+            $tenantId = tenant()->id;
+            $instructorDp = $purchase->plan->instructor->dp;
+            $studentDp = $purchase->student->dp;
+        @endphp
+        
         window.chatConfig = {
             senderId : "{{ auth()->user()->chat_user_id }}",
-            senderImage : "{{ auth()->user()->avatar }}",
-            groupId : "{{ $purchase->follower->group_id }}",
-            recieverImage : "{{ $purchase->follower->dp }}",
+            senderImage : '{{ url("/storage/$tenantId/$studentDp") }}',
+            groupId : "{{ $purchase->student->group_id }}",
+            recieverImage : '{{ url("/storage/$tenantId/$instructorDp") }}',
             token : "{{ $token }}",
         }
         window.chatBaseUrl = "{{ config('services.chat.base_url') }}";
