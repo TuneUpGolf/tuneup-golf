@@ -10,7 +10,7 @@
         <section class="section">
             <div class="page-header">
             </div>
-            <div class="col-lg-6 col-md-8 col-xxl-4 m-auto">
+            <div class="col-lg-6 col-md-8 col-xxl-8 m-auto">
                 <div class="card">
                     <div class="card-header">
                         <h5>{{ __('Edit MyPlan') }}</h5>
@@ -64,9 +64,12 @@
                         @endif
                         <div class="form-group">
                             {{ Form::label('description', __('Description'), ['class' => 'form-label']) }}
-                            {!! Form::text('description', null, ['placeholder' => __('Enter description'), 'class' => 'form-control']) !!}
+                            {!! Form::textarea('description', null, [
+                                'autocomplete' => 'off',
+                                'class' => 'form-control form-control-lg form-control-solid',
+                            ]) !!}
                         </div>
-                        @if (Auth::user()->type == 'Instructor')
+                        @if (Auth::user()->type == 'Influencer')
                             <div class="form-group flex flex-row gap-4">
                                 <div class="flex flex-col">
                                     {{ Form::label('Chat', __('Chat *'), ['class' => 'form-label']) }}
@@ -76,10 +79,17 @@
                                         'data-toggle' => 'switchbutton',
                                     ]) !!}
                                 </div>
+                                <div class="flex flex-col">
+                                    {{ Form::label('Feed', __('Feed *'), ['class' => 'form-label']) }}
+                                    {!! Form::checkbox('feed', 1, $plan->is_feed_enabled, [
+                                        'class' => 'form-check form-control',
+                                        'data-onstyle' => 'primary',
+                                        'data-toggle' => 'switchbutton',
+                                    ]) !!}
+                                </div>
                             </div>
                         @endif
                     </div>
-
                     <div class="card-footer">
                         <div class="text-end">
                             <a href="{{ route('plans.myplan') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
@@ -94,6 +104,7 @@
 @endsection
 @push('javascript')
     <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
+    <script src="{{ asset('vendor/ckeditor/ckeditor.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var genericExamples = document.querySelectorAll('[data-trigger]');
@@ -104,6 +115,12 @@
                     searchPlaceholderValue: 'This is a search placeholder',
                 });
             }
+        });
+
+        CKEDITOR.replace('description', {
+            allowedContent: true,
+            filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
+            filebrowserUploadMethod: 'form'
         });
     </script>
 @endpush
