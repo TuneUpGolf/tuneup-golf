@@ -47,6 +47,8 @@ class Student extends User implements MustVerifyEmail
         'social_url_fb',
         'social_url_x',
         'isGuest',
+        'chat_user_id',
+        'group_id'
     ];
     protected $hidden = [
         'password',
@@ -100,6 +102,10 @@ class Student extends User implements MustVerifyEmail
     public function pushToken(): HasOne
     {
         return $this->hasOne(PushToken::class, 'student_id');
+    }
+    public function plan(): HasOne
+    {
+        return $this->hasOne(Plan::class, 'id', 'plan_id');
     }
 
     public function sendPasswordResetNotification($token)

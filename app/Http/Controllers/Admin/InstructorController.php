@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\SendEmail;
 use App\Actions\SendSMS;
 use App\DataTables\Admin\InstructorDataTable;
+use App\Facades\Utility;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AnnotationVideoApiResource;
@@ -24,7 +25,6 @@ use App\Models\Follow;
 use App\Models\Lesson;
 use App\Models\Post;
 use App\Models\Purchase;
-use App\Models\PurchaseVideos;
 use App\Models\ReportUser;
 use App\Models\Review;
 use App\Models\Student;
@@ -33,7 +33,7 @@ use Illuminate\Support\Str;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use Laravel\Horizon\Listeners\SendNotification;
+use App\Services\ChatService;
 
 use function PHPUnit\Framework\isEmpty;
 use Illuminate\Support\Facades\Storage;
@@ -41,11 +41,16 @@ use Illuminate\Support\Facades\Storage;
 class InstructorController extends Controller
 {
     use ConvertVideos;
+    protected $chatService;
+    protected $countries;
+    protected $utility;
 
-    public function __construct()
+    public function __construct(ChatService $chatService, Utility $utility)
     {
         $path               = storage_path() . "/json/country.json";
         $this->countries    = json_decode(file_get_contents($path), true);
+        $this->chatService = $chatService;
+        $this->utility = $utility;
     }
 
     public function index(InstructorDataTable $dataTable)
@@ -126,6 +131,9 @@ class InstructorController extends Controller
                     $user['logo'] = $request->file('file')->store('dp');
                 }
                 $user->update();
+
+                $this->utility->ensureChatUserId($user, $this->chatService);
+
                 SendEmail::dispatch($userData['email'], new WelcomeMail($userData));
                 $message = __('Welcome, :name, you have successfully signed up!, Please login at :link', [
                     'name' => $userData['name'],

@@ -157,7 +157,7 @@
         <input type="hidden" id="friendNamesInput" name="friend_names">
     </form>
 </div>
-
+{{-- @dump($model->is_package_lesson) --}}
 @push('javascript')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>

@@ -41,7 +41,7 @@ class LessonsGridView extends GridView
 
 
     public $maxCols = 4;
-    // protected $paginate = 4;
+    protected $paginate = 40;
 
     /**
      * Sets the data to every card on the view

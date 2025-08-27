@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Admin\Payment;
 
+use App\Facades\Utility;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Facades\UtilityFacades;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Plan;
+use App\Models\Student;
 use App\Models\User;
 use App\Models\UserCoupon;
 use Carbon\Carbon;
@@ -16,9 +18,18 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Stripe\Stripe;
 use Stripe\StripeClient;
+use App\Services\ChatService;
 
 class StripeController extends Controller
 {
+    protected $chatService;
+    protected $utility;
+    public function __construct(ChatService $chatService,  Utility $utility)
+    {
+        $this->utility = $utility;
+        $this->chatService = $chatService;
+    }
+
     public function stripe()
     {
         $view =  view('payment.PaymentStripe');
@@ -172,7 +183,25 @@ class StripeController extends Controller
             });
             return $resData;
         } else {
+            if ($authUser->type == 'Student') {
+                $authUserId = 0;
+                $studentId = $authUser->id;
+            } else {
+                $authUserId = $authUser->id;
+                $studentId = null;
+            }
+            $studentId    = $authUser->type == 'Student' ? $authUserId : null;
             $plan           =  Plan::find($planID);
+
+            if ($plan->is_chat_enabled && is_null($authUser->chat_user_id)) {
+                $this->utility->ensureChatUserId($authUser, $this->chatService);
+            }
+
+            if ($plan->is_chat_enabled && is_null($authUser->chat_user_id)) {
+                return response()->json([
+                    'error' => 'Chat user ID is required to proceed with the payment.'
+                ]);
+            }
             $couponId       = '0';
             $price          = $plan->price;
             $couponCode     = null;
@@ -196,11 +225,12 @@ class StripeController extends Controller
             }
             $data = Order::create([
                 'plan_id'           => $plan->id,
-                'user_id'           => $authUser->id,
+                'user_id'           => $authUserId,
                 'amount'            => $price,
                 'discount_amount'   => $discountValue,
                 'coupon_code'       => $couponCode,
                 'status'            => 0,
+                'student_id'     => $studentId,
             ]);
 
             $resData['total_price'] = $price;
@@ -358,8 +388,10 @@ class StripeController extends Controller
 
     function paymentSuccess($data)
     {
-        $data   = Crypt::decrypt($data);
-        if (Auth::user()->type == 'Admin') {
+        $data = Crypt::decrypt($data);
+        $user = Auth::user();
+        if ($user->type == 'Admin') {
+            $user = User::find($user->id);
             $order = tenancy()->central(function ($tenant) use ($data) {
                 $datas                  = Order::find($data['order_id']);
                 $datas->status          = 1;
@@ -391,11 +423,12 @@ class StripeController extends Controller
                 $user->save();
             });
         } else {
+            $user = $user->type == 'Student' ? Student::find($user->id) : User::find($user->id);
             $datas                  = Order::find($data['order_id']);
             $datas->status          = 1;
             $datas->payment_type    = 'stripe';
             $datas->update();
-            $user       = User::find(Auth::user()->id);
+
             $coupons    = Coupon::find($data['coupon']);
             if (!empty($coupons)) {
                 $userCoupon         = new UserCoupon();
@@ -412,14 +445,25 @@ class StripeController extends Controller
             $plan           = Plan::find($data['plan_id']);
             $user->plan_id  = $plan->id;
             if ($plan->durationtype == 'Month' && $plan->id != '1') {
-                $user->plan_expired_date = Carbon::now()->addMonths($plan->duration)->isoFormat('YYYY-MM-DD');
+                $planExpiredDate = Carbon::now()->addMonths($plan->duration)->isoFormat('YYYY-MM-DD');
+                $user->plan_expired_date = $planExpiredDate;
             } elseif ($plan->durationtype == 'Year' && $plan->id != '1') {
-                $user->plan_expired_date = Carbon::now()->addYears($plan->duration)->isoFormat('YYYY-MM-DD');
+                $planExpiredDate = Carbon::now()->addYears($plan->duration)->isoFormat('YYYY-MM-DD');
+                $user->plan_expired_date = $planExpiredDate;
             } else {
                 $user->plan_expired_date = null;
             }
+            if ($plan->is_chat_enabled) {
+                $this->chatService->updateUser($user->chat_user_id, 'plan_expired_date', $planExpiredDate, $user->email);
+                $user->chat_status = true;
+            }
             $user->save();
         }
-        return redirect()->route('plans.index')->with('status', __('Payment successfully!'));
+
+        if ($user->type == 'Student') {
+            return redirect()->route('home', ['view' => 'subscriptions'])->with('status', __('Payment successfully!'));
+        } else {
+            return redirect()->route('plans.index')->with('status', __('Payment successfully!'));
+        }
     }
 }

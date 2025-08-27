@@ -3,21 +3,29 @@
 namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
+use App\Models\Role;
 use App\Models\Student;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
 class StudentDataTable extends DataTable
 {
+    public $module;
+
+    public function __construct()
+    {
+        $this->module = request()->is('student') ? 'student' : 'all-chat';
+    }
+
     public function dataTable($query)
     {
-
+        $loggedInUserId = auth()->id();
         $data = datatables()
             ->eloquent($query)
             ->addIndexColumn()
             ->editColumn('name', function (Student $user) {
                 $imageSrc = $user->dp ?  asset('/storage' . '/' . tenant('id') . '/' . $user->dp) : asset('assets/img/user.png');
-                $userUrl  = route('student.show', $user->id);
+                $userUrl  = route($this->module . '.show', $user->id);
                 $html =
                     '
                 <div class="flex justify-start items-center">
@@ -123,10 +131,38 @@ class StudentDataTable extends DataTable
                              </label>';
                 return $status;
             })
+            ->addColumn('chat_enabled', function (Student $user) use ($loggedInUserId) {
+
+                if (isset($user->plan->is_chat_enabled) && $user->plan->is_chat_enabled == 1) {
+                    $msg = $user->plan->instructor_id != $loggedInUserId
+                        ? "The student has an active subscription to chat with another instructor."
+                        : "The student has an active subscription to chat.";
+                } elseif ($user->chat_enabled_by != $loggedInUserId && !empty($user->chat_enabled_by)) {
+                    $msg = "Another instructor is already chatting with this student.";
+                }
+
+                if (isset($msg)) {
+                    return sprintf(
+                        '<span title="%s"><i class="ti ti-alert-triangle" style="font-size: 25px; color:#FFC107;"></i></span>',
+                        e($msg) // escape message for safety
+                    );
+                }
+
+                $checked = ($user->chat_status == 1) ? 'checked' : '';
+                return '<label class="form-switch">
+                             <input class="form-check-input chnageStatus" ' . $checked . ' class="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('user.chatstatus', $user->id) . '" type="checkbox">
+                        </label>';
+            })
+            ->editColumn('active_status', function (Student $user) {
+                $checked = ($user->active_status == 1) ? 'checked' : '';
+                return '<label class="form-switch">
+                             <input class="form-check-input chnageStatus" class="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('user.status', $user->id) . '" type="checkbox">
+                             </label>';
+            })
             ->addColumn('action', function (Student $user) {
                 return view('admin.students.action', compact('user'));
             })
-            ->rawColumns(['role', 'action', 'email_verified_at', 'phone_verified_at', 'active_status', 'name']);
+            ->rawColumns(['role', 'action', 'email_verified_at', 'phone_verified_at', 'active_status', 'name', 'chat_enabled']);
         return $data;
     }
 
@@ -259,7 +295,7 @@ class StudentDataTable extends DataTable
     protected function getColumns()
     {
 
-        return [
+        $columns = [
             Column::make('No')->title(__('#'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
             Column::make('name')->title(__('User')),
             Column::make('email')->title(__('Email')),
@@ -267,13 +303,17 @@ class StudentDataTable extends DataTable
             Column::make('phone_verified_at')->title(__('Phone Verified Status')),
             Column::make('created_at')->title(__('Created At')),
             Column::make('active_status')->title(__('Status')),
-            Column::computed('action')->title(__('Action'))
-                ->exportable(false)
-                ->printable(false)
-                ->width(60)
-                ->addClass('text-center')
-                ->width('20%'),
         ];
+        if (auth()->user()->type == Role::ROLE_INSTRUCTOR) {
+            $columns[] = Column::make('chat_enabled')->title(__('Chat Enabled'));
+        }
+        $columns[] = Column::computed('action')->title(__('Action'))
+            ->exportable(false)
+            ->printable(false)
+            ->width(60)
+            ->addClass('text-center')
+            ->width('20%');
+        return $columns;
     }
 
     protected function filename(): string

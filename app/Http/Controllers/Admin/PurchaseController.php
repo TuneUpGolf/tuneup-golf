@@ -23,6 +23,7 @@ use App\Models\PurchaseVideos;
 use App\DataTables\Admin\PurchaseLessonDataTable;
 use App\DataTables\Admin\PurchaseLessonVideoDataTable;
 use App\Mail\Admin\SlotBookedByStudentMail;
+use App\Models\Plan;
 use App\Models\Role;
 use App\Models\Slots;
 use App\Traits\ConvertVideos;
@@ -34,8 +35,7 @@ use Stripe\Checkout\Session;
 use Stripe\Stripe;
 use Error;
 use Exception;
-use Spatie\MailTemplates\Models\MailTemplate;
-use Illuminate\Support\Facades\Mail;
+use App\Services\ChatService;
 
 use function PHPUnit\Framework\isEmpty;
 
@@ -43,6 +43,12 @@ class PurchaseController extends Controller
 {
     use PurchaseTrait;
     use ConvertVideos;
+    protected $chatService;
+
+    public function __construct(ChatService $chatService)
+    {
+        $this->chatService = $chatService;
+    }
 
     public function index(PurchaseDataTable $dataTable)
     {
@@ -836,7 +842,11 @@ class PurchaseController extends Controller
     {
         $purchase          = Purchase::with('student')->findOrFail($lessonId);
         $video             = Purchase::with('videos')->find(request()->purchase_id);
-        return $dataTable->with('purchase', $purchase)->render('admin.purchases.show', compact('purchase', 'video'));
+        $chatEnabledPlanId = Plan::where('instructor_id', $purchase->instructor_id)
+            ->where('is_chat_enabled', true)->pluck('id')->toArray();
+        $isSubscribed = in_array($purchase->student->plan_id, $chatEnabledPlanId);
+        $token        = $this->chatService->getChatToken($purchase->student->chat_user_id);
+        return $dataTable->with('purchase', $purchase)->render('admin.purchases.show', compact('purchase', 'video', 'token', 'isSubscribed'));
     }
 
     public function destroy($id)

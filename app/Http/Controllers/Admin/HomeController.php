@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\DataTables\Admin\PurchaseDataTable;
 use App\Http\Controllers\Controller;
 use App\DataTables\Admin\SalesDataTable;
+use App\Facades\Utility;
 use App\Facades\UtilityFacades;
 use App\Models\DocumentGenrator;
 use App\Models\Event;
@@ -18,6 +19,7 @@ use App\Models\Student;
 use App\Models\SupportTicket;
 use App\Models\User;
 use App\Providers\AuthServiceProvider;
+use App\Services\ChatService;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use DatePeriod;
@@ -29,6 +31,13 @@ use Stripe\Stripe;
 
 class HomeController extends Controller
 {
+    protected $chatService;
+    protected $utility;
+    public function __construct(ChatService $chatService, Utility $utility)
+    {
+        $this->chatService = $chatService;
+        $this->utility = $utility;
+    }
 
     public function landingPage()
     {
@@ -42,9 +51,10 @@ class HomeController extends Controller
         $user = Auth::user();
         $userType = $user->type;
         $tenantId = tenant('id');
+        $tab = $request->get('view');
 
         if ($userType == Role::ROLE_STUDENT) {
-
+            $user = Student::find($user->id);
             if ($purchase = Purchase::find($request->query('purchase_id'))) {
                 Stripe::setApiKey(config('services.stripe.secret'));
                 $session = Session::retrieve($purchase->session_id);
@@ -54,12 +64,28 @@ class HomeController extends Controller
                 }
             }
 
-            $tab = $request->get('view');
-            $activeTab = !empty($tab) ? $tab : 'in-person';
-            $dataTable = $activeTab == 'my-lessons' ? new PurchaseDataTable($tab) : false;
-            return $dataTable ? $dataTable->render('admin.dashboard.tab-view', compact('activeTab', 'dataTable')) :
-                view('admin.dashboard.tab-view', compact('activeTab', 'dataTable'));
+            $token = false;
+
+            $instructorId = $user->plan->instructor_id ?? $user->chat_enabled_by;
+
+            $instructor = User::find($instructorId);
+            if ($tab == 'chat' && $instructor) {
+                $students = $this->utility->ensureChatUserId($user, $this->chatService);
+                $instructor = $this->utility->ensureChatUserId($instructor, $this->chatService);
+                $this->utility->ensureGroup($students, $instructor, $this->chatService);
+                $token = $this->chatService->getChatToken($user->chat_user_id);
+            }
+
+            $chatEnabled = $this->utility->chatEnabled($user);
+            $plans = Plan::with('instructor')->whereHas('instructor')->get();
+
+            $tab = !empty($tab) ? $tab : 'in-person';
+            $dataTable = $tab == 'my-lessons' ? new PurchaseDataTable($tab) : false;
+            return $dataTable ? $dataTable->render('admin.dashboard.tab-view', compact('tab', 'dataTable')) :
+                view('admin.dashboard.tab-view', compact('tab', 'dataTable', 'chatEnabled', 'token', 'instructor', 'plans'));
         }
+
+        $user = User::find($user->id);
 
         // Common Queries
         $paymentTypes = UtilityFacades::getpaymenttypes();

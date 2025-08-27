@@ -366,16 +366,10 @@
                                         <a class="dash-link" href="{{ route('coupon.index') }}">{{ __('Coupons') }}</a>
                                     </li>
                                 @endcan
-                                @can('manage-plan')
-                                    <li
-                                        class="dash-item {{ request()->is('plans*') || request()->is('payment*') ? 'active' : '' }}">
-                                        <a class="dash-link" href="{{ route('plans.index') }}">{{ __('Plans') }}</a>
-                                    </li>
-                                @endcan
-                                @if ($userType == 'Admin')
+                                @if ($userType == 'Instructor')
                                     <li class="dash-item {{ request()->is('myplan*') ? 'active' : '' }}">
                                         <a class="dash-link"
-                                            href="{{ route('plans.myplan') }}">{{ __('My Plans') }}</a>
+                                            href="{{ route('plans.myplan') }}">{{ __('Manage Subscription Plans') }}</a>
                                     </li>
                                 @endif
                                 @if ($userType === 'Student')
@@ -387,76 +381,7 @@
                             </ul>
                         </li>
                     @endcanany
-                    @if ($userType == 'Admin')
-                        {{-- <li
-                            class="dash-item dash-hasmenu {{ request()->is('Offline*') || request()->is('sales*') ? 'active dash-trigger' : 'collapsed' }}">
-                            <a href="#!" class="dash-link"><span class="dash-micon"><i
-                                        class="ti ti-clipboard-check"></i></span><span
-                                    class="dash-mtext">{{ __('Payment') }}</span><span class="dash-arrow"><i
-                                        data-feather="chevron-right"></i></span></a>
-                            <ul class="dash-submenu">
-                                <li class="dash-item {{ request()->is('sales*') ? 'active' : '' }}">
-                                    <a class="dash-link"
-                                        href="{{ route('sales.index') }}">{{ __('Transactions') }}</a>
-                                </li>
-                            </ul>
-                        </li> --}}
-                        {{-- <li
-                            class="dash-item dash-hasmenu {{ request()->is('chat*') || request()->is('support-ticket*') ? 'active dash-trigger' : 'collapsed' }}">
-                            <a href="#!" class="dash-link">
-                                <span class="dash-micon"><i
-                                        class="ti ti-database"></i></span><span
-                                    class="dash-mtext">{{ __('Support') }}</span><span class="dash-arrow"><i
-                                        data-feather="chevron-right"></i></span></a>
-                            <ul class="dash-submenu">
-                                @if (Utility::getsettings('pusher_status') == '1')
-                                    <li class="dash-item {{ request()->is('chat*') ? 'active' : '' }}">
-                                        <a class="dash-link" href="{{ route('chat') }}">{{ __('Chats') }}</a>
-                                    </li>
-                                @endif
-                                <li class="dash-item {{ request()->is('support-ticket*') ? 'active' : '' }}">
-                                    <a class="dash-link"
-                                        href="{{ route('support-ticket.index') }}">{{ __('Support Tickets') }}</a>
-                                </li>
-                            </ul>
-                        </li> --}}
-                        {{-- <li
-                            class="dash-item dash-hasmenu {{ request()->is('landingpage-setting*') ||
-                            request()->is('faqs*') ||
-                            request()->is('testimonial*') ||
-                            request()->is('pagesetting*')
-                                ? 'active dash-trigger'
-                                : 'collapsed' }}">
-                            <a href="#!" class="dash-link"><span class="dash-micon">
-                                <i
-                                        class="ti ti-table"></i></span><span
-                                    class="dash-mtext">{{ __('Frontend Setting') }}</span><span
-                                    class="dash-arrow"><i data-feather="chevron-right"></i></span></a>
-                            <ul class="dash-submenu">
-                                @can('manage-landingpage')
-                                    <li class="dash-item {{ request()->is('landingpage-setting*') ? 'active' : '' }}">
-                                        <a class="dash-link"
-                                            href="{{ route('landingpage.setting') }}">{{ __('Landing Page') }}</a>
-                                    </li>
-                                @endcan
-                                @can('manage-faqs')
-                                    <li class="dash-item {{ request()->is('faqs*') ? 'active' : '' }}">
-                                        <a class="dash-link" href="{{ route('faqs.index') }}">{{ __('Faqs') }}</a>
-                                    </li>
-                                @endcan
-                                @can('manage-testimonial')
-                                    <li class="dash-item {{ request()->is('testimonial*') ? 'active' : '' }}">
-                                        <a class="dash-link"
-                                            href="{{ route('testimonial.index') }}">{{ __('Testimonials') }}</a>
-                                    </li>
-                                @endcan
-                                <li class="dash-item {{ request()->is('pagesetting*') ? 'active' : '' }}">
-                                    <a class="dash-link"
-                                        href="{{ route('pagesetting.index') }}">{{ __('Page Settings') }}</a>
-                                </li>
-                            </ul>
-                        </li> --}}
-                    @endif
+                    
                     @if ($userType == 'Admin')
                         <li
                             class="dash-item dash-hasmenu {{ request()->is('email-template*') || request()->is('sms-template*') || request()->is('settings*') ? 'active dash-trigger' : 'collapsed' }}">
@@ -488,6 +413,16 @@
                         </li>
                     @endif
                 @endif
+
+                @if($users->type == "Instructor")
+                <li class="dash-item dash-hasmenu {{ request()->has('all-chat*') ? 'active' : '' }}">
+                    <a class="dash-link" href="{{ route('all-chat.index') }}">
+                        <span class="dash-micon"><i class="ti ti-message-circle"></i></span>
+                        <span class="dash-mtext">{{ __('Chat') }}</span>
+                    </a>
+                </li>
+                @endif
+
             </ul>
             <div class="flex flex-col">
 

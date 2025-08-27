@@ -6,6 +6,7 @@ use App\Actions\SendEmail;
 use App\Actions\SendSMS;
 use App\DataTables\Admin\StudentDataTable;
 use App\DataTables\Admin\StudentsPurchaseDataTable;
+use App\Facades\Utility;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StudentAPIResource;
@@ -22,10 +23,21 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Stancl\Tenancy\Database\Models\Domain;
 use App\Mail\Admin\WelcomeMail;
+use App\Models\Plan;
+use App\Models\User;
+use App\Services\ChatService;
 use Exception;
 
 class StudentController extends Controller
 {
+    protected $chatService;
+    protected $utility;
+
+    public function __construct(ChatService $chatService, Utility $utility)
+    {
+        $this->chatService = $chatService;
+        $this->utility = $utility;
+    }
 
     public function index(StudentDataTable $dataTable)
     {
@@ -352,10 +364,86 @@ class StudentController extends Controller
             }
         }
     }
+    /**
+     * Display the specified student and related chat data.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function show($id)
     {
-        $students  = Student::findOrFail($id);
+        $students = Student::findOrFail($id);
+        $instructor = User::findOrFail(auth()->id());
+
         $dataTable = new StudentsPurchaseDataTable($id);
-        return $dataTable->render('admin.students.show', compact('students', 'dataTable'));
+
+        $students = $this->utility->ensureChatUserId($students, $this->chatService);
+        $instructor = $this->utility->ensureChatUserId($instructor, $this->chatService);
+        $this->utility->ensureGroup($students, $instructor, $this->chatService);
+
+        $token = $this->chatService->getChatToken($students->chat_user_id);
+        $isSubscribed = $this->isSubscribed($students);
+
+        $chatEnabled = $this->utility->chatEnabled($students);
+
+        return $dataTable->render('admin.students.show', compact('students', 'dataTable', 'token', 'isSubscribed', 'instructor', 'chatEnabled'));
+    }
+
+    public function isSubscribed($user)
+    {
+        $instructor = User::where('tenant_id', tenant('id'))->where('id', $user->follows?->first()?->instructor_id)->first();
+        if ($instructor) {
+            $chatEnabledPlanId = Plan::where('instructor_id', $instructor->id)
+                ->where('is_chat_enabled', true)->pluck('id')->toArray();
+            return in_array($user->plan_id, $chatEnabledPlanId);
+        }
+        return false;
+    }
+
+    /**
+     * Update the chat status of a given student.
+     *
+     * @param  \Illuminate\Http\Request  $request  The HTTP request instance containing the 'value' field.
+     * @param  int  $id  The ID of the student whose chat status should be updated.
+     * @return \Illuminate\Http\JsonResponse  Returns a JSON response indicating success.
+     */
+    public function userChatStatus(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        $user  = Student::find($id);
+        $input = ($request->value === "true") ? 1 : 0;
+
+        if ($user) {
+            $user->chat_status = $input;
+            $user->save();
+        }
+
+        return response()->json([
+            'is_success' => true,
+            'message'    => __('Student chat status changed successfully.'),
+        ]);
+    }
+
+    /**
+     * Display the student chat interface for the authenticated user.
+     * 
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse  Returns the chat view or a redirect response.
+     */
+    public function studentChat(): \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+    {
+        $user = Auth::user();
+
+        if (!$this->utility->chatEnabled($user)) {
+            return redirect()
+                ->route('home')
+                ->with('error', 'Chat feature not available!');
+        }
+
+        $influencer = User::where('tenant_id', tenant('id'))
+            ->where('id', $user->follows->first()->influencer_id)
+            ->first();
+
+        $token = $this->chatService->getChatToken(Auth::user()->chat_user_id);
+
+        return view('admin.students.chat', compact('influencer', 'token'));
     }
 }

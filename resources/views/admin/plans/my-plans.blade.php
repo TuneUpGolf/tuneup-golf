@@ -2,10 +2,10 @@
     use Carbon\Carbon;
 @endphp
 @extends('layouts.main')
-@section('title', __('My Plans'))
+@section('title', __('Manage Subscription Plans'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item">{{ __('My Plans') }}</li>
+    <li class="breadcrumb-item">{{ __('Manage Subscription Plans') }}</li>
 @endsection
 @section('content')
 <div class="row">

@@ -41,7 +41,11 @@ class PlanDataTable extends DataTable
 
     public function query(Plan $model)
     {
-        return $model->newQuery()->where('tenant_id', null);
+        if (auth()->user()->type == 'Admin') {
+            return $model->newQuery()->where('tenant_id', null);
+        } else {
+            return $model->newQuery()->where('instructor_id', auth()->user()->id);
+        }
     }
 
     public function html()
@@ -58,7 +62,8 @@ class PlanDataTable extends DataTable
                     "previous" => '<i class="ti ti-chevron-left"></i>'
                 ],
                 'lengthMenu' => __('_MENU_ entries per page'),
-                "searchPlaceholder" => __('Search...'), "search" => ""
+                "searchPlaceholder" => __('Search...'),
+                "search" => ""
             ])
             ->initComplete('function() {
                 var table = this;
@@ -78,7 +83,10 @@ class PlanDataTable extends DataTable
                         window.location = '" . route('plans.createmyplan') . "';
                    }"],
                     [
-                        'extend' => 'collection', 'className' => 'btn btn-light-secondary me-1 dropdown-toggle', 'text' => '<i class="ti ti-download"></i> Export', "buttons" => [
+                        'extend' => 'collection',
+                        'className' => 'btn btn-light-secondary me-1 dropdown-toggle',
+                        'text' => '<i class="ti ti-download"></i> Export',
+                        "buttons" => [
                             ["extend" => "print", "text" => '<i class="fas fa-print"></i> Print', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
                             ["extend" => "csv", "text" => '<i class="fas fa-file-csv"></i> CSV', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
                             ["extend" => "excel", "text" => '<i class="fas fa-file-excel"></i> Excel', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
@@ -90,7 +98,7 @@ class PlanDataTable extends DataTable
                 ],
                 "scrollX" => true,
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {

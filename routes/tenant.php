@@ -141,6 +141,11 @@ Route::middleware([
         Route::get('user-emailverified/{id}', [UserController::class, 'userEmailVerified'])->name('user.email.verified');
         Route::get('user-phoneverified/{id}', [UserController::class, 'userPhoneVerified'])->name('user.phone.verified');
         Route::post('user-status/{id}', [UserController::class, 'userStatus'])->name('user.status');
+        Route::post('user-chat/{id}', [UserController::class, 'userChatStatus'])->name('user.chatstatus');
+
+        //chat
+        Route::get('student-chat', [StudentController::class, 'studentChat'])->name('student.chat');
+        Route::post('student-chat/{id}', [StudentController::class, 'userChatStatus'])->name('student.chatstatus');
 
         //instructor
         Route::get('/instructor/import', [InstructorController::class, 'import'])->name('instructor.import');
@@ -155,10 +160,11 @@ Route::middleware([
 
         Route::get('/student/import', [StudentController::class, 'import'])->name('student.import');
         Route::resource('student', StudentController::class);
+        Route::resource('all-chat', StudentController::class);
         Route::get('student-emailverified/{id}', [StudentController::class, 'userEmailVerified'])->name('student.email.verified');
         Route::get('student-phoneverified/{id}', [StudentController::class, 'userPhoneVerified'])->name('student.phone.verified');
         Route::post('student-status/{id}', [StudentController::class, 'userStatus'])->name('student.status');
-        Route::get('student/{id}', [StudentsController::class, 'show'])->name('student.show');
+        Route::get('student/{id}', [StudentController::class, 'show'])->name('student.show');
 
         Route::post('/import_students', [StudentController::class, 'importfun'])->name('student.import_students');
 

@@ -13,6 +13,7 @@ use App\Models\Plan;
 use App\Models\User;
 use Carbon\Carbon;
 use App\Models\Role;
+use App\Models\Student;
 use DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -224,6 +225,20 @@ class UserController extends Controller
         return response()->json([
             'is_success'    => true,
             'message'       => __('User status changed successfully.')
+        ]);
+    }
+    public function userChatStatus(Request $request, $id)
+    {
+        $user  = Student::find($id);
+        $input = ($request->value === "true") ? 1 : 0;
+        if ($user) {
+            $user->chat_status = $input;
+            $user->chat_enabled_by = Auth::id();
+            $user->save();
+        }
+        return response()->json([
+            'is_success' => true,
+            'message'    => __('Student chat status changed successfully.'),
         ]);
     }
     public function getAllUsers()

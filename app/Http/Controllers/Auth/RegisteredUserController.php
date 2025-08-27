@@ -6,13 +6,13 @@ use App\Actions\SendEmail;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Mail\Admin\WelcomeMailStudent;
+use App\Models\Follow;
 use App\Models\Role;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\ChatService;
 use App\Providers\RouteServiceProvider;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
@@ -23,6 +23,12 @@ class RegisteredUserController extends Controller
 {
     use RegistersUsers;
     protected $redirectTo = RouteServiceProvider::HOME;
+    protected $chatService;
+
+    public function __construct(ChatService $chatService)
+    {
+        $this->chatService = $chatService;
+    }
 
     public function create()
     {
@@ -56,6 +62,36 @@ class RegisteredUserController extends Controller
             'active_status' => 1
         ]);
         $user->assignRole(Role::ROLE_STUDENT);
+        $chatUserDetails = $this->chatService->getUserProfile($request->email);
+
+        if ($chatUserDetails['code'] == 200) {
+            $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', tenant('id'), $request->eamil);
+            $user->update([
+                'chat_user_id' => $chatUserDetails['data']['_id'],
+            ]);
+        } elseif ($chatUserDetails['code'] == 204) {
+            $created = $this->chatService->createUser($user);
+            if (! $created) {
+                throw new \Exception('Failed to chat user.');
+            }
+        } else {
+            throw new \Exception('Failed to chat user.');
+        }
+
+        $instructor = User::where('type', Role::ROLE_INSTRUCTOR)->orderBy('id', 'desc')->first();
+        if ($instructorId = $instructor->id ?? false) {
+            Follow::updateOrCreate(
+                ['student_id' => $user->id, 'instructor_id' => $instructorId],
+                ['active_status' => true, 'isPaid' => false]
+            );
+        }
+
+        $groupId = $this->chatService->createGroup($user->chat_user_id, $instructor->chat_user_id);
+        if ($groupId) {
+            $user->group_id = $groupId;
+            $user->save();
+        }
+
         SendEmail::dispatch($user->email, new WelcomeMailStudent($user, ''));
 
         // else {
