@@ -69,7 +69,7 @@
                                 'class' => 'form-control form-control-lg form-control-solid',
                             ]) !!}
                         </div>
-                        @if (Auth::user()->type == 'Influencer')
+                        @if (Auth::user()->type == 'Instructor')
                             <div class="form-group flex flex-row gap-4">
                                 <div class="flex flex-col">
                                     {{ Form::label('Chat', __('Chat *'), ['class' => 'form-label']) }}
