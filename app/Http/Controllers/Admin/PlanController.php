@@ -74,6 +74,7 @@ class PlanController extends Controller
                 'durationtype'  => 'required',
                 'max_users'     => 'required'
             ]);
+
             $paymentTypes = UtilityFacades::getpaymenttypes();
             if (!$paymentTypes) {
                 return redirect()->route('plans.index')->with('errors', __('Please on at list one payment type.'));
@@ -111,7 +112,7 @@ class PlanController extends Controller
         }
     }
 
-    public function editMyplan($id)
+    public function edit($id)
     {
         if (Auth::user()->can('edit-plan')) {
             $plan   = Plan::find($id);
