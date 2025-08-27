@@ -185,12 +185,12 @@ class StripeController extends Controller
         } else {
             if ($authUser->type == 'Student') {
                 $authUserId = 0;
-                $followerId = $authUser->id;
+                $studentId = $authUser->id;
             } else {
                 $authUserId = $authUser->id;
-                $followerId = null;
+                $studentId = null;
             }
-            $followerId    = $authUser->type == 'Student' ? $authUserId : null;
+            $studentId    = $authUser->type == 'Student' ? $authUserId : null;
             $plan           =  Plan::find($planID);
 
             if ($plan->is_chat_enabled && is_null($authUser->chat_user_id)) {
@@ -230,7 +230,7 @@ class StripeController extends Controller
                 'discount_amount'   => $discountValue,
                 'coupon_code'       => $couponCode,
                 'status'            => 0,
-                'student_id'     => $followerId,
+                'student_id'     => $studentId,
             ]);
 
             $resData['total_price'] = $price;
