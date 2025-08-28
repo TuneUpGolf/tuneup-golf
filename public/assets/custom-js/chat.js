@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 🔹 load chat messages as per page
     async function loadMessages(page = 1) {
-        const response = await fetch(`${window.chatBaseUrl}/brainvire-chat-base-app/api/v1/chat/list`, {
+        const response = await fetch(`${window.chatBaseUrl}/chat-app/api/v1/chat/list`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -225,7 +225,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         formData.append("image", file);
 
         try {
-            const response = await fetch(`${window.chatBaseUrl}/brainvire-chat-base-app/api/v1/chat/image`, {
+            const response = await fetch(`${window.chatBaseUrl}/chat-app/api/v1/chat/image`, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`
