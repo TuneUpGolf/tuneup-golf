@@ -552,7 +552,11 @@
                          confirmButtonText: "Yes, unbook",
                          cancelButtonText: "Cancel",
                          reverseButtons: true,
+                         html: `
+                            <textarea name="note" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="5"></textarea>
+                         `,
                      }).then((result) => {
+                        const notes = document.querySelector("#notes").value;
                          if (result.isConfirmed) {
                              $.ajax({
                                  url: "{{ route('slot.update') }}",
@@ -564,6 +568,7 @@
                                      slot_id: slot_id,
                                      student_ids: [authId],
                                      redirect: 1,
+                                     notes: notes,
                                  },
                                  success: function(response) {
                                      Swal.fire("Success",

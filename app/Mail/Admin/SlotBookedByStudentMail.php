@@ -16,7 +16,7 @@ class SlotBookedByStudentMail extends TemplateMailable
      *
      * @return void
      */
-    public function __construct($name, $date, $time)
+    public function __construct($name, $date, $time, protected $notes = null)
     {
         $this->name = $name;
         $this->date = $date;

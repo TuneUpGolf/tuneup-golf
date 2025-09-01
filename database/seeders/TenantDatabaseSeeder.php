@@ -838,14 +838,14 @@ class TenantDatabaseSeeder extends Seeder
         MailTemplate::firstOrCreate(['mailable' => SlotBookedByStudentMail::class], [
             'mailable' => \App\Mail\Admin\SlotBookedByStudentMail::class,
             'subject' => '{{name}} scheduled a lesson on {{date}} at {{time}}',
-            'html_template' => '<p><strong>{{name}} has scheduled a lesson on {{date}} at {{time}}</strong></p> <p><strong>Thank you</strong></p>',
+            'html_template' => '<p><strong>{{name}} has scheduled a lesson on {{date}} at {{time}}</strong></p> <p><strong>Notes:</strong>{{notes}}</p> <p><strong>Thank you</strong></p>',
             'text_template' => null,
         ]);
 
         MailTemplate::firstOrCreate(['mailable' => SlotCancelledMail::class], [
             'mailable' => \App\Mail\Admin\SlotCancelledMail::class,
             'subject' => '{{name}} cancelled the slot booked on {{date}} at {{time}}',
-            'html_template' => '<p><strong>{{name}} has cancelled the slot booked on {{date}} at {{time}} for {{lesson}} lesson.</strong></p> <p><strong>Thank you</strong></p>',
+            'html_template' => '<p><strong>{{name}} has cancelled the slot booked on {{date}} at {{time}} for {{lesson}} lesson.</strong></p> <p><strong>Notes: </strong> {{notes}} </p> <p><strong>Thank you</strong></p>',
             'text_template' => null,
         ]);
 

@@ -267,9 +267,11 @@
                         "<p class='text-muted'>No students booked yet.</p>";
 
                     let unbookButtonHtml = "";
+                    let noteHtml = "";
                     if (isBooked) {
                         unbookButtonHtml =
                             `<button id="unbookBtn" type="button" class="swal2-confirm btn btn-warning">Unbook Students</button>`;
+                        noteHtml = `<textarea name="note" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="5"></textarea>`;
                     }
 
                     swalWithBootstrapButtons.fire({
@@ -299,6 +301,9 @@
             </select>
         </div>
     </form>
+    <div class="mb-4">
+        ${noteHtml}
+    </div>
     <div class="flex justify-center gap-4">
             ${unbookButtonHtml} ${completeSlotButtonHtml}
         </div>
@@ -331,6 +336,8 @@
                             const studentSelect = document.getElementById('student_id');
                             const student_ids = [...studentSelect.selectedOptions].map(
                                 opt => opt.value);
+                            
+                            const notes = document.querySelector("#notes")?.value;
 
                             if (student_ids.length > availableSeats)
                                 Swal.showValidationMessage(
@@ -339,6 +346,7 @@
 
                             return {
                                 student_ids,
+                                notes,
                             };
                         }
                     }).then((result) => {
@@ -352,6 +360,7 @@
                                         'content'),
                                     isGuest: false,
                                     student_Ids: formData.student_ids,
+                                    notes: formData.notes,
                                     slot_id: slot_id,
                                     redirect: 1,
                                 },
@@ -392,6 +401,7 @@
     });
 
     function openManageSlotPopup(slot_id, student, formattedTime, lesson, instructor, slot, availableSeats) {
+        const notes = document.querySelector("#notes")?.value;
         const swalWithBootstrapButtons = Swal.mixin({
             customClass: {
                 confirmButton: "btn btn-success",
@@ -432,8 +442,9 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 const selectedStudents = Array.from(document.getElementById('unbookStudents').selectedOptions)
-                    .map(option => option.value);
-
+                .map(option => option.value);
+                
+                console.log("here in notes", notes);
                 if (selectedStudents.length === 0) {
                     Swal.showValidationMessage("Please select at least one student to unbook.");
                     return false;
@@ -448,6 +459,7 @@
                         slot_id: slot_id,
                         student_ids: selectedStudents,
                         redirect: 1,
+                        notes: notes,
                     },
                     success: function(response) {
                         Swal.fire('Success', 'Students unbooked successfully!', 'success');
