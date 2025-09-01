@@ -187,15 +187,19 @@
    
                    let bookedStudentsHtml = student.length ?
                        `<ul>${student.map(student => 
-       `<li>${student?.pivot.friend_name ? student.pivot.friend_name : student.name} ${student.isGuest ? "(Guest)" : ""}</li>`
-   ).join('')}</ul>` :
+                            `<li>${student?.pivot.friend_name ? student.pivot.friend_name : student.name} ${student.isGuest ? "(Guest)" : ""}</li>`
+                        ).join('')}</ul>` :
                        "<p class='text-muted'>No students booked yet.</p>";
    
                    let unbookButtonHtml = "";
+                   let noteHtml = "";
                    if (isBooked) {
                        unbookButtonHtml =
                            `<button id="unbookBtn" type="button" class="swal2-confirm btn btn-warning">Unbook Students</button>`;
+                        noteHtml = `<textarea name="note" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="5"></textarea>`;
                    }
+
+                   
                    swalWithBootstrapButtons
                        .fire({
                            title: "Book Slot",
@@ -234,6 +238,9 @@
                        </div>
                    </form>
                    <div class="mt-2">
+                       ${noteHtml}
+                   </div>
+                   <div class="mt-2">
                        ${unbookButtonHtml}
                    </div>
                    `,
@@ -264,6 +271,7 @@
                                const guestEmail = document.getElementById('guestEmail')
                                    ?.value;
                                const phoneRegex = /^[+]?[0-9]{10,15}$/;
+                               const notes = document.querySelector("#notes")?.value;
    
    
                                if (!student_ids.length && !isGuest || (isGuest && (!
@@ -291,6 +299,7 @@
                                    guestName,
                                    guestPhone,
                                    guestEmail,
+                                   notes,
                                };
                            },
                            showCancelButton: true,
@@ -310,6 +319,7 @@
                                    guestName: formData.guestName,
                                    guestPhone: formData.guestPhone,
                                    guestEmail: formData.guestEmail,
+                                   notes: formData.notes,
                                    slot_id: slot_id,
                                    redirect: 1,
                                },
@@ -348,14 +358,14 @@
                    Swal.fire({
                        title: "Completed Slot",
                        html: `
-           <div style="text-align: left; font-size: 14px;">
-               <span><strong>Slot Start Time:</strong> ${formattedTime}</span><br/>
-               <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
-               <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
-               <span><strong>Location:</strong> ${slot.location}</span><br/>
-               ${studentsHtml}
-           </div>
-       `,
+                            <div style="text-align: left; font-size: 14px;">
+                                <span><strong>Slot Start Time:</strong> ${formattedTime}</span><br/>
+                                <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
+                                <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
+                                <span><strong>Location:</strong> ${slot.location}</span><br/>
+                                ${studentsHtml}
+                            </div>
+                        `,
                        confirmButtonText: "Close",
                        showCloseButton: true,
                    });
@@ -384,6 +394,7 @@
    });
    
    function openManageSlotPopup(slot_id, student, formattedTime, lesson, instructor, slot, availableSeats) {
+       const notes = document.querySelector("#notes")?.value;
        const swalWithBootstrapButtons = Swal.mixin({
            customClass: {
                confirmButton: "btn btn-success",
@@ -440,6 +451,7 @@
                        slot_id: slot_id,
                        student_ids: selectedStudents,
                        redirect: 1,
+                       notes: notes,
                    },
                    success: function(response) {
                        Swal.fire('Success', 'Students unbooked successfully!', 'success');
