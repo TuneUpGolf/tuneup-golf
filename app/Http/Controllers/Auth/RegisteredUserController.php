@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Carbon\Carbon;
+use Google\Service\ServiceControl\Auth;
 
 class RegisteredUserController extends Controller
 {
@@ -114,6 +115,14 @@ class RegisteredUserController extends Controller
         //     $user->assignRole(Role::ROLE_INSTRUCTOR);
         //     return redirect(RouteServiceProvider::LOGIN)->with('success', 'Signup successful, please contact admin to activate your account.');
         // }
+
+        $res = Auth::loginUsingId($user->id);
+
+        if($res)
+        {
+            return redirect()->route('home');
+        }
+        
         return redirect(RouteServiceProvider::LOGIN)->with('success', 'Signup successful, please login with your credentials');
     }
 }
