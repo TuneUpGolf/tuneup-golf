@@ -68,7 +68,6 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
 require __DIR__ . '/auth.php';
 Route::group(['middleware' => ['Setting', 'xss']], function () {
     // request Domain

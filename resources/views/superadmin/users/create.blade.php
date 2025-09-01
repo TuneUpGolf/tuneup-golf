@@ -66,7 +66,7 @@
                                     {{ Form::password('confirm-password', ['class' => 'form-control', ' required', 'placeholder' => __('Enter confirm password')]) }}
                                 </div>
                                 <div class="form-group">
-                                    {{ Form::label('logo', _('Logo'), ['class' => 'form-label']) }}
+                                    {{ Form::label('logo', __('Logo'), ['class' => 'form-label']) }}
                                     {{ Form::file('logo', ['class' => 'form-control', 'required', 'accept' => 'image/jpeg, image/png']) }}
                                 </div>
                             </div>

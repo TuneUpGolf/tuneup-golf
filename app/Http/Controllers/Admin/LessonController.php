@@ -867,7 +867,8 @@ class LessonController extends Controller
                 SendEmail::dispatch($studentEmails->toArray(), new SlotBookedByStudentMail(
                     Auth::user()->name,
                     date('Y-m-d', strtotime($slot->date_time)),
-                    date('h:i A', strtotime($slot->date_time))
+                    date('h:i A', strtotime($slot->date_time)),
+                    $request->notes,
                 ));
             }
 
@@ -1322,6 +1323,7 @@ class LessonController extends Controller
                 'unbook'       => 'boolean',
                 'student_ids'  => 'array',
                 'student_ids.*' => 'integer|exists:students,id',
+                'notes'         => 'string',
             ]);
 
             $slot = Slots::find($request->slot_id);
@@ -1347,9 +1349,7 @@ class LessonController extends Controller
 
                 if ($request->unbook == '1'  && $request->filled('student_ids')) {
                     $unbookedStudents = $slot->student()->whereIn('students.id', $request->student_ids)->get();
-
                     $slot->student()->detach($request->student_ids);
-
                     foreach ($unbookedStudents as $student) {
                         Purchase::where('slot_id', $slot->id)->where('student_id', $student->id)->delete();
                         if (!$student->pivot->isFriend) {
@@ -1365,7 +1365,8 @@ class LessonController extends Controller
                                 $user->name,
                                 date('Y-m-d', strtotime($slot->date_time)),
                                 date('h:i A', strtotime($slot->date_time)),
-                                $slot->lesson->lesson_name
+                                $slot->lesson->lesson_name,
+                                $request->notes,
                             ));
                         }
                     }
@@ -1405,7 +1406,8 @@ class LessonController extends Controller
                     $user->name,
                     date('Y-m-d', strtotime($slot->date_time)),
                     date('h:i A', strtotime($slot->date_time)),
-                    $slot->lesson->lesson_name
+                    $slot->lesson->lesson_name,
+                    $request->notes,
                 ));
 
                 if ($request->redirect == "1") {
