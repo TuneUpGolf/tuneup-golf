@@ -1501,8 +1501,12 @@ class LessonController extends Controller
             $validatedData = $request->validate([
                 'lesson_id' => 'required|array',
                 'start_date' => 'required',
-                'start_time' => 'required|date_format:H:i',
-                'end_time' => 'required|date_format:H:i',
+                // 'start_time' => 'required|date_format:H:i',
+                // 'end_time' => 'required|date_format:H:i',
+                'start_time' => 'required|array',
+                'start_time.*' => 'required|date_format:H:i',
+                'end_time' => 'required|array',
+                'end_time.*' => 'required|date_format:H:i',
                 'location'  => 'required|string|max:255',
             ]);
 
@@ -1512,38 +1516,43 @@ class LessonController extends Controller
 
             $lessons = Lesson::whereIn('id', $validatedData['lesson_id'])->get();
             $selectedDates = explode(",", $request->start_date);
+            $startTime = $validatedData['start_time'];
+            $endTime = $validatedData['end_time'];
             foreach ($lessons as $lesson) {
                 foreach ($selectedDates as $date) {
 
-                    $slotStart = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $validatedData['start_time']);
-                    $slotEnd   = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $validatedData['end_time']);
-                    $totalMinutes = $slotStart->diffInMinutes($slotEnd);
+                    foreach ($startTime as $key => $startTimeVal) {
 
-                    $lessonMinutes = $lesson->lesson_duration * 60;
+                        $slotStart = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $startTimeVal);
+                        $slotEnd   = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $endTime[$key]);
+                        $totalMinutes = $slotStart->diffInMinutes($slotEnd);
 
-                    $maxSlots = floor($totalMinutes / $lessonMinutes);
+                        $lessonMinutes = $lesson->lesson_duration * 60;
 
-                    $currentSlotStart = $slotStart->copy();
+                        $maxSlots = floor($totalMinutes / $lessonMinutes);
 
-                    // Check if any slot overlaps with this time range
-                    for ($i = 0; $i < $maxSlots; $i++) {
-                        $currentSlotEnd = $currentSlotStart->copy()->addMinutes($lessonMinutes)->subMinute(); // to allow adjacent slots
+                        $currentSlotStart = $slotStart->copy();
 
-                        $conflict = Slots::where('lesson_id', $lesson->id)
-                            ->whereBetween('date_time', [$currentSlotStart, $currentSlotEnd])
-                            ->exists();
+                        // Check if any slot overlaps with this time range
+                        for ($i = 0; $i < $maxSlots; $i++) {
+                            $currentSlotEnd = $currentSlotStart->copy()->addMinutes($lessonMinutes)->subMinute(); // to allow adjacent slots
 
-                        if ($conflict) {
-                            $conflictErrors[] = "Slot conflict for lesson '{$lesson->lesson_name}' on {$date} at {$currentSlotStart->format('H:i')}.";
-                        } else {
-                            $slotsToCreate[] = [
-                                'lesson_id' => $lesson->id,
-                                'date_time' => $currentSlotStart->copy(),
-                                'location'  => $request->location
-                            ];
+                            $conflict = Slots::where('lesson_id', $lesson->id)
+                                ->whereBetween('date_time', [$currentSlotStart, $currentSlotEnd])
+                                ->exists();
+
+                            if ($conflict) {
+                                $conflictErrors[] = "Slot conflict for lesson '{$lesson->lesson_name}' on {$date} at {$currentSlotStart->format('H:i')}.";
+                            } else {
+                                $slotsToCreate[] = [
+                                    'lesson_id' => $lesson->id,
+                                    'date_time' => $currentSlotStart->copy(),
+                                    'location'  => $request->location
+                                ];
+                            }
+
+                            $currentSlotStart->addMinutes($lessonMinutes);
                         }
-
-                        $currentSlotStart->addMinutes($lessonMinutes);
                     }
                 }
             }

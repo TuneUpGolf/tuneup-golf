@@ -17,7 +17,7 @@
                 <div class="m-auto col-lg-6 col-md-8 col-xxl-4">
                     <div class="card">
                         <div class="card-header flex items-center justify-between">
-                            <h5>{{ __('Set Availability') }}</h5>
+                            <h5>{{ __('Set Availability') }} - 110</h5>
 
                         </div>
                         <div class="card-body">
@@ -30,15 +30,33 @@
                             ]) !!}
                             <div class="form-group ">
                                 {{ Form::label('start_date', __('Select Dates'), ['class' => 'form-label']) }}
-                                {{ Form::input('text', 'start_date', 'null', ['id' => 'start_date', 'class' => 'form-control date','required','autocomplete' => 'off']) }}
+                                {{ Form::input('text', 'start_date', 'null', ['id' => 'start_date', 'class' => 'form-control date', 'required', 'autocomplete' => 'off']) }}
                             </div>
-                            <div class="form-group">
+                            {{-- <div class="form-group">
                                 {{ Form::label('start_time', __('Start Time'), ['class' => 'form-label']) }}
-                                {{ Form::input('time', 'start_time', null, ['id' => 'start_time', 'class' => 'form-control','required']) }}
+                                {{ Form::input('time', 'start_time', null, ['id' => 'start_time', 'class' => 'form-control', 'required']) }}
                             </div>
                             <div class="form-group ">
                                 {{ Form::label('end_time', __('End Time'), ['class' => 'form-label']) }}
-                                {{ Form::input('time', 'end_time', null, ['id' => 'end_time', 'class' => 'form-control','required']) }}
+                                {{ Form::input('time', 'end_time', null, ['id' => 'end_time', 'class' => 'form-control', 'required']) }}
+                            </div> --}}
+
+                             {{-- Dynamic Time Ranges --}}
+                            <div id="time-ranges">
+                                <div class="time-range row g-2 mb-2">
+                                    <div class="col-md-5">
+                                        {{ Form::label('start_time[]', __('Start Time'), ['class' => 'form-label']) }}
+                                        {{ Form::input('time', 'start_time[]', null, ['class' => 'form-control','required']) }}
+                                    </div>
+                                    <div class="col-md-5">
+                                        {{ Form::label('end_time[]', __('End Time'), ['class' => 'form-label']) }}
+                                        {{ Form::input('time', 'end_time[]', null, ['class' => 'form-control','required']) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <button type="button" id="add-range" class="btn btn-primary">+ Add </button>
                             </div>
                             <div class="form-group">
                                 {{ Form::label('location', __('Location'), ['class' => 'form-label']) }}
@@ -50,15 +68,20 @@
                             </div>
                             <div class="form-group">
                                 @if (!empty($lesson))
-                                 {{ Form::label('package_lesson', __('This Availability Applies To'), ['class' => 'form-label']) }}
-                                 <br>
+                                    {{ Form::label('package_lesson', __('This Availability Applies To'), ['class' => 'form-label']) }}
+                                    <br>
                                     @foreach ($lesson as $le)
-                                        <input type="checkbox" name="lesson_id[]" class="form-check-input" value={{ $le['id'] }}> {{ $le['lesson_name']}}  <span style="color:gray"> @if (isset($le['lesson_duration']))  {{ __('Lesson Duration : ' . $le['lesson_duration'] . 'hour(s)') }} @endif </span>
+                                        <input type="checkbox" name="lesson_id[]" class="form-check-input"
+                                            value={{ $le['id'] }}> {{ $le['lesson_name'] }} <span style="color:gray">
+                                            @if (isset($le['lesson_duration']))
+                                                {{ __('Lesson Duration : ' . $le['lesson_duration'] . 'hour(s)') }}
+                                            @endif
+                                        </span>
                                         <br>
                                     @endforeach
-                                 @else
-                                 {{ Form::label('package_lesson', __('No Lesson available'), ['class' => 'form-label']) }}
-                                 @endif
+                                @else
+                                    {{ Form::label('package_lesson', __('No Lesson available'), ['class' => 'form-label']) }}
+                                @endif
                             </div>
                         </div>
                         <div class="card-footer">
@@ -95,5 +118,35 @@
             format: 'yyyy-mm-dd'
         });
         $('.date').datepicker('setDates', [new Date(2014, 2, 5), new Date(2014, 3, 5)])
+
+        // time ranges start
+        let container = $('#time-ranges');
+        let addBtn = $('#add-range');
+
+
+        addBtn.on('click', function() {
+            let newRange = container.find('.time-range:first').clone();
+
+            // Reset inputs
+            newRange.find('input').val('');
+
+            // Add remove button if not exists
+            if (newRange.find('.remove-range').length === 0) {
+                newRange.append(`
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="button" class="btn btn-danger remove-range">X</button>
+                </div>
+            `);
+            }
+
+            container.append(newRange);
+        });
+
+        // Handle remove
+        container.on('click', '.remove-range', function() {
+            $(this).closest('.time-range').remove();
+        });
+
+        // time ranges end
     </script>
 @endpush
