@@ -27,8 +27,15 @@ class PasswordResetLinkController extends Controller
         // Check if the email exists in the `users` table
         $userExists = \App\Models\User::where('email', $request->email)->exists();
 
-        // Check if the email exists in the `students` table
-        $studentExists = \App\Models\Student::where('email', $request->email)->exists();
+        if(!empty(tenant()))
+        {
+            // Check if the email exists in the `students` table
+            $studentExists = \App\Models\Student::where('email', $request->email)->exists();
+        }
+        else
+        {
+            $studentExists = false;
+        }
 
         if (!$userExists && !$studentExists) {
             return back()->withInput($request->only('email'))->withErrors([
