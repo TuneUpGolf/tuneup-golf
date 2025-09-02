@@ -150,3 +150,81 @@
         // time ranges end
     </script>
 @endpush
+
+@push('javascript')
+<script>
+$(function() {
+  // Allowed minute options (only these minutes will be used)
+  const ALLOWED_MINUTES = [0, 15, 30];
+
+  function pad(n){ return String(n).padStart(2, '0'); }
+
+  /**
+   * Round a "HH:MM" (or "H:MM") time string to the nearest allowed minute.
+   * Returns "HH:MM" 24-hour formatted.
+   */
+  function roundToAllowedTime(timeStr) {
+    if (!timeStr) return timeStr;
+    // Accept "HH:MM" or "HH:MM:SS"
+    const m = timeStr.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+    if (!m) return timeStr;
+
+    const hours = parseInt(m[1], 10);
+    const minutes = parseInt(m[2], 10);
+    const t = hours * 60 + minutes;
+
+    let best = null;
+    let bestDiff = Number.POSITIVE_INFINITY;
+
+    // consider allowed minutes in previous, same and next hour to permit nearest rounding
+    for (let hDelta = -1; hDelta <= 1; hDelta++) {
+      const hCand = hours + hDelta;
+      if (hCand < 0 || hCand > 23) continue;
+      for (const am of ALLOWED_MINUTES) {
+        const candidate = hCand * 60 + am;
+        const diff = Math.abs(candidate - t);
+        if (diff < bestDiff) {
+          bestDiff = diff;
+          best = candidate;
+        }
+      }
+    }
+
+    if (best === null) return timeStr;
+
+    const newH = Math.floor(best / 60) % 24;
+    const newM = best % 60;
+    return pad(newH) + ':' + pad(newM);
+  }
+
+  // Delegated handler: when user finishes editing / time changes, round it
+  $(document).on('blur change input', 'input[type="time"][name="start_time[]"], input[type="time"][name="end_time[]"]', function(e) {
+    // Only act on blur or change or when input length looks like a full value (some browsers fire input during typing)
+    // We still handle on 'input' to keep mobile pickers responsive.
+    const $el = $(this);
+    const oldVal = $el.val();
+    if (!oldVal) return;
+    const newVal = roundToAllowedTime(oldVal);
+    if (newVal !== oldVal) {
+      $el.val(newVal);
+      // trigger change so any other listeners react
+      $el.trigger('change');
+    }
+  });
+
+  // Optional: restrict key presses to digits, colon and control keys (prevents typing weird characters)
+  $(document).on('keydown', 'input[type="time"][name="start_time[]"], input[type="time"][name="end_time[]"]', function(e) {
+    // Allow: backspace(8), tab(9), enter(13), escape(27), arrows (37..40), delete(46)
+    const allowedKeys = [8,9,13,27,37,38,39,40,46];
+    if (allowedKeys.includes(e.keyCode)) return;
+    // Allow numbers and colon
+    if (/^[0-9:]$/.test(e.key)) return;
+    e.preventDefault();
+  });
+
+  // If you previously added step="900" on the input, it's okay to REMOVE it — the JS rounding is authoritative.
+  // The script works for dynamically cloned/added rows because it uses delegation.
+});
+</script>
+@endpush
+

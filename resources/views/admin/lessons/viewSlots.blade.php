@@ -762,7 +762,6 @@
                     },
                     error: function(error) {
                         Swal.fire('Error','There was a problem submitting the form.', 'error');
-                        console.log(error);
                     }
                 });
             });
@@ -920,7 +919,6 @@
                         },
                         error: function(error) {
                             Swal.fire('Error','There was a problem submitting the form.','error');
-                            console.log(error);
                         }
                     });
                 }
@@ -1014,7 +1012,6 @@
                     },
                     error: function(error) {
                         Swal.fire("Error","Failed to unbook the slot.","error");
-                        console.log(error);
                     }
                 });
             });
@@ -1022,12 +1019,20 @@
         }
     }
 
+    // format time on mobile screen
+    function formatTime(date) {
+        let hours = date.getHours();
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        const ampm = hours >= 12 ? "pm" : "am";
+        hours = hours % 12;
+        hours = hours ? hours : 12; // 0 => 12
+        return `${hours}:${minutes}${ampm}`;
+    }
+
     // rendering only for mobile view
     function renderMobileSlots(selectedDate) {
         const container = $("#slotListContainer");
         container.empty();
-
-        console.log(eventsData);
 
         const slotsForDate = eventsData.filter(ev => {
             const startStr = (ev.slot?.date_time || ev.start || '').toString();
@@ -1036,7 +1041,6 @@
             return iso === selectedDate;
         });
 
-        console.log(slotsForDate);
         if (slotsForDate.length === 0) {
             container.html("<p>No slots available for this date.</p>");
             return;
@@ -1045,22 +1049,23 @@
         slotsForDate.forEach(ev => {
             const payload = normalizeEventObject(ev);
 
-            console.log(payload)
+            const lessonText = `${payload.lesson?.lesson_name || 'Lesson'} (${payload.lesson?.booked || 0}/${payload.lesson?.capacity || 1})`;
+            const start = new Date(payload.slot.date_time); // e.g. "2025-09-02 13:00:00"
+            const durationInMinutes = payload.slot.lesson.lesson_duration * 60; // 0.5 -> 30 mins
+            const end = new Date(start.getTime() + durationInMinutes * 60000);
+            const formattedTimeRange = `${formatTime(start)} - ${formatTime(end)}`;
+            const myClass = ev.className.split(' ')[0] || '';
 
             const card = $(`
-                <div class="card mb-2 p-2 border rounded shadow-sm d-flex justify-content-between align-items-center">
-                  <div>
-                    <strong>${ev.title || ''}</strong><br>
-                    <strong>${payload.lesson?.lesson_name || ''}</strong><br>
-                    <small>${payload.formattedTime}</small><br>
-                    <small>Location: ${payload.slot?.location || ''}</small>
+                <div class="card mb-2 p-2 border rounded shadow-sm d-flex justify-content-between align-items-center flex-row ${ myClass }">
+                  <div class="slot-action">
+                    <strong>${formattedTimeRange}</strong> ${lessonText}
                   </div>
-                  <div class="d-flex gap-2">
+                  <div class="gap-2">
                     ${type == 'Instructor'
-                      ? `<button class="btn btn-sm btn-outline-danger del-btn" title="Delete"><i class="ti ti-trash"></i></button>`
+                      ? `<button class="btn btn-sm btn-danger del-btn" title="Delete"><i class="ti ti-trash"></i></button>`
                       : ``}
-                    <button class="btn btn-sm btn-primary action-btn">Action</button>
-                  </div>
+                  </div>                                                                                                                                                                                                                                                                   
                 </div>
             `);
 
@@ -1080,14 +1085,13 @@
                         },
                         error: function(error) {
                             Swal.fire('Error','There was a problem deleting the slot.','error');
-                            console.log(error);
                         }
                     });
                 }
             });
 
             // Action (mobile) -> reuse same logic
-            card.find('.action-btn').on('click', function() {
+            card.find('.slot-action').on('click', function() {
                 handleSlotAction(payload);
             });
 
