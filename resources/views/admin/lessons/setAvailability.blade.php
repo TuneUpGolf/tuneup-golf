@@ -150,7 +150,7 @@
         // time ranges end
     </script>
 @endpush
-
+{{-- 
 @push('javascript')
 <script>
 $(function() {
@@ -227,4 +227,4 @@ $(function() {
 });
 </script>
 @endpush
-
+ --}}
