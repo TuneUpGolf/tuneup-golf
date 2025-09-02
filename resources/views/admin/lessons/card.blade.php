@@ -62,7 +62,7 @@
                     <select class="form-select" name="package_slot" id="package_slot_{{ $model->id}}">
                         <option value="0">Select Package</option>
                         @foreach ($model->packages as $package)
-                            <option value="{{ $package->price }}">{!! $package->number_of_slot !!} Lesson &nbsp;-&nbsp;
+                            <option value="{{ $package->price }}">{!! $package->number_of_slot !!} Pack &nbsp;-&nbsp;
                                 {{ $currencySymbol }} {!! $package->price !!} {{ $currency }}</option>
                         @endforeach
                     </select>
