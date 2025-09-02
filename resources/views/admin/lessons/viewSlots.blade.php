@@ -4,32 +4,6 @@
  <li class="breadcrumb-item">{{ __('Manage Slots') }}</li>
 @endsection
 
-@push('css')
-    <style>
-
-        @media only screen and (max-width: 600px) {
-            #calendar{
-                display: none;
-            }
-
-            .custom-calendar-mobile-view
-            {
-                display: block;
-            }
-            
-        }
-
-        @media only screen and (min-width: 600px) {
-
-            .custom-calendar-mobile-view
-            {
-                display: none;
-            }
-        }
-
-    </style>
-@endpush
-
 @section('content')
  <div class="main-content">
      <section class="section">
@@ -76,7 +50,7 @@
                  </div>
 
              </div>
-             <div id="calendar"></div>
+             {{-- <div id="calendar"></div> --}}
              <div class="custom-calendar-mobile-view">
                 <div class="row">
                     <div class="col-sm-12">
@@ -90,7 +64,7 @@
                                     <input type="date" class="form-control form-control-sm" id="slotDate" />
                                 </div>
 
-                                <div id="slotListContainer"></div>
+                                <div id="slotListContainer" class="row"></div>
                             </div>
                         </div>
                     </div>
@@ -646,7 +620,7 @@
     var students = @json($students);
     var eventsData = @json($events); // same data FullCalendar uses
     const allEvents = @json($events); // same events used in FullCalendar
-    var isMobile = window.innerWidth <= 600;
+    // var isMobile = window.innerWidth <= 600;
 
     // normalize event object (supports both direct keys and extendedProps) ----
     function normalizeEventObject(raw) {
@@ -1057,6 +1031,7 @@
             const myClass = ev.className.split(' ')[0] || '';
 
             const card = $(`
+            <div class="col-md-6 col-sm-12 col-lg-4">
                 <div class="card mb-2 p-2 border rounded shadow-sm d-flex justify-content-between align-items-center flex-row ${ myClass }">
                   <div class="slot-action">
                     <strong>${formattedTimeRange}</strong> ${lessonText}
@@ -1067,6 +1042,7 @@
                       : ``}
                   </div>                                                                                                                                                                                                                                                                   
                 </div>
+            </div>
             `);
 
             // Delete (mobile)
@@ -1109,10 +1085,10 @@
     })
 
     // today's date on mobile and render:
-    if (isMobile) {
+    // if (isMobile) {
         const today = new Date().toISOString().split('T')[0];
         $('#slotDate').val(today).trigger('change');
-    }
+    // }
 
  </script>
  <script src="{{ asset('vendor/intl-tel-input/jquery.mask.js') }}"></script>
