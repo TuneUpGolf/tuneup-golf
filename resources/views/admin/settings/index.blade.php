@@ -622,6 +622,27 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            {{ Form::label('bio_heading', __('Bio Heading'), ['class' => 'form-label']) }}
+                                            {!! Form::text('bio_heading', Utility::getsettings('bio_heading'), [
+                                                'class' => 'form-control',
+                                                'placeholder' => __('Bio Heading'),
+                                                'id' => 'bio_heading',
+                                            ]) !!}
+                                        </div>
+                            
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            {{ Form::label('instructor_heading', __('Instructor Heading'), ['class' => 'form-label']) }}
+                                            {!! Form::text('instructor_heading', Utility::getsettings('instructor_heading'), [
+                                                'class' => 'form-control',
+                                                'placeholder' => __('Instructor Heading'),
+                                                'id' => 'instructor_heading',
+                                            ]) !!}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="card-footer">
@@ -632,6 +653,7 @@
                             {!! Form::close() !!}
                         </div>
                     </div>
+                    
                     <div id="domain_setting">
                         <div class="card">
                             <div class="card-header">
