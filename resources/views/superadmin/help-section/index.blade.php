@@ -9,20 +9,21 @@
         <div class="col-xl-12">
             <div class="card">
                 <div class="card-body table-border-style">
-                    <div class="d-flex justify-end">
+                    {{-- <div class="d-flex justify-end">
                         <a class="btn btn-default buttons-create btn-light-primary no-corner me-1 add_module" tabindex="0"
                             aria-controls="users-table" href="{{ route('help-section.create') }}">
                             <span>
                                 <i class="fa fa-upload"></i> Upload
                             </span>
                         </a>
-                    </div>
-                    <h4 class="my-5">
+                    </div> --}}
+                    <h4 class="my-3">
                         Uploaded help videos, files or images.
                     </h4>
+                    <hr />
 
                     {{-- Dummy Cards --}}
-                    <div class="row g-3">
+                    <div class="row g-3 mt-2">
                         @php
                             $dummyData = [
                                 [
