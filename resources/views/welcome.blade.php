@@ -35,7 +35,7 @@
     @if (trim($admin->bio) != '')
         <section class="lession-sec">
             <div class="container ctm-container">
-                <h2 class="font-bold text-4xl mb-2">{{ $bio_heading ?? $admin->name }}</h2>
+                <h2 class="font-bold text-4xl mb-2">{{ isset($bio_heading) && !empty($bio_heading) ? $bio_heading : $admin->name }}</h2>
                 <p class="text-xl text-gray-600">{{ $admin->bio }}</p>
             </div>
         </section>
@@ -43,7 +43,7 @@
     @if (!$instructors->isEmpty())
         <section class="lession-sec feed-sec pb-10">
             <div class="container ctm-container">
-                <h2 class="font-bold text-4xl mb-2">{{ $instructor_heading ?? 'Instructors' }}</h2>
+                <h2 class="font-bold text-4xl mb-2">{{ isset($instructor_heading) && !empty($instructor_heading) ? $instructor_heading : 'Instructors' }}</h2>
                 <div class="flex flex-wrap gap-5 w-full mt-10">
                     {{--  @if (!$instructors->isEmpty())  --}}
                     @foreach ($instructors as $instructor)
