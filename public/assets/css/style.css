@@ -30669,7 +30669,7 @@ body.loading {
 
 }
 
-.card-body {
+.chat-box.card-body {
   min-height: 400px;
   overflow-y: auto;
 }
@@ -30683,6 +30683,10 @@ body.loading {
   word-break: break-all;
 }
 
+p.leading-relaxed {
+  overflow-y: auto;
+  max-height: 260px;
+}
 @media (max-width: 768px) {
   .chat-box .rounded-circle {
     min-width: 35px;
@@ -30719,5 +30723,8 @@ body.loading {
 
   .chat-box audio {
     max-width: 260px;
+  }
+  p.leading-relaxed {
+    max-height: 230px;
   }
 }
