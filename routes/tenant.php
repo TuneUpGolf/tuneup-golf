@@ -64,12 +64,12 @@ use App\Http\Controllers\Admin\Payment\AamarpayController;
 use App\Http\Controllers\Admin\Payment\BenefitPaymentController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\PurchasePostController;
+use App\Http\Controllers\Superadmin\HelpSectionController;
 use App\Http\Resources\InstructorAPIResource;
 use App\Http\Resources\StudentAPIResource;
 use App\Models\Role;
 use App\Models\Student;
 use Illuminate\Support\Facades\Auth;
-
 /*
 |--------------------------------------------------------------------------
 | Tenant Routes
@@ -116,11 +116,18 @@ Route::middleware([
 
         Route::get('/', [LandingController::class, 'landingPage'])->name('landingpage');
         Route::get('pages/{slug}', [LandingPageController::class, 'pageDescription'])->name('description.page');
+
+         //help section
+        Route::resource('help-section', HelpSectionController::class);
     });
 
     Route::group(['middleware' => ['auth:web,student', 'Setting', 'xss', '2fa', 'verified', 'verified_phone']], function () {
 
         Route::impersonate();
+        
+        //help section
+        Route::resource('help-section', HelpSectionController::class);
+
         // category
         Route::resource('category', CategoryController::class);
         Route::post('category-status/{id}', [CategoryController::class, 'categoryStatus'])->name('category.status');
@@ -455,6 +462,8 @@ Route::middleware([
         InitializeTenancyByDomainOrSubdomain::class,
         PreventAccessFromCentralDomains::class,
     ]], function () {
+
+        
         Route::get('users/get/all', [UserController::class, 'getAllUsers']);
 
         Route::get('instructor/get/all', [InstructorController::class, 'getAllUsers']);
@@ -535,6 +544,7 @@ Route::middleware([
         });
 
         Route::post('users/set/token', [ProfileController::class, 'setPushToken']);
+
     });
 
     //paytm

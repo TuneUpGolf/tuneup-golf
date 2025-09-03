@@ -50,6 +50,7 @@ use App\Http\Controllers\Superadmin\Payment\CashFreeController;
 use App\Http\Controllers\Superadmin\Payment\EasebuzzPaymentController;
 use App\Http\Controllers\Superadmin\Payment\IyziPayController;
 use App\Http\Controllers\Superadmin\Payment\BenefitPaymentController;
+use App\Http\Controllers\Superadmin\HelpSectionController;
 use App\Mail\Admin\RequestDemoMail;
 use App\Models\RequestDemo;
 use AWS\CRT\HTTP\Request;
@@ -199,6 +200,9 @@ Route::group(['middleware' => ['auth', 'Setting', 'xss', '2fa']], function () {
     Route::post('settings/cookie-setting/update', [SettingsController::class, 'cookieSettingUpdate'])->name('settings.cookie.setting.update');
     Route::post('setting/seo/save', [SettingsController::class, 'SeoSetting'])->name('setting.seo.save');
     Route::get('test-mail', [SettingsController::class, 'testMail'])->name('test.mail');
+
+    // help section
+    Route::resource('help-section', HelpSectionController::class);
 
     //froentend
     Route::group(['prefix' => 'landingpage-setting'], function () {
