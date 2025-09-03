@@ -102,6 +102,8 @@ class SettingsController extends Controller
             'landing_page_status'   => ($request->landing_page_status == 'on') ? '1' : '0',
             'enable_email_notification' => ($request->enable_email_notifiaction == 'on') ? 'on' : 'off',
             'enable_sms_notification' => ($request->enable_email_notifiaction == 'on') ? 'on' : 'off',
+            'bio_heading'=>$request->bio_heading,
+            'instructor_heading'=>$request->instructor_heading,
 
         ];
         foreach ($data as $key => $value) {
