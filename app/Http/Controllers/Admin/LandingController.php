@@ -45,12 +45,15 @@ class LandingController extends Controller
 
             $admin = User::where('type', Role::ROLE_ADMIN)
                 ->first();
-
             if (UtilityFacades::getsettings('landing_page_status') == '1') {
+                $bio_heading = UtilityFacades::getsettings('bio_heading');
+                $instructor_heading = UtilityFacades::getsettings('instructor_heading');
                 return view('welcome', compact(
                     'lang',
                     'admin',
-                    'instructors'
+                    'instructors',
+                    'bio_heading',
+                    'instructor_heading'
                 ));
             } else {
                 return redirect()->route('home');

@@ -414,6 +414,26 @@
                     @endif
                 @endif
 
+                
+                <li
+                    class="dash-item dash-hasmenu {{ request()->is('help-section*') ? 'active dash-trigger' : 'collapsed' }}">
+                    <a href="#!" class="dash-link"><span class="dash-micon"><i class="fa fa-info-circle"></i></span><span
+                            class="dash-mtext">{{ __('Help') }}</span><span class="dash-arrow"><i
+                                data-feather="chevron-right"></i></span></a>
+                    <ul class="dash-submenu">
+                        
+                            <li class="dash-item {{ request()->is('help-section/index') ? 'active' : '' }}">
+                                <a class="dash-link"
+                                    href="{{ route('help-section.index') }}">{{ __('Manage') }}</a>
+                            </li>
+                            <li class="dash-item {{ request()->is('help-section/create') ? 'active' : '' }}">
+                                <a class="dash-link"
+                                    href="{{ route('help-section.create') }}">{{ __('Upload') }}</a>
+                            </li>
+
+                    </ul>
+                </li>
+
                 @if($users->type == "Instructor")
                 <li class="dash-item dash-hasmenu {{ request()->has('all-chat*') ? 'active' : '' }}">
                     <a class="dash-link" href="{{ route('all-chat.index') }}">

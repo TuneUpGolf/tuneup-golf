@@ -110,6 +110,7 @@ class ProfileController extends Controller
         $user->name         = $request?->name;
 
         $user->country_code = $request?->country_code;
+        // $user->bio_heading = $request?->bio_heading;
         $user->dial_code    = $request?->dial_code;
         $user->phone        = str_replace(' ', '', $request->phone);
         $user->bio          = $request?->bio;
