@@ -70,19 +70,24 @@
     .choices__inner {
         text-align: left;
     }
+
     .choices__list--dropdown {
         height: 0;
         z-index: 1;
     }
+
     .choices__list--dropdown.is-active {
         height: auto;
     }
+
     .swal2-actions {
         z-index: 0 !important;
     }
+
     .swal2-html-container {
         overflow: visible !important;
     }
+
     .choices__list--dropdown .choices__item {
         text-align: left;
     }
@@ -126,24 +131,27 @@
                         if (confirm(`Do you want to delete this slot?`) && slot_id > 0) {
                             info.event.remove();
                             $.ajax({
-                                 url: "{{ route('slot.delete') }}",
-                                 type: 'POST',
-                                 data: {
-                                     _token: $('meta[name="csrf-token"]').attr(
-                                         'content'),
-                                     id: slot_id,
-                                 },
-                                 success: function(response) {
-                                     Swal.fire('Success',response.message,'success');
-                                 },
-                                 error: function(error) {
-                                     Swal.fire('Error', 'There was a problem deleting the slot.', error);
-                                     console.log(error);
-                                 }
-                             });
+                                url: "{{ route('slot.delete') }}",
+                                type: 'POST',
+                                data: {
+                                    _token: $('meta[name="csrf-token"]').attr(
+                                        'content'),
+                                    id: slot_id,
+                                },
+                                success: function(response) {
+                                    Swal.fire('Success', response.message,
+                                        'success');
+                                },
+                                error: function(error) {
+                                    Swal.fire('Error',
+                                        'There was a problem deleting the slot.',
+                                        error);
+                                    console.log(error);
+                                }
+                            });
                         }
                     });
-                    
+
                     const titleContainer = info.el.querySelector('.fc-event-title-container');
                     if (titleContainer) {
                         titleContainer.appendChild(deleteBtn);
@@ -171,70 +179,70 @@
                         minute: '2-digit',
                         hour12: true
                     });
-        //         if (isBooked && type == 'Instructor' && isPackageLesson) {
-        //             // Extract list of booked students
-        //             let bookedStudentsHtml =
-        //                 "<strong style='display: block; text-align: left; margin-bottom: 5px;'>📋 Booked Students:</strong>";
-        //             bookedStudentsHtml += "<ol style='text-align: left; padding-left: 20px;'>";
+                //         if (isBooked && type == 'Instructor' && isPackageLesson) {
+                //             // Extract list of booked students
+                //             let bookedStudentsHtml =
+                //                 "<strong style='display: block; text-align: left; margin-bottom: 5px;'>📋 Booked Students:</strong>";
+                //             bookedStudentsHtml += "<ol style='text-align: left; padding-left: 20px;'>";
 
-        //             if (student.length > 0) {
-        //                 student.forEach((student, index) => {
-        //                     let studentName = student.pivot.isFriend ?
-        //                         `${student.pivot.friend_name} (Friend: ${student.name})` :
-        //                         student.name;
+                //             if (student.length > 0) {
+                //                 student.forEach((student, index) => {
+                //                     let studentName = student.pivot.isFriend ?
+                //                         `${student.pivot.friend_name} (Friend: ${student.name})` :
+                //                         student.name;
 
-        //                     bookedStudentsHtml += `<li>${index + 1}. ${studentName}</li>`;
-        //                 });
-        //             } else {
-        //                 bookedStudentsHtml += "<li>No students booked yet.</li>";
-        //             }
+                //                     bookedStudentsHtml += `<li>${index + 1}. ${studentName}</li>`;
+                //                 });
+                //             } else {
+                //                 bookedStudentsHtml += "<li>No students booked yet.</li>";
+                //             }
 
-        //             bookedStudentsHtml += "</ol>";
+                //             bookedStudentsHtml += "</ol>";
 
-        //             Swal.fire({
-        //                 title: "Confirm Slot Completion",
-        //                 html: `
-        //     <p style="text-align: left;">Are you sure you want to complete this lesson slot?</p>
-        //     ${bookedStudentsHtml}
-        // `,
-        //                 icon: "warning",
-        //                 showCancelButton: true,
-        //                 confirmButtonText: "Confirm",
-        //                 cancelButtonText: "Cancel",
-        //             }).then((result) => {
-        //                 if (result.isConfirmed) {
-        //                     // Send AJAX request to complete slot
-        //                     $.ajax({
-        //                         url: "{{ route('slot.complete') }}",
-        //                         type: "POST",
-        //                         data: {
-        //                             _token: $('meta[name="csrf-token"]').attr(
-        //                                 'content'),
-        //                             payment_method: "online",
-        //                             slot_id: slot_id,
-        //                             redirect: 1,
-        //                         },
-        //                         success: function(response) {
-        //                             Swal.fire("Success!",
-        //                                     "Lesson slot has been completed.",
-        //                                     "success")
-        //                                 .then(() => {
-        //                                     showPageLoader();
-        //                                     location
-        //                                         .reload(); // Reload page after success
-        //                                 });
-        //                         },
-        //                         error: function(xhr) {
-        //                             Swal.fire("Error!",
-        //                                 "Something went wrong. Please try again.",
-        //                                 "error");
-        //                         }
-        //                     });
-        //                 }
-        //             });
+                //             Swal.fire({
+                //                 title: "Confirm Slot Completion",
+                //                 html: `
+                //     <p style="text-align: left;">Are you sure you want to complete this lesson slot?</p>
+                //     ${bookedStudentsHtml}
+                // `,
+                //                 icon: "warning",
+                //                 showCancelButton: true,
+                //                 confirmButtonText: "Confirm",
+                //                 cancelButtonText: "Cancel",
+                //             }).then((result) => {
+                //                 if (result.isConfirmed) {
+                //                     // Send AJAX request to complete slot
+                //                     $.ajax({
+                //                         url: "{{ route('slot.complete') }}",
+                //                         type: "POST",
+                //                         data: {
+                //                             _token: $('meta[name="csrf-token"]').attr(
+                //                                 'content'),
+                //                             payment_method: "online",
+                //                             slot_id: slot_id,
+                //                             redirect: 1,
+                //                         },
+                //                         success: function(response) {
+                //                             Swal.fire("Success!",
+                //                                     "Lesson slot has been completed.",
+                //                                     "success")
+                //                                 .then(() => {
+                //                                     showPageLoader();
+                //                                     location
+                //                                         .reload(); // Reload page after success
+                //                                 });
+                //                         },
+                //                         error: function(xhr) {
+                //                             Swal.fire("Error!",
+                //                                 "Something went wrong. Please try again.",
+                //                                 "error");
+                //                         }
+                //                     });
+                //                 }
+                //             });
 
-        //             return;
-        //         }
+                //             return;
+                //         }
 
 
                 if (!isCompleted && (type == 'Admin' || type == 'Instructor')) {
@@ -262,8 +270,8 @@
 
                     let bookedStudentsHtml = student.length ?
                         `<ul>${student.map(student => 
-        `<li>${student?.pivot.friend_name ? student.pivot.friend_name : student.name} ${student.isGuest ? "(Guest)" : ""}</li>`
-    ).join('')}</ul>` :
+                            `<li>${student?.pivot.friend_name ? student.pivot.friend_name : student.name} ${student.isGuest ? "(Guest)" : ""}</li>`
+                        ).join('')}</ul>` :
                         "<p class='text-muted'>No students booked yet.</p>";
 
                     let unbookButtonHtml = "";
@@ -271,49 +279,53 @@
                     if (isBooked) {
                         unbookButtonHtml =
                             `<button id="unbookBtn" type="button" class="swal2-confirm btn btn-warning">Unbook Students</button>`;
-                        noteHtml = `<textarea name="note" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="5"></textarea>`;
+                        noteHtml =
+                            `<textarea name="note" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="5"></textarea>`;
                     }
 
                     swalWithBootstrapButtons.fire({
                         title: "Book Slot",
                         html: `
-    <div style="text-align: left; font-size: 14px; margin-bottom: 10px;">
-        <span><strong>Slot Start Time:</strong> ${formattedTime}</span><br/>
-        <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
-        <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
-        <span><strong>Location:</strong> ${slot.location}</span><br/>
-        <span><strong>Available Spots:</strong> <strong>${availableSeats}</strong></span><br/>
-        <label><strong>Booked Students:</strong></label>
-        ${bookedStudentsHtml}
-    </div>
+                            <div style="text-align: left; font-size: 14px; margin-bottom: 10px;">
+                                <span><strong>Slot Start Time:</strong> ${formattedTime}</span><br/>
+                                <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
+                                <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
+                                <span><strong>Location:</strong> ${slot.location}</span><br/>
+                                <span><strong>Available Spots:</strong> <strong>${availableSeats}</strong></span><br/>
+                                <label><strong>Booked Students:</strong></label>
+                                ${bookedStudentsHtml}
+                            </div>
 
-    <form id="swal-form">
-        <div class="form-group" id="student-form">
-            <div class="flex justify-start">
-                <label class="mb-1"><strong>Select Students</strong></label>
-            </div>
-            <select name="student_id[]" id="student_id" class="form-select w-full" multiple>
-                @foreach ($students as $student)
-                    <option value="{{ $student->id }}">
-                        {{ ucfirst($student->name) }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-    </form>
-    <div class="mb-4">
-        ${noteHtml}
-    </div>
-    <div class="flex justify-center gap-4">
-            ${unbookButtonHtml} ${completeSlotButtonHtml}
-        </div>
-`,
-                        
-                         didOpen: () => {
-                            const choices = new Choices(document.getElementById('student_id'), {
-                                        searchEnabled: true
-                                 });
-                         },
+                                <form id="swal-form">
+                                    <div class="form-group" id="student-form">
+                                        <div class="flex justify-start">
+                                            <label class="mb-1"><strong>Select Students</strong></label>
+                                        </div>
+                                        <select name="student_id[]" id="student_id" class="form-select w-full" multiple>
+                                            @foreach ($students as $student)
+                                                <option value="{{ $student->id }}">
+                                                    {{ ucfirst($student->name) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <textarea name="note" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="5"></textarea>
+                                </form>
+                                <div class="mb-4">
+                                    ${noteHtml}
+                                </div>
+                                <div class="flex justify-center gap-4">
+                                        ${unbookButtonHtml} ${completeSlotButtonHtml}
+                                    </div>
+                        `,
+
+                        didOpen: () => {
+                            const choices = new Choices(document.getElementById(
+                                'student_id'), {
+                                searchEnabled: true
+                            });
+                        },
                         showCancelButton: true,
                         confirmButtonText: "Book",
                         cancelButtonText: 'Close',
@@ -336,7 +348,7 @@
                             const studentSelect = document.getElementById('student_id');
                             const student_ids = [...studentSelect.selectedOptions].map(
                                 opt => opt.value);
-                            
+
                             const notes = document.querySelector("#notes")?.value;
 
                             if (student_ids.length > availableSeats)
@@ -442,8 +454,8 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 const selectedStudents = Array.from(document.getElementById('unbookStudents').selectedOptions)
-                .map(option => option.value);
-                
+                    .map(option => option.value);
+
                 console.log("here in notes", notes);
                 if (selectedStudents.length === 0) {
                     Swal.showValidationMessage("Please select at least one student to unbook.");

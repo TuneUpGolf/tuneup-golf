@@ -885,6 +885,7 @@ class LessonController extends Controller
 
     public function bookSlotApi()
     {
+        
         try {
             $friendNames = request()->input('friend_names');
             if (is_string($friendNames)) {
@@ -997,7 +998,8 @@ class LessonController extends Controller
                 SendEmail::dispatch($slot->lesson->user->email, new SlotBookedByStudentMail(
                     $bookingStudent->name,
                     date('Y-m-d', strtotime($slot->date_time)),
-                    date('h:i A', strtotime($slot->date_time))
+                    date('h:i A', strtotime($slot->date_time)),
+                    $request->notes
                 ));
             }
         } else {
