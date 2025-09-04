@@ -3,63 +3,92 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
-use App\DataTables\Superadmin\SalesDataTable;
 use App\Facades\UtilityFacades;
-use App\Models\Order;
-use App\Models\Plan;
-use App\Models\SupportTicket;
-use App\Models\User;
-use Carbon\Carbon;
-use Carbon\CarbonInterval;
-use DatePeriod;
+use App\Models\HelpSection;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Cookie;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class HelpSectionController extends Controller
 {
-
-    public function __construct()
-    {
-        // $this->middleware('auth');
-        // if (!file_exists(storage_path() . "/installed")) {
-        //     header('location:install');
-        //     die;
-        // }
-    }
-
     public function index()
     {
-
-        return view('superadmin.help-section.index');
-
+        $user = Auth::user();
+        $role = $user ? $user->roles->pluck('name')->first() : null;
+        $help_sections = HelpSection::when($user, function ($query) use ($user) {
+            if ($user->hasRole('Instructor')) {
+                return $query->where('role', 'instructor');
+            } elseif ($user->hasRole('Student')) {
+                return $query->where('role', 'student');
+            }
+            return $query;
+        })
+            ->paginate(8);
+        return view('superadmin.help-section.index', compact('help_sections', 'role'));
     }
 
     public function create()
     {
+        $user = Auth::user();
+        $current_role = $user ? $user->roles->pluck('name')->first() : null;
+        if ($current_role != 'Admin' && $current_role != 'Super Admin') {
+            return redirect()->route('help-section.index')->with('error', "You do not have permission to create help section");
+        }
         $databasePermission = UtilityFacades::getsettings('database_permission');
-        return view('superadmin.help-section.create', compact('databasePermission'));
+        $roles = array(
+            "instructor" => "Instructor",
+            "student" => "Student"
+        );
+        return view('superadmin.help-section.create', compact('databasePermission', 'roles'));
     }
 
     public function store(Request $request)
     {
-        dd('store');
+        request()->validate([
+            'role' =>   'required|string|in:instructor,student',
+            'title' => 'required',
+            'type' => 'required',
+            'uploadFileName' => 'required',
+        ]);
+        DB::beginTransaction();
+        try {
+            $help_section = new HelpSection();
+            $help_section->role = $request->role;
+            $help_section->title = $request->title;
+            $help_section->url = $request->uploadFileName;
+            $help_section->type = $request->type;
+            $help_section->save();
+            DB::commit();
+            return redirect()->route('help-section.index')->with('success', 'Help Section created successfully.');
+        } catch (Exception $ex) {
+            DB::rollBack();
+            return redirect()->back()->with('failed', $ex->getMessage());
+        }
     }
 
-    public function show($id)
+    public function destroy(Request $request, $id)
     {
-        dd('show');
-    }
+        $helpSection = HelpSection::findOrFail($id);
+        // Verify user role
+        if (!Auth::user()->hasAnyRole(['Admin', 'Super Admin'])) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
 
-    public function edit($id)
-    {
-        dd('edit');
-    }
+        $filePath = "{$helpSection->url}"; // e.g., videos/Learn MongoDB in 1 Hour 🍃.mp4
 
-    public function update(Request $request, $id)
-    {
-        dd('update', $id);
+        // Adjust path for the public disk (relative to storage/app/public)
+        $publicDiskPath = $filePath; // Assuming videos/ is under storage/app/public
+        // Check if file exists and delete
+        if (Storage::disk('videos')->exists($publicDiskPath)) {
+            Storage::disk('videos')->delete($publicDiskPath);
+        }
+
+        // Delete database record
+        $helpSection->delete();
+
+        return response()->json(['success' => true, 'message' => 'Item deleted successfully']);
     }
 
     // public function sales(SalesDataTable $dataTable)

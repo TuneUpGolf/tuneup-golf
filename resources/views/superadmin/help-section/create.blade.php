@@ -26,46 +26,146 @@
                     <div class="card-header">
                         <h5>{{ __('Upload Videos, Files or Images for help') }}</h5>
                     </div>
+                    {!! Form::open([
+                        'route' => 'help-section.store',
+                        'method' => 'Post',
+                        'data-validate',
+                        'enctype' => 'multipart/form-data',
+                        'id' => 'uploadForm',
+                    ]) !!}
                     <div class="card-body">
-                        <h2>
-                            Videos, Files or Images will be uploaded here
-                        </h2>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ Form::label('roles', __('Role'), ['class' => 'form-label']) }}
+                                <select name="role" id="role" class="form-select" required>
+                                    @foreach ($roles as $key => $role)
+                                        <option value="{{ $key }}">{{ $role }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="invalid-feedback">
+                                    {{ __('Role is required') }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="file_input" class="form-label">Title</label>
+                                <input type="text" class="form-control" name="title" id="title"
+                                    placeholder="Enter Title" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                {{ Form::label('roles', __('Type'), ['class' => 'form-label']) }}
+                                <select name="type" id="type" class="form-select" required>
+                                    <option value="video">Video</option>
+                                    <option value="image">Image</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    {{ __('Role is required') }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mt-2">
+                                <input type="hidden" id="uploadFileName" name="uploadFileName" class="form-control">
+                                <label for="file_input" class="form-label">Upload</label>
+                                <input type="file" class="form-control" name="file" id="file_input">
+                                <div id="progress" style="margin-top: 20px;">
+                                    <progress id="progressBar" value="0" max="100"
+                                        style="width: 100%;"></progress>
+                                    <span id="progressText">0%</span>
+                                </div>
+                                <div id="status"></div>
+                            </div>
+                        </div>
                     </div>
+                    <div class="card-footer">
+                        <div class="text-end">
+                            {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary', 'id' => 'submitButton']) }}
+                        </div>
+                    </div>
+                    {!! Form::close() !!}
                 </div>
+            </div>
         </section>
     </div>
 @endsection
-@push('css')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.min.css">
-@endpush
 @push('javascript')
-    <script src="{{ asset('vendor/intl-tel-input/jquery.mask.js') }}"></script>
-    <script src="{{ asset('vendor/intl-tel-input/intlTelInput-jquery.min.js') }}"></script>
-    <script src="{{ asset('vendor/intl-tel-input/utils.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/resumablejs@1.1.0/resumable.min.js"></script>
     <script>
-        $("#phone").intlTelInput({
-            geoIpLookup: function(callback) {
-                $.get("https://ipinfo.io", function() {}, "jsonp").always(function(resp) {
-                    var countryCode = (resp && resp.country) ? resp.country : "";
-                    callback(countryCode);
-                });
-            },
-            initialCountry: "auto",
-            separateDialCode: true,
-        });
-        $('#phone').on('countrychange', function(e) {
-            $(this).val('');
-            var selectedCountry = $(this).intlTelInput('getSelectedCountryData');
-            var dialCode = selectedCountry.dialCode;
-            var maskNumber = intlTelInputUtils.getExampleNumber(selectedCountry.iso2, 0, 0);
-            maskNumber = intlTelInputUtils.formatNumber(maskNumber, selectedCountry.iso2, 2);
-            maskNumber = maskNumber.replace('+' + dialCode + ' ', '');
-            mask = maskNumber.replace(/[0-9+]/ig, '0');
-            $('input[name="country_code"]').val(selectedCountry.iso2);
-            $('input[name="dial_code"]').val(dialCode);
-            $('#phone').mask(mask, {
-                placeholder: maskNumber
+        if (typeof Resumable === 'undefined') {
+            document.getElementById('status').innerText = 'Error: Resumable.js failed to load.';
+            console.error('Resumable.js not found. Check CDN or use local file.');
+        } else {
+            const resumable = new Resumable({
+                target: '{{ route('upload-chunk') }}',
+                chunkSize: 5 * 1024 * 1024,
+                simultaneousUploads: 3,
+                testChunks: true,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                query: {
+                    fileName: () => Date.now() + '_' + (resumable.files[0]?.fileName || 'file')
+                }
             });
-        });
+
+            resumable.assignBrowse(document.getElementById('file_input'));
+
+            resumable.on('fileAdded', function(file) {
+                document.getElementById('status').innerText = 'Starting upload...';
+                document.getElementById('submitButton').disabled = true;
+                resumable.upload();
+            });
+
+            resumable.on('fileProgress', function(file) {
+                const progress = Math.floor(file.progress() * 100);
+                document.getElementById('progressBar').value = progress;
+                document.getElementById('progressText').innerText = `${progress}%`;
+            });
+
+            resumable.on('fileSuccess', function(file, message) {
+                document.getElementById('status').innerText = 'All chunks uploaded! Finalizing...';
+                finalizeUpload(file.uniqueIdentifier, file.fileName);
+            });
+
+            resumable.on('fileError', function(file, message) {
+                document.getElementById('status').innerText = `Error: ${message}`;
+                document.getElementById('status').classList.add('error');
+            });
+
+            async function finalizeUpload(fileId, fileName) {
+                try {
+                    const response = await fetch('{{ route('finalize-upload') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            fileId,
+                            fileName
+                        })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        document.getElementById('status').innerText = 'File uploaded successfully!';
+                        const filePathInput = document.getElementById('file_path');
+                        document.getElementById('uploadFileName').value = fileName;
+                        if (filePathInput) {
+                            filePathInput.value = result.filePath;
+                        } else {
+                            console.error('file_path input not found in the DOM');
+                        }
+                        document.getElementById('submitButton').disabled = false;
+                    } else {
+                        document.getElementById('status').innerText = `Error: ${result.message}`;
+                        document.getElementById('status').classList.add('error');
+                    }
+                } catch (error) {
+                    document.getElementById('status').innerText = 'Error finalizing upload.';
+                    document.getElementById('status').classList.add('error');
+                    console.error(error);
+                }
+            }
+        }
     </script>
 @endpush

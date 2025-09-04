@@ -17,86 +17,79 @@
                             </span>
                         </a>
                     </div> --}}
-                    <h4 class="my-3">
-                        Uploaded help videos, files or images.
-                    </h4>
+                    <div class="flex justify-between">
+                        <h4 class="my-2">
+                            Uploaded help videos, files or images.
+                        </h4>
+                        @if ($role == 'Admin' || $role == 'Super Admin')
+                            <a href="{{ route('help-section.create') }}" class="btn btn-primary"> <i class="fa fa-plus"></i>
+                                Create</a>
+                        @endif
+                    </div>
                     <hr />
 
                     {{-- Dummy Cards --}}
                     <div class="row g-3 mt-2">
-                        @php
-                            $dummyData = [
-                                [
-                                    'type' => 'image',
-                                    'title' => 'Sample Image',
-                                    'src' => 'https://ashallendesign.ams3.cdn.digitaloceanspaces.com/public/blog/72/13-placeholder-avatar-and-image-websites.png',
-                                ],
-                                [
-                                    'type' => 'video',
-                                    'title' => 'Demo Video',
-                                    'src' => 'https://www.w3schools.com/html/mov_bbb.mp4',
-                                ],
-                                ['type' => 'file', 'title' => 'PDF File', 'src' => 'dummy.pdf'],
-                                [
-                                    'type' => 'image',
-                                    'title' => 'Another Image',
-                                    'src' => 'https://mohammadansari.gallerycdn.vsassets.io/extensions/mohammadansari/dummyimage/0.0.1/1688371999089/Microsoft.VisualStudio.Services.Icons.Default',
-                                ],
-                            ];
-                        @endphp
-
-                        @foreach ($dummyData as $item)
+                        @forelse ($help_sections as $item)
                             <div class="col-md-4 col-sm-6 mb-3">
-                                <div class="card shadow-sm "
-                                    style="display: flex; flex-direction: column;">
-                                    <div
-                                        class="card-body text-center d-flex flex-column justify-content-between overflow-hidden" style="height: 229px;min-height: 229px;">
-
+                                <div class="card shadow-sm " style="display: flex; flex-direction: column;">
+                                    <div class="card-body text-center d-flex flex-column justify-content-between overflow-hidden mb-4"
+                                        style="height: 250px;min-height: 229px;">
                                         {{-- Media Preview --}}
-                                        <div class="mb-2">
-                                            @if ($item['type'] === 'image')
-                                                <img src="{{ $item['src'] }}" class="img-fluid rounded"
-                                                    alt="{{ $item['title'] }}"
-                                                    style="max-height: 150px; object-fit: cover; width: 100%;">
-                                            @elseif($item['type'] === 'video')
+                                        <div class="mb-2 d-flex flex-column">
+                                            @if ($item['type'] == 'video')
                                                 <video class="w-100 rounded" style="max-height: 150px; object-fit: cover;"
                                                     controls>
-                                                    <source src="{{ $item['src'] }}" type="video/mp4">
+                                                    <source src="{{ Storage::url('videos/' . $item['url']) }}"
+                                                        type="video/mp4">
                                                     Your browser does not support the video tag.
                                                 </video>
-                                            @elseif($item['type'] === 'file')
-                                                <i class="fa fa-file fa-5x text-danger"></i>
+                                            @elseif($item['type'] == 'image')
+                                                <img src="{{ Storage::url('videos/' . $item['url']) }}"
+                                                    style="max-height: 150px; object-fit: cover;" alt="">
                                             @endif
+                                            <p class="mb-0 font-bold">{{ $item['title'] }}</p>
                                         </div>
 
                                         {{-- Title --}}
-                                        
+
 
                                         {{-- Buttons --}}
                                         <div class="d-flex justify-content-center gap-2 mt-2">
-                                            <a href="{{ $item['src'] }}" target="_blank" class="btn btn-sm btn-primary">
+                                            <a href="{{ Storage::url('videos/' . $item['url']) }}" target="_blank"
+                                                class="btn btn-sm btn-primary">
                                                 <i class="fa fa-eye"></i> View
                                             </a>
-                                            <button class="btn btn-sm btn-danger">
-                                                <i class="fa fa-trash"></i> Delete
-                                            </button>
+                                            @if (auth()->user()->hasAnyRole(['Admin', 'Super Admin']))
+                                                <button class="btn btn-sm btn-danger ms-3 delete-btn"
+                                                    data-id="{{ $item->id }}" data-type="{{ $item->type }}"
+                                                    data-url="{{ $item->url }}">
+                                                    <i class="fa fa-trash"></i> Delete
+                                                </button>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
+                        @empty
+                        <div class="col-md-12">
+                            <h2 class="text-center">No Help Video Found</h2>
+                        </div>
+                        @endforelse
                     </div>
 
                     {{-- Dummy Pagination --}}
                     <div class="d-flex justify-content-end mt-4">
                         <nav>
-                            <ul class="pagination">
+                            {{ $help_sections->links() }}
+
+                            {{--  <ul class="pagination">
                                 <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
                                 <li class="page-item active"><a class="page-link" href="#">1</a></li>
                                 <li class="page-item"><a class="page-link" href="#">2</a></li>
                                 <li class="page-item"><a class="page-link" href="#">3</a></li>
                                 <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                            </ul>
+                            </ul>  --}}
                         </nav>
                     </div>
 
@@ -105,3 +98,68 @@
         </div>
     </div>
 @endsection
+
+@push('javascript')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const type = this.getAttribute('data-type');
+                const url = this.getAttribute('data-url');
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch('{{ route('help-section.destroy', ':id') }}'.replace(':id', id), {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]').content
+                                },
+                                body: JSON.stringify({
+                                    type: type,
+                                    url: url
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire(
+                                        'Deleted!',
+                                        'The item has been deleted.',
+                                        'success'
+                                    ).then(() => {
+                                        window.location
+                                    .reload(); // Refresh to update the list
+                                    });
+                                } else {
+                                    Swal.fire(
+                                        'Error!',
+                                        data.message || 'Failed to delete the item.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                Swal.fire(
+                                    'Error!',
+                                    'An error occurred while deleting.',
+                                    'error'
+                                );
+                                console.error(error);
+                            });
+                    }
+                });
+            });
+        });
+    </script>
+@endpush

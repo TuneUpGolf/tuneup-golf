@@ -55,7 +55,7 @@
                                 {!! Form::hidden('dial_code', null, []) !!}
                             </div>
                             <div class="form-group">
-                                {{ Form::label('dp', _('Profile Picture'), ['class' => 'form-label']) }}
+                                {{ Form::label('dp', __('Profile Picture'), ['class' => 'form-label']) }}
                                 {{ Form::file('dp', ['class' => 'form-control', 'accept' => 'image/jpeg, image/png']) }}
                             </div>
                         </div>
