@@ -6,12 +6,14 @@
     $tenantId = tenant('id');
     $banner = Utility::getsettings('banner_image');
 @endphp
+
 @extends('layouts.main-landing')
 @section('content')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.css" />
     <link rel="stylesheet" href="{{ asset('vendor/tailwind.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/customizer.css') }}">
+
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-white px-0 py-3">
             <div class="container ctm-container">
@@ -25,6 +27,7 @@
             </div>
         </nav>
     </header>
+
     <section class="landing-hero">
         <div class="hero-sec">
             <img class="w-full" src="{{ $banner != '' ? $banner : asset('assets/images/landing-page-images/banner1.png') }}"
@@ -35,17 +38,17 @@
     @if (trim($admin->bio) != '')
         <section class="lession-sec">
             <div class="container ctm-container">
-                <h2 class="font-bold text-4xl mb-2">{{ isset($bio_heading) && !empty($bio_heading) ? $bio_heading : $admin->name }}</h2>
+                <h2 class="font-bold text-4xl mb-2">{{ $bio_heading ?? $admin->name }}</h2>
                 <p class="text-xl text-gray-600">{{ $admin->bio }}</p>
             </div>
         </section>
     @endif
+
     @if (!$instructors->isEmpty())
         <section class="lession-sec feed-sec pb-10">
             <div class="container ctm-container">
-                <h2 class="font-bold text-4xl mb-2">{{ isset($instructor_heading) && !empty($instructor_heading) ? $instructor_heading : 'Instructors' }}</h2>
+                <h2 class="font-bold text-4xl mb-2">{{ $instructor_heading ?? 'Instructors' }}</h2>
                 <div class="flex flex-wrap gap-5 w-full mt-10">
-                    {{--  @if (!$instructors->isEmpty())  --}}
                     @foreach ($instructors as $instructor)
                         @php
                             $imgSrc =
@@ -53,30 +56,40 @@
                                     ? asset("storage/$tenantId/logo/app-favicon-logo.png")
                                     : asset('storage/' . $tenantId . '/' . $instructor->avatar);
                         @endphp
+
                         <div class="flex flex-col items-center text-center">
                             <a href="{{ url('/login') }}" title="{{ $instructor->name }}">
-                                <img class="custom-instructor-avatar rounded" src="{{ $imgSrc }}"
-                                    alt="Instructor Avatar">
-                                <h1 class="text-xl font-bold truncate mt-2">
-                                    {{ $instructor->name }}
-                                </h1>
+                                <img class="custom-instructor-avatar rounded" src="{{ $imgSrc }}" alt="Instructor Avatar">
+                                <h1 class="text-xl font-bold truncate mt-2">{{ $instructor->name }}</h1>
                             </a>
                             <div class="py-2">
-                                <button class="read-more-btn text-blue-600 hover:text-blue-800 underline text-sm"
-                                    onclick="openInstructorPopup('{{ $instructor->name }}', '{{ $imgSrc }}', '{{ addslashes(preg_replace('/\s+/', ' ', $instructor->bio)) }}')">
+                                <button
+                                    onclick='openInstructorPopup(
+                                        @json($instructor->name),
+                                        @json($imgSrc),
+                                        @json($instructor->bio),
+                                        @json($instructor->lessons->map(fn($lesson) => [
+                                            "name" => $lesson->lesson_name,
+                                            "price" => $lesson->lesson_price,
+                                            
+                                            
+                                        ])),
+                                        @json($currency)
+                                    )'
+                                    class="read-more-btn text-blue-600 hover:text-blue-800 underline text-sm">
                                     View Bio
                                 </button>
                             </div>
                         </div>
                     @endforeach
-                    {{--  @endif  --}}
                 </div>
             </div>
         </section>
     @endif
 
     <!-- Instructor Popup Modal -->
-    <div id="instructorPopup" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div id="instructorPopup"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto overflow-x-hidden">
             <div class="relative">
                 <!-- Close Button -->
@@ -94,7 +107,10 @@
                 <!-- Instructor Info -->
                 <div class="p-6">
                     <h3 id="popupInstructorName" class="text-xl font-bold mb-3 text-gray-800"></h3>
-                    <p id="popupInstructorBio" class="text-gray-600 leading-relaxed"></p>
+                    <p id="popupInstructorBio" class="text-gray-600 leading-relaxed mb-4"></p>
+
+                    <!-- Lessons Badges -->
+                    <div id="popupInstructorLessons" class="flex flex-wrap gap-2"></div>
                 </div>
             </div>
         </div>
@@ -132,6 +148,7 @@
         </div>
     </footer>
 @endsection
+
 @push('css')
     <style>
         .lessions-slider .slick-track {
@@ -142,7 +159,6 @@
             height: inherit !important;
         }
 
-        /* Popup Styles */
         .read-more-btn {
             transition: all 0.3s ease;
         }
@@ -162,44 +178,60 @@
 @endpush
 
 @push('javascript')
-    <script>
-        function openInstructorPopup(name, imageSrc, bio) {
-            // Set popup content
-            document.getElementById('popupInstructorName').textContent = name;
-            document.getElementById('popupInstructorImage').src = imageSrc;
-            document.getElementById('popupInstructorImage').alt = name;
-            document.getElementById('popupInstructorBio').textContent = bio;
+<script>
+    console.log("Popup JS Loaded");
 
-            // Show popup
-            const popup = document.getElementById('instructorPopup');
-            popup.classList.remove('hidden');
-            popup.classList.add('show');
+    function openInstructorPopup(name, imageSrc, bio, lessons = [], currency = '') {
+        console.log("Popup clicked:", name);
 
-            // Prevent body scroll
-            document.body.style.overflow = 'hidden';
+        // Fill content
+        document.getElementById('popupInstructorName').textContent = name;
+        document.getElementById('popupInstructorImage').src = imageSrc;
+        document.getElementById('popupInstructorImage').alt = name;
+        document.getElementById('popupInstructorBio').textContent = bio;
+
+        // Render lessons
+        const lessonsContainer = document.getElementById('popupInstructorLessons');
+        lessonsContainer.innerHTML = '';
+        if (lessons.length > 0) {
+            lessons.forEach(lesson => {
+                const badge = document.createElement('span');
+                badge.className =
+                    "inline-block bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full";
+                badge.textContent = `${lesson.name} - ${currency}${lesson.price}`;
+                lessonsContainer.appendChild(badge);
+            });
+        } else {
+            lessonsContainer.innerHTML =
+                '<span class="text-gray-500 text-sm">No lessons available</span>';
         }
 
-        function closeInstructorPopup() {
-            const popup = document.getElementById('instructorPopup');
-            popup.classList.add('hidden');
-            popup.classList.remove('show');
+        // Show popup
+        const popup = document.getElementById('instructorPopup');
+        popup.classList.remove('hidden');
+        popup.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
 
-            // Restore body scroll
-            document.body.style.overflow = 'auto';
+    function closeInstructorPopup() {
+        const popup = document.getElementById('instructorPopup');
+        popup.classList.add('hidden');
+        popup.classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
+
+    // Click outside to close
+    document.getElementById('instructorPopup').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeInstructorPopup();
         }
+    });
 
-        // Close popup when clicking outside
-        document.getElementById('instructorPopup').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeInstructorPopup();
-            }
-        });
-
-        // Close popup with Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeInstructorPopup();
-            }
-        });
-    </script>
+    // Escape key to close
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeInstructorPopup();
+        }
+    });
+</script>
 @endpush

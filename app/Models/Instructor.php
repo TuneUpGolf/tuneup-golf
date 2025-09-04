@@ -64,4 +64,11 @@ class Instructor extends Authenticatable implements MustVerifyEmail
     {
         return $this->lang;
     }
+
+    public function lessons()
+{
+    return $this->hasMany(Lesson::class, 'created_by', 'id');
+}
+
+
 }

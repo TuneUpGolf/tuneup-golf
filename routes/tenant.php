@@ -82,6 +82,10 @@ use Illuminate\Support\Facades\Auth;
 |
 */
 
+
+Route::post('/instructor/details', [LandingController::class, 'details'])->name('instructor.details');
+
+
 Route::middleware([
     'web',
     InitializeTenancyByDomain::class,
