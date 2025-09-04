@@ -13,16 +13,20 @@ use App\Models\Posts;
 use Spatie\MailTemplates\Models\MailTemplate;
 use App\Models\Faq;
 use App\Models\FooterSetting;
+use App\Models\Instructor;
 use App\Models\NotificationsSetting;
 use App\Models\Role;
 use App\Models\Testimonial;
 use App\Notifications\Admin\ConatctNotification;
 use Illuminate\Support\Facades\Cookie;
+use App\Models\Lesson;
 
 class LandingController extends Controller
 {
+
     public function landingPage()
     {
+
         $centralDomain = config('tenancy.central_domains')[0];
         $currentDomain = tenant('domains');
         if (!empty($currentDomain)) {
@@ -40,19 +44,33 @@ class LandingController extends Controller
         } else {
             $lang = UtilityFacades::getActiveLanguage();
             \App::setLocale($lang);
-            $instructors = User::where('type', Role::ROLE_INSTRUCTOR)
-                ->get();
+
+
+            $instructors = User::with(['lessons' => function ($q) {
+                $q->select('id', 'lesson_name', 'lesson_price', 'created_by');
+            }])->where('type', Role::ROLE_INSTRUCTOR)->get();
+
+
+          
+
+
+
 
             $admin = User::where('type', Role::ROLE_ADMIN)
                 ->first();
             if (UtilityFacades::getsettings('landing_page_status') == '1') {
                 $bio_heading = UtilityFacades::getsettings('bio_heading');
                 $instructor_heading = UtilityFacades::getsettings('instructor_heading');
+
+
+
+
+
                 return view('welcome', compact(
                     'lang',
                     'admin',
-                    'instructors',
                     'bio_heading',
+                    'instructors',
                     'instructor_heading'
                 ));
             } else {
@@ -60,6 +78,32 @@ class LandingController extends Controller
             }
         }
     }
+
+
+    public function details(Request $request)
+    {
+        $instructor = User::with(['lessons' => function ($q) {
+            $q->select('id', 'lesson_name', 'lesson_price', 'created_by');
+        }])->find($request->id);
+
+        if (!$instructor) {
+            return response()->json(['error' => 'Instructor not found'], 404);
+        }
+
+        return response()->json([
+            'name'   => $instructor->name,
+            'image'  => $instructor->profile_image ?? asset('default.png'),
+            'bio'    => $instructor->bio,
+            'lessons' => $instructor->lessons->map(function ($lesson) {
+                return [
+                    'lesson_name'  => $lesson->lesson_name,
+                    'lesson_price' => $lesson->lesson_price,
+                ];
+            }),
+        ]);
+    }
+
+
 
     public function getCategoryPost(Request $request)
     {
