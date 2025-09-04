@@ -5,6 +5,9 @@
 @endsection
 
 @section('content')
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
  <div class="main-content">
      <section class="section">
          <div class="section-body">
@@ -52,26 +55,35 @@
              </div>
              {{-- <div id="calendar"></div> --}}
              <div class="custom-calendar-mobile-view">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5> {{ __('Calendar') }} </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="form-group">
+                 <div class="row">
+                     <div class="col-sm-12">
+                         <div class="card">
+                             <div class="card-header d-flex justify-content-between align-items-center">
+                                 <h5> {{ __('Calendar') }} </h5>
+                             </div>
+                             <div class="card-body">
+                                 <div class="form-group">
                                     <label for="slotDate">Date</label>
-                                    <input type="date" class="form-control form-control-sm" id="slotDate" />
-                                </div>
+                                    <div id="slotDate"></div>
+                                 </div>
 
-                                <div id="slotListContainer" class="row"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                 <div id="slotListContainer" class="row"></div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
              </div>
          </div>
      </section>
+
+     <script>
+  flatpickr("#slotDate", {
+    inline: true,        // 👈 input ki jagah direct calendar show karega
+    dateFormat: "Y-m-d",
+    minDate: "today"
+  });
+</script>
+
      {{ Form::open([
          'route' => ['slot.complete', ['redirect' => 1]],
          'method' => 'POST',
@@ -93,27 +105,32 @@
  @stack('scripts')
 @endsection
 @push('css')
-<style>
-    .choices__inner {
-        text-align: left;
-    }
-    .choices__list--dropdown {
-        height: 0;
-        z-index: 1;
-    }
-    .choices__list--dropdown.is-active {
-        height: auto;
-    }
-    .swal2-actions {
-        z-index: 0 !important;
-    }
-    .swal2-html-container {
-        overflow: visible !important;
-    }
-    .choices__list--dropdown .choices__item {
-        text-align: left;
-    }
-</style>
+ <style>
+     .choices__inner {
+         text-align: left;
+     }
+
+     .choices__list--dropdown {
+         height: 0;
+         z-index: 1;
+     }
+
+     .choices__list--dropdown.is-active {
+         height: auto;
+     }
+
+     .swal2-actions {
+         z-index: 0 !important;
+     }
+
+     .swal2-html-container {
+         overflow: visible !important;
+     }
+
+     .choices__list--dropdown .choices__item {
+         text-align: left;
+     }
+ </style>
  <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.min.css">
 @endpush
@@ -138,20 +155,20 @@
              slotMaxTime: '20:00:00',
              events: @json($events),
              eventDidMount: function(info) {
-                if (type == 'Instructor') {
-                    const deleteBtn = document.createElement('span');
-                    deleteBtn.className = 'fc-delete-btn';
-                    deleteBtn.innerHTML = `<i class="ti ti-trash text-white"></i>`;
-                    deleteBtn.title = 'Delete';
-                    deleteBtn.style.marginLeft = '8px';
-                    deleteBtn.style.cursor = 'pointer';
-                    deleteBtn.style.color = 'red';
-                    deleteBtn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const slot_id = info?.event?.extendedProps?.slot_id;
-                        if (confirm(`Do you want to delete this slot?`) && slot_id > 0) {
-                            info.event.remove();
-                            $.ajax({
+                 if (type == 'Instructor') {
+                     const deleteBtn = document.createElement('span');
+                     deleteBtn.className = 'fc-delete-btn';
+                     deleteBtn.innerHTML = `<i class="ti ti-trash text-white"></i>`;
+                     deleteBtn.title = 'Delete';
+                     deleteBtn.style.marginLeft = '8px';
+                     deleteBtn.style.cursor = 'pointer';
+                     deleteBtn.style.color = 'red';
+                     deleteBtn.addEventListener('click', function(e) {
+                         e.stopPropagation();
+                         const slot_id = info?.event?.extendedProps?.slot_id;
+                         if (confirm(`Do you want to delete this slot?`) && slot_id > 0) {
+                             info.event.remove();
+                             $.ajax({
                                  url: "{{ route('slot.delete') }}",
                                  type: 'POST',
                                  data: {
@@ -160,22 +177,25 @@
                                      id: slot_id,
                                  },
                                  success: function(response) {
-                                     Swal.fire('Success',response.message,'success');
+                                     Swal.fire('Success', response.message,
+                                         'success');
                                  },
                                  error: function(error) {
-                                     Swal.fire('Error', 'There was a problem deleting the slot.', error);
+                                     Swal.fire('Error',
+                                         'There was a problem deleting the slot.',
+                                         error);
                                      console.log(error);
                                  }
                              });
-                        }
-                    });
-                    
-                    const titleContainer = info.el.querySelector('.fc-event-title-container');
-                    if (titleContainer) {
-                        titleContainer.appendChild(deleteBtn);
-                    }
-                }
-            },
+                         }
+                     });
+
+                     const titleContainer = info.el.querySelector('.fc-event-title-container');
+                     if (titleContainer) {
+                         titleContainer.appendChild(deleteBtn);
+                     }
+                 }
+             },
              eventClick: function(info) {
                  const slot_id = info?.event?.extendedProps?.slot_id;
                  const slot = info.event.extendedProps.slot;
@@ -238,12 +258,13 @@
                             </select>
                         </div>
                         </form>`,
-                        
-                         didOpen: () => {
-                            const choices = new Choices(document.getElementById('student_id'), {
-                                        searchEnabled: true
+
+                             didOpen: () => {
+                                 const choices = new Choices(document.getElementById(
+                                     'student_id'), {
+                                     searchEnabled: true
                                  });
-                         },
+                             },
                              preConfirm: () => {
                                  const studentSelect = document.getElementById('student_id');
                                  const student_ids = [...studentSelect.selectedOptions].map(
@@ -351,7 +372,7 @@
                                                  "Lesson slot has been completed.",
                                                  "success")
                                              .then(() => {
-                                                showPageLoader();
+                                                 showPageLoader();
                                                  location
                                                      .reload(); // Reload page after success
                                              });
@@ -479,7 +500,7 @@
                                          Swal.fire('Success',
                                              'Form submitted successfully!',
                                              'success');
-                                        showPageLoader();
+                                         showPageLoader();
                                          window.location.reload();
                                      },
                                      error: function(error) {
@@ -535,20 +556,21 @@
                                      redirect: 0,
                                  },
                                  success: function(response) {
-                                    if(response.payment_url){
-                                        window.location.href = response.payment_url;
-                                    }else{
-                                        Swal.fire({
-                                            icon: 'success',
-                                            title: 'Booking Successful',
-                                            text: response.message ||
-                                                'You have successfully booked the slot.',
-                                        }).then(() => {
-                                            showPageLoader();
-                                            location
-                                                .reload(); // Reload page to update UI
-                                        });
-                                    }
+                                     if (response.payment_url) {
+                                         window.location.href = response
+                                             .payment_url;
+                                     } else {
+                                         Swal.fire({
+                                             icon: 'success',
+                                             title: 'Booking Successful',
+                                             text: response.message ||
+                                                 'You have successfully booked the slot.',
+                                         }).then(() => {
+                                             showPageLoader();
+                                             location
+                                                 .reload(); // Reload page to update UI
+                                         });
+                                     }
                                  },
                                  error: function(xhr) {
                                      Swal.fire({
@@ -576,7 +598,7 @@
                             <textarea name="note" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="5"></textarea>
                          `,
                      }).then((result) => {
-                        const notes = document.querySelector("#notes").value;
+                         const notes = document.querySelector("#notes").value;
                          if (result.isConfirmed) {
                              $.ajax({
                                  url: "{{ route('slot.update') }}",
@@ -614,76 +636,107 @@
 
      });
 
-    // custom view of calendar
-    var type = @json($type);
-    var authId = @json($authId);
-    var students = @json($students);
-    var eventsData = @json($events); // same data FullCalendar uses
-    const allEvents = @json($events); // same events used in FullCalendar
-    // var isMobile = window.innerWidth <= 600;
+     // custom view of calendar
+     var type = @json($type);
+     var authId = @json($authId);
+     var students = @json($students);
+     var eventsData = @json($events); // same data FullCalendar uses
+     const allEvents = @json($events); // same events used in FullCalendar
+     // var isMobile = window.innerWidth <= 600;
 
-    // normalize event object (supports both direct keys and extendedProps) ----
-    function normalizeEventObject(raw) {
-        const p = raw?.extendedProps || raw || {};
-        const slot = p.slot || raw.slot || {};
-        const lesson = slot.lesson || p.lesson || raw.lesson || {};
-        const instructor = p.instructor || raw.instructor || slot.instructor || {};
-        const student = p.student || raw.student || slot.student || [];
-        const availableSeats = (p.available_seats ?? raw.available_seats ?? 0);
-        const isBooked = !!(p.is_student_assigned ?? raw.is_student_assigned ?? false);
-        const isCompleted = !!(p.is_completed ?? raw.is_completed ?? false);
-        const isFullyBooked = !!(p.isFullyBooked ?? raw.isFullyBooked ?? false);
-        const slot_id = (p.slot_id ?? raw.slot_id ?? slot.id ?? raw.id);
-        const paymentMethod = lesson.payment_method;
-        const isPackageLesson = !!lesson.is_package_lesson;
-        const isAuthStudentBooked = Array.isArray(student) && student.some(o => o.id == authId);
+     // normalize event object (supports both direct keys and extendedProps) ----
+     function normalizeEventObject(raw) {
+         const p = raw?.extendedProps || raw || {};
+         const slot = p.slot || raw.slot || {};
+         const lesson = slot.lesson || p.lesson || raw.lesson || {};
+         const instructor = p.instructor || raw.instructor || slot.instructor || {};
+         const student = p.student || raw.student || slot.student || [];
+         const availableSeats = (p.available_seats ?? raw.available_seats ?? 0);
+         const isBooked = !!(p.is_student_assigned ?? raw.is_student_assigned ?? false);
+         const isCompleted = !!(p.is_completed ?? raw.is_completed ?? false);
+         const isFullyBooked = !!(p.isFullyBooked ?? raw.isFullyBooked ?? false);
+         const slot_id = (p.slot_id ?? raw.slot_id ?? slot.id ?? raw.id);
+         const paymentMethod = lesson.payment_method;
+         const isPackageLesson = !!lesson.is_package_lesson;
+         const isAuthStudentBooked = Array.isArray(student) && student.some(o => o.id == authId);
 
-        // Use the slot datetime if available, fallback to start
-        const dtStr = slot.date_time || p.date_time || raw.start || '';
-        const formattedTime = dtStr
-          ? new Date(dtStr.replace(/-/g, "/")).toLocaleTimeString([], {
-              weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-              hour: '2-digit', minute: '2-digit', hour12: true
-            })
-          : '';
+         // Use the slot datetime if available, fallback to start
+         const dtStr = slot.date_time || p.date_time || raw.start || '';
+         const formattedTime = dtStr ?
+             new Date(dtStr.replace(/-/g, "/")).toLocaleTimeString([], {
+                 weekday: 'long',
+                 year: 'numeric',
+                 month: 'long',
+                 day: 'numeric',
+                 hour: '2-digit',
+                 minute: '2-digit',
+                 hour12: true
+             }) :
+             '';
 
-        return {
-            type, authId, students,
-            slot_id, slot, paymentMethod, isFullyBooked,
-            availableSeats, student, lesson, instructor,
-            isBooked, isCompleted, isAuthStudentBooked, isPackageLesson, formattedTime
-        };
-    }
+         return {
+             type,
+             authId,
+             students,
+             slot_id,
+             slot,
+             paymentMethod,
+             isFullyBooked,
+             availableSeats,
+             student,
+             lesson,
+             instructor,
+             isBooked,
+             isCompleted,
+             isAuthStudentBooked,
+             isPackageLesson,
+             formattedTime
+         };
+     }
 
-    // all event logic for mobile screen here ----
-    function handleSlotAction(payload) {
-        const {
-            type, authId,
-            slot_id, slot, paymentMethod, isFullyBooked,
-            availableSeats, student, lesson, instructor,
-            isBooked, isCompleted, isAuthStudentBooked, isPackageLesson, formattedTime
-        } = payload;
+     // all event logic for mobile screen here ----
+     function handleSlotAction(payload) {
+         const {
+             type,
+             authId,
+             slot_id,
+             slot,
+             paymentMethod,
+             isFullyBooked,
+             availableSeats,
+             student,
+             lesson,
+             instructor,
+             isBooked,
+             isCompleted,
+             isAuthStudentBooked,
+             isPackageLesson,
+             formattedTime
+         } = payload;
 
-        // ========== INSTRUCTOR: Delete (handled by a separate button elsewhere) ==========
-        if (type == 'Instructor') {
-            
-        }
+         // ========== INSTRUCTOR: Delete (handled by a separate button elsewhere) ==========
+         if (type == 'Instructor') {
 
-        // ========== INSTRUCTOR: Book (not booked + not completed) ==========
-        if (type == 'Instructor' && !isBooked && !isCompleted) {
-            const swalWithBootstrapButtons = Swal.mixin({
-                customClass: { confirmButton: "btn btn-success", cancelButton: "btn btn-danger" },
-                buttonsStyling: false,
-            });
+         }
 
-            if (isPackageLesson) {
-                Swal.fire('Error', 'Instructors can\'t book package lesson slots for students.', 'error');
-                return;
-            }
+         // ========== INSTRUCTOR: Book (not booked + not completed) ==========
+         if (type == 'Instructor' && !isBooked && !isCompleted) {
+             const swalWithBootstrapButtons = Swal.mixin({
+                 customClass: {
+                     confirmButton: "btn btn-success",
+                     cancelButton: "btn btn-danger"
+                 },
+                 buttonsStyling: false,
+             });
 
-            swalWithBootstrapButtons.fire({
-                title: "Book Slot",
-                html: `
+             if (isPackageLesson) {
+                 Swal.fire('Error', 'Instructors can\'t book package lesson slots for students.', 'error');
+                 return;
+             }
+
+             swalWithBootstrapButtons.fire({
+                     title: "Book Slot",
+                     html: `
                     <form id="swal-form">
                       <div class="flex justify-start mb-1">
                         <span>Available Spots: <strong>${availableSeats}</strong></span>
@@ -700,113 +753,126 @@
                       </div>
                     </form>
                 `,
-                didOpen: () => {
-                    const choices = new Choices(document.getElementById('student_id'), { searchEnabled: true });
-                },
-                preConfirm: () => {
-                    const el = document.getElementById('student_id');
-                    const ids = [...el.selectedOptions].map(opt => opt.value);
-                    if (ids.length > availableSeats) {
-                        Swal.showValidationMessage(`You can only select up to ${availableSeats} students.`);
-                    }
-                    return { student_ids: ids };
-                },
-                showCancelButton: true,
-                confirmButtonText: "Book",
-                reverseButtons: true,
-            })
-            .then((result) => {
-                const formData = result.value;
-                if (!formData) return;
+                     didOpen: () => {
+                         const choices = new Choices(document.getElementById('student_id'), {
+                             searchEnabled: true
+                         });
+                     },
+                     preConfirm: () => {
+                         const el = document.getElementById('student_id');
+                         const ids = [...el.selectedOptions].map(opt => opt.value);
+                         if (ids.length > availableSeats) {
+                             Swal.showValidationMessage(`You can only select up to ${availableSeats} students.`);
+                         }
+                         return {
+                             student_ids: ids
+                         };
+                     },
+                     showCancelButton: true,
+                     confirmButtonText: "Book",
+                     reverseButtons: true,
+                 })
+                 .then((result) => {
+                     const formData = result.value;
+                     if (!formData) return;
 
-                $.ajax({
-                    url: "{{ route('slot.admin') }}",
-                    type: 'POST',
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        isGuest: false,
-                        student_Ids: formData.student_ids,
-                        slot_id: slot_id,
-                        redirect: 1,
-                    },
-                    success: function() {
-                        Swal.fire('Success', 'Form submitted successfully!', 'success');
-                        showPageLoader();
-                        window.location.reload();
-                    },
-                    error: function(error) {
-                        Swal.fire('Error','There was a problem submitting the form.', 'error');
-                    }
-                });
-            });
+                     $.ajax({
+                         url: "{{ route('slot.admin') }}",
+                         type: 'POST',
+                         data: {
+                             _token: $('meta[name="csrf-token"]').attr('content'),
+                             isGuest: false,
+                             student_Ids: formData.student_ids,
+                             slot_id: slot_id,
+                             redirect: 1,
+                         },
+                         success: function() {
+                             Swal.fire('Success', 'Form submitted successfully!', 'success');
+                             showPageLoader();
+                             window.location.reload();
+                         },
+                         error: function(error) {
+                             Swal.fire('Error', 'There was a problem submitting the form.', 'error');
+                         }
+                     });
+                 });
 
-            return; // stop here
-        }
+             return; // stop here
+         }
 
-        // ========== INSTRUCTOR: Manage (booked + not completed) ==========
-        if (type == 'Instructor' && isBooked && !isCompleted) {
-            const swalWithBootstrapButtons = Swal.mixin({
-                customClass: { confirmButton: "btn btn-success", cancelButton: "btn btn-danger" },
-                buttonsStyling: false,
-            });
+         // ========== INSTRUCTOR: Manage (booked + not completed) ==========
+         if (type == 'Instructor' && isBooked && !isCompleted) {
+             const swalWithBootstrapButtons = Swal.mixin({
+                 customClass: {
+                     confirmButton: "btn btn-success",
+                     cancelButton: "btn btn-danger"
+                 },
+                 buttonsStyling: false,
+             });
 
-            if (isPackageLesson) {
-                // show booked students list & confirm completion
-                let bookedStudentsHtml = "<strong style='display: block; text-align: left; margin-bottom: 5px;'>📋 Booked Students:</strong><ol style='text-align: left; padding-left: 20px;'>";
-                if ((slot.student || []).length > 0) {
-                    slot.student.forEach((s, index) => {
-                        const name = s.pivot?.isFriend ? `${s.pivot.friend_name} (Friend: ${s.name})` : s.name;
-                        bookedStudentsHtml += `<li>${index + 1}. ${name}</li>`;
-                    });
-                } else {
-                    bookedStudentsHtml += "<li>No students booked yet.</li>";
-                }
-                bookedStudentsHtml += "</ol>";
+             if (isPackageLesson) {
+                 // show booked students list & confirm completion
+                 let bookedStudentsHtml =
+                     "<strong style='display: block; text-align: left; margin-bottom: 5px;'>📋 Booked Students:</strong><ol style='text-align: left; padding-left: 20px;'>";
+                 if ((slot.student || []).length > 0) {
+                     slot.student.forEach((s, index) => {
+                         const name = s.pivot?.isFriend ? `${s.pivot.friend_name} (Friend: ${s.name})` : s.name;
+                         bookedStudentsHtml += `<li>${index + 1}. ${name}</li>`;
+                     });
+                 } else {
+                     bookedStudentsHtml += "<li>No students booked yet.</li>";
+                 }
+                 bookedStudentsHtml += "</ol>";
 
-                Swal.fire({
-                    title: "Confirm Slot Completion",
-                    html: `<p style="text-align: left;">Are you sure you want to complete this lesson slot?</p>${bookedStudentsHtml}`,
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Confirm",
-                    cancelButtonText: "Cancel",
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: "{{ route('slot.complete') }}",
-                            type: "POST",
-                            data: {
-                                _token: $('meta[name="csrf-token"]').attr('content'),
-                                payment_method: "online",
-                                slot_id: slot_id,
-                                redirect: 1,
-                            },
-                            success: function() {
-                                Swal.fire("Success!","Lesson slot has been completed.","success")
-                                  .then(() => { showPageLoader(); location.reload(); });
-                            },
-                            error: function() {
-                                Swal.fire("Error!","Something went wrong. Please try again.","error");
-                            }
-                        });
-                    }
-                });
-                return;
-            }
+                 Swal.fire({
+                     title: "Confirm Slot Completion",
+                     html: `<p style="text-align: left;">Are you sure you want to complete this lesson slot?</p>${bookedStudentsHtml}`,
+                     icon: "warning",
+                     showCancelButton: true,
+                     confirmButtonText: "Confirm",
+                     cancelButtonText: "Cancel",
+                 }).then((result) => {
+                     if (result.isConfirmed) {
+                         $.ajax({
+                             url: "{{ route('slot.complete') }}",
+                             type: "POST",
+                             data: {
+                                 _token: $('meta[name="csrf-token"]').attr('content'),
+                                 payment_method: "online",
+                                 slot_id: slot_id,
+                                 redirect: 1,
+                             },
+                             success: function() {
+                                 Swal.fire("Success!", "Lesson slot has been completed.", "success")
+                                     .then(() => {
+                                         showPageLoader();
+                                         location.reload();
+                                     });
+                             },
+                             error: function() {
+                                 Swal.fire("Error!", "Something went wrong. Please try again.",
+                                     "error");
+                             }
+                         });
+                     }
+                 });
+                 return;
+             }
 
-            // Non-package lesson flow
-            let studentsHtml = `
+             // Non-package lesson flow
+             let studentsHtml = `
               <label for="unbookStudents"><strong>Select Students to Unbook:</strong></label>
               <select id="unbookStudents" class="form-select w-full" multiple>
             `;
-            if (Array.isArray(student) && student.length > 0) {
-                studentsHtml += student.map(s => `<option value="${s.id}">${s.isGuest ? `${s.name} (Guest)` : s.name}</option>`).join('');
-            }
-            studentsHtml += `</select>`;
+             if (Array.isArray(student) && student.length > 0) {
+                 studentsHtml += student.map(s =>
+                     `<option value="${s.id}">${s.isGuest ? `${s.name} (Guest)` : s.name}</option>`).join('');
+             }
+             studentsHtml += `</select>`;
 
-            swalWithBootstrapButtons.fire({
-                title: "Manage Slot",
-                html: `
+             swalWithBootstrapButtons.fire({
+                     title: "Manage Slot",
+                     html: `
                   <div style="text-align: left; font-size: 14px;">
                     <span><strong>Slot Start Time:</strong> ${formattedTime}</span><br/>
                     <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
@@ -816,221 +882,248 @@
                     ${studentsHtml}<br/>
                   </div>
                 `,
-                showCancelButton: true,
-                confirmButtonText: "Complete",
-                cancelButtonText: "Unreserve",
-                reverseButtons: true,
-                showCloseButton: true,
-            })
-            .then((result) => {
-                if (!!result.isConfirmed) {
-                    const sw = Swal.mixin({
-                        customClass: { confirmButton: "btn btn-success", cancelButton: "btn btn-primary" },
-                        buttonsStyling: false,
-                    });
+                     showCancelButton: true,
+                     confirmButtonText: "Complete",
+                     cancelButtonText: "Unreserve",
+                     reverseButtons: true,
+                     showCloseButton: true,
+                 })
+                 .then((result) => {
+                     if (!!result.isConfirmed) {
+                         const sw = Swal.mixin({
+                             customClass: {
+                                 confirmButton: "btn btn-success",
+                                 cancelButton: "btn btn-primary"
+                             },
+                             buttonsStyling: false,
+                         });
 
-                    if (paymentMethod == 'both') {
-                        sw.fire({
-                            title: "Choose Payment Method",
-                            text: "Please select from the following payment options before completing slot as complete",
-                            icon: "warning",
-                            showCancelButton: true,
-                            confirmButtonText: "Online",
-                            cancelButtonText: "Cash",
-                            reverseButtons: true,
-                        }).then((r) => {
-                            if (r.isConfirmed) {
-                                if (instructor.is_stripe_connected) {
-                                    $("#slot_id").val(slot_id);
-                                    $("#payment_method").val('online');
-                                    $("#form").submit();
-                                } else {
-                                    Swal.fire({
-                                        title: "Stripe Setup Required",
-                                        text: "Please set up Stripe integration to proceed.",
-                                        icon: "warning",
-                                        confirmButtonText: "OK"
-                                    });
-                                }
-                            } else {
-                                $("#slot_id").val(slot_id);
-                                $("#payment_method").val('cash');
-                                $("#form").submit();
-                            }
-                        });
-                    }
-                    if (paymentMethod == 'online') {
-                        $("#slot_id").val(slot_id);
-                        $("#payment_method").val('online');
-                        $("#form").submit();
-                    }
-                    if (paymentMethod == 'cash') {
-                        $("#slot_id").val(slot_id);
-                        $("#payment_method").val('cash');
-                        $("#form").submit();
-                    }
+                         if (paymentMethod == 'both') {
+                             sw.fire({
+                                 title: "Choose Payment Method",
+                                 text: "Please select from the following payment options before completing slot as complete",
+                                 icon: "warning",
+                                 showCancelButton: true,
+                                 confirmButtonText: "Online",
+                                 cancelButtonText: "Cash",
+                                 reverseButtons: true,
+                             }).then((r) => {
+                                 if (r.isConfirmed) {
+                                     if (instructor.is_stripe_connected) {
+                                         $("#slot_id").val(slot_id);
+                                         $("#payment_method").val('online');
+                                         $("#form").submit();
+                                     } else {
+                                         Swal.fire({
+                                             title: "Stripe Setup Required",
+                                             text: "Please set up Stripe integration to proceed.",
+                                             icon: "warning",
+                                             confirmButtonText: "OK"
+                                         });
+                                     }
+                                 } else {
+                                     $("#slot_id").val(slot_id);
+                                     $("#payment_method").val('cash');
+                                     $("#form").submit();
+                                 }
+                             });
+                         }
+                         if (paymentMethod == 'online') {
+                             $("#slot_id").val(slot_id);
+                             $("#payment_method").val('online');
+                             $("#form").submit();
+                         }
+                         if (paymentMethod == 'cash') {
+                             $("#slot_id").val(slot_id);
+                             $("#payment_method").val('cash');
+                             $("#form").submit();
+                         }
 
-                } else if (result.dismiss == 'cancel') {
-                    const selectedStudents = Array.from(document.getElementById('unbookStudents').selectedOptions).map(o => o.value);
-                    if (selectedStudents.length === 0) {
-                        Swal.showValidationMessage("Please select at least one student to unbook.");
-                        return;
-                    }
-                    $.ajax({
-                        url: "{{ route('slot.update') }}",
-                        type: 'POST',
-                        data: {
-                            _token: $('meta[name="csrf-token"]').attr('content'),
-                            unbook: 1,
-                            slot_id: slot_id,
-                            student_ids: selectedStudents,
-                            redirect: 1,
-                        },
-                        success: function() {
-                            Swal.fire('Success','Form submitted successfully!','success');
-                            showPageLoader();
-                            window.location.reload();
-                        },
-                        error: function(error) {
-                            Swal.fire('Error','There was a problem submitting the form.','error');
-                        }
-                    });
-                }
-            });
+                     } else if (result.dismiss == 'cancel') {
+                         const selectedStudents = Array.from(document.getElementById('unbookStudents')
+                             .selectedOptions).map(o => o.value);
+                         if (selectedStudents.length === 0) {
+                             Swal.showValidationMessage("Please select at least one student to unbook.");
+                             return;
+                         }
+                         $.ajax({
+                             url: "{{ route('slot.update') }}",
+                             type: 'POST',
+                             data: {
+                                 _token: $('meta[name="csrf-token"]').attr('content'),
+                                 unbook: 1,
+                                 slot_id: slot_id,
+                                 student_ids: selectedStudents,
+                                 redirect: 1,
+                             },
+                             success: function() {
+                                 Swal.fire('Success', 'Form submitted successfully!', 'success');
+                                 showPageLoader();
+                                 window.location.reload();
+                             },
+                             error: function(error) {
+                                 Swal.fire('Error', 'There was a problem submitting the form.', 'error');
+                             }
+                         });
+                     }
+                 });
 
-            return; // stop here
-        }
+             return; // stop here
+         }
 
-        // ========== STUDENT: Book ==========
-        if (type == 'Student' && !isAuthStudentBooked && !isFullyBooked && !isCompleted) {
-            let friendsHtml = `
+         // ========== STUDENT: Book ==========
+         if (type == 'Student' && !isAuthStudentBooked && !isFullyBooked && !isCompleted) {
+             let friendsHtml = `
               <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
               <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
+              <textarea name="notes" id="notes" class="form-control mt-2" placeholder="Enter note here" cols="10" rows="5"></textarea>
             `;
-            Swal.fire({
-                title: "Slot Details",
-                html: `
+             Swal.fire({
+                 title: "Slot Details",
+                 html: `
                   <div style="text-align: left; font-size: 14px;">
                     <span><strong>Slot Start Time:</strong> ${formattedTime}</span><br/>
                     <span><strong>Location:</strong> ${slot.location}</span><br/>
                     <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
                     <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
                     <span><strong>Available Spots:</strong> ${availableSeats}</span><br/>
+                    
                     ${friendsHtml}
                   </div>
                 `,
-                showCancelButton: true,
-                confirmButtonText: "Book Slot",
-                cancelButtonText: "Cancel",
-                preConfirm: () => {
-                    const v = document.getElementById('studentFriends')?.value.trim();
-                    const arr = v ? v.split(',').map(x => x.trim()).filter(Boolean) : [];
-                    return { friendNames: arr };
-                }
-            }).then((r) => {
-                if (!r.isConfirmed) return;
-                $.ajax({
-                    url: "{{ route('slot.book') }}",
-                    type: "POST",
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        slot_id: slot_id,
-                        friend_names: r.value.friendNames || "",
-                        redirect: 0,
-                    },
-                    success: function(response) {
-                        if(response.payment_url){
-                            window.location.href = response.payment_url;
-                        } else {
-                            Swal.fire({ icon: 'success', title: 'Booking Successful', text: response.message || 'You have successfully booked the slot.' })
-                              .then(() => { showPageLoader(); location.reload(); });
-                        }
-                    },
-                    error: function(xhr) {
-                        Swal.fire({ icon: 'error', title: 'Booking Failed', text: xhr.responseJSON?.message || 'An error occurred while booking the slot.' });
-                    }
-                });
-            });
-            return;
-        }
+                 showCancelButton: true,
+                 confirmButtonText: "Book Slot",
+                 cancelButtonText: "Cancel",
+                 preConfirm: () => {
+                     const v = document.getElementById('studentFriends')?.value.trim();
+                     const arr = v ? v.split(',').map(x => x.trim()).filter(Boolean) : [];
 
-        // ========== STUDENT: Unbook ==========
-        if (type == 'Student' && isAuthStudentBooked) {
-            Swal.fire({
-                title: "Unbook Slot",
-                text: "Are you sure you want to unbook this slot?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Yes, unbook",
-                cancelButtonText: "Cancel",
-                reverseButtons: true,
-                html: `<textarea name="note" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="5"></textarea>`,
-            }).then((result) => {
-                const notes = document.querySelector("#notes")?.value || '';
-                if (!result.isConfirmed) return;
-                $.ajax({
-                    url: "{{ route('slot.update') }}",
-                    type: "POST",
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        unbook: 1,
-                        slot_id: slot_id,
-                        student_ids: [authId],
-                        redirect: 1,
-                        notes: notes,
-                    },
-                    success: function() {
-                        Swal.fire("Success","Slot unbooked successfully!","success");
-                        showPageLoader();
-                        window.location.reload();
-                    },
-                    error: function(error) {
-                        Swal.fire("Error","Failed to unbook the slot.","error");
-                    }
-                });
-            });
-            return;
-        }
-    }
+                     const notes = document.getElementById('notes')?.value.trim() || "";
 
-    // format time on mobile screen
-    function formatTime(date) {
-        let hours = date.getHours();
-        const minutes = date.getMinutes().toString().padStart(2, "0");
-        const ampm = hours >= 12 ? "pm" : "am";
-        hours = hours % 12;
-        hours = hours ? hours : 12; // 0 => 12
-        return `${hours}:${minutes}${ampm}`;
-    }
+                     return {
+                         friendNames: arr,
+                         note: notes
+                     };
+                 }
+             }).then((r) => {
+                 if (!r.isConfirmed) return;
+                 $.ajax({
+                     url: "{{ route('slot.book') }}",
+                     type: "POST",
+                     data: {
+                         _token: $('meta[name="csrf-token"]').attr('content'),
+                         slot_id: slot_id,
+                         friend_names: r.value.friendNames || "",
+                         note: r.value.note || "",
+                         redirect: 0,
+                     },
+                     success: function(response) {
+                         if (response.payment_url) {
+                             window.location.href = response.payment_url;
+                         } else {
+                             Swal.fire({
+                                     icon: 'success',
+                                     title: 'Booking Successful',
+                                     text: response.message ||
+                                         'You have successfully booked the slot.'
+                                 })
+                                 .then(() => {
+                                     showPageLoader();
+                                     location.reload();
+                                 });
+                         }
+                     },
+                     error: function(xhr) {
+                         Swal.fire({
+                             icon: 'error',
+                             title: 'Booking Failed',
+                             text: xhr.responseJSON?.message ||
+                                 'An error occurred while booking the slot.'
+                         });
+                     }
+                 });
+             });
+             return;
+         }
 
-    // rendering only for mobile view
-    function renderMobileSlots(selectedDate) {
-        const container = $("#slotListContainer");
-        container.empty();
+         // ========== STUDENT: Unbook ==========  
+         if (type == 'Student' && isAuthStudentBooked) {
+             Swal.fire({
+                 title: "Unbook Slot",
+                 text: "Are you sure you want to unbook this slot?",
+                 icon: "warning",
+                 showCancelButton: true,
+                 confirmButtonText: "Yes, unbook",
+                 cancelButtonText: "Cancel",
+                 reverseButtons: true,
+                 html: `<textarea name="note" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="5"></textarea>`,
+             }).then((result) => {
+                 const notes = document.querySelector("#notes")?.value || '';
+                 if (!result.isConfirmed) return;
+                 $.ajax({
+                     url: "{{ route('slot.update') }}",
+                     type: "POST",
+                     data: {
+                         _token: $('meta[name="csrf-token"]').attr('content'),
+                         unbook: 1,
+                         slot_id: slot_id,
+                         student_ids: [authId],
+                         redirect: 1,
+                         notes: notes,
+                     },
+                     success: function() {
+                         Swal.fire("Success", "Slot unbooked successfully!", "success");
+                         showPageLoader();
+                         window.location.reload();
+                     },
+                     error: function(error) {
+                         Swal.fire("Error", "Failed to unbook the slot.", "error");
+                     }
+                 });
+             });
+             return;
+         }
+     }
 
-        const slotsForDate = eventsData.filter(ev => {
-            const startStr = (ev.slot?.date_time || ev.start || '').toString();
-            if (!startStr) return false;
-            const iso = new Date(startStr.replace(/-/g,"/")).toISOString().split("T")[0];
-            return iso === selectedDate;
-        });
+     // format time on mobile screen
+     function formatTime(date) {
+         let hours = date.getHours();
+         const minutes = date.getMinutes().toString().padStart(2, "0");
+         const ampm = hours >= 12 ? "pm" : "am";
+         hours = hours % 12;
+         hours = hours ? hours : 12; // 0 => 12
+         return `${hours}:${minutes}${ampm}`;
+     }
 
-        if (slotsForDate.length === 0) {
-            container.html("<p>No slots available for this date.</p>");
-            return;
-        }
+     // rendering only for mobile view
+     function renderMobileSlots(selectedDate) {
+         const container = $("#slotListContainer");
+         container.empty();
 
-        slotsForDate.forEach(ev => {
-            const payload = normalizeEventObject(ev);
+         const slotsForDate = eventsData.filter(ev => {
+             const startStr = (ev.slot?.date_time || ev.start || '').toString();
+             if (!startStr) return false;
+             const iso = new Date(startStr.replace(/-/g, "/")).toISOString().split("T")[0];
+             return iso === selectedDate;
+         });
 
-            const lessonText = `${payload.lesson?.lesson_name || 'Lesson'} (${payload.lesson?.booked || 0}/${payload.lesson?.capacity || 1})`;
-            const start = new Date(payload.slot.date_time); // e.g. "2025-09-02 13:00:00"
-            const durationInMinutes = payload.slot.lesson.lesson_duration * 60; // 0.5 -> 30 mins
-            const end = new Date(start.getTime() + durationInMinutes * 60000);
-            const formattedTimeRange = `${formatTime(start)} - ${formatTime(end)}`;
-            const myClass = ev.className.split(' ')[0] || '';
+         if (slotsForDate.length === 0) {
+             container.html("<p>No slots available for this date.</p>");
+             return;
+         }
 
-            const card = $(`
+         slotsForDate.forEach(ev => {
+             const payload = normalizeEventObject(ev);
+
+             const lessonText =
+                 `${payload.lesson?.lesson_name || 'Lesson'} (${payload.lesson?.booked || 0}/${payload.lesson?.capacity || 1})`;
+             const start = new Date(payload.slot.date_time); // e.g. "2025-09-02 13:00:00"
+             const durationInMinutes = payload.slot.lesson.lesson_duration * 60; // 0.5 -> 30 mins
+             const end = new Date(start.getTime() + durationInMinutes * 60000);
+             const formattedTimeRange = `${formatTime(start)} - ${formatTime(end)}`;
+             const myClass = ev.className.split(' ')[0] || '';
+
+             const card = $(`
             <div class="col-md-6 col-sm-12 col-lg-4">
                 <div class="card mb-2 p-2 border rounded shadow-sm d-flex justify-content-between align-items-center flex-row ${ myClass }">
                   <div class="slot-action">
@@ -1045,51 +1138,54 @@
             </div>
             `);
 
-            // Delete (mobile)
-            card.find('.del-btn').on('click', function(e) {
-                e.stopPropagation();
-                if (!payload.slot_id) return;
-                if (confirm(`Do you want to delete this slot?`)) {
-                    const selfCard = $(this).closest('.card');
-                    $.ajax({
-                        url: "{{ route('slot.delete') }}",
-                        type: 'POST',
-                        data: { _token: $('meta[name="csrf-token"]').attr('content'), id: payload.slot_id },
-                        success: function(response) {
-                            Swal.fire('Success', response.message, 'success');
-                            selfCard.remove();
-                        },
-                        error: function(error) {
-                            Swal.fire('Error','There was a problem deleting the slot.','error');
-                        }
-                    });
-                }
-            });
+             // Delete (mobile)
+             card.find('.del-btn').on('click', function(e) {
+                 e.stopPropagation();
+                 if (!payload.slot_id) return;
+                 if (confirm(`Do you want to delete this slot?`)) {
+                     const selfCard = $(this).closest('.card');
+                     $.ajax({
+                         url: "{{ route('slot.delete') }}",
+                         type: 'POST',
+                         data: {
+                             _token: $('meta[name="csrf-token"]').attr('content'),
+                             id: payload.slot_id
+                         },
+                         success: function(response) {
+                             Swal.fire('Success', response.message, 'success');
+                             selfCard.remove();
+                         },
+                         error: function(error) {
+                             Swal.fire('Error', 'There was a problem deleting the slot.',
+                                 'error');
+                         }
+                     });
+                 }
+             });
 
-            // Action (mobile) -> reuse same logic
-            card.find('.slot-action').on('click', function() {
-                handleSlotAction(payload);
-            });
+             // Action (mobile) -> reuse same logic
+             card.find('.slot-action').on('click', function() {
+                 handleSlotAction(payload);
+             });
 
-            container.append(card);
-        });
-    }
+             container.append(card);
+         });
+     }
 
 
      //custom calendar view
-    $('#slotDate').change(function () {
-        
-        const selectedDate = $(this).val();
-        renderMobileSlots(selectedDate);
+     $('#slotDate').change(function() {
 
-    })
+         const selectedDate = $(this).val();
+         renderMobileSlots(selectedDate);
 
-    // today's date on mobile and render:
-    // if (isMobile) {
-        const today = new Date().toISOString().split('T')[0];
-        $('#slotDate').val(today).trigger('change');
-    // }
+     })
 
+     // today's date on mobile and render:
+     // if (isMobile) {
+     const today = new Date().toISOString().split('T')[0];
+     $('#slotDate').val(today).trigger('change');
+     // }
  </script>
  <script src="{{ asset('vendor/intl-tel-input/jquery.mask.js') }}"></script>
  <script src="{{ asset('vendor/intl-tel-input/intlTelInput-jquery.min.js') }}"></script>
