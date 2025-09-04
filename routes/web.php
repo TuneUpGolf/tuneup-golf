@@ -51,6 +51,7 @@ use App\Http\Controllers\Superadmin\Payment\EasebuzzPaymentController;
 use App\Http\Controllers\Superadmin\Payment\IyziPayController;
 use App\Http\Controllers\Superadmin\Payment\BenefitPaymentController;
 use App\Http\Controllers\Superadmin\HelpSectionController;
+use App\Http\Controllers\VideoUploadController;
 use App\Mail\Admin\RequestDemoMail;
 use App\Models\RequestDemo;
 use AWS\CRT\HTTP\Request;
@@ -69,6 +70,7 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
 require __DIR__ . '/auth.php';
 Route::group(['middleware' => ['Setting', 'xss']], function () {
     // request Domain
@@ -203,6 +205,9 @@ Route::group(['middleware' => ['auth', 'Setting', 'xss', '2fa']], function () {
 
     // help section
     Route::resource('help-section', HelpSectionController::class);
+
+    Route::post('/upload-chunk', [VideoUploadController::class, 'uploadChunk'])->name('upload-chunk');
+    Route::post('/finalize-upload', [VideoUploadController::class, 'finalizeUpload'])->name('finalize-upload');
 
     //froentend
     Route::group(['prefix' => 'landingpage-setting'], function () {

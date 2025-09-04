@@ -47,6 +47,11 @@ return [
             'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
         ],
+        'videos' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/videos'), // Points to storage/videos
+            'visibility' => 'public',
+        ],
 
         's3' => [
             'driver' => 's3',
