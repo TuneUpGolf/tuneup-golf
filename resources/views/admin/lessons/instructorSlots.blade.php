@@ -280,7 +280,7 @@
                         unbookButtonHtml =
                             `<button id="unbookBtn" type="button" class="swal2-confirm btn btn-warning">Unbook Students</button>`;
                         noteHtml =
-                            `<textarea name="note" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="5"></textarea>`;
+                            ``;
                     }
 
                     swalWithBootstrapButtons.fire({

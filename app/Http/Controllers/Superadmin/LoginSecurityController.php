@@ -25,6 +25,7 @@ class LoginSecurityController extends Controller
 
     public function show2faForm(Request $request)
     {
+      
         $user               = Auth::user();
         $google2faUrl       = "";
         $secretKey          = "";

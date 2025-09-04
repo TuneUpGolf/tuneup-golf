@@ -34,6 +34,7 @@ class RequestDomainController extends Controller
 {
     public function landingPage()
     {
+      
         $centralDomain     = config('tenancy.central_domains')[0];
         $currentDomain     = tenant('domains');
         if (!empty($currentDomain)) {
@@ -96,6 +97,7 @@ class RequestDomainController extends Controller
 
     public function index(RequestDomainDataTable $dataTable)
     {
+       
         if (Auth::user()->can('manage-domain-request')) {
             return $dataTable->render('superadmin.request-domain.index');
         } else {
