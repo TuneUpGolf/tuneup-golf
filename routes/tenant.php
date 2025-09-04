@@ -186,8 +186,13 @@ Route::middleware([
         Route::post('lesson/slot/add/availability', [LessonController::class, 'addAvailabilitySlots'])->name('slot.availability');
         Route::get('lesson/slot/view', [LessonController::class, 'viewSlots'])->name('slot.view');
         Route::post('lesson/slot/done', [LessonController::class, 'completeSlot'])->name('slot.complete');
+
         Route::post('lesson/slot/booking', [LessonController::class, 'bookSlotApi'])->name('slot.book');
+
+        
         Route::post('lesson/slot/admin', [LessonController::class, 'bookAdminSlot'])->name('slot.admin');
+
+        
         Route::post('lesson/slot/update', [LessonController::class, 'updateSlot'])->name('slot.update');
         Route::post('lesson/slot/delete', [LessonController::class, 'deleteSlot'])->name('slot.delete');
 
