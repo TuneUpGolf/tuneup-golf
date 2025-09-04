@@ -21,16 +21,16 @@
                         <h4 class="my-2">
                             Uploaded help videos, files or images.
                         </h4>
-                        @if($role == 'Admin' || $role == 'Super Admin')
-                        <a href="{{ route('help-section.create') }}" class="btn btn-primary"> <i class="fa fa-plus"></i>
-                            Create</a>
-                            @endif
+                        @if ($role == 'Admin' || $role == 'Super Admin')
+                            <a href="{{ route('help-section.create') }}" class="btn btn-primary"> <i class="fa fa-plus"></i>
+                                Create</a>
+                        @endif
                     </div>
                     <hr />
 
                     {{-- Dummy Cards --}}
                     <div class="row g-3 mt-2">
-                        @foreach ($help_sections as $item)
+                        @forelse ($help_sections as $item)
                             <div class="col-md-4 col-sm-6 mb-3">
                                 <div class="card shadow-sm " style="display: flex; flex-direction: column;">
                                     <div class="card-body text-center d-flex flex-column justify-content-between overflow-hidden mb-4"
@@ -60,14 +60,22 @@
                                                 class="btn btn-sm btn-primary">
                                                 <i class="fa fa-eye"></i> View
                                             </a>
-                                            {{--  <button class="btn btn-sm btn-danger">
-                                                <i class="fa fa-trash"></i> Delete
-                                            </button>  --}}
+                                            @if (auth()->user()->hasAnyRole(['Admin', 'Super Admin']))
+                                                <button class="btn btn-sm btn-danger ms-3 delete-btn"
+                                                    data-id="{{ $item->id }}" data-type="{{ $item->type }}"
+                                                    data-url="{{ $item->url }}">
+                                                    <i class="fa fa-trash"></i> Delete
+                                                </button>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
+                        @empty
+                        <div class="col-md-12">
+                            <h2 class="text-center">No Help Video Found</h2>
+                        </div>
+                        @endforelse
                     </div>
 
                     {{-- Dummy Pagination --}}
@@ -90,3 +98,68 @@
         </div>
     </div>
 @endsection
+
+@push('javascript')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const type = this.getAttribute('data-type');
+                const url = this.getAttribute('data-url');
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch('{{ route('help-section.destroy', ':id') }}'.replace(':id', id), {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]').content
+                                },
+                                body: JSON.stringify({
+                                    type: type,
+                                    url: url
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire(
+                                        'Deleted!',
+                                        'The item has been deleted.',
+                                        'success'
+                                    ).then(() => {
+                                        window.location
+                                    .reload(); // Refresh to update the list
+                                    });
+                                } else {
+                                    Swal.fire(
+                                        'Error!',
+                                        data.message || 'Failed to delete the item.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                Swal.fire(
+                                    'Error!',
+                                    'An error occurred while deleting.',
+                                    'error'
+                                );
+                                console.error(error);
+                            });
+                    }
+                });
+            });
+        });
+    </script>
+@endpush

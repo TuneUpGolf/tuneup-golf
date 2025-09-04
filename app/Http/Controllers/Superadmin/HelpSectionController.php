@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class HelpSectionController extends Controller
 {
@@ -67,19 +68,27 @@ class HelpSectionController extends Controller
         }
     }
 
-    public function show($id)
+    public function destroy(Request $request, $id)
     {
-        dd('show');
-    }
+        $helpSection = HelpSection::findOrFail($id);
+        // Verify user role
+        if (!Auth::user()->hasAnyRole(['Admin', 'Super Admin'])) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
 
-    public function edit($id)
-    {
-        dd('edit');
-    }
+        $filePath = "{$helpSection->url}"; // e.g., videos/Learn MongoDB in 1 Hour 🍃.mp4
 
-    public function update(Request $request, $id)
-    {
-        dd('update', $id);
+        // Adjust path for the public disk (relative to storage/app/public)
+        $publicDiskPath = $filePath; // Assuming videos/ is under storage/app/public
+        // Check if file exists and delete
+        if (Storage::disk('videos')->exists($publicDiskPath)) {
+            Storage::disk('videos')->delete($publicDiskPath);
+        }
+
+        // Delete database record
+        $helpSection->delete();
+
+        return response()->json(['success' => true, 'message' => 'Item deleted successfully']);
     }
 
     // public function sales(SalesDataTable $dataTable)
