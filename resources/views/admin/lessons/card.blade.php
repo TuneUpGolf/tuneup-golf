@@ -24,19 +24,19 @@
             </a>
             <div class="text-lg font-bold tracking-tight text-primary">
                 {!! $subtitle !!}
-                {!! $availableSlots > 0?"<p>$availableSlots Slots available.</p>":'' !!}
+                {{-- {!! $availableSlots > 0?"<p>$availableSlots Slots available.</p>":'' !!} --}}
             </div>
             <div class="text-sm font-medium text-gray-500 italic">
                 {{-- <span class="">({!! \App\Models\Purchase::where('lesson_id', $model->id)->where('status',
                     'complete')->count() !!} Purchased)</span> --}}
-                <div class="flex flex-row justify-between">
+                {{-- <div class="flex flex-row justify-between">
                     @if ($model->is_package_lesson && !$model->packages->isEmpty())
                         <div class="bg-green-500 text-white text-sm font-bold px-2 py-1 rounded-full">
                             Package
                             Lesson
                         </div>
                     @endif
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
