@@ -27,6 +27,7 @@ class HelpSectionController extends Controller
             }
             return $query;
         })
+            ->orderBy('id', 'desc')
             ->paginate(8);
         return view('superadmin.help-section.index', compact('help_sections', 'role'));
     }
@@ -72,40 +73,45 @@ class HelpSectionController extends Controller
 
     public function destroy(Request $request, $id)
     {
-        // $helpSection = HelpSection::findOrFail($id);
-        // // Verify user role
-        // if (!Auth::user()->hasAnyRole(['Admin', 'Super Admin'])) {
-        //     return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
-        // }
-
-        // $filePath = "{$helpSection->url}"; // e.g., videos/Learn MongoDB in 1 Hour 🍃.mp4
-
-        // // Adjust path for the public disk (relative to storage/app/public)
-        // $publicDiskPath = $filePath; // Assuming videos/ is under storage/app/public
-        // // Check if file exists and delete
-        // if (Storage::disk('videos')->exists($publicDiskPath)) {
-        //     Storage::disk('videos')->delete($publicDiskPath);
-        // }
-
-        // // Delete database record
-        // $helpSection->delete();
-
         $helpSection = HelpSection::findOrFail($id);
         // Verify user role
         if (!Auth::user()->hasAnyRole(['Admin', 'Super Admin'])) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        $filePath = "assets/videos/{$helpSection->url}";
-        $publicPath = public_path($filePath);
+        $filePath = "{$helpSection->url}"; // e.g., videos/Learn MongoDB in 1 Hour 🍃.mp4
 
-        // Check if file exists and delete
-        if (File::exists($publicPath)) {
-            File::delete($publicPath);
+        // Adjust path for the public disk (relative to storage/app/public)
+        $publicDiskPath = $filePath; // Assuming videos/ is under storage/app/public
+        $file = strstr($publicDiskPath, 'videos/');
+        $file = str_replace('videos/', '', $file);
+        if(!is_null($file)){
+            if (Storage::disk('videos')->exists($file)) {
+                Storage::disk('videos')->delete($file);
+            }
         }
 
-        // Delete database record
+        // Check if file exists and delete
+
+        // // Delete database record
         $helpSection->delete();
+
+        // $helpSection = HelpSection::findOrFail($id);
+        // // Verify user role
+        // if (!Auth::user()->hasAnyRole(['Admin', 'Super Admin'])) {
+        //     return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        // }
+
+        // $filePath = "assets/videos/{$helpSection->url}";
+        // $publicPath = public_path($filePath);
+
+        // // Check if file exists and delete
+        // if (File::exists($publicPath)) {
+        //     File::delete($publicPath);
+        // }
+
+        // // Delete database record
+        // $helpSection->delete();
 
         return response()->json(['success' => true, 'message' => 'Item deleted successfully']);
     }
