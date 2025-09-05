@@ -1087,11 +1087,20 @@
 
      // format time on mobile screen
      function formatTime(date) {
-         let hours = date.getHours();
-         const minutes = date.getMinutes().toString().padStart(2, "0");
-         const ampm = hours >= 12 ? "pm" : "am";
-         hours = hours % 12;
-         hours = hours ? hours : 12; // 0 => 12
+        console.log('f1',date)
+        let hours = date.getHours();
+        console.log('f2',hours)
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        console.log('f3',minutes)
+        const ampm = hours >= 12 ? "pm" : "am";
+        console.log('f4',ampm)
+        hours = hours % 12;
+        console.log('f5',hours)
+        hours = hours ? hours : 12; // 0 => 12
+        console.log('f6',hours)
+
+        console.log('f7',hours, minutes, ampm)
+
          return `${hours}:${minutes}${ampm}`;
      }
 
@@ -1118,9 +1127,15 @@
              const lessonText =
                  `${payload.lesson?.lesson_name || 'Lesson'} (${payload.lesson?.booked || 0}/${payload.lesson?.capacity || 1})`;
              const start = new Date(payload.slot.date_time); // e.g. "2025-09-02 13:00:00"
+
+             console.log('1', start)
              const durationInMinutes = payload.slot.lesson.lesson_duration * 60; // 0.5 -> 30 mins
+             console.log('2', durationInMinutes)
              const end = new Date(start.getTime() + durationInMinutes * 60000);
+             console.log('3', end)
              const formattedTimeRange = `${formatTime(start)} - ${formatTime(end)}`;
+             console.log('4', formattedTimeRange)
+             
              const myClass = ev.className.split(' ')[0] || '';
 
              const card = $(`
