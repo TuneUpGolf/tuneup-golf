@@ -29,7 +29,7 @@
     "laravel/socialite": "^5.5",
     "laravel/tinker": "^2.7",
     "laravel/ui": "^4.1",
-    "laravelcollective/html": "^6.3",
+    "laravelcollective/html": "^6.4",
     "league/flysystem-aws-s3-v3": "^3.10",
     "lorisleiva/laravel-actions": "^2.7",
     "maatwebsite/excel": "*",

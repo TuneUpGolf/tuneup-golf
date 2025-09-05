@@ -209,6 +209,7 @@ return [
         Srmklive\PayPal\Providers\PayPalServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
         Anhskohbo\NoCaptcha\NoCaptchaServiceProvider::class,
+        Collective\Html\HtmlServiceProvider::class,
         /* End */
 
     ],
@@ -235,6 +236,8 @@ return [
         'NoCaptcha' => Anhskohbo\NoCaptcha\Facades\NoCaptcha::class,
         'tenant_model' => \App\Models\Tenant::class,
         'Datatables' => Yajra\Datatables\Facades\Datatables::class,
+        'Form' => Collective\Html\FormFacade::class,
+        'Html' => Collective\Html\HtmlFacade::class,
     ])->toArray(),
 
 ];
