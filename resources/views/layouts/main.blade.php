@@ -42,7 +42,7 @@
     @if (Auth::user()->dark_layout == 1)
         <link rel="stylesheet" href="{{ asset('assets/css/style-dark.css') }}" id="main-style-link">
     @elseif(Auth::user()->rtl_layout != '1') --}}
-    <link rel="stylesheet" href="{{ asset('assets/css/style.css?v=03.09.2025') }}" id="main-style-link">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css?v=05.09.2025') }}" id="main-style-link">
     {{-- @endif --}}
     @stack('css')
 </head>
