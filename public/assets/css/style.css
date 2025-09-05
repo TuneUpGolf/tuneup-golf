@@ -30683,7 +30683,7 @@ body.loading {
   word-break: break-all;
 }
 
-p.leading-relaxed {
+#instructorPopup div.p-6 {
   overflow-y: auto;
   max-height: 260px;
 }
@@ -30724,7 +30724,7 @@ p.leading-relaxed {
   .chat-box audio {
     max-width: 260px;
   }
-  p.leading-relaxed {
+  #instructorPopup div.p-6 {
     max-height: 230px;
   }
 }
