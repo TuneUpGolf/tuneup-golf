@@ -1091,7 +1091,7 @@
         let hours = date.getHours();
         console.log('f2',hours)
         const minutes = date.getMinutes().toString().padStart(2, "0");
-        console.log('f3',minute)
+        console.log('f3',minutes)
         const ampm = hours >= 12 ? "pm" : "am";
         console.log('f4',ampm)
         hours = hours % 12;
