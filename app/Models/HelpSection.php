@@ -9,5 +9,6 @@ class HelpSection extends Model
 {
     use HasFactory;
     protected $table = 'help_sections';
+    protected $connection = "mysql";
     protected $fillable = ['role', 'url', 'type', 'title'];
 }
