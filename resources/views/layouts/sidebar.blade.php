@@ -319,23 +319,27 @@
                                 <span class="dash-mtext">{{ __('Post') }}</span><span class="dash-arrow"><i
                                         data-feather="chevron-right"></i></span></a>
                             <ul class="dash-submenu">
-                                @can('create-blog')
-                                    <li class="dash-item {{ request()->is('blogs/create') ? 'active' : '' }}">
-                                        <a class="dash-link"
-                                            href="{{ route('blogs.create') }}">{{ __('Create New Post') }}</a>
-                                    </li>
-                                @endcan
+                                @if ($userType === 'Instructor')
+                                    @can('create-blog')
+                                        <li class="dash-item {{ request()->is('blogs/create') ? 'active' : '' }}">
+                                            <a class="dash-link"
+                                                href="{{ route('blogs.create') }}">{{ __('Create New Post') }}</a>
+                                        </li>
+                                    @endcan
+                                @endif
                                 @can('manage-blog')
                                     <li class="dash-item {{ request()->is('blogs') ? 'active' : '' }}">
                                         <a class="dash-link" href="{{ route('blogs.index') }}">{{ __('Feed') }}</a>
                                     </li>
                                 @endcan
-                                @can('manage-blog')
-                                    <li class="dash-item {{ request()->is('blogs/manage/posts') ? 'active' : '' }}">
-                                        <a class="dash-link"
-                                            href="{{ route('blogs.manage') }}">{{ __('Manage Posts') }}</a>
-                                    </li>
-                                @endcan
+                                @if ($userType === 'Instructor')
+                                    @can('manage-blog')
+                                        <li class="dash-item {{ request()->is('blogs/manage/posts') ? 'active' : '' }}">
+                                            <a class="dash-link"
+                                                href="{{ route('blogs.manage') }}">{{ __('Manage Posts') }}</a>
+                                        </li>
+                                    @endcan
+                                @endif
                                 @if ($userType == 'Admin')
                                     @can('manage-blog')
                                         <li class="dash-item {{ request()->is('blogs/manage/report') ? 'active' : '' }}">
