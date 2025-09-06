@@ -91,7 +91,12 @@
             <div class="page-header">
                 <div class="page-block">
                     <div class="row align-items-center">
-                        <h2 class="text-3xl mb-0">@yield('title')</h2>
+                        @php
+                            $isHomePage = request()->routeIs('home'); // true for /home and /home?view=...
+                        @endphp
+                        @if(!(auth()->user()->type == 'Student' && $isHomePage))
+                            <h2 class="text-3xl mb-0">@yield('title')</h2>
+                        @endif
                         <!-- <div class="col-auto">
                             <ul class="breadcrumb">
                                 @yield('breadcrumb')
