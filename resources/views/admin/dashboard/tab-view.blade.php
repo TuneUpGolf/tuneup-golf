@@ -80,15 +80,58 @@ $isChatTab = isset($token) ? true : false;
             </div>
             --}}
             <div class="tab dashboard-tab">
-               <button class="tablinks {{ $tab == 'in-person'? 'active' : '' }}" onclick="window.location.href='home?view=in-person'">In-Person Lessons</button>
-               <button class="tablinks {{ $tab == 'online'? 'active' : '' }}" onclick="window.location.href='home?view=online'">Online Lessons</button>
-               <button class="tablinks {{ $tab == 'my-lessons'? 'active' : '' }}" onclick="window.location.href='home?view=my-lessons'">My Lessons</button>
-               <button class="tablinks {{ $tab == 'posts'? 'active' : '' }}" onclick="window.location.href='home?view=posts'">Tips & Drills</button>
-               @if ($user->type == 'Student')   
-               <button class="tablinks {{ $tab == 'subscriptions' ? 'active' : '' }}" onclick="window.location.href='home?view=subscriptions'">Subscriptions</button>
-               <button class="tablinks {{ $tab == 'chat'? 'active' : '' }}" onclick="window.location.href='home?view=chat'">Chat</button>
-               @endif
-            </hr>
+                <!-- Desktop Tabs -->
+                <div class="d-none d-md-flex">
+                    <button class="tablinks {{ $tab == 'in-person'? 'active' : '' }}" onclick="window.location.href='home?view=in-person'">In-Person Lessons</button>
+                    <button class="tablinks {{ $tab == 'online'? 'active' : '' }}" onclick="window.location.href='home?view=online'">Online Lessons</button>
+                    <button class="tablinks {{ $tab == 'my-lessons'? 'active' : '' }}" onclick="window.location.href='home?view=my-lessons'">My Lessons</button>
+                    <button class="tablinks {{ $tab == 'posts'? 'active' : '' }}" onclick="window.location.href='home?view=posts'">Tips & Drills</button>
+                    @if ($user->type == 'Student')   
+                    <button class="tablinks {{ $tab == 'subscriptions' ? 'active' : '' }}" onclick="window.location.href='home?view=subscriptions'">Subscriptions</button>
+                    <button class="tablinks {{ $tab == 'chat'? 'active' : '' }}" onclick="window.location.href='home?view=chat'">Chat</button>
+                    @endif
+                </div>
+                <!-- Mobile Accordion Tabs -->
+                <div class="d-md-none">
+                    <div class="accordion-tab" id="acc-in-person">
+                        <div class="accordion-header">In-Person Lessons</div>
+                        <div class="accordion-content">
+                            <button class="tablinks {{ $tab == 'in-person'? 'active' : '' }}" onclick="window.location.href='home?view=in-person'">Go to In-Person Lessons</button>
+                        </div>
+                    </div>
+                    <div class="accordion-tab" id="acc-online">
+                        <div class="accordion-header">Online Lessons</div>
+                        <div class="accordion-content">
+                            <button class="tablinks {{ $tab == 'online'? 'active' : '' }}" onclick="window.location.href='home?view=online'">Go to Online Lessons</button>
+                        </div>
+                    </div>
+                    <div class="accordion-tab" id="acc-my-lessons">
+                        <div class="accordion-header">My Lessons</div>
+                        <div class="accordion-content">
+                            <button class="tablinks {{ $tab == 'my-lessons'? 'active' : '' }}" onclick="window.location.href='home?view=my-lessons'">Go to My Lessons</button>
+                        </div>
+                    </div>
+                    <div class="accordion-tab" id="acc-posts">
+                        <div class="accordion-header">Tips & Drills</div>
+                        <div class="accordion-content">
+                            <button class="tablinks {{ $tab == 'posts'? 'active' : '' }}" onclick="window.location.href='home?view=posts'">Go to Tips & Drills</button>
+                        </div>
+                    </div>
+                    @if ($user->type == 'Student')   
+                    <div class="accordion-tab" id="acc-subscriptions">
+                        <div class="accordion-header">Subscriptions</div>
+                        <div class="accordion-content">
+                            <button class="tablinks {{ $tab == 'subscriptions' ? 'active' : '' }}" onclick="window.location.href='home?view=subscriptions'">Go to Subscriptions</button>
+                        </div>
+                    </div>
+                    <div class="accordion-tab" id="acc-chat">
+                        <div class="accordion-header">Chat</div>
+                        <div class="accordion-content">
+                            <button class="tablinks {{ $tab == 'chat'? 'active' : '' }}" onclick="window.location.href='home?view=chat'">Go to Chat</button>
+                        </div>
+                    </div>
+                    @endif
+                </div>
             </div>
             <div class="card tabcontent">
                <div class="flex flex-col w-100">
@@ -216,8 +259,39 @@ $isChatTab = isset($token) ? true : false;
 @include('layouts.includes.datatable_css')
 <link rel="stylesheet"
    href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
+<style>
+@media (max-width: 768px) {
+    .dashboard-tab {
+        display: block;
+    }
+    .accordion-tab {
+        border: 1px solid #eee;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        overflow: hidden;
+    }
+    .accordion-header {
+        background: #f7f7f7;
+        padding: 12px 16px;
+        cursor: pointer;
+        font-weight: bold;
+        border-bottom: 1px solid #eee;
+    }
+    .accordion-content {
+        display: none;
+        padding: 12px 16px;
+        background: #fff;
+    }
+    .accordion-tab.active .accordion-content {
+        display: block;
+    }
+}
+</style>
 @endpush
 @push('javascript')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.4.1/jquery.jscroll.min.js"></script>
+
 <script>   
    $('ul.pagination').hide();
    $(function() {
@@ -232,6 +306,19 @@ $isChatTab = isset($token) ? true : false;
                $('ul.pagination').remove();
            }
        });
+
+       // Accordion for mobile
+       if ($(window).width() < 768) {
+           $('.accordion-tab').removeClass('active');
+           $('.accordion-tab').first().addClass('active');
+           $('.accordion-header').on('click', function() {
+               var parent = $(this).parent();
+               if (!parent.hasClass('active')) {
+                   $('.accordion-tab').removeClass('active');
+                   parent.addClass('active');
+               }
+           });
+       }
    });
 </script>
 @endpush
