@@ -52,7 +52,7 @@
                             <div class="col-md-4">
                                 <div class=" bg-gray rounded-lg shadow h-100  flex flex-col">
                                     <div class="relative text-center p-3 flex gap-3">
-                                        <img src="{{ asset('storage/' . tenant()->id . '/' . ($instructors[0]->avatar ?? $instructors[0]->dp)) }}"
+                                        <img src="{{ Utility::getsettings('app_logo') ? Utility::getpath('logo/app-logo.png') : asset('assets/images/app-logo.png') }}"
                                             alt="{{ $instructors[0]->name }}"
                                             class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
                                         <div class="text-left">
@@ -95,28 +95,27 @@
                             </div>
                         @else
                             @php
-                                $total_price = 0;
                                 $slots = 0;
                                 $slots += $lesson?->packages->sum('number_of_slot');
-                                $total_price += $lesson?->packages->sum('price');
                                 $packages_array = [];
                                 foreach ($lesson?->packages as $package) {
-                                    $packages_array[] = $package->number_of_slot . ' - ' . $package->price . ' USD ';
+                                    $packages_array[] =
+                                        $package->number_of_slot . ' Lesson ' . ' - ' . $package->price . ' USD ';
                                 }
                             @endphp
                             <div class="col-md-4">
                                 <div
-                                    class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col h-full">
+                                    class="w-full bg-gray border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col h-full">
                                     <div class="relative text-center p-3 flex gap-3">
 
-                                        <img src="{{ asset('storage/' . tenant()->id . '/' . ($instructors[0]->avatar ?? $instructors[0]->dp)) }}"
+                                        <img src="{{ Utility::getsettings('app_logo') ? Utility::getpath('logo/app-logo.png') : asset('assets/images/app-logo.png') }}"
                                             class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
                                         <div class="text-left">
                                             <a class="font-bold text-dark text-xl" href="{{ route('login') }}">
                                                 {{ $instructors[0]->name }}
                                             </a>
                                             <div class="text-lg font-bold tracking-tight text-primary">
-                                                $ {{ $total_price }} (USD)
+                                                $ 00.00
                                                 <p>{{ $slots }} Slots available.</p>
                                             </div>
                                             <div class="text-sm font-medium text-gray-500 italic">
@@ -140,27 +139,16 @@
 
                                         </div>
 
-                                        {{--  <div class="mb-3 p-3 border rounded-lg shadow-sm bg-white">
-                                            <h2 class="text-lg font-semibold flex items-center mb-2">
-                                                <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-width="2"
-                                                        d="M8 7V3m8 4V3m-9 8h10m-10 4h6m4 8H5a2 2 0 01-2-2V7a2 2 0 012-2h3l2-2h4l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2z">
-                                                    </path>
-                                                </svg>
-                                                Package Options Available
-                                            </h2>
+                                        <div class="mb-3 p-3 border rounded-lg shadow-sm bg-white">
                                             <p class="text-sm text-gray-500 mb-3">Save more with multi-lesson packages</p>
-                                            <form class="space-y-3">
-                                                <select class="form-select" name="package_slot" id="package_slot_3">
-                                                    @forelse($packages_array as $package)
-                                                        <option value="{{ $package }}">{{ $package }}</option>
-                                                    @empty
-                                                        <option value="">No Package Available</option>
-                                                    @endforelse
-                                                </select>
-                                            </form>
-                                        </div>  --}}
+                                            <select name="package_slot"
+                                                class="no-nice-select w-full border rounded-lg p-2 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                                <option value="--">Select Option</option>
+                                                @foreach ($packages_array as $package)
+                                                    <option value="{{ $package }}">{{ $package }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
 
                                         <div class="w-100 mt-3">
 
@@ -187,194 +175,6 @@
                     @empty
                         <h3>No Lessons Found</h3>
                     @endforelse
-                    {{--  <div class="col-md-3">
-                        <div class=" bg-gray rounded-lg shadow h-100  flex flex-col">
-                            <div class="relative text-center p-3 flex gap-3">
-                                <img src="https://tune-golf.nyc3.digitaloceanspaces.com/fitnessgoals.tuneupclub.com/uploads/avatar/influencer/2/1750961833.png"
-                                    alt="Sarah Smith"
-                                    class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
-                                <div class="text-left">
-                                    <a class="font-bold text-dark text-xl" href="https://fitnessgoals.tuneupclub.com/login"
-                                        tabindex="0">
-                                        Sarah Smith
-                                    </a>
-                                    <div class="text-lg font-bold tracking-tight text-primary">
-                                        $ 50.00 (USD)
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                                <span class="text-xl font-semibold text-dark">Putting Lesson</span>
-                                <div class="description-wrapper relative expanded">
-                                    <div class="short-text break-all clamp-text" id="lessonDesc">
-                                        <ul>
-                                            <li>Upload a video from down-the-line and face-on</li>
-                                            <li>Breakdown of stroke path, face angle, and rhythm</li>
-                                            <li>Simple fixes and drills to improve consistency</li>
-                                        </ul>
-
-                                    </div>
-                                    <a href="#" class="read-toggle text-blue-600 font-medium mt-1 inline-block"
-                                        onclick="toggleRead(this); return false;" tabindex="0">&lt;&lt; Read Less</a>
-                                </div>
-
-                                <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3">
-                                    <div class="text-center">
-                                        <span class="text-xl font-bold">2 Days</span>
-                                        <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
-                                    </div>
-                                </div>
-                                <div class="w-100 mt-3">
-
-                                    <a href="https://fitnessgoals.tuneupclub.com/login" tabindex="0">
-                                        <button type="submit" class="lesson-btn py-2" tabindex="0">Purchase</button>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class=" bg-gray rounded-lg shadow h-100  flex flex-col">
-                            <div class="relative text-center p-3 flex gap-3">
-                                <img src="https://tune-golf.nyc3.digitaloceanspaces.com/fitnessgoals.tuneupclub.com/uploads/avatar/influencer/2/1750961833.png"
-                                    alt="Sarah Smith"
-                                    class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
-                                <div class="text-left">
-                                    <a class="font-bold text-dark text-xl" href="https://fitnessgoals.tuneupclub.com/login"
-                                        tabindex="0">
-                                        Sarah Smith
-                                    </a>
-                                    <div class="text-lg font-bold tracking-tight text-primary">
-                                        $ 50.00 (USD)
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                                <span class="text-xl font-semibold text-dark">Putting Lesson</span>
-                                <div class="description-wrapper relative expanded">
-                                    <div class="short-text break-all clamp-text" id="lessonDesc">
-                                        <ul>
-                                            <li>Upload a video from down-the-line and face-on</li>
-                                            <li>Breakdown of stroke path, face angle, and rhythm</li>
-                                            <li>Simple fixes and drills to improve consistency</li>
-                                        </ul>
-
-                                    </div>
-                                    <a href="#" class="read-toggle text-blue-600 font-medium mt-1 inline-block"
-                                        onclick="toggleRead(this); return false;" tabindex="0">&lt;&lt; Read Less</a>
-                                </div>
-
-                                <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3">
-                                    <div class="text-center">
-                                        <span class="text-xl font-bold">2 Days</span>
-                                        <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
-                                    </div>
-                                </div>
-                                <div class="w-100 mt-3">
-
-                                    <a href="https://fitnessgoals.tuneupclub.com/login" tabindex="0">
-                                        <button type="submit" class="lesson-btn py-2" tabindex="0">Purchase</button>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class=" bg-gray rounded-lg shadow h-100  flex flex-col">
-                            <div class="relative text-center p-3 flex gap-3">
-                                <img src="https://tune-golf.nyc3.digitaloceanspaces.com/fitnessgoals.tuneupclub.com/uploads/avatar/influencer/2/1750961833.png"
-                                    alt="Sarah Smith"
-                                    class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
-                                <div class="text-left">
-                                    <a class="font-bold text-dark text-xl"
-                                        href="https://fitnessgoals.tuneupclub.com/login" tabindex="0">
-                                        Sarah Smith
-                                    </a>
-                                    <div class="text-lg font-bold tracking-tight text-primary">
-                                        $ 50.00 (USD)
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                                <span class="text-xl font-semibold text-dark">Putting Lesson</span>
-                                <div class="description-wrapper relative expanded">
-                                    <div class="short-text break-all clamp-text" id="lessonDesc">
-                                        <ul>
-                                            <li>Upload a video from down-the-line and face-on</li>
-                                            <li>Breakdown of stroke path, face angle, and rhythm</li>
-                                            <li>Simple fixes and drills to improve consistency</li>
-                                        </ul>
-
-                                    </div>
-                                    <a href="#" class="read-toggle text-blue-600 font-medium mt-1 inline-block"
-                                        onclick="toggleRead(this); return false;" tabindex="0">&lt;&lt; Read Less</a>
-                                </div>
-
-                                <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3">
-                                    <div class="text-center">
-                                        <span class="text-xl font-bold">2 Days</span>
-                                        <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
-                                    </div>
-                                </div>
-                                <div class="w-100 mt-3">
-
-                                    <a href="https://fitnessgoals.tuneupclub.com/login" tabindex="0">
-                                        <button type="submit" class="lesson-btn py-2" tabindex="0">Purchase</button>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class=" bg-gray rounded-lg shadow h-100  flex flex-col">
-                            <div class="relative text-center p-3 flex gap-3">
-                                <img src="https://tune-golf.nyc3.digitaloceanspaces.com/fitnessgoals.tuneupclub.com/uploads/avatar/influencer/2/1750961833.png"
-                                    alt="Sarah Smith"
-                                    class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
-                                <div class="text-left">
-                                    <a class="font-bold text-dark text-xl"
-                                        href="https://fitnessgoals.tuneupclub.com/login" tabindex="0">
-                                        Sarah Smith
-                                    </a>
-                                    <div class="text-lg font-bold tracking-tight text-primary">
-                                        $ 50.00 (USD)
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                                <span class="text-xl font-semibold text-dark">Putting Lesson</span>
-                                <div class="description-wrapper relative expanded">
-                                    <div class="short-text break-all clamp-text" id="lessonDesc">
-                                        <ul>
-                                            <li>Upload a video from down-the-line and face-on</li>
-                                            <li>Breakdown of stroke path, face angle, and rhythm</li>
-                                            <li>Simple fixes and drills to improve consistency</li>
-                                        </ul>
-
-                                    </div>
-                                    <a href="#" class="read-toggle text-blue-600 font-medium mt-1 inline-block"
-                                        onclick="toggleRead(this); return false;" tabindex="0">&lt;&lt; Read Less</a>
-                                </div>
-
-                                <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3">
-                                    <div class="text-center">
-                                        <span class="text-xl font-bold">2 Days</span>
-                                        <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
-                                    </div>
-                                </div>
-                                <div class="w-100 mt-3">
-
-                                    <a href="https://fitnessgoals.tuneupclub.com/login" tabindex="0">
-                                        <button type="submit" class="lesson-btn py-2" tabindex="0">Purchase</button>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>  --}}
                 </div>
             @else
                 <div class="container ctm-container">
@@ -394,7 +194,7 @@
                                         alt="Instructor Avatar">
                                     <h1 class="text-xl font-bold truncate mt-2">{{ $instructor->name }}</h1>
                                 </a>
-                                {{--  <div class="py-2">
+                                <div class="py-2">
                                     <button
                                         onclick='openInstructorPopup(
                                         @json($instructor->name),
@@ -410,7 +210,7 @@
                                         class="read-more-btn text-blue-600 hover:text-blue-800 underline text-sm">
                                         View Bio
                                     </button>
-                                </div>  --}}
+                                </div>
                             </div>
                         @endforeach
                     </div>
@@ -511,8 +311,11 @@
 @endpush
 
 @push('javascript')
+    <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
+
     <script>
         console.log("Popup JS Loaded");
+
 
         function openInstructorPopup(name, imageSrc, bio, lessons = [], currency = '') {
             console.log("Popup clicked:", name);
@@ -524,7 +327,7 @@
             document.getElementById('popupInstructorBio').textContent = bio;
 
             // Render lessons
-            const lessonsContainer = document.getElementById('popupInstructorLessons');
+            {{--  const lessonsContainer = document.getElementById('popupInstructorLessons');
             lessonsContainer.innerHTML = '';
             if (lessons.length > 0) {
                 lessons.forEach(lesson => {
@@ -537,7 +340,7 @@
             } else {
                 lessonsContainer.innerHTML =
                     '<span class="text-gray-500 text-sm">No lessons available</span>';
-            }
+            }  --}}
 
             // Show popup
             const popup = document.getElementById('instructorPopup');
