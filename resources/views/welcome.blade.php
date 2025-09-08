@@ -34,11 +34,10 @@
                 alt="hero-banner">
         </div>
     </section>
-
     @if (trim($admin->bio) != '')
         <section class="lession-sec">
             <div class="container ctm-container">
-                <h2 class="font-bold text-4xl mb-2">{{ $bio_heading ?? $admin->name }}</h2>
+                <h2 class="font-bold text-4xl mb-2">{{ !empty($bio_heading) ? $bio_heading : $admin->name }}</h2>
                 <p class="text-xl text-gray-600">{{ $admin->bio }}</p>
             </div>
         </section>
@@ -133,7 +132,7 @@
 
 
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                                        <h3 style="font-size: 20px;font-weight:bold"> {{ $instructors[0]->name }}</h3>
+                                        <h3 style="font-size: 20px;font-weight:bold"> By Package Lesson</h3>
                                         <p>{!! $lesson?->lesson_description !!}</p>
 
                                         <div class="mb-3 p-3 border rounded-lg shadow-sm bg-white">
