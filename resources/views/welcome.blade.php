@@ -115,7 +115,7 @@
                                                 {{ $instructors[0]->name }}
                                             </a>
                                             <div class="text-lg font-bold tracking-tight text-primary">
-                                                $ 00.00 (USD)
+                                                $ 00.00
                                                 <p>{{ $slots }} Slots available.</p>
                                             </div>
                                             <div class="text-sm font-medium text-gray-500 italic">
