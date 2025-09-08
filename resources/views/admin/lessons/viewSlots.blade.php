@@ -7,16 +7,12 @@
 @section('content')
 
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
- <style>
- .title {
-  display: none; /* hidden as soon as page starts loading */
-}
- </style>
+
  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
  <div class="main-content">
      <section class="section">
          <div class="section-body">
-             <div class="m-auto col-lg-3 col-md-8 col-xxl-4">
+             {{--  <div class="m-auto col-lg-3 col-md-8 col-xxl-4">
 
                  <div class="card card-width-manageSlots">
                      <div class="flex justify-between items-center card-header  w-100 ">
@@ -57,26 +53,135 @@
                      </div>
                  </div>
 
-             </div>
+             </div>  --}}
              {{-- <div id="calendar"></div> --}}
              <div class="custom-calendar-mobile-view">
-                 <div class="row">
+                 {{--  <div class="row">
                      <div class="col-sm-12">
                          <div class="card">
                              <div class="card-header d-flex justify-content-between align-items-center">
                                  <h5> {{ __('Calendar') }} </h5>
                              </div>
-                             <div class="card-body">
-                                 <div class="form-group">
+                             <div class="row card-body">
+                                 <div class="col-md-3">
                                      <label for="slotDate">Date</label>
                                      <div id="slotDate"></div>
+                                 </div>
+                                 <div class="col-md-4 sm:mt-4">
+                                     <div class="card card-width-manageSlots">
+                                         <div class="sm:flex justify-between items-center card-header  w-100 hidden">
+                                             @if (Auth::user()->type === 'Student')
+                                                 <h5>{{ __('Book Slot') }}</h5>
+                                                 <p>{{ __('Click on an avaialble slot to book') }}</p>
+                                             @else
+                                                 <div>
+                                                     <h5>{{ __('Manage Slots') }}</h5>
+                                                     <div class="pt-2">
+                                                         <p class="mb-0 text-muted">Name:
+                                                             <strong>{{ $lesson->lesson_name }}</strong>
+                                                         </p>
+                                                         @if ($lesson->is_package_lesson)
+                                                             <span class="badge bg-primary">Package Lesson</span>
+                                                         @endif
+                                                     </div>
+                                                 </div>
+                                                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                                                     <a class="text-white"
+                                                         href="{{ route('slot.create', ['lesson_id' => $lesson_id]) }}">
+                                                         {{ __('Add New Slot') }}
+                                                     </a>
+                                                 </button>
+                                             @endif
+                                         </div>
+                                         <div class="flex justify-center my-2 gap-2">
+                                             <div class="flex gap-1 items-center">
+                                                 <div class="completed-key"></div>
+                                                 <span>Completed</span>
+                                             </div>
+                                             <div class="flex gap-1 items-center">
+                                                 <div class="booked-key"></div>
+                                                 <span>Booked</span>
+                                             </div>
+                                             <div class="flex gap-1 items-center">
+                                                 <div class="avaialable-key"></div>
+                                                 <span>Available</span>
+                                             </div>
+                                         </div>
+                                     </div>
                                  </div>
 
                                  <div id="slotListContainer" class="row"></div>
                              </div>
                          </div>
                      </div>
+                 </div>  --}}
+                 <div class="row">
+                     <div class="col-sm-12">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5>{{ __('Calendar') }}</h5>
+        </div>
+        <div class="row card-body">
+            <!-- Calendar Column -->
+            <div class="col-12 col-md-6 col-lg-5 mb-3 mb-lg-0">
+                <label for="slotDate">Date</label>
+                <div id="slotDate"></div>
+            </div>
+
+            <!-- Slots Column -->
+            <div class="col-12 col-md-6 col-lg-7 mb-3 mb-lg-0">
+                <div class="card card-width-manageSlots">
+                    <!-- Hide on small, show on large -->
+                    <div class="d-none d-lg-flex justify-content-between align-items-center card-header w-100">
+                        @if (Auth::user()->type === 'Student')
+                            <h5>{{ __('Book Slot') }}</h5>
+                            <p>{{ __('Click on an available slot to book') }}</p>
+                        @else
+                            <div>
+                                <h5>{{ __('Manage Slots') }}</h5>
+                                <div class="pt-2">
+                                    <p class="mb-0 text-muted">Name:
+                                        <strong>{{ $lesson->lesson_name }}</strong>
+                                    </p>
+                                    @if ($lesson->is_package_lesson)
+                                        <span class="badge bg-primary">Package Lesson</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                                <a class="text-white" href="{{ route('slot.create', ['lesson_id' => $lesson_id]) }}">
+                                    {{ __('Add New Slot') }}
+                                </a>
+                            </button>
+                        @endif
+                    </div>
+
+                    <!-- Keys -->
+                    <div class="flex md:justify-center my-2 gap-2">
+                        <div class="flex gap-1 items-center">
+                            <div class="completed-key"></div>
+                            <span>Completed</span>
+                        </div>
+                        <div class="flex gap-1 items-center">
+                            <div class="booked-key"></div>
+                            <span>Booked</span>
+                        </div>
+                        <div class="flex gap-1 items-center">
+                            <div class="avaialable-key"></div>
+                            <span>Available</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slot List -->
+            <div id="slotListContainer" class="row"></div>
+        </div>
+    </div>
+</div>
+
                  </div>
+
              </div>
          </div>
      </section>
@@ -117,10 +222,10 @@
              }
          });
          document.addEventListener("DOMContentLoaded", function() {
-            document.querySelectorAll('.title').forEach(el => {
-                el.style.display = 'none';
-            });
-        });
+             document.querySelectorAll('.title').forEach(el => {
+                 el.style.display = 'none';
+             });
+         });
      </script>
 
      {{ Form::open([
@@ -146,6 +251,11 @@
 @endsection
 @push('css')
  <style>
+     .title {
+         display: none;
+         /* hidden as soon as page starts loading */
+     }
+
      .choices__inner {
          text-align: left;
      }
