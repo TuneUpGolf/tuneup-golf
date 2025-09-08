@@ -134,7 +134,7 @@
                             </div>
                             <div class="form-group">
                                 {{ Form::label('payment_method', __('Payment Method'), ['class' => 'form-label']) }}
-                                {!! Form::select('payment_method', ['online' => 'Online', 'cash' => 'Cash', 'both' => 'Both'], null, [
+                                {!! Form::select('payment_method', ['online' => 'Online', 'cash' => 'Pay at facility or cash', 'both' => 'Both'], null, [
                                     'class' => 'form-control',
                                     'data-trigger',
                                     'placeholder' => __('Payment Method'),
