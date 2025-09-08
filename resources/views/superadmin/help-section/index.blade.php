@@ -35,19 +35,20 @@
                                 <div class="card shadow-sm " style="display: flex; flex-direction: column;">
                                     <div class="card-body text-center d-flex flex-column justify-content-between overflow-hidden mb-4"
                                         style="height: 250px;min-height: 229px;">
+                                        <p class="mb-2 font-bold">{{ $item['title'] }}</p>
+
                                         <div class="mb-2 d-flex flex-column">
                                             @if ($item['type'] == 'video')
                                                 <video class="w-100 rounded" style="max-height: 150px; object-fit: cover;"
                                                     controls>
-                                                    <source src="{{ asset('assets/videos/' . $item['url']) }}"
+                                                    <source src="{{ $item['url'] }}"
                                                         type="video/mp4">
                                                     Your browser does not support the video tag.
                                                 </video>
                                             @elseif($item['type'] == 'image')
-                                                <img src="{{ asset('assets/videos/' . $item['url']) }}"
+                                                <img src="{{ $item['url'] }}"
                                                     style="max-height: 150px; object-fit: cover;" alt="">
                                             @endif
-                                            <p class="mb-0 font-bold">{{ $item['title'] }}</p>
                                         </div>
 
                                         {{-- Title --}}
@@ -55,7 +56,7 @@
 
                                         {{-- Buttons --}}
                                         <div class="d-flex justify-content-center gap-2 mt-2">
-                                            <a href="{{ asset('assets/videos/' . $item['url']) }}" target="_blank"
+                                            <a href="{{$item['url'] }}" target="_blank"
                                                 class="btn btn-sm btn-primary">
                                                 <i class="fa fa-eye"></i> View
                                             </a>

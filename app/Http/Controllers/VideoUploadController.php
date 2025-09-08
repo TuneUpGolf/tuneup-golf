@@ -8,14 +8,80 @@ use Illuminate\Support\Facades\File;
 
 class VideoUploadController extends Controller
 {
+    //Upload to Storage
+    public function uploadChunk(Request $request)
+    {
+        if ($request->isMethod('get')) {
+            $identifier = $request->input('resumableIdentifier');
+            $chunkNumber = $request->input('resumableChunkNumber');
+            $tempPath = "temp/{$identifier}/chunk{$chunkNumber}";
+
+            if (Storage::disk('public')->exists($tempPath)) {
+                return response()->json(['success' => true], 200);
+            }
+            return response()->json(['success' => false], 404);
+        }
+
+        $file = $request->file('file');
+        $identifier = $request->input('resumableIdentifier');
+        $chunkNumber = $request->input('resumableChunkNumber');
+        $filename = $request->input('resumableFilename');
+
+        $tempPath = "temp/{$identifier}/";
+        Storage::disk('public')->putFileAs($tempPath, $file, "chunk{$chunkNumber}");
+
+        return response()->json(['success' => true]);
+    }
+
+    public function finalizeUpload(Request $request)
+    {
+        $fileId = $request->input('fileId');
+        $fileName = $request->input('fileName');
+
+        $tempDir = "temp/{$fileId}/";
+        $finalPath = "videos/{$fileName}";
+
+
+        $chunks = Storage::disk('public')->files($tempDir);
+        if (empty($chunks)) {
+            return response()->json(['success' => false, 'message' => 'No chunks found'], 400);
+        }
+
+
+        usort($chunks, function ($a, $b) {
+            preg_match('/chunk(\d+)/', $a, $aNum);
+            preg_match('/chunk(\d+)/', $b, $bNum);
+            return $aNum[1] <=> $bNum[1];
+        });
+
+
+        Storage::disk('public')->makeDirectory('videos');
+        $fileResource = fopen(Storage::disk('public')->path($finalPath), 'wb');
+        foreach ($chunks as $chunk) {
+            $chunkContent = Storage::disk('public')->get($chunk);
+            fwrite($fileResource, $chunkContent);
+        }
+        fclose($fileResource);
+
+        Storage::disk('public')->deleteDirectory($tempDir);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Video uploaded successfully',
+            'filePath' => $finalPath
+        ]);
+    }
+
+
+    //Upload to Public Asset
     // public function uploadChunk(Request $request)
     // {
     //     if ($request->isMethod('get')) {
     //         $identifier = $request->input('resumableIdentifier');
     //         $chunkNumber = $request->input('resumableChunkNumber');
-    //         $tempPath = "temp/{$identifier}/chunk{$chunkNumber}";
+    //         $tempPath = public_path("assets/temp/{$identifier}/chunk{$chunkNumber}");
 
-    //         if (Storage::disk('public')->exists($tempPath)) {
+    //         if (File::exists($tempPath)) {
     //             return response()->json(['success' => true], 200);
     //         }
     //         return response()->json(['success' => false], 404);
@@ -26,8 +92,11 @@ class VideoUploadController extends Controller
     //     $chunkNumber = $request->input('resumableChunkNumber');
     //     $filename = $request->input('resumableFilename');
 
-    //     $tempPath = "temp/{$identifier}/";
-    //     Storage::disk('public')->putFileAs($tempPath, $file, "chunk{$chunkNumber}");
+    //     $tempPath = public_path("assets/temp/{$identifier}");
+    //     if (!File::exists($tempPath)) {
+    //         File::makeDirectory($tempPath, 0755, true);
+    //     }
+    //     $file->move($tempPath, "chunk{$chunkNumber}");
 
     //     return response()->json(['success' => true]);
     // }
@@ -37,15 +106,13 @@ class VideoUploadController extends Controller
     //     $fileId = $request->input('fileId');
     //     $fileName = $request->input('fileName');
 
-    //     $tempDir = "temp/{$fileId}/";
-    //     $finalPath = "videos/{$fileName}"; 
+    //     $tempDir = public_path("assets/temp/{$fileId}");
+    //     $finalPath = public_path("assets/videos/{$fileName}");
 
-
-    //     $chunks = Storage::disk('public')->files($tempDir);
+    //     $chunks = File::glob("{$tempDir}/chunk*");
     //     if (empty($chunks)) {
     //         return response()->json(['success' => false, 'message' => 'No chunks found'], 400);
     //     }
-
 
     //     usort($chunks, function ($a, $b) {
     //         preg_match('/chunk(\d+)/', $a, $aNum);
@@ -53,97 +120,23 @@ class VideoUploadController extends Controller
     //         return $aNum[1] <=> $bNum[1];
     //     });
 
+    //     $videosDir = public_path('assets/videos');
+    //     if (!File::exists($videosDir)) {
+    //         File::makeDirectory($videosDir, 0755, true);
+    //     }
 
-    //     Storage::disk('public')->makeDirectory('videos');
-    //     $fileResource = fopen(Storage::disk('public')->path($finalPath), 'wb');
+    //     $fileResource = fopen($finalPath, 'wb');
     //     foreach ($chunks as $chunk) {
-    //         $chunkContent = Storage::disk('public')->get($chunk);
+    //         $chunkContent = File::get($chunk);
     //         fwrite($fileResource, $chunkContent);
     //     }
     //     fclose($fileResource);
 
-    //     Storage::disk('public')->deleteDirectory($tempDir);
 
     //     return response()->json([
     //         'success' => true,
     //         'message' => 'Video uploaded successfully',
-    //         'filePath' => $finalPath
+    //         'filePath' => "assets/videos/{$fileName}" 
     //     ]);
     // }
-
-    public function uploadChunk(Request $request)
-    {
-        // Handle Resumable.js test chunk request (GET)
-        if ($request->isMethod('get')) {
-            $identifier = $request->input('resumableIdentifier');
-            $chunkNumber = $request->input('resumableChunkNumber');
-            $tempPath = public_path("assets/temp/{$identifier}/chunk{$chunkNumber}");
-
-            if (File::exists($tempPath)) {
-                return response()->json(['success' => true], 200);
-            }
-            return response()->json(['success' => false], 404);
-        }
-
-        // Handle chunk upload (POST)
-        $file = $request->file('file');
-        $identifier = $request->input('resumableIdentifier');
-        $chunkNumber = $request->input('resumableChunkNumber');
-        $filename = $request->input('resumableFilename');
-
-        // Store chunk in public/assets/temp directory
-        $tempPath = public_path("assets/temp/{$identifier}");
-        if (!File::exists($tempPath)) {
-            File::makeDirectory($tempPath, 0755, true);
-        }
-        $file->move($tempPath, "chunk{$chunkNumber}");
-
-        return response()->json(['success' => true]);
-    }
-
-    public function finalizeUpload(Request $request)
-    {
-        $fileId = $request->input('fileId');
-        $fileName = $request->input('fileName');
-
-        $tempDir = public_path("assets/temp/{$fileId}");
-        $finalPath = public_path("assets/videos/{$fileName}");
-
-        // Check if all chunks exist
-        $chunks = File::glob("{$tempDir}/chunk*");
-        if (empty($chunks)) {
-            return response()->json(['success' => false, 'message' => 'No chunks found'], 400);
-        }
-
-        // Sort chunks numerically
-        usort($chunks, function ($a, $b) {
-            preg_match('/chunk(\d+)/', $a, $aNum);
-            preg_match('/chunk(\d+)/', $b, $bNum);
-            return $aNum[1] <=> $bNum[1];
-        });
-
-        // Ensure videos directory exists
-        $videosDir = public_path('assets/videos');
-        if (!File::exists($videosDir)) {
-            File::makeDirectory($videosDir, 0755, true);
-        }
-
-        // Combine chunks
-        $fileResource = fopen($finalPath, 'wb');
-        foreach ($chunks as $chunk) {
-            $chunkContent = File::get($chunk);
-            fwrite($fileResource, $chunkContent);
-        }
-        fclose($fileResource);
-
-        // Clean up temporary chunks
-        File::deleteDirectory($tempDir);
-
-        // Return the relative path for use in the database and Blade
-        return response()->json([
-            'success' => true,
-            'message' => 'Video uploaded successfully',
-            'filePath' => "assets/videos/{$fileName}" // e.g., 'assets/videos/video.mp4'
-        ]);
-    }
 }
