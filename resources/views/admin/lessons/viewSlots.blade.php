@@ -6,8 +6,13 @@
 
 @section('content')
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+ <style>
+ .title {
+  display: none; /* hidden as soon as page starts loading */
+}
+ </style>
+ <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
  <div class="main-content">
      <section class="section">
          <div class="section-body">
@@ -63,8 +68,8 @@
                              </div>
                              <div class="card-body">
                                  <div class="form-group">
-                                    <label for="slotDate">Date</label>
-                                    <div id="slotDate"></div>
+                                     <label for="slotDate">Date</label>
+                                     <div id="slotDate"></div>
                                  </div>
 
                                  <div id="slotListContainer" class="row"></div>
@@ -77,12 +82,46 @@
      </section>
 
      <script>
-  flatpickr("#slotDate", {
-    inline: true,        // 👈 input ki jagah direct calendar show karega
-    dateFormat: "Y-m-d",
-    minDate: "today"
-  });
-</script>
+         let slotDates = @json($slotDates);
+
+         flatpickr("#slotDate", {
+             inline: true,
+             dateFormat: "Y-m-d",
+
+             // allow only these dates
+             enable: slotDates,
+
+             onDayCreate: function(dObj, dStr, fp, dayElem) {
+                 let date = fp.formatDate(dayElem.dateObj, "Y-m-d"); // local format
+                 if (slotDates.includes(date)) {
+                     // Create SVG circle
+                     const dot = document.createElement("span");
+                     dot.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                     class="h-2 w-2 text-blue-500" 
+                     fill="currentColor" 
+                     viewBox="0 0 8 8">
+                    <circle cx="4" cy="4" r="4" />
+                </svg>
+            `;
+                     dot.classList.add(
+                         "absolute",
+                         "top-0", // stick to top of cell
+                         "left-1/2", // horizontally center
+                         "-translate-x-1/2" // center align
+                     );
+
+                     dayElem.style.position = "relative"; // make parent relative
+                     dayElem.appendChild(dot);
+                 }
+             }
+         });
+         document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.title').forEach(el => {
+                el.style.display = 'none';
+            });
+        });
+     </script>
 
      {{ Form::open([
          'route' => ['slot.complete', ['redirect' => 1]],
@@ -102,6 +141,7 @@
      <input type="hidden" id="slot" name="slot_id" value="" />
      {{ Form::close() }}
  </div>
+
  @stack('scripts')
 @endsection
 @push('css')
