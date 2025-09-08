@@ -132,7 +132,7 @@
 
 
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                                        <h3 style="font-size: 20px;font-weight:bold"> By Package Lesson</h3>
+                                        {{--  <h3 style="font-size: 20px;font-weight:bold"> By Package Lesson</h3>  --}}
                                         <p>{!! $lesson?->lesson_description !!}</p>
 
                                         <div class="mb-3 p-3 border rounded-lg shadow-sm bg-white">
