@@ -449,7 +449,10 @@ class LessonController extends Controller
     public function viewSlots()
     {
         if (Auth::user()->can('manage-lessons')) {
-            $lesson = Lesson::findOrFail(request()->get('lesson_id'));
+            $lesson = Lesson::with('slots')->findOrFail(request()->get('lesson_id'));
+            $slotDates = $lesson->slots->pluck('date_time')->map(function ($dt) {
+                return \Carbon\Carbon::parse($dt)->format('Y-m-d');
+            })->toArray();
             $slots = Slots::where('lesson_id', request()->get('lesson_id'))->with('lesson')->get();
             $allSlots = Slots::where('is_active', true)->get();
             $events = [];
@@ -543,7 +546,7 @@ class LessonController extends Controller
             $lesson_id = request()->get('lesson_id');
             $authId = Auth::user()->id;
             $students = Student::where('active_status', true)->where('isGuest', false)->get();
-            return view('admin.lessons.viewSlots', compact('events', 'lesson_id', 'type', 'authId', 'students', 'lesson'));
+            return view('admin.lessons.viewSlots', compact('events', 'lesson_id', 'type', 'authId', 'students', 'lesson','slotDates'));
         }
     }
 

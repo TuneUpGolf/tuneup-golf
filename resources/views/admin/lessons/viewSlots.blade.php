@@ -6,12 +6,13 @@
 
 @section('content')
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+ <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
  <div class="main-content">
      <section class="section">
          <div class="section-body">
-             <div class="m-auto col-lg-3 col-md-8 col-xxl-4">
+             {{--  <div class="m-auto col-lg-3 col-md-8 col-xxl-4">
 
                  <div class="card card-width-manageSlots">
                      <div class="flex justify-between items-center card-header  w-100 ">
@@ -52,37 +53,180 @@
                      </div>
                  </div>
 
-             </div>
+             </div>  --}}
              {{-- <div id="calendar"></div> --}}
              <div class="custom-calendar-mobile-view">
-                 <div class="row">
+                 {{--  <div class="row">
                      <div class="col-sm-12">
                          <div class="card">
                              <div class="card-header d-flex justify-content-between align-items-center">
                                  <h5> {{ __('Calendar') }} </h5>
                              </div>
-                             <div class="card-body">
-                                 <div class="form-group">
-                                    <label for="slotDate">Date</label>
-                                    <div id="slotDate"></div>
+                             <div class="row card-body">
+                                 <div class="col-md-3">
+                                     <label for="slotDate">Date</label>
+                                     <div id="slotDate"></div>
+                                 </div>
+                                 <div class="col-md-4 sm:mt-4">
+                                     <div class="card card-width-manageSlots">
+                                         <div class="sm:flex justify-between items-center card-header  w-100 hidden">
+                                             @if (Auth::user()->type === 'Student')
+                                                 <h5>{{ __('Book Slot') }}</h5>
+                                                 <p>{{ __('Click on an avaialble slot to book') }}</p>
+                                             @else
+                                                 <div>
+                                                     <h5>{{ __('Manage Slots') }}</h5>
+                                                     <div class="pt-2">
+                                                         <p class="mb-0 text-muted">Name:
+                                                             <strong>{{ $lesson->lesson_name }}</strong>
+                                                         </p>
+                                                         @if ($lesson->is_package_lesson)
+                                                             <span class="badge bg-primary">Package Lesson</span>
+                                                         @endif
+                                                     </div>
+                                                 </div>
+                                                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                                                     <a class="text-white"
+                                                         href="{{ route('slot.create', ['lesson_id' => $lesson_id]) }}">
+                                                         {{ __('Add New Slot') }}
+                                                     </a>
+                                                 </button>
+                                             @endif
+                                         </div>
+                                         <div class="flex justify-center my-2 gap-2">
+                                             <div class="flex gap-1 items-center">
+                                                 <div class="completed-key"></div>
+                                                 <span>Completed</span>
+                                             </div>
+                                             <div class="flex gap-1 items-center">
+                                                 <div class="booked-key"></div>
+                                                 <span>Booked</span>
+                                             </div>
+                                             <div class="flex gap-1 items-center">
+                                                 <div class="avaialable-key"></div>
+                                                 <span>Available</span>
+                                             </div>
+                                         </div>
+                                     </div>
                                  </div>
 
                                  <div id="slotListContainer" class="row"></div>
                              </div>
                          </div>
                      </div>
+                 </div>  --}}
+                 <div class="row">
+                     <div class="col-sm-12">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5>{{ __('Calendar') }}</h5>
+        </div>
+        <div class="row card-body">
+            <!-- Calendar Column -->
+            <div class="col-12 col-md-6 col-lg-5 mb-3 mb-lg-0">
+                <label for="slotDate">Date</label>
+                <div id="slotDate"></div>
+            </div>
+
+            <!-- Slots Column -->
+            <div class="col-12 col-md-6 col-lg-7 mb-3 mb-lg-0">
+                <div class="card card-width-manageSlots">
+                    <!-- Hide on small, show on large -->
+                    <div class="d-none d-lg-flex justify-content-between align-items-center card-header w-100">
+                        @if (Auth::user()->type === 'Student')
+                            <h5>{{ __('Book Slot') }}</h5>
+                            <p>{{ __('Click on an available slot to book') }}</p>
+                        @else
+                            <div>
+                                <h5>{{ __('Manage Slots') }}</h5>
+                                <div class="pt-2">
+                                    <p class="mb-0 text-muted">Name:
+                                        <strong>{{ $lesson->lesson_name }}</strong>
+                                    </p>
+                                    @if ($lesson->is_package_lesson)
+                                        <span class="badge bg-primary">Package Lesson</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                                <a class="text-white" href="{{ route('slot.create', ['lesson_id' => $lesson_id]) }}">
+                                    {{ __('Add New Slot') }}
+                                </a>
+                            </button>
+                        @endif
+                    </div>
+
+                    <!-- Keys -->
+                    <div class="flex md:justify-center my-2 gap-2">
+                        <div class="flex gap-1 items-center">
+                            <div class="completed-key"></div>
+                            <span>Completed</span>
+                        </div>
+                        <div class="flex gap-1 items-center">
+                            <div class="booked-key"></div>
+                            <span>Booked</span>
+                        </div>
+                        <div class="flex gap-1 items-center">
+                            <div class="avaialable-key"></div>
+                            <span>Available</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slot List -->
+            <div id="slotListContainer" class="row"></div>
+        </div>
+    </div>
+</div>
+
                  </div>
+
              </div>
          </div>
      </section>
 
      <script>
-  flatpickr("#slotDate", {
-    inline: true,        // 👈 input ki jagah direct calendar show karega
-    dateFormat: "Y-m-d",
-    minDate: "today"
-  });
-</script>
+         let slotDates = @json($slotDates);
+
+         flatpickr("#slotDate", {
+             inline: true,
+             dateFormat: "Y-m-d",
+
+             // allow only these dates
+             enable: slotDates,
+
+             onDayCreate: function(dObj, dStr, fp, dayElem) {
+                 let date = fp.formatDate(dayElem.dateObj, "Y-m-d"); // local format
+                 if (slotDates.includes(date)) {
+                     // Create SVG circle
+                     const dot = document.createElement("span");
+                     dot.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                     class="h-2 w-2 text-blue-500" 
+                     fill="currentColor" 
+                     viewBox="0 0 8 8">
+                    <circle cx="4" cy="4" r="4" />
+                </svg>
+            `;
+                     dot.classList.add(
+                         "absolute",
+                         "top-0", // stick to top of cell
+                         "left-1/2", // horizontally center
+                         "-translate-x-1/2" // center align
+                     );
+
+                     dayElem.style.position = "relative"; // make parent relative
+                     dayElem.appendChild(dot);
+                 }
+             }
+         });
+         document.addEventListener("DOMContentLoaded", function() {
+             document.querySelectorAll('.title').forEach(el => {
+                 el.style.display = 'none';
+             });
+         });
+     </script>
 
      {{ Form::open([
          'route' => ['slot.complete', ['redirect' => 1]],
@@ -102,10 +246,16 @@
      <input type="hidden" id="slot" name="slot_id" value="" />
      {{ Form::close() }}
  </div>
+
  @stack('scripts')
 @endsection
 @push('css')
  <style>
+     .title {
+         display: none;
+         /* hidden as soon as page starts loading */
+     }
+
      .choices__inner {
          text-align: left;
      }
