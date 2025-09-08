@@ -149,7 +149,8 @@
                     if (result.success) {
                         document.getElementById('status').innerText = 'File uploaded successfully!';
                         const filePathInput = document.getElementById('file_path');
-                        document.getElementById('uploadFileName').value = fileName;
+                        document.getElementById('uploadFileName').value = 'public/storage/videos/' + fileName;
+                        console.log("result.filePath =>", result.filePath);
                         if (filePathInput) {
                             filePathInput.value = result.filePath;
                         } else {
