@@ -34,11 +34,10 @@
                 alt="hero-banner">
         </div>
     </section>
-
     @if (trim($admin->bio) != '')
         <section class="lession-sec">
             <div class="container ctm-container">
-                <h2 class="font-bold text-4xl mb-2">{{ $bio_heading ?? $admin->name }}</h2>
+                <h2 class="font-bold text-4xl mb-2">{{ !empty($bio_heading) ? $bio_heading : $admin->name }}</h2>
                 <p class="text-xl text-gray-600">{{ $admin->bio }}</p>
             </div>
         </section>
@@ -52,7 +51,7 @@
                             <div class="col-md-4">
                                 <div class=" bg-gray rounded-lg shadow h-100  flex flex-col">
                                     <div class="relative text-center p-3 flex gap-3">
-                                        <img src="{{ Utility::getsettings('app_logo') ? Utility::getpath('logo/app-logo.png') : asset('assets/images/app-logo.png') }}"
+                                        <img src="{{ asset('storage/' . tenant()->id . '/' . ($instructors[0]->avatar ?? $user->dp)) }}"
                                             alt="{{ $instructors[0]->name }}"
                                             class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
                                         <div class="text-left">
@@ -108,7 +107,7 @@
                                     class="w-full bg-gray border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col h-full">
                                     <div class="relative text-center p-3 flex gap-3">
 
-                                        <img src="{{ Utility::getsettings('app_logo') ? Utility::getpath('logo/app-logo.png') : asset('assets/images/app-logo.png') }}"
+                                        <img src="{{ asset('storage/' . tenant()->id . '/' . ($instructors[0]->avatar ?? $user->dp)) }}"
                                             class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
                                         <div class="text-left">
                                             <a class="font-bold text-dark text-xl" href="{{ route('login') }}">
@@ -133,13 +132,16 @@
 
 
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                                        <h3 style="font-size: 20px;font-weight:bold"> {{ $instructors[0]->name }}</h3>
+                                        {{--  <h3 style="font-size: 20px;font-weight:bold"> By Package Lesson</h3>  --}}
                                         <p>{!! $lesson?->lesson_description !!}</p>
 
                                         <div class="mb-3 p-3 border rounded-lg shadow-sm bg-white">
                                             <h2 class="text-lg font-semibold flex items-center mb-2">
-                                                <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10m-10 4h6m4 8H5a2 2 0 01-2-2V7a2 2 0 012-2h3l2-2h4l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2z"></path>
+                                                <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-width="2"
+                                                        d="M8 7V3m8 4V3m-9 8h10m-10 4h6m4 8H5a2 2 0 01-2-2V7a2 2 0 012-2h3l2-2h4l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2z">
+                                                    </path>
                                                 </svg>
                                                 Package Options Available
                                             </h2>
