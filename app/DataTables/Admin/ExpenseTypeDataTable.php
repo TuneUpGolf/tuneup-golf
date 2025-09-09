@@ -31,7 +31,7 @@ class ExpenseTypeDataTable extends DataTable
                 <div class="flex justify-start items-center">
                 <a href="' . $userUrl . '" class="flex items-center text-primary hover:underline">'
                     .
-                    "<span class='pl-2'>" . $expense_type->natypeme . " </span>" .
+                    "<span class='pl-2'>" . $expense_type->type . " </span>" .
                     '</a></div>';
 
 
