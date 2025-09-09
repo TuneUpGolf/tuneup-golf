@@ -273,7 +273,11 @@
                         @endcan
 
                         {{--  Manage Expenses  --}}
-                        <li class="dash-item dash-hasmenu {{
+                       
+                    @endif
+
+                    @if($userType === 'Instructor')
+                     <li class="dash-item dash-hasmenu {{
                             ($userType != 'Admin' && request()->is('lesson*'))||
                             ($userType === 'Admin' && request()->is('home'))
                             ? 'active' : '' }}">

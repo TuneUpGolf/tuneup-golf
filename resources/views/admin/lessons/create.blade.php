@@ -57,6 +57,15 @@
                                 ]) !!}
                             </div>
 
+                             <div class="form-group">
+                                {{ Form::label('description', __('Short Description'), ['class' => 'form-label']) }}
+                                {!! Form::textarea('lesson_description', null, [
+                                    'class' => 'form-control',
+                                    'required',
+                                    'placeholder' => __('Enter Description'),
+                                ]) !!}
+                            </div>
+
                             <div class="form-group">
                                 {{ Form::label('description', __('Long Description'), ['class' => 'form-label']) }}
                                 {!! Form::textarea('long_description', null, [
@@ -66,14 +75,7 @@
                                 ]) !!}
                             </div>
 
-                            <div class="form-group">
-                                {{ Form::label('description', __('Short Description'), ['class' => 'form-label']) }}
-                                {!! Form::textarea('lesson_description', null, [
-                                    'class' => 'form-control',
-                                    'required',
-                                    'placeholder' => __('Enter Description'),
-                                ]) !!}
-                            </div>
+                           
 
                         </div>
                         <div class="card-footer">
