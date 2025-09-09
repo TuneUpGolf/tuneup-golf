@@ -451,7 +451,12 @@
                 @endif
 
                 @if ($userType == 'Super Admin')
-                    
+                     <li class="dash-item {{ request()->is('superadmin/instructors*') ? 'active' : '' }}">
+                        <a href="{{ route('super-admin-instructors.index') }}" class="dash-link">
+                            <span class="dash-micon"><i class="ti ti-users"></i></span>
+                            <span class="dash-mtext">{{ __('Our Instructors') }}</span>
+                        </a>
+                    </li>
                     <li
                     class="dash-item dash-hasmenu {{ request()->is('help-section*') ? 'active dash-trigger' : 'collapsed' }}">
                         <a href="#!" class="dash-link"><span class="dash-micon"><i class="fa fa-info-circle"></i></span><span

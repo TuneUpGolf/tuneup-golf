@@ -447,3 +447,7 @@ Route::post('/request/submit', function () {
 
     return redirect('/')->with('success', 'Request Submitted Successfully');
 })->name('request.submit');
+
+Route::resource('super-admin-instructors', SuperAdminInstructorController::class);
+Route::get('/our-instructors', [SuperAdminInstructorController::class, 'frontendIndex'])
+    ->name('frontend.instructors.index');
