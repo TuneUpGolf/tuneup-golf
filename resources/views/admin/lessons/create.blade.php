@@ -58,6 +58,15 @@
                             </div>
 
                             <div class="form-group">
+                                {{ Form::label('description', __('Short Description'), ['class' => 'form-label']) }}
+                                {!! Form::textarea('lesson_description', null, [
+                                    'class' => 'form-control',
+                                    'required',
+                                    'placeholder' => __('Enter Description'),
+                                ]) !!}
+                            </div>
+
+                            <div class="form-group">
                                 {{ Form::label('description', __('Long Description'), ['class' => 'form-label']) }}
                                 {!! Form::textarea('long_description', null, [
                                     'class' => 'form-control',
@@ -66,14 +75,7 @@
                                 ]) !!}
                             </div>
 
-                            <div class="form-group">
-                                {{ Form::label('description', __('Short Description'), ['class' => 'form-label']) }}
-                                {!! Form::textarea('lesson_description', null, [
-                                    'class' => 'form-control',
-                                    'required',
-                                    'placeholder' => __('Enter Description'),
-                                ]) !!}
-                            </div>
+
 
                         </div>
                         <div class="card-footer">
@@ -119,10 +121,13 @@
             filebrowserUploadMethod: 'form'
         });
 
-        CKEDITOR.instances.lesson_description.on('key', function() {
-            let text = CKEDITOR.instances.lesson_description.document.getBody().getText();
-            if (text.length > 300) {
-                CKEDITOR.instances.lesson_description.setData(text.substring(0, 100));
+        CKEDITOR.instances.lesson_description.on('key', function(evt) {
+            let editor = CKEDITOR.instances.lesson_description;
+            let text = editor.document.getBody().getText();
+            let maxLength = 300;
+
+            if (text.length >= maxLength && evt.data.keyCode !== 8 && evt.data.keyCode !== 46) {
+                evt.cancel();
             }
         });
     </script>
