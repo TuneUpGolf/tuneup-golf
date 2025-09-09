@@ -72,7 +72,6 @@ class LessonController extends Controller
     // Method to create a new lesson
     public function store(Request $request)
     {
-        dd($request->all());
         if ($request->type === Lesson::LESSON_PAYMENT_ONLINE) {
             $validatedData = $request->validate([
                 'lesson_name'          => 'required|string|max:255',

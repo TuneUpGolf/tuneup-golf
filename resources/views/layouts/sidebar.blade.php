@@ -271,6 +271,33 @@
                                 </ul>
                             </li>
                         @endcan
+
+                        {{--  Manage Expenses  --}}
+                        <li class="dash-item dash-hasmenu {{
+                            ($userType != 'Admin' && request()->is('lesson*'))||
+                            ($userType === 'Admin' && request()->is('home'))
+                            ? 'active' : '' }}">
+                            @can('manage-lessons')
+                                <li class="dash-item dash-hasmenu {{ (in_array($userType, [\App\Models\Role::ROLE_SUPER_ADMIN, \App\Models\Role::ROLE_STUDENT]) && request()->is('lesson*')) ? 'active' : '' }}">
+                                    <a href="#!" class="dash-link">
+                                    <span class="dash-micon"><i class="ti ti-notebook"></i></span>
+                                        <span class="dash-mtext">{{ __('Manage Expenses') }}</span>
+                                        <span class="dash-arrow"><i data-feather="chevron-right"></i>
+                                        </span>
+                                    </a>
+                                    <ul class="dash-submenu">
+                                        <li class="dash-item {{ request()->is('lesson') ? 'active' : '' }}">
+                                            <a class="dash-link"
+                                                href="{{ route('lesson.index') }}">{{ __('Expense Type') }}</a>
+                                        </li>
+                                        <li
+                                            class="dash-item {{ request()->is('lesson/create?type=online') ? 'active' : '' }}">
+                                            <a class="dash-link"
+                                                href="{{ route('lesson.create', ['type' => 'online']) }}">{{ __('Add Expense') }}</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            @endcan
                     @endif
                     {{-- @if ($userType == 'Student')
                         <li class="dash-item dash-hasmenu {{ request()->is('lesson*') ? 'active' : '' }}">
