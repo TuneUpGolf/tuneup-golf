@@ -76,7 +76,7 @@ class LessonController extends Controller
             $validatedData = $request->validate([
                 'lesson_name'          => 'required|string|max:255',
                 'long_description'   => 'string',
-                'lesson_description'   => 'required|string',
+                'lesson_description'   => 'string',
                 'lesson_price'         => 'required|numeric',
                 'lesson_quantity'      => 'required|integer',
                 'required_time'        => 'required|integer',
