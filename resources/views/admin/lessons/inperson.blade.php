@@ -146,6 +146,14 @@
                                 <!-- Hidden input to store payment method when disabled -->
                                 {{-- {!! Form::hidden('payment_method', 'online', ['id' => 'hidden_payment_method']) !!} --}}
                             </div>
+                            <div class="form-group">
+                                {{ Form::label('description', __('Short Description'), ['class' => 'form-label']) }}
+                                {!! Form::textarea('lesson_description', null, [
+                                    'class' => 'form-control',
+                                    'required',
+                                    'placeholder' => __('Enter Description'),
+                                ]) !!}
+                            </div>
                             <!-- Description -->
                             <div class="form-group">
                                 {{ Form::label('description', __('Long Description'), ['class' => 'form-label']) }}
@@ -156,14 +164,7 @@
                                 ]) !!}
                             </div>
 
-                            <div class="form-group">
-                                {{ Form::label('description', __('Short Description'), ['class' => 'form-label']) }}
-                                {!! Form::textarea('lesson_description', null, [
-                                    'class' => 'form-control',
-                                    'required',
-                                    'placeholder' => __('Enter Description'),
-                                ]) !!}
-                            </div>
+                            
 
                         </div>
 
@@ -230,6 +231,16 @@
             removePlugins: 'image,table,link,uploadimage,elementspath',
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form'
+        });
+
+         CKEDITOR.instances.lesson_description.on('key', function(evt) {
+            let editor = CKEDITOR.instances.lesson_description;
+            let text = editor.document.getBody().getText();
+            let maxLength = 300;
+
+            if (text.length >= maxLength && evt.data.keyCode !== 8 && evt.data.keyCode !== 46) {
+                evt.cancel();
+            }
         });
 
          CKEDITOR.instances.lesson_description.on('key', function() {

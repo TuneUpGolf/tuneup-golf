@@ -212,6 +212,16 @@
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form'
         });
+
+        CKEDITOR.instances.lesson_description.on('key', function(evt) {
+            let editor = CKEDITOR.instances.lesson_description;
+            let text = editor.document.getBody().getText();
+            let maxLength = 300;
+
+            if (text.length >= maxLength && evt.data.keyCode !== 8 && evt.data.keyCode !== 46) {
+                evt.cancel();
+            }
+        });
         $(document).ready(function() {
             let index = 1;
             // Add more package options dynamically
