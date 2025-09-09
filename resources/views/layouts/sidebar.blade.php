@@ -273,7 +273,7 @@
                         @endcan
 
                         {{--  Manage Expenses  --}}
-                        {{--  <li class="dash-item dash-hasmenu {{
+                        <li class="dash-item dash-hasmenu {{
                             ($userType != 'Admin' && request()->is('lesson*'))||
                             ($userType === 'Admin' && request()->is('home'))
                             ? 'active' : '' }}">
@@ -298,7 +298,7 @@
                                     </ul>
                                 </li>
                             @endcan
-                        </li>  --}}
+                        </li>
                     @endif
                     {{-- @if ($userType == 'Student')
                         <li class="dash-item dash-hasmenu {{ request()->is('lesson*') ? 'active' : '' }}">
