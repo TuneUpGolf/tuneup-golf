@@ -31,7 +31,7 @@
                                 {{ Form::label('name', __('Name'), ['class' => 'form-label']) }}
                                 {!! Form::text('lesson_name', null, ['class' => 'form-control', 'required', 'placeholder' => __('Enter name')]) !!}
                             </div>
-                            
+
                             <div class="form-group">
                                 {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
                                 {!! Form::number('lesson_price', null, [
@@ -58,7 +58,16 @@
                             </div>
 
                             <div class="form-group">
-                                {{ Form::label('description', __('Description'), ['class' => 'form-label']) }}
+                                {{ Form::label('description', __('Long Description'), ['class' => 'form-label']) }}
+                                {!! Form::textarea('long_description', null, [
+                                    'class' => 'form-control',
+                                    'required',
+                                    'placeholder' => __('Enter Description'),
+                                ]) !!}
+                            </div>
+
+                            <div class="form-group">
+                                {{ Form::label('description', __('Short Description'), ['class' => 'form-label']) }}
                                 {!! Form::textarea('lesson_description', null, [
                                     'class' => 'form-control',
                                     'required',
@@ -90,9 +99,31 @@
     <script src="{{ asset('vendor/intl-tel-input/utils.min.js') }}"></script>
     <script src="{{ asset('vendor/ckeditor/ckeditor.js') }}"></script>
     <script>
-    CKEDITOR.replace('lesson_description', {
-        filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
+        CKEDITOR.replace('long_description', {
+            filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form'
+        });
+
+        CKEDITOR.replace('lesson_description', {
+            toolbar: [{
+                    name: 'basicstyles',
+                    items: ['Bold', 'Italic']
+                },
+                {
+                    name: 'paragraph',
+                    items: ['BulletedList']
+                }
+            ],
+            removePlugins: 'image,table,link,uploadimage,elementspath',
+            filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
+            filebrowserUploadMethod: 'form'
+        });
+
+        CKEDITOR.instances.lesson_description.on('key', function() {
+            let text = CKEDITOR.instances.lesson_description.document.getBody().getText();
+            if (text.length > 300) {
+                CKEDITOR.instances.lesson_description.setData(text.substring(0, 100));
+            }
         });
     </script>
 @endpush

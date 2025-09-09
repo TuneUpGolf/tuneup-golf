@@ -42,7 +42,8 @@ class Lesson extends Model
         'max_students',
         'is_package_lesson',
         'package_lesson_type',
-        'number_of_slots'
+        'number_of_slots',
+        'long_description'
     ];
 
     protected $casts = [
