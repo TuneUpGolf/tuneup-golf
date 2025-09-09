@@ -70,6 +70,8 @@ use App\Http\Resources\StudentAPIResource;
 use App\Models\Role;
 use App\Models\Student;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\ExpenseTypeController;
+
 /*
 |--------------------------------------------------------------------------
 | Tenant Routes
@@ -177,6 +179,14 @@ Route::middleware([
         Route::get('student-phoneverified/{id}', [StudentController::class, 'userPhoneVerified'])->name('student.phone.verified');
         Route::post('student-status/{id}', [StudentController::class, 'userStatus'])->name('student.status');
         Route::get('student/{id}', [StudentController::class, 'show'])->name('student.show');
+
+            // Expense Type
+        Route::controller(ExpenseTypeController::class)->prefix('expense-type')->name('expense.type.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('store', 'store')->name('store');
+            Route::post('update', 'update')->name('update');
+            Route::delete('delete/{id}', 'destroy')->name('destroy');
+        });
 
         Route::post('/import_students', [StudentController::class, 'importfun'])->name('student.import_students');
 

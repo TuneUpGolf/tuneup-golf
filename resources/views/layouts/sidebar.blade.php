@@ -286,9 +286,9 @@
                                         </span>
                                     </a>
                                     <ul class="dash-submenu">
-                                        <li class="dash-item {{ request()->is('lesson') ? 'active' : '' }}">
+                                        <li class="dash-item {{ request()->is('expense.type.index') ? 'active' : '' }}">
                                             <a class="dash-link"
-                                                href="{{ route('lesson.index') }}">{{ __('Expense Type') }}</a>
+                                                href="{{ route('expense.type.index') }}">{{ __('Expense Type') }}</a>
                                         </li>
                                         <li
                                             class="dash-item {{ request()->is('lesson/create?type=online') ? 'active' : '' }}">

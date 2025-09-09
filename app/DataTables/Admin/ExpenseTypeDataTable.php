@@ -14,7 +14,7 @@ class ExpenseTypeDataTable extends DataTable
 
     public function __construct()
     {
-        $this->module = request()->is('expense_type') ? 'expense_type' : 'all-chat';
+        // $this->module = request()->is('expense_type') ? 'expense_type' : 'all-chat';
     }
 
     public function dataTable($query)
@@ -23,17 +23,15 @@ class ExpenseTypeDataTable extends DataTable
         $data = datatables()
             ->eloquent($query)
             ->addIndexColumn()
-            ->editColumn('name', function (ExpenseType $user) {
-                $imageSrc = $user->dp ?  asset('/storage' . '/' . tenant('id') . '/' . $user->dp) : asset('assets/img/user.png');
-                $userUrl  = route($this->module . '.show', $user->id);
+            ->editColumn('name', function (ExpenseType $expense_type) {
+                // $userUrl  = route($this->module . '.show', $expense_type->id);
+                $userUrl  = null;
                 $html =
                     '
                 <div class="flex justify-start items-center">
                 <a href="' . $userUrl . '" class="flex items-center text-primary hover:underline">'
                     .
-                    "<img src=' " . $imageSrc . " ' width='20' class='rounded-full'/>"
-                    .
-                    "<span class='pl-2'>" . $user->name . " </span>" .
+                    "<span class='pl-2'>" . $expense_type->natypeme . " </span>" .
                     '</a></div>';
 
 
@@ -42,19 +40,10 @@ class ExpenseTypeDataTable extends DataTable
             ->editColumn('created_at', function ($request) {
                 return UtilityFacades::date_time_format($request->created_at);
             })
-          
-         
-          
-            ->editColumn('active_status', function (Student $user) {
-                $checked = ($user->active_status == 1) ? 'checked' : '';
-                return '<label class="form-switch">
-                             <input class="form-check-input chnageStatus" class="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('user.status', $user->id) . '" type="checkbox">
-                             </label>';
-            })
             ->addColumn('action', function (ExpenseType $expense_type) {
-                return view('admin.students.action', compact('expense_type'));
+                return view('admin.expense_type.action', compact('expense_type'));
             })
-            ->rawColumns(['role', 'action', 'email_verified_at', 'phone_verified_at', 'active_status', 'name', 'chat_enabled']);
+            ->rawColumns(['action']);
         return $data;
     }
 
@@ -102,10 +91,7 @@ class ExpenseTypeDataTable extends DataTable
                         ",
                 'buttons'   => [
                     ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
-                        window.location = '" . route('student.create') . "';
-                   }"],
-                    ['extend' => 'reload', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
-                        window.location = '" . route('student.import') . "';
+                         $('#expenseTypeModal').modal('show');
                    }"],
                     [
                         'extend' => 'collection',
@@ -189,16 +175,9 @@ class ExpenseTypeDataTable extends DataTable
 
         $columns = [
             Column::make('No')->title(__('#'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-            Column::make('name')->title(__('User')),
-            Column::make('email')->title(__('Email')),
-            Column::make('email_verified_at')->title(__('Email Verified Status')),
-            Column::make('phone_verified_at')->title(__('Phone Verified Status')),
+            Column::make('type')->title(__('Type')),
             Column::make('created_at')->title(__('Created At')),
-            Column::make('active_status')->title(__('Status')),
         ];
-        if (auth()->user()->type == Role::ROLE_INSTRUCTOR) {
-            $columns[] = Column::make('chat_enabled')->title(__('Chat Enabled'));
-        }
         $columns[] = Column::computed('action')->title(__('Action'))
             ->exportable(false)
             ->printable(false)
@@ -210,6 +189,6 @@ class ExpenseTypeDataTable extends DataTable
 
     protected function filename(): string
     {
-        return 'Students_' . date('YmdHis');
+        return 'ExpenseType_' . date('YmdHis');
     }
 }

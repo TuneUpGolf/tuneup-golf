@@ -360,7 +360,6 @@
             $('#longDescModal').modal('hide');
         }
 
-
         function openInstructorPopup(name, imageSrc, bio, lessons = [], currency = '') {
             console.log("Popup clicked:", name);
 
