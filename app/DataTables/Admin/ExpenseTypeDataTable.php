@@ -4,7 +4,7 @@ namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
 use App\Models\Role;
-use App\Models\Student;
+use App\Models\ExpenseType;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
@@ -14,7 +14,7 @@ class ExpenseTypeDataTable extends DataTable
 
     public function __construct()
     {
-        $this->module = request()->is('student') ? 'student' : 'all-chat';
+        // $this->module = request()->is('expense_type') ? 'expense_type' : 'all-chat';
     }
 
     public function dataTable($query)
@@ -23,17 +23,15 @@ class ExpenseTypeDataTable extends DataTable
         $data = datatables()
             ->eloquent($query)
             ->addIndexColumn()
-            ->editColumn('name', function (Student $user) {
-                $imageSrc = $user->dp ?  asset('/storage' . '/' . tenant('id') . '/' . $user->dp) : asset('assets/img/user.png');
-                $userUrl  = route($this->module . '.show', $user->id);
+            ->editColumn('name', function (ExpenseType $expense_type) {
+                // $userUrl  = route($this->module . '.show', $expense_type->id);
+                $userUrl  = null;
                 $html =
                     '
                 <div class="flex justify-start items-center">
                 <a href="' . $userUrl . '" class="flex items-center text-primary hover:underline">'
                     .
-                    "<img src=' " . $imageSrc . " ' width='20' class='rounded-full'/>"
-                    .
-                    "<span class='pl-2'>" . $user->name . " </span>" .
+                    "<span class='pl-2'>" . $expense_type->type . " </span>" .
                     '</a></div>';
 
 
@@ -42,144 +40,27 @@ class ExpenseTypeDataTable extends DataTable
             ->editColumn('created_at', function ($request) {
                 return UtilityFacades::date_time_format($request->created_at);
             })
-            ->editColumn('email_verified_at', function (Student $user) {
-                if ($user->email_verified_at) {
-                    $html = '
-                    <div class="flex items-center">
-                    <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g clip-path="url(#clip0_205_1682)">
-                    <path d="M0.820312 7.36721C2.63193 9.47814 4.38846 11.3785 6.07693 13.7821C7.91268 9.85002 9.79158 5.90432 12.8918 1.63131L12.0564 1.21924C9.43865 4.209 7.40486 7.03908 5.63768 10.4024C4.40877 9.21018 2.42271 7.52307 1.21006 6.65627L0.820312 7.36721Z" fill="#16DBAA"/>
-                    </g>
-                    <defs>
-                    <clipPath id="clip0_205_1682">
-                    <rect width="13" height="14" fill="white" transform="translate(0.376953 0.506836)"/>
-                    </clipPath>
-                    </defs>
-                    </svg>
-                    <span class="text-verified pl-1">'
-                        . __('Verified') .
-                        '</span>
-                        </div>
-                        ';
-                    return $html;
-                } else {
-                    $html = '
-                    <div class="flex items-center">
-                    <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g clip-path="url(#clip0_205_1682)">
-                    <path d="M0.820312 7.36721C2.63193 9.47814 4.38846 11.3785 6.07693 13.7821C7.91268 9.85002 9.79158 5.90432 12.8918 1.63131L12.0564 1.21924C9.43865 4.209 7.40486 7.03908 5.63768 10.4024C4.40877 9.21018 2.42271 7.52307 1.21006 6.65627L0.820312 7.36721Z" fill="#16DBAA"/>
-                    </g>
-                    <defs>
-                    <clipPath id="clip0_205_1682">
-                    <rect width="13" height="14" fill="white" transform="translate(0.376953 0.506836)"/>
-                    </clipPath>
-                    </defs>
-                    </svg>
-                    <span class="text-verified pl-1">'
-                        . __('UnVerified') .
-                        '</span>
-                        </div>
-                        ';
-                    return $html;
-                }
+            ->addColumn('action', function (ExpenseType $expense_type) {
+                return view('admin.expense_type.action', compact('expense_type'));
             })
-            ->editColumn('phone_verified_at', function (Student $user) {
-                if ($user->phone_verified_at) {
-                    $html = '
-                    <div class="flex items-center">
-                    <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g clip-path="url(#clip0_205_1682)">
-                    <path d="M0.820312 7.36721C2.63193 9.47814 4.38846 11.3785 6.07693 13.7821C7.91268 9.85002 9.79158 5.90432 12.8918 1.63131L12.0564 1.21924C9.43865 4.209 7.40486 7.03908 5.63768 10.4024C4.40877 9.21018 2.42271 7.52307 1.21006 6.65627L0.820312 7.36721Z" fill="#16DBAA"/>
-                    </g>
-                    <defs>
-                    <clipPath id="clip0_205_1682">
-                    <rect width="13" height="14" fill="white" transform="translate(0.376953 0.506836)"/>
-                    </clipPath>
-                    </defs>
-                    </svg>
-                    <span class="text-verified pl-1">'
-                        . __('Verified') .
-                        '</span>
-                        </div>
-                        ';
-                    return $html;
-                } else {
-                    $html = '
-                    <div class="flex items-center">
-                    <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g clip-path="url(#clip0_205_1682)">
-                    <path d="M0.820312 7.36721C2.63193 9.47814 4.38846 11.3785 6.07693 13.7821C7.91268 9.85002 9.79158 5.90432 12.8918 1.63131L12.0564 1.21924C9.43865 4.209 7.40486 7.03908 5.63768 10.4024C4.40877 9.21018 2.42271 7.52307 1.21006 6.65627L0.820312 7.36721Z" fill="#16DBAA"/>
-                    </g>
-                    <defs>
-                    <clipPath id="clip0_205_1682">
-                    <rect width="13" height="14" fill="white" transform="translate(0.376953 0.506836)"/>
-                    </clipPath>
-                    </defs>
-                    </svg>
-                    <span class="text-verified pl-1">'
-                        . __('UnVerified') .
-                        '</span>
-                        </div>
-                        ';
-                    return $html;
-                }
-            })
-            ->editColumn('active_status', function (Student $user) {
-                $checked = ($user->active_status == 1) ? 'checked' : '';
-                $status   = '<label class="form-switch">
-                             <input class="form-check-input chnageStatus" name="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('user.status', $user->id) . '" type="checkbox">
-                             </label>';
-                return $status;
-            })
-            ->addColumn('chat_enabled', function (Student $user) use ($loggedInUserId) {
-
-                if (isset($user->plan->is_chat_enabled) && $user->plan->is_chat_enabled == 1) {
-                    $msg = $user->plan->instructor_id != $loggedInUserId
-                        ? "The student has an active subscription to chat with another instructor."
-                        : "The student has an active subscription to chat.";
-                } elseif ($user->chat_enabled_by != $loggedInUserId && !empty($user->chat_enabled_by)) {
-                    $msg = "Another instructor is already chatting with this student.";
-                }
-
-                if (isset($msg)) {
-                    return sprintf(
-                        '<span title="%s"><i class="ti ti-alert-triangle" style="font-size: 25px; color:#FFC107;"></i></span>',
-                        e($msg) // escape message for safety
-                    );
-                }
-
-                $checked = ($user->chat_status == 1) ? 'checked' : '';
-                return '<label class="form-switch">
-                             <input class="form-check-input chnageStatus" ' . $checked . ' class="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('user.chatstatus', $user->id) . '" type="checkbox">
-                        </label>';
-            })
-            ->editColumn('active_status', function (Student $user) {
-                $checked = ($user->active_status == 1) ? 'checked' : '';
-                return '<label class="form-switch">
-                             <input class="form-check-input chnageStatus" class="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('user.status', $user->id) . '" type="checkbox">
-                             </label>';
-            })
-            ->addColumn('action', function (Student $user) {
-                return view('admin.students.action', compact('user'));
-            })
-            ->rawColumns(['role', 'action', 'email_verified_at', 'phone_verified_at', 'active_status', 'name', 'chat_enabled']);
+            ->rawColumns(['action']);
         return $data;
     }
 
-    public function query(Student $model)
+    public function query(ExpenseType $model)
     {
         if (tenant('id') == null) {
-            return   $model->newQuery()->select(['students.*', 'domains.domain'])
-                ->join('domains', 'domains.tenant_id', '=', 'users.tenant_id')->where('type', 'Admin');
+            return   $model->newQuery()->select(['expenses_types.*', 'domains.domain'])
+                ->join('domains', 'domains.tenant_id', '=', 'expenses_types.tenant_id');
         } else {
-            return $model->newQuery()->where('type', '=', 'Student')->where('isGuest', false);
+            return $model->newQuery();
         }
     }
 
     public function html()
     {
         return $this->builder()
-            ->setTableId('students-table')
+            ->setTableId('expenses-type-table')
             ->addTableClass('display responsive nowrap')
             ->columns($this->getColumns())
             ->minifiedAjax()
@@ -210,10 +91,7 @@ class ExpenseTypeDataTable extends DataTable
                         ",
                 'buttons'   => [
                     ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
-                        window.location = '" . route('student.create') . "';
-                   }"],
-                    ['extend' => 'reload', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
-                        window.location = '" . route('student.import') . "';
+                         $('#expenseTypeModal').modal('show');
                    }"],
                     [
                         'extend' => 'collection',
@@ -297,16 +175,9 @@ class ExpenseTypeDataTable extends DataTable
 
         $columns = [
             Column::make('No')->title(__('#'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-            Column::make('name')->title(__('User')),
-            Column::make('email')->title(__('Email')),
-            Column::make('email_verified_at')->title(__('Email Verified Status')),
-            Column::make('phone_verified_at')->title(__('Phone Verified Status')),
+            Column::make('type')->title(__('Type')),
             Column::make('created_at')->title(__('Created At')),
-            Column::make('active_status')->title(__('Status')),
         ];
-        if (auth()->user()->type == Role::ROLE_INSTRUCTOR) {
-            $columns[] = Column::make('chat_enabled')->title(__('Chat Enabled'));
-        }
         $columns[] = Column::computed('action')->title(__('Action'))
             ->exportable(false)
             ->printable(false)
@@ -318,6 +189,6 @@ class ExpenseTypeDataTable extends DataTable
 
     protected function filename(): string
     {
-        return 'Students_' . date('YmdHis');
+        return 'ExpenseType_' . date('YmdHis');
     }
 }
