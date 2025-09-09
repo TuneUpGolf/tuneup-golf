@@ -75,7 +75,7 @@ class LessonController extends Controller
         if ($request->type === Lesson::LESSON_PAYMENT_ONLINE) {
             $validatedData = $request->validate([
                 'lesson_name'          => 'required|string|max:255',
-                'long_description'   => 'required|string',
+                'long_description'   => 'string',
                 'lesson_description'   => 'required|string',
                 'lesson_price'         => 'required|numeric',
                 'lesson_quantity'      => 'required|integer',
@@ -137,7 +137,7 @@ class LessonController extends Controller
         $lesson = Lesson::findOrFail($lessonId);
         $validatedData = $request->validate([
             'lesson_name'          => 'required|string|max:255',
-            'long_escription'   => 'string',
+            'long_escription'      => 'string',
             'lesson_description'   => 'string',
             'lesson_price'         => 'required_if:is_package_lesson,1|numeric',
             'lesson_quantity'      => 'integer',
@@ -551,7 +551,7 @@ class LessonController extends Controller
             $lesson_id = request()->get('lesson_id');
             $authId = Auth::user()->id;
             $students = Student::where('active_status', true)->where('isGuest', false)->get();
-            return view('admin.lessons.viewSlots', compact('events', 'lesson_id', 'type', 'authId', 'students', 'lesson','slotDates'));
+            return view('admin.lessons.viewSlots', compact('events', 'lesson_id', 'type', 'authId', 'students', 'lesson', 'slotDates'));
         }
     }
 
@@ -893,7 +893,7 @@ class LessonController extends Controller
 
     public function bookSlotApi()
     {
-        
+
         try {
             $friendNames = request()->input('friend_names');
             if (is_string($friendNames)) {
