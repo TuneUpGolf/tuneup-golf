@@ -85,7 +85,7 @@ class LessonController extends Controller
         if ($request->type === Lesson::LESSON_TYPE_INPERSON) {
             $validatedData = $request->validate([
                 'lesson_name'          => 'required|string|max:255',
-                'long_description'   => 'required|string',
+                'long_description'   =>     'string',
                 'lesson_description'   => 'required|string',
                 'lesson_price'         => 'required_if:is_package_lesson,0|numeric',
                 'lesson_duration'      => 'required|numeric',
@@ -99,8 +99,8 @@ class LessonController extends Controller
             !empty($validatedData['is_package_lesson']) && $validatedData['is_package_lesson'] == 1 ? $validatedData['is_package_lesson'] = true : $validatedData['is_package_lesson'] = false;
         }
         // Assuming 'created_by' is the ID of the currently authenticated instructor
-        $validatedData['long_description'] = $_POST['long_description'];
-        $validatedData['lesson_description'] = $_POST['lesson_description'];
+        $validatedData['long_description'] = $_POST['long_description'] != "" ? $_POST['long_description'] : NULL;
+        $validatedData['lesson_description'] = $_POST['lesson_description'] != "" ? $_POST['lesson_description'] : NULL;
         $validatedData['created_by'] = Auth::user()->id;
         $validatedData['type'] = ($request->is_package_lesson == 1) ? 'package' : $request->type;
         $validatedData['payment_method'] = $request->payment_method ?? Lesson::LESSON_PAYMENT_ONLINE;
@@ -149,8 +149,8 @@ class LessonController extends Controller
 
         // Assuming 'created_by' is the ID of the currently authenticated instructor
         $validatedData['created_by'] = Auth::user()->id;
-        $validatedData['lesson_description'] = $_POST['lesson_description'];
-        $validatedData['long_description'] = $_POST['long_description'];
+        $validatedData['lesson_description'] = $_POST['lesson_description'] != "" ? $_POST['lesson_description'] : NULL;
+        $validatedData['long_description'] = $_POST['long_description'] != "" ? $_POST['long_description'] : NULL;
 
         $lesson->update($validatedData);
         if ($lesson->is_package_lesson == 1 && !empty($request->package_lesson)) {

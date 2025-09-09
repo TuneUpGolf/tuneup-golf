@@ -133,11 +133,10 @@
                                         </div>
                                     </div>
 
-
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
                                         {{--  <h3 style="font-size: 20px;font-weight:bold"> By Package Lesson</h3>  --}}
                                         <p>{!! $lesson?->lesson_description !!}</p>
-                                        @if (!is_null($lesson?->long_description))
+                                        @if (!empty($lesson?->long_description) || $lesson?->long_description != "" || $lesson?->long_description != NULL)
                                             <a href="javascript:void(0)"
                                             data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
                                                 class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
