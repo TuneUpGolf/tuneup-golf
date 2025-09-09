@@ -38,43 +38,45 @@
                             {{ Form::label('name', __('Name'), ['class' => 'form-label']) }}
                             {!! Form::text('lesson_name', null, ['class' => 'form-control', 'required', 'placeholder' => __('Enter name')]) !!}
                         </div>
-                        
+
                         @if ($user->type == 'package')
                             <div class="form-group">
-                        <div class="flex gap-1 itmes-center mb-2 cursor-pointer add-more-package">
-                                <i class="ti ti-plus text-2xl"></i><span>Add Package Options</span>
-                            </div>
-                            @foreach ($user->packages as $package)
-                           
-                                <div class="flex gap-2 mb-2 slots" id="number_slot">
-                                    <div class="form-group w-50">
-                                        {{ Form::label('no_of_slot', __('Package Size'), ['class' => 'form-label']) }}
-                                        <select type="dropdown" name="exist_package_lesson[{{ $loop->index }}][no_of_slot]"
-                                            class="form-control" required >
-                                            <option value="">No. of slot</option>
-                                            @for ($i = 1; $i <= 10; $i++)
-                                                <option value={{ $i }} {{ $package->number_of_slot == $i ? 'selected' : '' }} >
-                                                    {{ $i }} </option>
-                                            @endfor
-                                        </select>
-                                    </div>
-                                    <!-- Price -->
-                                    <div class="form-group w-50 price-field">
-                                        {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
-                                        <input type="number" class="form-control" name="exist_package_lesson[{{ $loop->index }}][price]"
-                                            placeholder="Enter Price" value="{{ $package->price }}" />
-                                    </div>
+                                <div class="flex gap-1 itmes-center mb-2 cursor-pointer add-more-package">
+                                    <i class="ti ti-plus text-2xl"></i><span>Add Package Options</span>
                                 </div>
-                            @endforeach
-                         @else
-                            <div class="form-group">
-                                {{ Form::label('price', __('Price ($)'), ['class' => 'form-label']) }}
-                                {!! Form::number('lesson_price', null, [
-                                    'class' => 'form-control',
-                                    'required',
-                                    'placeholder' => __('Enter Price'),
-                                ]) !!}
-                            </div>
+                                @foreach ($user->packages as $package)
+                                    <div class="flex gap-2 mb-2 slots" id="number_slot">
+                                        <div class="form-group w-50">
+                                            {{ Form::label('no_of_slot', __('Package Size'), ['class' => 'form-label']) }}
+                                            <select type="dropdown"
+                                                name="exist_package_lesson[{{ $loop->index }}][no_of_slot]"
+                                                class="form-control" required>
+                                                <option value="">No. of slot</option>
+                                                @for ($i = 1; $i <= 10; $i++)
+                                                    <option value={{ $i }}
+                                                        {{ $package->number_of_slot == $i ? 'selected' : '' }}>
+                                                        {{ $i }} </option>
+                                                @endfor
+                                            </select>
+                                        </div>
+                                        <!-- Price -->
+                                        <div class="form-group w-50 price-field">
+                                            {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
+                                            <input type="number" class="form-control"
+                                                name="exist_package_lesson[{{ $loop->index }}][price]"
+                                                placeholder="Enter Price" value="{{ $package->price }}" />
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="form-group">
+                                    {{ Form::label('price', __('Price ($)'), ['class' => 'form-label']) }}
+                                    {!! Form::number('lesson_price', null, [
+                                        'class' => 'form-control',
+                                        'required',
+                                        'placeholder' => __('Enter Price'),
+                                    ]) !!}
+                                </div>
                         @endif
                         @if ($user->type !== 'inPerson' && $user->type !== 'package')
                             <div class="form-group">
@@ -134,20 +136,34 @@
                             </div>
                             <div class="form-group">
                                 {{ Form::label('payment_method', __('Payment Method'), ['class' => 'form-label']) }}
-                                {!! Form::select('payment_method', ['online' => 'Online', 'cash' => 'Pay at facility or cash', 'both' => 'Both'], null, [
-                                    'class' => 'form-control',
-                                    'data-trigger',
-                                    'placeholder' => __('Payment Method'),
-                                ]) !!}
+                                {!! Form::select(
+                                    'payment_method',
+                                    ['online' => 'Online', 'cash' => 'Pay at facility or cash', 'both' => 'Both'],
+                                    null,
+                                    [
+                                        'class' => 'form-control',
+                                        'data-trigger',
+                                        'placeholder' => __('Payment Method'),
+                                    ],
+                                ) !!}
                             </div>
                         @endif
 
                         <div class="form-group">
-                            {{ Form::label('description', __('Description'), ['class' => 'form-label']) }}
+                            {{ Form::label('description', __('Long Description'), ['class' => 'form-label']) }}
+                            {!! Form::textarea('long_description', null, [
+                                'class' => 'form-control',
+                                'required',
+                                'placeholder' => __('Enter Long Description'),
+                            ]) !!}
+                        </div>
+
+                        <div class="form-group">
+                            {{ Form::label('description', __('Short Description'), ['class' => 'form-label']) }}
                             {!! Form::textarea('lesson_description', null, [
                                 'class' => 'form-control',
                                 'required',
-                                'placeholder' => __('Enter Description'),
+                                'placeholder' => __('Enter Short Description'),
                             ]) !!}
                         </div>
 
@@ -174,16 +190,30 @@
     <script src="{{ asset('vendor/intl-tel-input/intlTelInput-jquery.min.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/utils.min.js') }}"></script>
     <script src="{{ asset('vendor/ckeditor/ckeditor.js') }}"></script>
-    
+
     <script type="text/javascript">
-        CKEDITOR.replace('lesson_description', {
+        CKEDITOR.replace('long_description', {
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form'
         });
-        $(document).ready(function () {
+        CKEDITOR.replace('lesson_description', {
+            toolbar: [{
+                    name: 'basicstyles',
+                    items: ['Bold', 'Italic']
+                },
+                {
+                    name: 'paragraph',
+                    items: ['BulletedList']
+                }
+            ],
+            removePlugins: 'image,table,link,uploadimage,elementspath',
+            filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
+            filebrowserUploadMethod: 'form'
+        });
+        $(document).ready(function() {
             let index = 1;
             // Add more package options dynamically
-            $('.add-more-package').on('click', function () {
+            $('.add-more-package').on('click', function() {
                 const newPackage = `
                     <div class="flex gap-2 mb-2" id="number_slot">
                         <div class="form-group w-50">

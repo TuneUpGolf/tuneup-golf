@@ -72,9 +72,11 @@ class LessonController extends Controller
     // Method to create a new lesson
     public function store(Request $request)
     {
+        dd($request->all());
         if ($request->type === Lesson::LESSON_PAYMENT_ONLINE) {
             $validatedData = $request->validate([
                 'lesson_name'          => 'required|string|max:255',
+                'long_description'   => 'required|string',
                 'lesson_description'   => 'required|string',
                 'lesson_price'         => 'required|numeric',
                 'lesson_quantity'      => 'required|integer',
@@ -84,6 +86,7 @@ class LessonController extends Controller
         if ($request->type === Lesson::LESSON_TYPE_INPERSON) {
             $validatedData = $request->validate([
                 'lesson_name'          => 'required|string|max:255',
+                'long_description'   => 'required|string',
                 'lesson_description'   => 'required|string',
                 'lesson_price'         => 'required_if:is_package_lesson,0|numeric',
                 'lesson_duration'      => 'required|numeric',
@@ -97,6 +100,7 @@ class LessonController extends Controller
             !empty($validatedData['is_package_lesson']) && $validatedData['is_package_lesson'] == 1 ? $validatedData['is_package_lesson'] = true : $validatedData['is_package_lesson'] = false;
         }
         // Assuming 'created_by' is the ID of the currently authenticated instructor
+        $validatedData['long_description'] = $_POST['long_description'];
         $validatedData['lesson_description'] = $_POST['lesson_description'];
         $validatedData['created_by'] = Auth::user()->id;
         $validatedData['type'] = ($request->is_package_lesson == 1) ? 'package' : $request->type;
@@ -134,7 +138,8 @@ class LessonController extends Controller
         $lesson = Lesson::findOrFail($lessonId);
         $validatedData = $request->validate([
             'lesson_name'          => 'required|string|max:255',
-            'lesson_description'   => 'required|string',
+            'long_escription'   => 'string',
+            'lesson_description'   => 'string',
             'lesson_price'         => 'required_if:is_package_lesson,1|numeric',
             'lesson_quantity'      => 'integer',
             'required_time'        => 'integer',
@@ -146,6 +151,7 @@ class LessonController extends Controller
         // Assuming 'created_by' is the ID of the currently authenticated instructor
         $validatedData['created_by'] = Auth::user()->id;
         $validatedData['lesson_description'] = $_POST['lesson_description'];
+        $validatedData['long_description'] = $_POST['long_description'];
 
         $lesson->update($validatedData);
         if ($lesson->is_package_lesson == 1 && !empty($request->package_lesson)) {

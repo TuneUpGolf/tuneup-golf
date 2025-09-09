@@ -70,10 +70,13 @@
                                             <div class="short-text break-all clamp-text" id="lessonDesc">
                                                 {!! $lesson?->lesson_description !!}
                                             </div>
-                                            <a href="#"
-                                                class="read-toggle text-blue-600 font-medium mt-1 inline-block"
-                                                onclick="toggleRead(this); return false;" tabindex="0">&lt;&lt; Read
-                                                Less</a>
+                                            @if (!is_null($lesson?->long_description))
+                                                <a href="javascript:void(0)"
+                                                data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
+                                                    class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
+                                                    tabindex="0"> View
+                                                    Description</a>
+                                            @endif
                                         </div>
 
                                         <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3">
@@ -134,6 +137,13 @@
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
                                         {{--  <h3 style="font-size: 20px;font-weight:bold"> By Package Lesson</h3>  --}}
                                         <p>{!! $lesson?->lesson_description !!}</p>
+                                        @if (!is_null($lesson?->long_description))
+                                            <a href="javascript:void(0)"
+                                            data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
+                                                class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
+                                                tabindex="0"> View
+                                                Description</a>
+                                        @endif
 
                                         <div class="mb-3 p-3 border rounded-lg shadow-sm bg-white">
                                             <h2 class="text-lg font-semibold flex items-center mb-2">
@@ -253,6 +263,27 @@
         </div>
     </div>
 
+    <div class="modal" id="longDescModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title font-bold" style="font-size: 20px">Long Description</h1>
+                    <button type="button"
+                        class="bg-gray-900 flex font-bold h-8 items-center justify-center m-2 right-2 rounded-full shadow-md text-2xl top-2 w-8 z-10"
+                        onclick="closeLongDescModal()" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h3 class="longDescContent"></h3>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="lesson-btn" onclick="closeLongDescModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer class="foot mt-0">
         <div class="text-center container ctm-container footer-one">
             <div class="flex justify-center">
@@ -319,7 +350,15 @@
     <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
 
     <script>
-        console.log("Popup JS Loaded");
+        $(document).on('click', '.viewDescription', function() {
+            $('#longDescModal').modal('show');
+            let desc = $(this).attr('data-long_description');
+            $('.longDescContent').html(desc);
+        })
+
+        function closeLongDescModal() {
+            $('#longDescModal').modal('hide');
+        }
 
 
         function openInstructorPopup(name, imageSrc, bio, lessons = [], currency = '') {
