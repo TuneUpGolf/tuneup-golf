@@ -295,9 +295,9 @@
                                                 href="{{ route('expense.type.index') }}">{{ __('Expense Type') }}</a>
                                         </li>
                                         <li
-                                            class="dash-item {{ request()->is('lesson/create?type=online') ? 'active' : '' }}">
+                                            class="dash-item {{ request()->is('expense.index') ? 'active' : '' }}">
                                             <a class="dash-link"
-                                                href="{{ route('lesson.create', ['type' => 'online']) }}">{{ __('Add Expense') }}</a>
+                                                href="{{ route('expense.index') }}">{{ __('Add Expense') }}</a>
                                         </li>
                                     </ul>
                                 </li>
