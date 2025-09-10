@@ -44,21 +44,28 @@
                                 <div class="flex gap-1 itmes-center mb-2 cursor-pointer add-more-package">
                                     <i class="ti ti-plus text-2xl"></i><span>Add Package Options</span>
                                 </div>
+
                                 @foreach ($user->packages as $package)
                                     <div class="flex gap-2 mb-2 slots" id="number_slot">
+                                        <!-- Hidden ID field -->
+                                        <input type="hidden" name="exist_package_lesson[{{ $loop->index }}][id]"
+                                            value="{{ $package->id }}">
+
+                                        <!-- Package Size -->
                                         <div class="form-group w-50">
                                             {{ Form::label('no_of_slot', __('Package Size'), ['class' => 'form-label']) }}
-                                            <select type="dropdown"
-                                                name="exist_package_lesson[{{ $loop->index }}][no_of_slot]"
+                                            <select name="exist_package_lesson[{{ $loop->index }}][no_of_slot]"
                                                 class="form-control" required>
                                                 <option value="">No. of slot</option>
                                                 @for ($i = 1; $i <= 10; $i++)
-                                                    <option value={{ $i }}
+                                                    <option value="{{ $i }}"
                                                         {{ $package->number_of_slot == $i ? 'selected' : '' }}>
-                                                        {{ $i }} </option>
+                                                        {{ $i }}
+                                                    </option>
                                                 @endfor
                                             </select>
                                         </div>
+
                                         <!-- Price -->
                                         <div class="form-group w-50 price-field">
                                             {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
@@ -167,7 +174,7 @@
                             ]) !!}
                         </div>
 
-                       
+
 
                     </div>
                     <div class="card-footer">

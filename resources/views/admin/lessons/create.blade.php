@@ -59,7 +59,7 @@
 
                             <div class="form-group">
                                 {{ Form::label('description', __('Short Description'), ['class' => 'form-label']) }}
-                                {!! Form::textarea('short_description', null, [
+                                {!! Form::textarea('lesson_description', null, [
                                     'class' => 'form-control',
                                     'required',
                                     'placeholder' => __('Enter Description'),
@@ -106,7 +106,7 @@
             filebrowserUploadMethod: 'form'
         });
 
-        CKEDITOR.replace('short_description', {
+        CKEDITOR.replace('lesson_description', {
             toolbar: [{
                     name: 'basicstyles',
                     items: ['Bold', 'Italic']
@@ -121,8 +121,8 @@
             filebrowserUploadMethod: 'form'
         });
 
-        CKEDITOR.instances.short_description.on('key', function(evt) {
-            let editor = CKEDITOR.instances.short_description;
+        CKEDITOR.instances.lesson_description.on('key', function(evt) {
+            let editor = CKEDITOR.instances.lesson_description;
             let text = editor.document.getBody().getText();
             let maxLength = 300;
 
