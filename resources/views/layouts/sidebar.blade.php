@@ -284,7 +284,7 @@
                             @can('manage-lessons')
                                 <li class="dash-item dash-hasmenu {{ (in_array($userType, [\App\Models\Role::ROLE_SUPER_ADMIN, \App\Models\Role::ROLE_STUDENT]) && request()->is('lesson*')) ? 'active' : '' }}">
                                     <a href="#!" class="dash-link">
-                                    <span class="dash-micon"><i class="ti ti-notebook"></i></span>
+                                    <span class="dash-micon"><i class="ti ti-receipt-2"></i></span>
                                         <span class="dash-mtext">{{ __('Manage Expenses') }}</span>
                                         <span class="dash-arrow"><i data-feather="chevron-right"></i>
                                         </span>
