@@ -52,7 +52,6 @@ class HomeController extends Controller
         $userType = $user->type;
         $tenantId = tenant('id');
         $tab = $request->get('view');
-
         if ($userType == Role::ROLE_STUDENT) {
             $user = Student::find($user->id);
             if ($purchase = Purchase::find($request->query('purchase_id'))) {
