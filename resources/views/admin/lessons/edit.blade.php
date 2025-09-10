@@ -149,7 +149,7 @@
                             </div>
                         @endif
 
-                         <div class="form-group">
+                        <div class="form-group">
                             {{ Form::label('description', __('Short Description'), ['class' => 'form-label']) }}
                             {!! Form::textarea('lesson_description', null, [
                                 'class' => 'form-control',
