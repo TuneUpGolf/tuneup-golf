@@ -76,7 +76,7 @@ class LessonController extends Controller
             $validatedData = $request->validate([
                 'lesson_name'          => 'required|string|max:255',
                 'long_description'   => 'string',
-                'lesson_description'   => 'string',
+                'lesson_description'   => 'required|string',
                 'lesson_price'         => 'required|numeric',
                 'lesson_quantity'      => 'required|integer',
                 'required_time'        => 'required|integer',
@@ -85,7 +85,7 @@ class LessonController extends Controller
         if ($request->type === Lesson::LESSON_TYPE_INPERSON) {
             $validatedData = $request->validate([
                 'lesson_name'          => 'required|string|max:255',
-                'long_description'   =>     'string',
+                'long_description'   =>    'string',
                 'lesson_description'   => 'required|string',
                 'lesson_price'         => 'required_if:is_package_lesson,0|numeric',
                 'lesson_duration'      => 'required|numeric',
@@ -138,7 +138,7 @@ class LessonController extends Controller
         $validatedData = $request->validate([
             'lesson_name'          => 'required|string|max:255',
             'long_escription'      => 'string',
-            'lesson_description'   => 'string',
+            'lesson_description'   => 'required|string',
             'lesson_price'         => 'required_if:is_package_lesson,1|numeric',
             'lesson_quantity'      => 'integer',
             'required_time'        => 'integer',

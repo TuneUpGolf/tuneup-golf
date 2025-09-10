@@ -72,7 +72,7 @@
                                             </div>
                                             @if (!is_null($lesson?->long_description))
                                                 <a href="javascript:void(0)"
-                                                data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
+                                                    data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
                                                     class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
                                                     tabindex="0"> View
                                                     Description</a>
@@ -85,7 +85,7 @@
                                                 <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
                                             </div>
                                         </div>
-                                        <div class="w-100 mt-2">
+                                        <div class="w-100 mt-3">
 
                                             <a href="{{ route('login') }}" tabindex="0">
                                                 <button type="submit" class="lesson-btn py-2"
@@ -136,9 +136,9 @@
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
                                         {{--  <h3 style="font-size: 20px;font-weight:bold"> By Package Lesson</h3>  --}}
                                         <p>{!! $lesson?->lesson_description !!}</p>
-                                        @if (!empty($lesson?->long_description) || $lesson?->long_description != "" || $lesson?->long_description != NULL)
+                                        @if (!empty($lesson?->long_description) || $lesson?->long_description != '' || $lesson?->long_description != null)
                                             <a href="javascript:void(0)"
-                                            data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
+                                                data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
                                                 class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
                                                 tabindex="0"> View
                                                 Description</a>
