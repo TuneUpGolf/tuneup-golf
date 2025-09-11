@@ -22,8 +22,7 @@
 @section('title', __('Dashboard'))
 @section('instructor')
     @if (isset($tenant_instructors) && $tenant_instructors->count())
-        <select name="instructor" id="instructor" class="form-control"
-            onchange="window.location='{{ url()->current() }}?instructor_id='+this.value">
+        <select name="instructor" id="instructor" class="form-control" onchange="updateInstructorUrl(this.value)">
             <option value="">All Instructors</option>
             @foreach ($tenant_instructors as $instructor)
                 <option value="{{ $instructor->id }}" {{ request('instructor_id') == $instructor->id ? 'selected' : '' }}>
@@ -92,10 +91,14 @@
             </div>
             --}}
                     <div class="tab dashboard-tab">
-                        <button class="tablinks {{ $tab == 'in-person' ? 'active' : '' }}"
+                        {{--  <button class="tablinks {{ $tab == 'in-person' ? 'active' : '' }}"
                             onclick="window.location.href='home?view=in-person'">In-Person Lessons</button>
                         <button class="tablinks {{ $tab == 'online' ? 'active' : '' }}"
-                            onclick="window.location.href='home?view=online'">Online Lessons</button>
+                            onclick="window.location.href='home?view=online'">Online Lessons</button>  --}}
+                        <button class="tablinks {{ $tab == 'in-person' ? 'active' : '' }}"
+                            onclick="switchTab('in-person')">In-Person Lessons</button>
+                        <button class="tablinks {{ $tab == 'online' ? 'active' : '' }}" onclick="switchTab('online')">Online
+                            Lessons</button>
                         <button class="tablinks {{ $tab == 'my-lessons' ? 'active' : '' }}"
                             onclick="window.location.href='home?view=my-lessons'">My Lessons</button>
                         <button class="tablinks {{ $tab == 'posts' ? 'active' : '' }}"
@@ -258,6 +261,27 @@
 @endpush
 @push('javascript')
     <script>
+        function switchTab(view) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('view', view);
+            const instructorId = document.getElementById('instructor')?.value;
+            if (instructorId) {
+                url.searchParams.set('instructor_id', instructorId);
+            } else {
+                url.searchParams.delete('instructor_id');
+            }
+            window.location.href = url.toString();
+        }
+
+        function updateInstructorUrl(instructorId) {
+            const url = new URL(window.location.href);
+            if (instructorId) {
+                url.searchParams.set('instructor_id', instructorId);
+            } else {
+                url.searchParams.delete('instructor_id');
+            }
+            window.location.href = url.toString();
+        }
         $('ul.pagination').hide();
         $(function() {
             $('.infinity').jscroll({
