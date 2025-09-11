@@ -59,6 +59,7 @@ use App\Http\Controllers\Superadmin\Payment\BenefitPaymentController;
 use App\Http\Controllers\Superadmin\Payment\EasebuzzPaymentController;
 use App\Http\Controllers\Superadmin\Payment\RazorpayPaymentController;
 use App\Http\Controllers\Admin\Payment\StripeController as PaymentStripeController;
+use App\Http\Controllers\SuperAdmin\SuperAdminInstructorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -447,3 +448,7 @@ Route::post('/request/submit', function () {
 
     return redirect('/')->with('success', 'Request Submitted Successfully');
 })->name('request.submit');
+
+Route::resource('super-admin-instructors', SuperAdminInstructorController::class);
+Route::get('/our-instructors', [SuperAdminInstructorController::class, 'frontendIndex'])
+    ->name('frontend.instructors.index');
