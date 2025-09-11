@@ -27,6 +27,9 @@
                         <a class="nav-item nav-link item-custom anker" href="./Instructor.html">Instructors</a>
                         <a class="nav-item nav-link item-custom anker" href="./Golfer.html">Golfers</a>
                         <a class="nav-item nav-link item-custom anker" href="./About.html">About Us</a>
+                        <a class="nav-item nav-link item-custom anker" href="{{ route('frontend.instructors.index') }}">
+                            Our Instructors
+                        </a>
                     </div>
 
                     <div class="d-flex align-items-lg-center mt-3 mt-lg-0">
