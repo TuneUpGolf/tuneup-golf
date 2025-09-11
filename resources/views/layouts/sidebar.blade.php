@@ -324,14 +324,14 @@
                             </li>
                         @endcan
                     @endif
-                    @if ($userType === 'Student')
+                    {{--  @if ($userType === 'Student')
                         <li class="dash-item dash-hasmenu {{ request()->is('instructor*') ? 'active' : '' }}">
                             <a class="dash-link" href="{{ route('instructor.profiles') }}">
                             <span class="dash-micon"><i class="ti ti-user"></i></span>
                                 <span class="dash-mtext">{{ __('Instructors') }}</span>
                             </a>
                         </li>
-                    @endif
+                    @endif  --}}
                     @if ($userType === 'Instructor')
                         <li class="dash-item dash-hasmenu">
                             <a class="dash-link" rel="noopener noreferrer"
