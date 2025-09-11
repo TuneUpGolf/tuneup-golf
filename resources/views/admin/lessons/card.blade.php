@@ -70,7 +70,7 @@
                     class=" text-blue-600 font-medium mt-1 inline-block viewDescription" tabindex="0"> View
                     Description</a>
             @endif  --}}
-            @if (!is_null($long_description))
+            @if (!empty($long_description))
                 <a href="javascript:void(0)" data-long_description="{!! e($long_description) !!}"
                     class="text-blue-600 font-medium mt-1 inline-block viewDescription" tabindex="0">
                     View Description
