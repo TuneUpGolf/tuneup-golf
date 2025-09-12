@@ -66,13 +66,14 @@ class RegisteredUserController extends Controller
         ]);
         $user->assignRole(Role::ROLE_STUDENT);
         $chatUserDetails = $this->chatService->getUserProfile($request->email);
-
-        if ($chatUserDetails['code'] == 200) {
+        // if ($chatUserDetails['code'] == 200) {
+        if ($chatUserDetails['status'] == 200) {
             $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', tenant('id'), $request->eamil);
             $user->update([
                 'chat_user_id' => $chatUserDetails['data']['_id'],
             ]);
-        } elseif ($chatUserDetails['code'] == 204) {
+        // } elseif ($chatUserDetails['code'] == 204) {
+        } elseif ($chatUserDetails['status'] == 204) {
             $created = $this->chatService->createUser($user);
             if (! $created) {
                 throw new \Exception('Failed to chat user.');
