@@ -18,7 +18,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Carbon\Carbon;
-use Google\Service\ServiceControl\Auth;
+// use Google\Service\ServiceControl\Auth;
+use Illuminate\Support\Facades\Auth;
+
 
 class RegisteredUserController extends Controller
 {
@@ -87,8 +89,7 @@ class RegisteredUserController extends Controller
             );
         }
 
-        if(!is_null($instructor->chat_user_id))
-        {
+        if (!is_null($instructor->chat_user_id)) {
             $groupId = $this->chatService->createGroup($user->chat_user_id, $instructor->chat_user_id);
             if ($groupId) {
                 $user->group_id = $groupId;
@@ -121,11 +122,10 @@ class RegisteredUserController extends Controller
 
         $res = Auth::loginUsingId($user->id);
 
-        if($res)
-        {
+        if ($res) {
             return redirect()->route('home');
         }
-        
+
         return redirect(RouteServiceProvider::LOGIN)->with('success', 'Signup successful, please login with your credentials');
     }
 }

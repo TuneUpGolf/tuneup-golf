@@ -88,7 +88,8 @@ class HomeController extends Controller
             $inPerson_instructors = User::with('lessons')
             ->instructors()
             ->whereHas('lessons', function ($q) {
-                $q->where('type', 'inPerson'); 
+                $q->where('type', 'inPerson')
+                ->orWhere('type','package'); 
             })
             ->get();
 
