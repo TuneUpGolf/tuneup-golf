@@ -20,7 +20,7 @@ use Illuminate\Foundation\Auth\RegistersUsers;
 use Carbon\Carbon;
 // use Google\Service\ServiceControl\Auth;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Log;
 
 class RegisteredUserController extends Controller
 {
@@ -67,19 +67,43 @@ class RegisteredUserController extends Controller
         $user->assignRole(Role::ROLE_STUDENT);
         $chatUserDetails = $this->chatService->getUserProfile($request->email);
         // if ($chatUserDetails['code'] == 200) {
-        if ($chatUserDetails['status'] == 200) {
-            $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', tenant('id'), $request->eamil);
-            $user->update([
-                'chat_user_id' => $chatUserDetails['data']['_id'],
-            ]);
-        // } elseif ($chatUserDetails['code'] == 204) {
-        } elseif ($chatUserDetails['status'] == 204) {
-            $created = $this->chatService->createUser($user);
-            if (! $created) {
-                throw new \Exception('Failed to chat user.');
+        // if ($chatUserDetails['status'] == 200) {
+        //     $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', tenant('id'), $request->eamil);
+        //     $user->update([
+        //         'chat_user_id' => $chatUserDetails['data']['_id'],
+        //     ]);
+        // // } elseif ($chatUserDetails['code'] == 204) {
+        // } elseif ($chatUserDetails['status'] == 204) {
+        //     $created = $this->chatService->createUser($user);
+        //     if (! $created) {
+        //         throw new \Exception('Failed to chat user.');
+        //     }
+        // } else {
+        //     throw new \Exception('Failed to chat user.');
+        // }
+
+        try {
+            if ($chatUserDetails['status'] == 200) {
+                $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', tenant('id'), $request->email);
+                $user->update([
+                    'chat_user_id' => $chatUserDetails['data']['_id'],
+                ]);
+            } elseif ($chatUserDetails['status'] == 204) {
+                $created = $this->chatService->createUser($user);
+                if ($created) {
+                    $user->update([
+                        'chat_user_id' => $created['_id'] ?? null,
+                    ]);
+                } else {
+                    session()->flash('warning', 'Registered successfully, but chat user could not be created.');
+                }
+            } else {
+                session()->flash('warning', 'Registered successfully, but chat user could not be created.');
             }
-        } else {
-            throw new \Exception('Failed to chat user.');
+        } catch (\Exception $e) {
+            // Log the error and set a flash message instead of throwing
+            Log::error('Chat user creation failed: ' . $e->getMessage());
+            session()->flash('warning', 'Registered successfully, but chat features may not work properly.');
         }
 
         $instructor = User::where('type', Role::ROLE_INSTRUCTOR)->orderBy('id', 'desc')->first();
