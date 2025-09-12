@@ -20,18 +20,11 @@
 @endphp
 @extends('layouts.main')
 @section('title', __('Dashboard'))
-@section('instructor')
-    @if (isset($tenant_instructors) && $tenant_instructors->count())
-        <select name="instructor" id="instructor" class="form-control" onchange="updateInstructorUrl(this.value)">
-            <option value="">All Instructors</option>
-            @foreach ($tenant_instructors as $instructor)
-                <option value="{{ $instructor->id }}" {{ request('instructor_id') == $instructor->id ? 'selected' : '' }}>
-                    {{ $instructor->name }}
-                </option>
-            @endforeach
-        </select>
-    @endif
-@endsection
+{{--  @section('instructor')  --}}
+
+{{--  @endsection  --}}
+
+
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
     <li class="breadcrumb-item">{{ __('Dashboard') }}</li>
@@ -245,6 +238,37 @@
                                     </div>
                                 </div>
                             @else
+                                @if($tab=='in-person')
+                                    @if (isset($inPerson_instructors) && $inPerson_instructors->count() )
+                                        <div class="col-md-2 mt-2">
+                                            <select name="instructor" id="instructor" class="form-control"
+                                                onchange="updateInstructorUrl(this.value)">
+                                                <option value="">All Instructors</option>
+                                                @foreach ($inPerson_instructors as $instructor)
+                                                    <option value="{{ $instructor->id }}"
+                                                        {{ request('instructor_id') == $instructor->id ? 'selected' : '' }}>
+                                                        {{ $instructor->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    @endif
+                                @elseif($tab=='online')
+                                    @if (isset($online_instructors) && $online_instructors->count() )
+                                        <div class="col-md-2 mt-2">
+                                            <select name="instructor" id="instructor" class="form-control"
+                                                onchange="updateInstructorUrl(this.value)">
+                                                <option value="">All Instructors</option>
+                                                @foreach ($online_instructors as $instructor)
+                                                    <option value="{{ $instructor->id }}"
+                                                        {{ request('instructor_id') == $instructor->id ? 'selected' : '' }}>
+                                                        {{ $instructor->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    @endif
+                                @endif
                                 <livewire:student-dashboard-view :instructor_id="$instructor_id" />
                             @endif
                         </div>

@@ -88,7 +88,7 @@
                     </div>
                 </div>
             @else
-                {{--  <div class="page-header">
+                <div class="page-header">
                     <div class="page-block">
                         <div class="row align-items-center">
                             <h2 class="text-3xl mb-0 title">@yield('title')</h2>
@@ -102,8 +102,8 @@
                             </div>
                         </div>
                     </div>
-                </div>  --}}
-                <div class="page-header">
+                </div>
+                {{--  <div class="page-header">
                     <div class="page-block">
                         <div class="row align-items-center">
                             <div class="d-flex justify-content-between align-items-center w-100">
@@ -121,7 +121,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>  --}}
 
 
             @endif
