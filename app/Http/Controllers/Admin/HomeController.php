@@ -81,12 +81,25 @@ class HomeController extends Controller
             $tab = !empty($tab) ? $tab : 'in-person';
             $dataTable = $tab == 'my-lessons' ? new PurchaseDataTable($tab) : false;
             $instructor_id = $request->input('instructor_id', null);
-            $tenant_instructors = User::with('lessons')
-                ->instructors()
-                ->get()
-                ->filter(fn($instructor) => $instructor->lessons->isNotEmpty());
+            // $tenant_instructors = User::with('lessons')
+            //     ->instructors()
+            //     ->get()
+            //     ->filter(fn($instructor) => $instructor->lessons->isNotEmpty());
+            $inPerson_instructors = User::with('lessons')
+            ->instructors()
+            ->whereHas('lessons', function ($q) {
+                $q->where('type', 'inPerson'); 
+            })
+            ->get();
+
+            $online_instructors = User::with('lessons')
+            ->instructors()
+            ->whereHas('lessons', function ($q) {
+                $q->where('type', 'online'); 
+            })
+            ->get();
             return $dataTable ? $dataTable->render('admin.dashboard.tab-view', compact('tab', 'dataTable')) :
-                view('admin.dashboard.tab-view', compact('tab', 'dataTable', 'chatEnabled', 'token', 'instructor', 'plans', 'tenant_instructors', 'instructor_id'));
+                view('admin.dashboard.tab-view', compact('tab', 'dataTable', 'chatEnabled', 'token', 'instructor', 'plans', 'inPerson_instructors','online_instructors', 'instructor_id'));
         }
 
         $user = User::find($user->id);
