@@ -72,7 +72,7 @@ class StudentDashboardView extends GridView
         }
         return match ($this->currentView) {
             'in-person' => $query
-                ->where('type', Lesson::LESSON_TYPE_INPERSON)
+                // ->where('type', Lesson::LESSON_TYPE_INPERSON)
                 ->with(['packages' => function ($query) {
                     return $query->orderBy('number_of_slot');
                 }, 'slots.student', 'slots.lesson', 'user'])
