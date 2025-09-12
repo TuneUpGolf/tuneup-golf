@@ -80,8 +80,13 @@ class HomeController extends Controller
 
             $tab = !empty($tab) ? $tab : 'in-person';
             $dataTable = $tab == 'my-lessons' ? new PurchaseDataTable($tab) : false;
+            $instructor_id = $request->input('instructor_id', null);
+            $tenant_instructors = User::with('lessons')
+                ->instructors()
+                ->get()
+                ->filter(fn($instructor) => $instructor->lessons->isNotEmpty());
             return $dataTable ? $dataTable->render('admin.dashboard.tab-view', compact('tab', 'dataTable')) :
-                view('admin.dashboard.tab-view', compact('tab', 'dataTable', 'chatEnabled', 'token', 'instructor', 'plans'));
+                view('admin.dashboard.tab-view', compact('tab', 'dataTable', 'chatEnabled', 'token', 'instructor', 'plans', 'tenant_instructors', 'instructor_id'));
         }
 
         $user = User::find($user->id);

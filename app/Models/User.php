@@ -291,4 +291,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(PushToken::class, 'instructor_id');
     }
+    public function scopeInstructors($query)
+    {
+        return $query->where('type', 'Instructor')
+                    ->where('tenant_id', auth()->user()->tenant_id);
+    }
 }
