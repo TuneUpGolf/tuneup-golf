@@ -44,21 +44,28 @@
                                 <div class="flex gap-1 itmes-center mb-2 cursor-pointer add-more-package">
                                     <i class="ti ti-plus text-2xl"></i><span>Add Package Options</span>
                                 </div>
+
                                 @foreach ($user->packages as $package)
                                     <div class="flex gap-2 mb-2 slots" id="number_slot">
+                                        <!-- Hidden ID field -->
+                                        <input type="hidden" name="exist_package_lesson[{{ $loop->index }}][id]"
+                                            value="{{ $package->id }}">
+
+                                        <!-- Package Size -->
                                         <div class="form-group w-50">
                                             {{ Form::label('no_of_slot', __('Package Size'), ['class' => 'form-label']) }}
-                                            <select type="dropdown"
-                                                name="exist_package_lesson[{{ $loop->index }}][no_of_slot]"
+                                            <select name="exist_package_lesson[{{ $loop->index }}][no_of_slot]"
                                                 class="form-control" required>
                                                 <option value="">No. of slot</option>
                                                 @for ($i = 1; $i <= 10; $i++)
-                                                    <option value={{ $i }}
+                                                    <option value="{{ $i }}"
                                                         {{ $package->number_of_slot == $i ? 'selected' : '' }}>
-                                                        {{ $i }} </option>
+                                                        {{ $i }}
+                                                    </option>
                                                 @endfor
                                             </select>
                                         </div>
+
                                         <!-- Price -->
                                         <div class="form-group w-50 price-field">
                                             {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
@@ -149,13 +156,14 @@
                             </div>
                         @endif
 
-                         <div class="form-group">
+                        <div class="form-group">
                             {{ Form::label('description', __('Short Description'), ['class' => 'form-label']) }}
                             {!! Form::textarea('lesson_description', null, [
                                 'class' => 'form-control',
                                 'required',
                                 'placeholder' => __('Enter Short Description'),
                             ]) !!}
+                            <p>Total Characters: <span id="count"></span></p>
                         </div>
 
                         <div class="form-group">
@@ -165,9 +173,11 @@
                                 'required',
                                 'placeholder' => __('Enter Long Description'),
                             ]) !!}
+                            <p>Total Characters: <span id="long_count"></span></p>
+
                         </div>
 
-                       
+
 
                     </div>
                     <div class="card-footer">
@@ -198,6 +208,7 @@
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form'
         });
+
         CKEDITOR.replace('lesson_description', {
             toolbar: [{
                     name: 'basicstyles',
@@ -213,13 +224,83 @@
             filebrowserUploadMethod: 'form'
         });
 
+        // Handle typing
         CKEDITOR.instances.lesson_description.on('key', function(evt) {
             let editor = CKEDITOR.instances.lesson_description;
             let text = editor.document.getBody().getText();
             let maxLength = 300;
 
+            // Allow Backspace (8) and Delete (46) even if at max length
             if (text.length >= maxLength && evt.data.keyCode !== 8 && evt.data.keyCode !== 46) {
                 evt.cancel();
+            }
+        });
+
+        // Handle pasting with truncation
+        CKEDITOR.instances.lesson_description.on('paste', function(evt) {
+            let editor = CKEDITOR.instances.lesson_description;
+            let currentText = editor.document.getBody().getText();
+            let pastedText = (evt.data.dataValue || '').replace(/<[^>]*>/g, ''); // Strip HTML tags
+            let maxLength = 300;
+            let remainingLength = maxLength - currentText.length;
+
+            // If pasted text exceeds remaining length, truncate it
+            if (remainingLength < pastedText.length) {
+                pastedText = pastedText.substring(0, remainingLength);
+                evt.data.dataValue = pastedText; // Update the pasted content
+            }
+        });
+
+        // Update character count on change
+        CKEDITOR.instances.lesson_description.on('change', function() {
+            let editor = CKEDITOR.instances.lesson_description;
+            let text = editor.document.getBody().getText().trim(); // Get plain text and trim
+            let countElement = document.getElementById('count');
+            if (countElement) {
+                countElement.textContent = text.length; // Update the count display
+            }
+        });
+
+        // Update character count after paste
+        CKEDITOR.instances.lesson_description.on('paste', function(evt) {
+            // Use setTimeout to allow paste to process before counting
+            setTimeout(function() {
+                let editor = CKEDITOR.instances.lesson_description;
+                let text = editor.document.getBody().getText().trim(); // Get plain text and trim
+                let countElement = document.getElementById('count');
+                if (countElement) {
+                    countElement.textContent = text.length; // Update the count display
+                }
+            }, 0);
+        });
+
+        // Initialize character count on editor load
+        CKEDITOR.instances.lesson_description.on('instanceReady', function() {
+            let editor = CKEDITOR.instances.lesson_description;
+            let text = editor.document.getBody().getText().trim(); // Get plain text and trim
+            let countElement = document.getElementById('count');
+            if (countElement) {
+                countElement.textContent = text.length; // Set initial count
+            }
+        });
+
+        //Long Desc
+
+        CKEDITOR.instances.long_description.on('change', function() {
+            let editor = CKEDITOR.instances.long_description;
+            let text = editor.document.getBody().getText().trim(); // Get plain text and trim
+            let countElement = document.getElementById('long_count');
+            if (countElement) {
+                countElement.textContent = text.length; // Update the count display
+            }
+        });
+
+        CKEDITOR.instances.long_description.on('instanceReady', function() {
+            let editor = CKEDITOR.instances.long_description;
+            let text = editor.document.getBody().getText().trim(); // Get plain text and trim
+            let countElement = document.getElementById('long_count');
+            if (countElement) {
+                countElement.textContent = text.length;
             }
         });
         $(document).ready(function() {

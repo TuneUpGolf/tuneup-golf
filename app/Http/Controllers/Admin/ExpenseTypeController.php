@@ -66,9 +66,16 @@ class ExpenseTypeController extends Controller
 
     public function destroy($id)
     {
-        $expense_type = ExpenseType::find($id);
-        $expense_type->delete();
-        return redirect()->back()->with('success', 'Expense Type deleted successfully.');
+        $expense_type = ExpenseType::with('expenses')->find($id);
+        if( isset($expense_type) )
+        {
+            if(count( $expense_type->expenses ) > 0 )
+            {
+                return redirect()->back()->with('failed', 'Expense Type is in use.');
+            }
+            $expense_type->delete();
+            return redirect()->back()->with('success', 'Expense Type deleted successfully.');
+        }
     }
 
 }

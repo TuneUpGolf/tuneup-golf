@@ -11,6 +11,7 @@ class StudentDashboardView extends GridView
 {
     public $maxCols = 4;
     protected $paginate = 40;
+    public $instructor_id;
 
     /**
      * Sets the data to every card on the view
@@ -31,31 +32,69 @@ class StudentDashboardView extends GridView
     /**
      * Sets a model class to get the initial data
      */
+    // public function repository(): Builder
+    // {
+    //     if ($this->currentView == 'posts') {
+    //         $this->cardComponent = 'admin.posts.card';
+    //         return Post::orderBy('created_at', 'desc');
+    //     }
+    //     $query = Lesson::where('active_status', true);
+
+    //     return match ($this->currentView) {
+    //         'in-person' => $query->with(['packages' => function ($query) {
+    //             return $query->orderBy('number_of_slot');
+    //         }, 'slots.student', 'slots.lesson', 'user'])->whereIn('type', [Lesson::LESSON_TYPE_INPERSON, Lesson::LESSON_TYPE_PACKAGE])
+    //             ->where(function ($q) {
+    //                 $q->where('payment_method', '!=', 'online')
+    //                     ->orWhereHas('user', function ($q) {
+    //                         $q->where('is_stripe_connected', true);
+    //                     });
+    //             }),
+    //         'online' => $query->with(['slots.student', 'slots.lesson', 'user'])->where('type', Lesson::LESSON_TYPE_ONLINE)
+    //             ->whereHas('user', function ($q) {
+    //                 $q->where('is_stripe_connected', true);
+    //             }),
+    //         default => $query->with(['slots.student', 'slots.lesson', 'user'])
+    //     };
+    // }
     public function repository(): Builder
     {
         if ($this->currentView == 'posts') {
             $this->cardComponent = 'admin.posts.card';
             return Post::orderBy('created_at', 'desc');
         }
+
         $query = Lesson::where('active_status', true);
 
+        // ✅ Apply instructor or tenant filter
+        if (!empty($this->instructor_id)) {
+            $query->where('created_by', $this->instructor_id);
+        }
         return match ($this->currentView) {
-            'in-person' => $query->with(['packages' => function ($query) {
-                return $query->orderBy('number_of_slot');
-            }, 'slots.student', 'slots.lesson', 'user'])->whereIn('type', [Lesson::LESSON_TYPE_INPERSON, Lesson::LESSON_TYPE_PACKAGE])
+            'in-person' => $query
+                // ->where('type', Lesson::LESSON_TYPE_INPERSON)
+                ->with(['packages' => function ($query) {
+                    return $query->orderBy('number_of_slot');
+                }, 'slots.student', 'slots.lesson', 'user'])
+                ->whereIn('type', [Lesson::LESSON_TYPE_INPERSON, Lesson::LESSON_TYPE_PACKAGE])
                 ->where(function ($q) {
                     $q->where('payment_method', '!=', 'online')
                         ->orWhereHas('user', function ($q) {
                             $q->where('is_stripe_connected', true);
                         });
                 }),
-            'online' => $query->with(['slots.student', 'slots.lesson', 'user'])->where('type', Lesson::LESSON_TYPE_ONLINE)
+
+            'online' => $query->with(['slots.student', 'slots.lesson', 'user'])
+                ->where('type', Lesson::LESSON_TYPE_ONLINE)
                 ->whereHas('user', function ($q) {
                     $q->where('is_stripe_connected', true);
                 }),
-            default => $query->with(['slots.student', 'slots.lesson', 'user'])
+
+            default => $query->with(['slots.student', 'slots.lesson', 'user']),
         };
     }
+
+
 
     public function card($model)
     {
@@ -93,11 +132,15 @@ class StudentDashboardView extends GridView
 
         return [
             'image' => isset($model->user->avatar)
-                ? asset('/storage' . '/' . tenant('id') . '/' . $model->user->avatar)
+                ? asset($model->user->avatar)
                 : asset('assets/img/logo/logo.png'),
+            // 'image' => isset($model->user->avatar)
+            // ? asset('/storage' . '/' . tenant('id') . '/' . $model->user->avatar)
+            // : asset('assets/img/logo/logo.png'),
             'title' => $model->lesson_name,
             'subtitle' => str_replace(['(', ')'], '', $symbol) . ' ' . $model->lesson_price . ' (' . strtoupper($currency) . ')',
-            'description' => $model->lesson_description,
+            'short_description' => $model->lesson_description,
+            'long_description' => $model->long_description,
             'currency' => $currency,
             'currencySymbol' => $symbol,
             'firstSlot' => $firstSlot,

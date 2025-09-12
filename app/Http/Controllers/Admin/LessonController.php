@@ -73,27 +73,49 @@ class LessonController extends Controller
     public function store(Request $request)
     {
         if ($request->type === Lesson::LESSON_PAYMENT_ONLINE) {
-            $validatedData = $request->validate([
-                'lesson_name'          => 'required|string|max:255',
-                'long_description'   => 'string',
-                'lesson_description'   => 'string',
-                'lesson_price'         => 'required|numeric',
-                'lesson_quantity'      => 'required|integer',
-                'required_time'        => 'required|integer',
-            ]);
+            $validatedData = $request->validate(
+                [
+                    'lesson_name'          => 'required|string|max:255',
+                    'long_description'   => 'string',
+                    'lesson_description' => [
+                        'required',
+                        'string',
+                        function ($attribute, $value, $fail) {
+                            // Remove tags & invisible characters
+                            $clean = trim(preg_replace('/\x{200B}+/u', '', strip_tags($value)));
+
+                            if ($clean === '') {
+                                $fail('The short description is required.');
+                            }
+                        },
+                    ],
+                    'lesson_price'         => 'required|numeric',
+                    'lesson_quantity'      => 'required|integer',
+                    'required_time'        => 'required|integer',
+                ],
+                [
+                    'lesson_description.required' => 'The short description is required.',
+
+                ]
+            );
         }
         if ($request->type === Lesson::LESSON_TYPE_INPERSON) {
-            $validatedData = $request->validate([
-                'lesson_name'          => 'required|string|max:255',
-                'long_description'   =>     'string',
-                'lesson_description'   => 'required|string',
-                'lesson_price'         => 'required_if:is_package_lesson,0|numeric',
-                'lesson_duration'      => 'required|numeric',
-                'payment_method'       => ['required', 'in:online,cash'],
-                'slots'                => 'array',
-                'max_students'         => 'required|integer|min:1',
-                'is_package_lesson'    => 'string',
-            ]);
+            $validatedData = $request->validate(
+                [
+                    'lesson_name'          => 'required|string|max:255',
+                    'long_description'      =>    'string',
+                    'lesson_description'   => 'required|string',
+                    'lesson_price'         => 'required_if:is_package_lesson,0|numeric',
+                    'lesson_duration'      => 'required|numeric',
+                    'payment_method'       => ['required', 'in:online,cash'],
+                    'slots'                => 'array',
+                    'max_students'         => 'required|integer|min:1',
+                    'is_package_lesson'    => 'string',
+                ],
+                [
+                    'lesson_description.required' => 'The short description is required.',
+                ]
+            );
             $validatedData['lesson_quantity'] = 1;
             $validatedData['required_time'] = 0;
             !empty($validatedData['is_package_lesson']) && $validatedData['is_package_lesson'] == 1 ? $validatedData['is_package_lesson'] = true : $validatedData['is_package_lesson'] = false;
@@ -137,30 +159,61 @@ class LessonController extends Controller
         $lesson = Lesson::findOrFail($lessonId);
         $validatedData = $request->validate([
             'lesson_name'          => 'required|string|max:255',
-            'long_escription'      => 'string',
-            'lesson_description'   => 'string',
+            'long_description'      => 'string',
+            // 'lesson_description'   => 'required|string',
+            'lesson_description' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    // Remove tags & invisible characters
+                    $clean = trim(preg_replace('/\x{200B}+/u', '', strip_tags($value)));
+
+                    if ($clean === '') {
+                        $fail('The short description is required.');
+                    }
+                },
+            ],
             'lesson_price'         => 'required_if:is_package_lesson,1|numeric',
             'lesson_quantity'      => 'integer',
             'required_time'        => 'integer',
             'lesson_duration'      => 'numeric',
             'payment_method'       => 'in:online,cash',
             'max_students'         => 'integer|min:1',
+        ], [
+            'lesson_description.required' => 'The short description is required.',
+
         ]);
 
         // Assuming 'created_by' is the ID of the currently authenticated instructor
         $validatedData['created_by'] = Auth::user()->id;
-        $validatedData['lesson_description'] = $_POST['lesson_description'] != "" ? $_POST['lesson_description'] : NULL;
         $validatedData['long_description'] = $_POST['long_description'] != "" ? $_POST['long_description'] : NULL;
+        $validatedData['lesson_description'] = $_POST['lesson_description'] != "" ? $_POST['lesson_description'] : NULL;
+        if ($lesson->is_package_lesson == 1) {
+            $validatedData['lesson_duration'] = $_POST['lesson_duration'] != "" ? $_POST['lesson_duration'] : NULL;
+            $validatedData['max_students'] = $_POST['max_students'] != "" ? $_POST['max_students'] : NULL;
+        }
 
         $lesson->update($validatedData);
-        if ($lesson->is_package_lesson == 1 && !empty($request->package_lesson)) {
-            foreach ($request->package_lesson as $packages) {
-                PackageLesson::create([
-                    'tenant_id' => Auth::user()->tenant_id,
-                    'lesson_id' => $lessonId,
-                    'number_of_slot' => $packages['no_of_slot'],
-                    'price' => $packages['price'],
-                ]);
+        if ($lesson->is_package_lesson == 1) {
+            if (!empty($request->exist_package_lesson)) {
+                foreach ($request->exist_package_lesson as $packages) {
+                    PackageLesson::where('id', $packages['id'])
+                        ->where('lesson_id', $lessonId) // extra safety
+                        ->update([
+                            'number_of_slot' => $packages['no_of_slot'],
+                            'price'          => $packages['price'],
+                        ]);
+                }
+            }
+            if (!empty($request->package_lesson)) {
+                foreach ($request->package_lesson as $packages) {
+                    PackageLesson::create([
+                        'tenant_id' => Auth::user()->tenant_id,
+                        'lesson_id' => $lessonId,
+                        'number_of_slot' => $packages['no_of_slot'],
+                        'price' => $packages['price'],
+                    ]);
+                }
             }
         }
         return redirect()->route('lesson.index', $lesson)->with('success', 'Lesson updated successfully.');

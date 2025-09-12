@@ -65,14 +65,29 @@
                                         </div>
                                     </div>
 
+                                    @php
+                                        $description = strip_tags($lesson->lesson_description);
+                                        $shortDescription = \Illuminate\Support\Str::limit($description, 80, '');
+                                    @endphp
+
+                                    <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h p-2">
+                                        <span class="short-text">{{ $shortDescription }}</span>
+                                        @if (strlen($description) > 20)
+                                            <span class="hidden full-text">{{ $description }}</span>
+                                            <a href="javascript:void(0);"
+                                                class="text-blue-600 toggle-read-more font-semibold"
+                                                onclick="toggleDescription(this)">Read More</a>
+                                        @endif
+                                    </p>
+
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
                                         <div class="description-wrapper relative expanded">
-                                            <div class="short-text break-all clamp-text" id="lessonDesc">
+                                            {{--  <div class="short-text break-all clamp-text" id="lessonDesc">
                                                 {!! $lesson?->lesson_description !!}
-                                            </div>
+                                            </div>  --}}
                                             @if (!is_null($lesson?->long_description))
                                                 <a href="javascript:void(0)"
-                                                data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
+                                                    data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
                                                     class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
                                                     tabindex="0"> View
                                                     Description</a>
@@ -85,7 +100,7 @@
                                                 <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
                                             </div>
                                         </div>
-                                        <div class="w-100 mt-2">
+                                        <div class="w-100 mt-3">
 
                                             <a href="{{ route('login') }}" tabindex="0">
                                                 <button type="submit" class="lesson-btn py-2"
@@ -132,13 +147,27 @@
                                             </div>
                                         </div>
                                     </div>
+                                    @php
+                                        $description = html_entity_decode(strip_tags($lesson->lesson_description));
+                                        $shortDescription = \Illuminate\Support\Str::limit($description, 80, '');
+                                    @endphp
+
+                                    <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h p-2">
+                                        <span class="short-text">{{ $shortDescription }}</span>
+                                        @if (strlen($description) > 20)
+                                            <span class="hidden full-text">{{ $description }}</span>
+                                            <a href="javascript:void(0);"
+                                                class="text-blue-600 toggle-read-more font-semibold"
+                                                onclick="toggleDescription(this)">Read More</a>
+                                        @endif
+                                    </p>
 
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
                                         {{--  <h3 style="font-size: 20px;font-weight:bold"> By Package Lesson</h3>  --}}
-                                        <p>{!! $lesson?->lesson_description !!}</p>
-                                        @if (!empty($lesson?->long_description) || $lesson?->long_description != "" || $lesson?->long_description != NULL)
+                                        {{--  <p>{!! $lesson?->lesson_description !!}</p>  --}}
+                                        @if (!empty($lesson?->long_description) || $lesson?->long_description != '' || $lesson?->long_description != null)
                                             <a href="javascript:void(0)"
-                                            data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
+                                                data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
                                                 class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
                                                 tabindex="0"> View
                                                 Description</a>
@@ -163,24 +192,20 @@
                                                 @endforeach
                                             </select>
                                         </div>
-
                                         <div class="w-100 mt-3">
-
                                             <a class="lesson-btn text-center" href="{{ route('login') }}">
                                                 Purchase
                                             </a>
-
-
                                         </div>
                                     </div>
-                                    <form id="bookingForm" method="POST"
+                                    {{--  <form id="bookingForm" method="POST"
                                         action="https://t1.collegegolfrecruitingportal.com/lesson/slot/booking?redirect=1">
                                         <input type="hidden" name="_token"
                                             value="Kk6k2iEnrgODkVya6l2oUYiM43GdKQZLfH4fbkSx"> <input type="hidden"
                                             id="packagePrice" name="package_price">
                                         <input type="hidden" id="slotIdInput" name="slot_id">
                                         <input type="hidden" id="friendNamesInput" name="friend_names">
-                                    </form>
+                                    </form>  --}}
                                 </div>
 
 
@@ -349,6 +374,21 @@
     <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
 
     <script>
+        function toggleDescription(button) {
+            let parent = button.closest('.description');
+            let shortText = parent.querySelector('.short-text');
+            let fullText = parent.querySelector('.full-text');
+
+            if (shortText.classList.contains('hidden')) {
+                shortText.classList.remove('hidden');
+                fullText.classList.add('hidden');
+                button.innerText = "Read More";
+            } else {
+                shortText.classList.add('hidden');
+                fullText.classList.remove('hidden');
+                button.innerText = "Show Less";
+            }
+        }
         $(document).on('click', '.viewDescription', function() {
             $('#longDescModal').modal('show');
             let desc = $(this).attr('data-long_description');
