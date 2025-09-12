@@ -20,6 +20,11 @@
 @endphp
 @extends('layouts.main')
 @section('title', __('Dashboard'))
+<style>
+    .title {
+        display:none;
+    }
+</style>
 {{--  @section('instructor')  --}}
 
 {{--  @endsection  --}}

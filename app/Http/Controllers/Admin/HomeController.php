@@ -115,8 +115,8 @@ class HomeController extends Controller
 
         // Fetch Plan Expiration
         $planExpiredDate = $userType == AuthServiceProvider::ADMIN_TYPE
-            ? tenancy()->central(fn($tenant) => User::where('email', $user->email)->first()->plan_expired_date)
-            : User::where('email', $user->email)->first()->plan_expired_date;
+            ? tenancy()->central(fn($tenant) => User::where('email', $user->email)->first()?->plan_expired_date)
+            : User::where('email', $user->email)->first()?->plan_expired_date;
 
         // Fetch Instructor Count
         $instructor = User::where('tenant_id', $tenantId)->where('type', Role::ROLE_INSTRUCTOR)->count();
