@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html>
+    @php
+        $bio_heading = \App\Facades\UtilityFacades::getsettings('bio_heading');
+        @endphp
 
 <head>
     <meta charset="UTF-8">
@@ -14,7 +17,7 @@
             ? Utility::getsettings('meta_description')
             : 'Discover the efficiency of Full Multi Tenancy, a user-friendly web application by Quebix Apps.' }}">
 
-    <title>TuneUp</title>
+    <title>{{ $bio_heading ?? "Tune Up" }}</title>
     <link rel="icon"
         href="{{ Utility::getsettings('favicon_logo') ? Utility::getpath('logo/app-favicon-logo.png') : asset('assets/images/app-favicon-logo.png') }}"
         type="image/png">

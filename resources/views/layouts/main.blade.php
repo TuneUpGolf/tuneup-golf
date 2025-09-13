@@ -5,7 +5,6 @@
 <head>
 
     @php
-
         $primary_color = \App\Facades\UtilityFacades::getsettings('color');
         if (isset($primary_color)) {
             $color = $primary_color;

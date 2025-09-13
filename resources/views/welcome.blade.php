@@ -51,8 +51,7 @@
                             <div class="col-md-4">
                                 <div class=" bg-gray rounded-lg shadow h-100  flex flex-col">
                                     <div class="relative text-center p-3 flex gap-3">
-                                        <img src="{{ asset('storage/' . tenant()->id . '/' . ($instructors[0]->avatar ?? $user->dp)) }}"
-                                            alt="{{ $instructors[0]->name }}"
+                                        <img src="{{ $instructors[0]->avatar }}" alt="{{ $instructors[0]->name }}"
                                             class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
                                         <div class="text-left">
                                             <a class="font-bold text-dark text-xl" href="{{ route('login') }}"
@@ -76,7 +75,7 @@
                                             <span class="hidden full-text">{{ $description }}</span>
                                             <a href="javascript:void(0);"
                                                 class="text-blue-600 toggle-read-more font-semibold"
-                                                onclick="toggleDescription(this)">Read More</a>
+                                                onclick="toggleDescription(this)">View Lesson Description</a>
                                         @endif
                                     </p>
 
@@ -93,15 +92,16 @@
                                                     Description</a>
                                             @endif
                                         </div>
-
-                                        <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3">
-                                            <div class="text-center">
-                                                <span class="text-xl font-bold">{{ $lesson?->required_time }} Days</span>
-                                                <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
+                                        @if ($lesson?->type == 'online')
+                                            <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3">
+                                                <div class="text-center">
+                                                    <span class="text-xl font-bold">{{ $lesson?->required_time }}
+                                                        Days</span>
+                                                    <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
+                                                </div>
                                             </div>
-                                        </div>
+                                        @endif
                                         <div class="w-100 mt-3">
-
                                             <a href="{{ route('login') }}" tabindex="0">
                                                 <button type="submit" class="lesson-btn py-2"
                                                     tabindex="0">Purchase</button>
@@ -125,18 +125,18 @@
                                     class="w-full bg-gray border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col h-full">
                                     <div class="relative text-center p-3 flex gap-3">
 
-                                        <img src="{{ asset('storage/' . tenant()->id . '/' . ($instructors[0]->avatar ?? $user->dp)) }}"
+                                        <img src="{{ $instructors[0]->avatar }}"
                                             class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
                                         <div class="text-left">
                                             <a class="font-bold text-dark text-xl" href="{{ route('login') }}">
                                                 {{ $instructors[0]->name }}
                                             </a>
+                                            @if($slots != 0)
                                             <div class="text-lg font-bold tracking-tight text-primary">
-                                                $ 00.00
                                                 <p>{{ $slots }} Slots available.</p>
                                             </div>
-                                            <div class="text-sm font-medium text-gray-500 italic">
-
+                                            @endif
+                                            {{--  <div class="text-sm font-medium text-gray-500 italic">
                                                 <div class="flex flex-row justify-between">
                                                     <div
                                                         class="bg-green-500 text-white text-sm font-bold px-2 py-1 rounded-full">
@@ -144,7 +144,7 @@
                                                         Lesson
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div>  --}}
                                         </div>
                                     </div>
                                     @php
@@ -158,13 +158,12 @@
                                             <span class="hidden full-text">{{ $description }}</span>
                                             <a href="javascript:void(0);"
                                                 class="text-blue-600 toggle-read-more font-semibold"
-                                                onclick="toggleDescription(this)">Read More</a>
+                                                onclick="toggleDescription(this)">View Lesson Description</a>
                                         @endif
                                     </p>
 
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                                        {{--  <h3 style="font-size: 20px;font-weight:bold"> By Package Lesson</h3>  --}}
-                                        {{--  <p>{!! $lesson?->lesson_description !!}</p>  --}}
+
                                         @if (!empty($lesson?->long_description) || $lesson?->long_description != '' || $lesson?->long_description != null)
                                             <a href="javascript:void(0)"
                                                 data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
@@ -198,17 +197,7 @@
                                             </a>
                                         </div>
                                     </div>
-                                    {{--  <form id="bookingForm" method="POST"
-                                        action="https://t1.collegegolfrecruitingportal.com/lesson/slot/booking?redirect=1">
-                                        <input type="hidden" name="_token"
-                                            value="Kk6k2iEnrgODkVya6l2oUYiM43GdKQZLfH4fbkSx"> <input type="hidden"
-                                            id="packagePrice" name="package_price">
-                                        <input type="hidden" id="slotIdInput" name="slot_id">
-                                        <input type="hidden" id="friendNamesInput" name="friend_names">
-                                    </form>  --}}
                                 </div>
-
-
                             </div>
                         @endif
                     @empty
@@ -382,7 +371,7 @@
             if (shortText.classList.contains('hidden')) {
                 shortText.classList.remove('hidden');
                 fullText.classList.add('hidden');
-                button.innerText = "Read More";
+                button.innerText = "View Lesson Description";
             } else {
                 shortText.classList.add('hidden');
                 fullText.classList.remove('hidden');
