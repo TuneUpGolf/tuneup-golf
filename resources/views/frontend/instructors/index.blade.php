@@ -18,10 +18,10 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav mx-lg-auto" id="mynav">
                         <a class="nav-item nav-link item-custom anker" href="/">Why TuneUp?</a>
-                        <a class="nav-item nav-link item-custom anker" href="{{ url('course-benefits') }}">Golf Course Benefits</a>
-                        <a class="nav-item nav-link item-custom anker" href="{{ url('instructor') }}">Instructors</a>
-                        <a class="nav-item nav-link item-custom anker" href="{{ url('golfers') }}">Golfers</a>
-                        <a class="nav-item nav-link item-custom anker" href="{{ url('about') }}">About Us</a>
+                        <a class="nav-item nav-link item-custom anker" href="./Course.html">Golf Course Benefits</a>
+                        <a class="nav-item nav-link item-custom anker" href="./Instructor.html">Instructors</a>
+                        <a class="nav-item nav-link item-custom anker" href="./Golfer.html">Golfers</a>
+                        <a class="nav-item nav-link item-custom anker" href="./About.html">About Us</a>
                         <a class="nav-item nav-link item-custom anker active" href="{{ url('our-instructors') }}">Our Instructors</a>
                     </div>
 
