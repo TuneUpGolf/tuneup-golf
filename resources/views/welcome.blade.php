@@ -47,7 +47,7 @@
             @if (count($instructors) == 1)
                 <div class="row g-4 py-4">
                     @forelse($instructors[0]->lessons as $lesson)
-                        @if ($lesson?->is_package_lesson == 0)
+                        {{--  @if ($lesson?->is_package_lesson == 0)  --}}
                             <div class="col-md-4">
                                 <div class=" bg-gray rounded-lg shadow h-100  flex flex-col">
                                     <div class="relative text-center p-3 flex gap-3">
@@ -110,8 +110,8 @@
                                     </div>
                                 </div>
                             </div>
-                        @else
-                            @php
+                        {{--  @else  --}}
+                            {{--  @php
                                 $slots = 0;
                                 $slots += $lesson?->packages->sum('number_of_slot');
                                 $packages_array = [];
@@ -136,7 +136,7 @@
                                                 <p>{{ $slots }} Slots available.</p>
                                             </div>
                                             @endif
-                                            {{--  <div class="text-sm font-medium text-gray-500 italic">
+                                            <div class="text-sm font-medium text-gray-500 italic">
                                                 <div class="flex flex-row justify-between">
                                                     <div
                                                         class="bg-green-500 text-white text-sm font-bold px-2 py-1 rounded-full">
@@ -144,7 +144,7 @@
                                                         Lesson
                                                     </div>
                                                 </div>
-                                            </div>  --}}
+                                            </div>
                                         </div>
                                     </div>
                                     @php
@@ -198,8 +198,8 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        @endif
+                            </div>  --}}
+                        {{--  @endif  --}}
                     @empty
                         <h3>No Lessons Found</h3>
                     @endforelse
