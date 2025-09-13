@@ -117,7 +117,7 @@
                                 $packages_array = [];
                                 foreach ($lesson?->packages as $package) {
                                     $packages_array[] =
-                                        $package->number_of_slot . ' Lesson ' . ' - ' . $package->price . ' USD ';
+                                        $package->number_of_slot . ' Pack ' . ' - ' . $package->price . ' USD ';
                                 }
                             @endphp
                             <div class="col-md-4">
