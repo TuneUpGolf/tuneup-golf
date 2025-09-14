@@ -47,7 +47,7 @@ class PurchaseDataTable extends DataTable
             })
             ->editColumn('lesson_name', function ($purchase) {
                 $lessonName           = e($purchase->lesson_name);
-                $truncatedLessonName  = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
+                $truncatedLessonName  = strlen($lessonName) > 40 ? substr($lessonName, 0, 40) . '...' : $lessonName;
 
                 $lesson_type = $purchase->lesson->type ?? null;
 
@@ -346,8 +346,8 @@ class PurchaseDataTable extends DataTable
     protected function getColumns()
     {
         $columns = [
-            Column::make('No')->title(__('Lesson Number'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-            Column::make('lesson_name')->title(__('Lesson'))->searchable(true),
+            Column::make('No')->title(__('Lesson #'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false)->width('80px'),
+            Column::make('lesson_name')->title(__('Lesson Title'))->searchable(true)->width('250px'),
             Column::make('pill')->title(__('Type'))->searchable(false)->orderable(false), // Updated: Set title to "Type"
             Column::make('deleted')->title(__('Status'))->searchable(false)->orderable(false), // Updated: Set title to "Status"
             Column::make('remaining_slots')->title(__('Remaining Slots'))->orderable(false)->searchable(false)->addClass('text-center'),
@@ -367,9 +367,9 @@ class PurchaseDataTable extends DataTable
             Column::computed('action')->title(__('Actions'))
                 ->exportable(false)
                 ->printable(false)
-                ->width(60)
+                // ->width(60)
                 ->addClass('text-center')
-                ->width('20%'),
+                ->width('80px'),
         ]);
     }
 
