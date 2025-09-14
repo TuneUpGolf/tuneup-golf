@@ -125,7 +125,7 @@
                                     class="w-full bg-gray border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col h-full">
                                     <div class="relative text-center p-3 flex gap-3">
 
-                                        <img src="{{ $instructors[0]->avatar }}"
+                                        <img src="{{ asset('storage/' . tenant()->id . '/' .  ($instructors[0]->avatar ?? $user->dp)) }}"
                                             class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
                                         <div class="text-left">
                                             <a class="font-bold text-dark text-xl" href="{{ route('login') }}">
