@@ -132,11 +132,8 @@ class StudentDashboardView extends GridView
 
         return [
             'image' => isset($model->user->avatar)
-                ? asset($model->user->avatar)
-                : asset('assets/img/logo/logo.png'),
-            // 'image' => isset($model->user->avatar)
-            // ? asset('/storage' . '/' . tenant('id') . '/' . $model->user->avatar)
-            // : asset('assets/img/logo/logo.png'),
+            ? asset('/storage' . '/' . tenant('id') . '/' . $model->user->avatar)
+            : asset('assets/img/logo/logo.png'),
             'title' => $model->lesson_name,
             'subtitle' => str_replace(['(', ')'], '', $symbol) . ' ' . $model->lesson_price . ' (' . strtoupper($currency) . ')',
             'short_description' => $model->lesson_description,
