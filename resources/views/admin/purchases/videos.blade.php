@@ -13,12 +13,14 @@
 </div>
 
 @php
-    $purchaseVideo = $purchase->videos->first();
-    $purchaseVideoUrl = $purchaseVideo->video_url ?? '';
+    $purchaseVideo   = $purchase->videos->first();
+    $purchaseVideoUrl  = $purchaseVideo->video_url ?? '';
     $purchaseVideo2Url = $purchaseVideo->video_url_2 ?? '';
-    $feedback = $purchaseVideo ? trim($purchaseVideo->feedback) : false;
-    $feedbackContent = $purchaseVideo->feedbackContent->first();
-    $feedbackUrl = $feedbackContent->url ?? false;
+    $feedback        = $purchaseVideo ? trim($purchaseVideo->feedback) : false;
+    $feedbackContent = $purchaseVideo && $purchaseVideo->feedbackContent
+                        ? $purchaseVideo->feedbackContent->first()
+                        : null;
+    $feedbackUrl     = $feedbackContent->url ?? false;
 @endphp
 
 {{-- Main container with responsive layout --}}
