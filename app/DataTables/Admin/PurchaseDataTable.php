@@ -46,8 +46,8 @@ class PurchaseDataTable extends DataTable
                     </div>';
             })
             ->editColumn('lesson_name', function ($purchase) {
-                $lessonName           = e($purchase->lesson_name);
-                $truncatedLessonName  = strlen($lessonName) > 40 ? substr($lessonName, 0, 40) . '...' : $lessonName;
+                $lessonName = e($purchase->lesson_name);
+                $truncatedLessonName = strlen($lessonName) > 40 ? substr($lessonName, 0, 40) . '...' : $lessonName;
 
                 $lesson_type = $purchase->lesson->type ?? null;
 
@@ -55,9 +55,9 @@ class PurchaseDataTable extends DataTable
                     route('purchase.show', $purchase->id);
 
                 if (Auth::user()->type == 'Instructor') {
-                    $lessonLink = '<a href="' . $url . '" class="text-blue-600 hover:underline mr-2" title="' . $lessonName . '">' . $truncatedLessonName . '</a>';
+                    $lessonLink = '<a href="' . $url . '" class="text-blue-600 hover:underline mr-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="' . $lessonName . '">' . $truncatedLessonName . '</a>';
                 } else {
-                    $lessonLink = '<span class="text-gray-800 mr-2" title="' . $lessonName . '">' . $truncatedLessonName . '</span>';
+                    $lessonLink = '<span class="text-gray-800 mr-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="' . $lessonName . '">' . $truncatedLessonName . '</span>';
                 }
 
                 return '
@@ -277,20 +277,25 @@ class PurchaseDataTable extends DataTable
                 "drawCallback" => 'function( settings ) {
                     var tooltipTriggerList = [].slice.call(
                         document.querySelectorAll("[data-bs-toggle=tooltip]")
-                      );
-                      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                        return new bootstrap.Tooltip(tooltipTriggerEl);
-                      });
-                      var popoverTriggerList = [].slice.call(
+                    );
+                    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl, {
+                            delay: { show: 100, hide: 200 },
+                            trigger: "hover"
+                        });
+                    });
+                    var popoverTriggerList = [].slice.call(
                         document.querySelectorAll("[data-bs-toggle=popover]")
-                      );
-                      var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                    );
+                    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
                         return new bootstrap.Popover(popoverTriggerEl);
-                      });
-                      var toastElList = [].slice.call(document.querySelectorAll(".toast"));
-                      var toastList = toastElList.map(function (toastEl) {
+                    });
+                    var toastElList = [].slice.call(
+                        document.querySelectorAll(".toast")
+                    );
+                    var toastList = toastElList.map(function (toastEl) {
                         return new bootstrap.Toast(toastEl);
-                      });
+                    });
                 }'
             ])->language([
                 'buttons' => [
