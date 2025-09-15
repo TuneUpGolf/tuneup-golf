@@ -16,18 +16,42 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="preSetModal" tabindex="-1" aria-hidden="true">
+    {{--  <div class="modal fade" id="preSetModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Notice</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header" style="justify-content: end">
+                    <button onclick="closeInstructorPopup()"
+                        class="absolute bg-gray-900 flex font-bold h-8 items-center justify-center m-2 right-2 rounded-full shadow-md text-2xl top-2 w-8 z-10">
+                        ×
+                    </button>
                 </div>
                 <div class="modal-body">
                     Pre-set lesson type selected. No filtering applied.
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="lesson-btn" onclick="closeLongDescModal()">Close</button>
+y
+                </div>
+            </div>
+        </div>
+    </div>  --}}
+
+    <div class="modal" id="preSetModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title font-bold" style="font-size: 20px">Pre Set Lesson Students</h1>
+                    <button type="button"
+                        class="bg-gray-900 flex font-bold h-8 items-center justify-center m-2 right-2 rounded-full shadow-md text-2xl top-2 w-8 z-10"
+                        onclick="closeInstructorPopup()" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h3 class="longDescContent"></h3>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="lesson-btn" onclick="closeInstructorPopup()">Close</button>
                 </div>
             </div>
         </div>
@@ -45,5 +69,9 @@
                 "<div class='flex justify-start items-center'><div class='custom-table-header'></div><span class='font-medium text-2xl pl-4'>All Purchases</span></div>"
             );
         });
+
+        function closeInstructorPopup() {
+            $("#preSetModal").modal('hide');
+        }
     </script>
 @endpush
