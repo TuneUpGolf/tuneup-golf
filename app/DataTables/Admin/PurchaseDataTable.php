@@ -54,7 +54,6 @@ class PurchaseDataTable extends DataTable
                 $url = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? route('purchase.feedback.index', ['purchase_id' => $purchase->id]) :
                     route('purchase.show', $purchase->id);
 
-                // Check user role
                 if (Auth::user()->type == 'Instructor') {
                     $lessonLink = '<a href="' . $url . '" class="text-blue-600 hover:underline mr-2" title="' . $lessonName . '">' . $truncatedLessonName . '</a>';
                 } else {
@@ -65,9 +64,6 @@ class PurchaseDataTable extends DataTable
                 <div class="flex justify-between items-center">
                     ' . $lessonLink . '
                 </div>';
-            })
-            ->addColumn('deleted', function ($purchase) {
-                return ! $purchase->lesson->active_status ? ' <span class="text-gray-500 italic"> Deleted</span>' : 'Active';
             })
             ->addColumn('pill', function ($purchase) {
                 $s = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
@@ -120,7 +116,7 @@ class PurchaseDataTable extends DataTable
                     ->exists();
                 return view('admin.purchases.action', compact('purchase', 'hasBooking'));
             })
-            ->rawColumns(['action', 'status', 'student_name', 'instructor_name', 'lesson_name', 'pill', 'deleted', 'remaining_slots']);
+            ->rawColumns(['action', 'status', 'student_name', 'instructor_name', 'lesson_name', 'pill', 'remaining_slots']);
     }
 
     public function query(Purchase $model)
@@ -234,7 +230,7 @@ class PurchaseDataTable extends DataTable
             ->parameters([
                 "columnDefs" => [
                     ["responsivePriority" => 1, "targets" => 1],
-                    ["responsivePriority" => 2, "targets" => 4],
+                    ["responsivePriority" => 2, "targets" => 3],
                 ],
                 "dom" =>  "
                 <'dataTable-top row'<'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
@@ -311,10 +307,9 @@ class PurchaseDataTable extends DataTable
     protected function getColumns()
     {
         $columns = [
-            Column::make('No')->title(__('Lesson #'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false)->width('80px'),
+            Column::make('id')->title(__('Lesson #'))->searchable(true)->orderable(true)->width('80px'),
             Column::make('lesson_name')->title(__('Lesson Title'))->searchable(true)->width('250px'),
             Column::make('pill')->title(__('Type'))->searchable(false)->orderable(false),
-            Column::make('deleted')->title(__('Status'))->searchable(false)->orderable(false),
             Column::make('remaining_slots')->title(__('Remaining Slots'))->orderable(false)->searchable(false)->addClass('text-center'),
         ];
 
