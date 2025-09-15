@@ -59,7 +59,7 @@ use App\Http\Controllers\Superadmin\Payment\BenefitPaymentController;
 use App\Http\Controllers\Superadmin\Payment\EasebuzzPaymentController;
 use App\Http\Controllers\Superadmin\Payment\RazorpayPaymentController;
 use App\Http\Controllers\Admin\Payment\StripeController as PaymentStripeController;
-use App\Http\Controllers\SuperAdmin\SuperAdminInstructorController;
+use App\Http\Controllers\Superadmin\SuperAdminInstructorController;
 
 /*
 |--------------------------------------------------------------------------
