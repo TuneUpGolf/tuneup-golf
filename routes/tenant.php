@@ -124,14 +124,14 @@ Route::middleware([
         Route::get('/', [LandingController::class, 'landingPage'])->name('landingpage');
         Route::get('pages/{slug}', [LandingPageController::class, 'pageDescription'])->name('description.page');
 
-         //help section
+        //help section
         Route::resource('help-section', HelpSectionController::class);
     });
 
     Route::group(['middleware' => ['auth:web,student', 'Setting', 'xss', '2fa', 'verified', 'verified_phone']], function () {
 
         Route::impersonate();
-        
+
         //help section
         Route::resource('help-section', HelpSectionController::class);
 
@@ -181,7 +181,7 @@ Route::middleware([
         Route::post('student-status/{id}', [StudentController::class, 'userStatus'])->name('student.status');
         Route::get('student/{id}', [StudentController::class, 'show'])->name('student.show');
 
-            // Expense Type
+        // Expense Type
         Route::controller(ExpenseTypeController::class)->prefix('expense-type')->name('expense.type.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::post('store', 'store')->name('store');
@@ -211,15 +211,17 @@ Route::middleware([
 
         Route::post('lesson/slot/booking', [LessonController::class, 'bookSlotApi'])->name('slot.book');
 
-        
+
         Route::post('lesson/slot/admin', [LessonController::class, 'bookAdminSlot'])->name('slot.admin');
 
-        
+
         Route::post('lesson/slot/update', [LessonController::class, 'updateSlot'])->name('slot.update');
         Route::post('lesson/slot/delete', [LessonController::class, 'deleteSlot'])->name('slot.delete');
 
         //purchase
         Route::resource('purchase', PurchaseController::class);
+        Route::get('/purchases/data', [PurchaseController::class, 'data'])->name('purchase.data');
+
         Route::post('purchase/store', [PurchaseController::class, 'store'])->name('purchase.store');
         Route::post('purchase/confirm/redirect', [PurchaseController::class, 'confirmPurchaseWithRedirect'])->name('purchase-confirm-redirect');
         Route::post('purchase/video', [PurchaseController::class, 'addVideo'])->name('purchase.video.add');
@@ -490,7 +492,7 @@ Route::middleware([
         PreventAccessFromCentralDomains::class,
     ]], function () {
 
-        
+
         Route::get('users/get/all', [UserController::class, 'getAllUsers']);
 
         Route::get('instructor/get/all', [InstructorController::class, 'getAllUsers']);
@@ -571,7 +573,6 @@ Route::middleware([
         });
 
         Route::post('users/set/token', [ProfileController::class, 'setPushToken']);
-
     });
 
     //paytm

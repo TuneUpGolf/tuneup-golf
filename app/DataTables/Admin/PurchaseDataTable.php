@@ -40,10 +40,10 @@ class PurchaseDataTable extends DataTable
                     : asset('assets/img/logo/logo.png');
 
                 return '
-                    <div class="flex justify-start items-center">
-                        <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
-                        <span class="px-0">' . e($purchase->instructor_name) . '</span>
-                    </div>';
+                        <div class="flex justify-start items-center">
+                            <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
+                            <span class="px-0">' . e($purchase->instructor_name) . '</span>
+                        </div>';
             })
             ->editColumn('lesson_name', function ($purchase) {
                 $lessonName = e($purchase->lesson_name);
@@ -61,9 +61,9 @@ class PurchaseDataTable extends DataTable
                 }
 
                 return '
-                <div class="flex justify-between items-center">
-                    ' . $lessonLink . '
-                </div>';
+                    <div class="flex justify-between items-center">
+                        ' . $lessonLink . '
+                    </div>';
             })
             ->addColumn('pill', function ($purchase) {
                 $s = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
@@ -79,10 +79,10 @@ class PurchaseDataTable extends DataTable
                     : asset('assets/img/logo/logo.png');
 
                 return '
-                    <div class="flex justify-start items-center">
-                        <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
-                        <span class="px-0">' . e($purchase->student_name) . '</span>
-                    </div>';
+                        <div class="flex justify-start items-center">
+                            <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
+                            <span class="px-0">' . e($purchase->student_name) . '</span>
+                        </div>';
             })
             ->addColumn('status', function ($purchase) {
                 $s = Purchase::STATUS_MAPPING[$purchase->status] ?? 'Unknown';
@@ -122,6 +122,26 @@ class PurchaseDataTable extends DataTable
     public function query(Purchase $model)
     {
         $user = Auth::user();
+        $lessonType = request('lesson_type');
+        if (request('lesson_type') === 'pre-set') {
+            $query = Purchase::query()
+                ->select([
+                    'purchases.id',
+                    'lessons.lesson_name',
+                    'students.name as student_name',
+                    'slots.date_time',
+                    'slots.location',
+                    'purchases.friend_names',
+                    'purchases.type'
+                ])
+                ->join('students', 'purchases.student_id', '=', 'students.id')
+                ->leftJoin('slots', 'slots.lesson_id', '=', 'purchases.lesson_id')
+                ->leftJoin('lessons', 'lessons.id', '=', 'purchases.lesson_id')
+                ->where('purchases.type', 'inPerson')
+                ->orderBy('slots.date_time', 'asc');
+
+            return datatables()->of($query)->make(true);
+        }
 
         $query = $model->newQuery()
             ->select([
@@ -197,48 +217,48 @@ class PurchaseDataTable extends DataTable
                 'search' => ''
             ])
             ->initComplete('function() {
-                var table = this;
-                var searchInput = $(\'#\'+table.api().table().container().id+\' label input[type="search"]\');
-                searchInput.removeClass(\'form-control form-control-sm\');
-                searchInput.addClass(\'dataTable-input\');
-                var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
-                
-                $(".dataTable-search").prepend("' . $lessonTypeFilter . '");
-                $(".dataTable-search").addClass("d-flex");
+                    var table = this;
+                    var searchInput = $(\'#\'+table.api().table().container().id+\' label input[type="search"]\');
+                    searchInput.removeClass(\'form-control form-control-sm\');
+                    searchInput.addClass(\'dataTable-input\');
+                    var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
+                    
+                    $(".dataTable-search").prepend("' . $lessonTypeFilter . '");
+                    $(".dataTable-search").addClass("d-flex");
 
-                $("#lessonTypeFilter").on("change", function() {
-                    var selectedValue = $(this).val();
-                    if (selectedValue === "pre-set") {
-                        $("#preSetModal").modal("show");
-                        table.api().ajax.reload(function(json) {
-                            delete json.data.lesson_type;
-                        });
-                    } else {
-                        table.api().ajax.reload();
-                    }
-                });
+                    $("#lessonTypeFilter").on("change", function() {
+                        var selectedValue = $(this).val();
+                        if (selectedValue === "pre-set") {
+                            $("#preSetModal").modal("show");
+                            table.api().ajax.reload(function(json) {
+                                delete json.data.lesson_type;
+                            });
+                        } else {
+                            table.api().ajax.reload();
+                        }
+                    });
 
-                $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
-                    var selectedValue = $("#lessonTypeFilter").val();
-                    if (selectedValue !== "pre-set") {
-                        data.lesson_type = selectedValue;
-                    } else {
-                        data.lesson_type = "";
-                    }
-                });
-            }')
+                    $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
+                        var selectedValue = $("#lessonTypeFilter").val();
+                        if (selectedValue !== "pre-set") {
+                            data.lesson_type = selectedValue;
+                        } else {
+                            data.lesson_type = "";
+                        }
+                    });
+                }')
             ->parameters([
                 "columnDefs" => [
                     ["responsivePriority" => 1, "targets" => 1],
                     ["responsivePriority" => 2, "targets" => 3],
                 ],
                 "dom" =>  "
-                <'dataTable-top row'<'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
-                <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>>
-                <'dataTable-container'<'col-sm-12'tr>>
-                <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
-                <'col-sm-7'p>>
-                ",
+                    <'dataTable-top row'<'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
+                    <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>>
+                    <'dataTable-container'<'col-sm-12'tr>>
+                    <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
+                    <'col-sm-7'p>>
+                    ",
                 'buttons'   => $buttons,
                 "scrollX" => true,
                 "responsive" => [
@@ -246,57 +266,57 @@ class PurchaseDataTable extends DataTable
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow",
                         "renderer" => "function (api, rowIdx, columns) {
-                            var data = $('<table/>').addClass('vertical-table');
-                            $.each(columns, function (i, col) {
-                                data.append(
-                                    '<tr>' +
-                                        '<td><strong>' + col.title + '</strong></td>' +
-                                        '<td>' + col.data + '</td>' +
-                                    '</tr>'
-                                );
-                            });
-                            return data;
-                        }"
+                                var data = $('<table/>').addClass('vertical-table');
+                                $.each(columns, function (i, col) {
+                                    data.append(
+                                        '<tr>' +
+                                            '<td><strong>' + col.title + '</strong></td>' +
+                                            '<td>' + col.data + '</td>' +
+                                        '</tr>'
+                                    );
+                                });
+                                return data;
+                            }"
                     ]
                 ],
                 "rowCallback" => 'function(row, data, index) {
-                    $(row).addClass("custom-parent-row"); 
-                }',
+                        $(row).addClass("custom-parent-row"); 
+                    }',
                 'headerCallback' => 'function(thead, data, start, end, display) {
-                    $(thead).find("th").css({
-                        "background-color": "rgba(249, 252, 255, 1)",
-                        "font-weight": "400",
-                        "font":"sans",
-                        "border":"none",
-                    });
-                }',
-                'rowCallback' => 'function(row, data, index) {
-                    $("td", row).css("font-family", "Helvetica");
-                    $("td", row).css("font-weight", "300");
-                }',
-                "drawCallback" => 'function( settings ) {
-                    var tooltipTriggerList = [].slice.call(
-                        document.querySelectorAll("[data-bs-toggle=tooltip]")
-                    );
-                    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                        return new bootstrap.Tooltip(tooltipTriggerEl, {
-                            delay: { show: 100, hide: 200 },
-                            trigger: "hover"
+                        $(thead).find("th").css({
+                            "background-color": "rgba(249, 252, 255, 1)",
+                            "font-weight": "400",
+                            "font":"sans",
+                            "border":"none",
                         });
-                    });
-                    var popoverTriggerList = [].slice.call(
-                        document.querySelectorAll("[data-bs-toggle=popover]")
-                    );
-                    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-                        return new bootstrap.Popover(popoverTriggerEl);
-                    });
-                    var toastElList = [].slice.call(
-                        document.querySelectorAll(".toast")
-                    );
-                    var toastList = toastElList.map(function (toastEl) {
-                        return new bootstrap.Toast(toastEl);
-                    });
-                }'
+                    }',
+                'rowCallback' => 'function(row, data, index) {
+                        $("td", row).css("font-family", "Helvetica");
+                        $("td", row).css("font-weight", "300");
+                    }',
+                "drawCallback" => 'function( settings ) {
+                        var tooltipTriggerList = [].slice.call(
+                            document.querySelectorAll("[data-bs-toggle=tooltip]")
+                        );
+                        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                                delay: { show: 100, hide: 200 },
+                                trigger: "hover"
+                            });
+                        });
+                        var popoverTriggerList = [].slice.call(
+                            document.querySelectorAll("[data-bs-toggle=popover]")
+                        );
+                        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                            return new bootstrap.Popover(popoverTriggerEl);
+                        });
+                        var toastElList = [].slice.call(
+                            document.querySelectorAll(".toast")
+                        );
+                        var toastList = toastElList.map(function (toastEl) {
+                            return new bootstrap.Toast(toastEl);
+                        });
+                    }'
             ])->language([
                 'buttons' => [
                     'create' => __('Choose Your Coach'),
@@ -311,6 +331,15 @@ class PurchaseDataTable extends DataTable
 
     protected function getColumns()
     {
+        if (request('lesson_type') === 'pre-set') {
+            return [
+                Column::make('student_name')->title(__('Student')),
+                Column::make('date_time')->title(__('Date & Time')),
+                Column::make('location')->title(__('Location')),
+                Column::make('friend_names')->title(__('Friend Names')),
+                Column::make('type')->title(__('Type')),
+            ];
+        }
         $columns = [
             Column::make('id')->title(__('Lesson #'))->searchable(true)->orderable(true)->width('80px'),
             Column::make('lesson_name')->title(__('Lesson Title'))->searchable(true)->width('250px'),
