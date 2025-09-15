@@ -16,25 +16,6 @@
             </div>
         </div>
     </div>
-    {{--  <div class="modal fade" id="preSetModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header" style="justify-content: end">
-                    <button onclick="closeInstructorPopup()"
-                        class="absolute bg-gray-900 flex font-bold h-8 items-center justify-center m-2 right-2 rounded-full shadow-md text-2xl top-2 w-8 z-10">
-                        ×
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Pre-set lesson type selected. No filtering applied.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="lesson-btn" onclick="closeLongDescModal()">Close</button>
-y
-                </div>
-            </div>
-        </div>
-    </div>  --}}
 
     <div class="modal" id="preSetModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
