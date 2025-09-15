@@ -22,7 +22,7 @@
         <div class="text-left">
             <a class="font-bold text-dark text-xl"
                 href="{{ route('instructor.profile', ['instructor_id' => $model?->user?->id]) }}">
-                {!! \Illuminate\Support\Str::limit(ucfirst($model?->user?->name), 40, '...') !!}
+                {!! \Illuminate\Support\Str::limit(ucfirst($model?->user?->name), 100, '...') !!}
             </a>
             <div class="text-lg font-bold tracking-tight text-primary">
                 {!! $subtitle !!}
@@ -51,16 +51,26 @@
         </div>  --}}
 
         @php
-            $description = strip_tags($short_description);
+            $description = str_replace(
+                "\xC2\xA0",
+                ' ',
+                html_entity_decode(
+                    strip_tags($short_description),
+                    ENT_QUOTES | ENT_HTML5,
+                    'UTF-8',
+                ),
+            );
             $shortDescription = \Illuminate\Support\Str::limit($description, 80, '');
+
         @endphp
 
         <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h p-2">
-            <span class="short-text">{{ $shortDescription }}</span>
-            @if (strlen($description) > 20)
-                <span class="hidden full-text">{{ $description }}</span>
-                <a href="javascript:void(0);" class="text-blue-600 toggle-read-more font-semibold"
-                    onclick="toggleDescription(this)">Read More</a>
+            <span class="short-text" style="font-size:15px">{{ $shortDescription }}</span>
+            @if (strlen($description) > 100)
+                <span class="hidden full-text" style="font-size:15px">{{ $description }}</span>
+                <a href="javascript:void(0);" style="font-size:15px"
+                    class="text-blue-600 toggle-read-more font-semibold" onclick="toggleDescription(this)">View Lesson
+                    Description</a>
             @endif
         </p>
         <div class="description-wrapper relative expanded mb-2">
