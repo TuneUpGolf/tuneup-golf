@@ -16,6 +16,22 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="preSetModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Notice</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Pre-set lesson type selected. No filtering applied.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @push('css')
     @include('layouts.includes.datatable_css')
@@ -25,10 +41,9 @@
     {{ $dataTable->scripts() }}
     <script type="text/javascript">
         $(document).ready(function() {
-            var html =
-                $('.dataTable-title').html(
-                    "<div class='flex justify-start items-center'><div class='custom-table-header'></div><span class='font-medium text-2xl pl-4'>All Purchases</span></div>"
-                );
+            $('.dataTable-title').html(
+                "<div class='flex justify-start items-center'><div class='custom-table-header'></div><span class='font-medium text-2xl pl-4'>All Purchases</span></div>"
+            );
         });
     </script>
 @endpush
