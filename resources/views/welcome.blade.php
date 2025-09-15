@@ -110,17 +110,64 @@
                                                 <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
                                             </div>
                                         </div>
-                                    @endif
-                                    <div class="w-100 mt-3">
-                                        <a href="{{ route('login') }}" tabindex="0">
-                                            <button type="submit" class="lesson-btn py-2" tabindex="0">Purchase</button>
-                                        </a>
+                                    </div>
+
+                                    @php
+                                        $description = str_replace(
+                                            "\xC2\xA0",
+                                            ' ',
+                                            html_entity_decode(
+                                                strip_tags($lesson->lesson_description),
+                                                ENT_QUOTES | ENT_HTML5,
+                                                'UTF-8',
+                                            ),
+                                        );
+                                        $shortDescription = \Illuminate\Support\Str::limit($description, 80, '');
+                                    @endphp
+                                    <div class="text-gray-500 text-md px-2">
+                                        <h3 style="font-size:18px;font-weight:bold" class="font-weight-bolder">
+                                            {{ $lesson->lesson_name }}</h3>
+                                    </div>
+                                    <p class="text-gray-500 text-md description font-medium ctm-min-h p-2">
+                                        <span class="short-text  text-gray-600"
+                                            style="font-size: 15px">{{ $shortDescription }}</span>
+                                        @if (strlen($description) > 100)
+                                            <span class="hidden full-text text-gray-600"
+                                                style="font-size: 15px">{{ $description }}</span>
+                                            <a href="javascript:void(0);" style="font-size: 15px"
+                                                class="text-blue-600 toggle-read-more font-semibold"
+                                                onclick="toggleDescription(this)">View Lesson Description</a>
+                                        @endif
+                                    </p>
+                                    <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
+                                        <div class="description-wrapper relative expanded">
+                                            @if (!is_null($lesson?->long_description))
+                                                <a href="javascript:void(0)"
+                                                    data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
+                                                    class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
+                                                    tabindex="0"> View
+                                                    Description</a>
+                                            @endif
+                                        </div>
+                                        @if ($lesson?->type == 'online')
+                                            <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3">
+                                                <div class="text-center">
+                                                    <span class="text-xl font-bold">{{ $lesson?->required_time }}
+                                                        Days</span>
+                                                    <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                        <div class="w-100 mt-3">
+                                            <a href="{{ route('login') }}" tabindex="0">
+                                                <button type="submit" class="lesson-btn py-2" tabindex="0">Purchase</button>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        {{--  @else  --}}
-                        {{--  @php
+                        @else
+                        @php
                                 $slots = 0;
                                 $slots += $lesson?->packages->sum('number_of_slot');
                                 $packages_array = [];
@@ -207,8 +254,8 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>  --}}
-                        {{--  @endif  --}}
+                            </div>
+                        @endif
                     @empty
                         <h3>No Lessons Found</h3>
                     @endforelse
