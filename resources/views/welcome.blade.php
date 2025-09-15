@@ -51,7 +51,7 @@
                             <div class="col-md-4">
                                 <div class=" bg-gray rounded-lg shadow h-100  flex flex-col">
                                     <div class="relative text-center p-3 flex gap-3">
-                                        <img src="{{ $instructors[0]->avatar }}" alt="{{ $instructors[0]->name }}"
+                                        <img src="{{ asset('storage/' . tenant()->id . '/' .  ($instructors[0]->avatar ?? $user->dp)) }}" alt="{{ $instructors[0]->name }}"
                                             class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
                                         <div class="text-left">
                                             <a class="font-bold text-dark text-xl" href="{{ route('login') }}"
