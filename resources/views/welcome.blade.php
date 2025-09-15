@@ -34,18 +34,17 @@
                 alt="hero-banner">
         </div>
     </section>
-    @if (trim($admin->bio) != '')
-        <section class="lession-sec">
-            <div class="container ctm-container">
-                <h2 class="font-bold text-4xl mb-2">{{ !empty($bio_heading) ? $bio_heading : $admin->name }}</h2>
-                <p class="text-xl text-gray-600">{{ $admin->bio }}</p>
-            </div>
-        </section>
-    @endif
+    <section class="lession-sec">
+        <div class="container ctm-container py-2">
+            <h2 class="font-bold text-4xl mb-2">{{ !empty($bio_heading) ? $bio_heading : $admin->name }}</h2>
+            <p class="text-xl text-gray-600">{{ $admin->bio }}</p>
+        </div>
+    </section>
     @if (!$instructors->isEmpty())
         <section class="container">
             @if (count($instructors) == 1)
                 <div class="row g-4 py-4">
+                    <h3 style="font-size:22px;font-weight:bold;text-align:center">{{ $instructor_heading ?? "" }}</h3>
                     @forelse($instructors[0]->lessons as $lesson)
                         <div class="col-md-4">
                             <div class=" bg-gray rounded-lg shadow h-100  flex flex-col">
@@ -72,17 +71,20 @@
                                             'UTF-8',
                                         ),
                                     );
-
                                     $shortDescription = \Illuminate\Support\Str::limit($description, 80, '');
                                 @endphp
                                 <div class="text-gray-500 text-md px-2">
-                                    <h3 style="font-size:18px" class="font-weight-bolder">{{ $lesson->lesson_name }}</h3>
+                                    <h3 style="font-size:18px;font-weight:bold" class="font-weight-bolder">
+                                        {{ $lesson->lesson_name }}</h3>
                                 </div>
                                 <p class="text-gray-500 text-md description font-medium ctm-min-h p-2">
-                                    <span class="short-text  text-gray-600">{{ $shortDescription }}</span>
+                                    <span class="short-text  text-gray-600"
+                                        style="font-size: 15px">{{ $shortDescription }}</span>
                                     @if (strlen($description) > 100)
-                                        <span class="hidden full-text text-gray-600">{{ $description }}</span>
-                                        <a href="javascript:void(0);" class="text-blue-600 toggle-read-more font-semibold"
+                                        <span class="hidden full-text text-gray-600"
+                                            style="font-size: 15px">{{ $description }}</span>
+                                        <a href="javascript:void(0);" style="font-size: 15px"
+                                            class="text-blue-600 toggle-read-more font-semibold"
                                             onclick="toggleDescription(this)">View Lesson Description</a>
                                     @endif
                                 </p>
