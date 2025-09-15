@@ -23,7 +23,8 @@ class Lesson extends Model
     const TYPE_MAPPING = [
         "inPerson"  => "In-Person",
         "online" => "Online",
-        "package" => "Package"
+        "package" => "Package",
+        'pre-set' => 'Pre-Set Date'
     ];
 
 
