@@ -19,6 +19,13 @@
 @endsection
 @push('css')
     @include('layouts.includes.datatable_css')
+    <style>
+        @media (max-width: 768px) {
+            .card-body {
+                max-height: 100%;
+            }
+        }
+    </style>
 @endpush
 @push('javascript')
     @include('layouts.includes.datatable_js')

@@ -21,10 +21,10 @@ class Lesson extends Model
     const LESSON_TYPE_PACKAGE = 'package';
 
     const TYPE_MAPPING = [
-        "inPerson"  => "In-Person & Package",
+        "package"  => "inPerson & Package",
         "online" => "Online",
         // "package" => "Package",
-        'pre-set' => 'Pre-Set Date'
+        'inPerson' => 'Pre-Set Date'
     ];
 
     // const TYPE_MAPPING = [
