@@ -44,16 +44,18 @@
         <section class="container">
             @if (count($instructors) == 1)
                 <div class="row g-4 py-4">
-                    <h3 style="font-size:22px;font-weight:bold;text-align:center">{{ $instructor_heading ?? "" }}</h3>
+                    <h3 style="font-size:22px;font-weight:bold;text-align:center">{{ $instructor_heading ?? '' }}</h3>
                     @forelse($instructors[0]->lessons as $lesson)
-                        @if($lesson->is_package_lesson == 0)
+                        @if ($lesson->is_package_lesson == 0)
                             <div class="col-md-4">
                                 <div class=" bg-gray rounded-lg shadow h-100  flex flex-col">
                                     <div class="relative text-center p-3 flex gap-3">
-                                         <img src="{{ asset('storage/' . tenant()->id . '/' .  ($instructors[0]->avatar ?? $user->dp)) }}" alt="{{ $instructors[0]->name }}"
+                                        <img src="{{ asset('storage/' . tenant()->id . '/' . ($instructors[0]->avatar ?? $user->dp)) }}"
+                                            alt="{{ $instructors[0]->name }}"
                                             class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
                                         <div class="text-left">
-                                            <a class="font-bold text-dark text-xl" href="{{ route('login') }}" tabindex="0">
+                                            <a class="font-bold text-dark text-xl" href="{{ route('login') }}"
+                                                tabindex="0">
                                                 {{ $instructors[0]->name }}
                                             </a>
                                             <div class="text-lg font-bold tracking-tight text-primary">
@@ -110,14 +112,15 @@
                                         @endif
                                         <div class="w-100 mt-3">
                                             <a href="{{ route('login') }}" tabindex="0">
-                                                <button type="submit" class="lesson-btn py-2" tabindex="0">Purchase</button>
+                                                <button type="submit" class="lesson-btn py-2"
+                                                    tabindex="0">Purchase</button>
                                             </a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         @else
-                        @php
+                            @php
                                 $slots = 0;
                                 $slots += $lesson?->packages->sum('number_of_slot');
                                 $packages_array = [];
@@ -131,13 +134,13 @@
                                     class="w-full bg-gray border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col h-full">
                                     <div class="relative text-center p-3 flex gap-3">
 
-                                        <img src="{{ asset('storage/' . tenant()->id . '/' .  ($instructors[0]->avatar ?? $user->dp)) }}"
+                                        <img src="{{ asset('storage/' . tenant()->id . '/' . ($instructors[0]->avatar ?? $user->dp)) }}"
                                             class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
                                         <div class="text-left">
                                             <a class="font-bold text-dark text-xl" href="{{ route('login') }}">
                                                 {{ $instructors[0]->name }}
                                             </a>
-                                            @if ($slots != 0)
+                                            {{--  @if ($slots != 0)
                                             <div class="text-lg font-bold tracking-tight text-primary">
                                                 <p>{{ $slots }} Slots available.</p>
                                             </div>
@@ -150,18 +153,22 @@
                                                         Lesson
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div>  --}}
                                         </div>
                                     </div>
                                     @php
                                         $description = html_entity_decode(strip_tags($lesson->lesson_description));
                                         $shortDescription = \Illuminate\Support\Str::limit($description, 80, '');
                                     @endphp
-
+                                    <div class="text-gray-500 text-md px-2">
+                                        <h3 style="font-size:18px;font-weight:bold" class="font-weight-bolder">
+                                            {{ $lesson->lesson_name }}</h3>
+                                    </div>
                                     <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h p-2">
-                                        <span class="short-text">{{ $shortDescription }}</span>
+                                        <span class="short-text" style="font-size: 15px">{{ $shortDescription }}</span>
                                         @if (strlen($description) > 20)
-                                            <span class="hidden full-text">{{ $description }}</span>
+                                            <span class="hidden full-text"
+                                                style="font-size: 15px">{{ $description }}</span>
                                             <a href="javascript:void(0);"
                                                 class="text-blue-600 toggle-read-more font-semibold"
                                                 onclick="toggleDescription(this)">View Lesson Description</a>
@@ -254,7 +261,8 @@
     @endif
 
     <!-- Instructor Popup Modal -->
-    <div id="instructorPopup" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div id="instructorPopup"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto overflow-x-hidden">
             <div class="relative">
                 <!-- Close Button -->

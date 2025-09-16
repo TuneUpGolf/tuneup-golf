@@ -40,41 +40,31 @@ class PurchaseDataTable extends DataTable
                     : asset('assets/img/logo/logo.png');
 
                 return '
-                    <div class="flex justify-start items-center">
-                        <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
-                        <span class="px-0">' . e($purchase->instructor_name) . '</span>
-                    </div>';
+                        <div class="flex justify-start items-center">
+                            <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
+                            <span class="px-0">' . e($purchase->instructor_name) . '</span>
+                        </div>';
             })
             ->editColumn('lesson_name', function ($purchase) {
-                $lessonName           = e($purchase->lesson_name);
-                $truncatedLessonName  = strlen($lessonName) > 40 ? substr($lessonName, 0, 40) . '...' : $lessonName;
+                $lessonName = e($purchase->lesson_name);
+                $truncatedLessonName = strlen($lessonName) > 40 ? substr($lessonName, 0, 40) . '...' : $lessonName;
 
                 $lesson_type = $purchase->lesson->type ?? null;
 
                 $url = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? route('purchase.feedback.index', ['purchase_id' => $purchase->id]) :
                     route('purchase.show', $purchase->id);
 
-                // Check user role
                 if (Auth::user()->type == 'Instructor') {
-                    $lessonLink = '<a href="' . $url . '" class="text-blue-600 hover:underline mr-2" title="' . $lessonName . '">' . $truncatedLessonName . '</a>';
+                    $lessonLink = '<a href="' . $url . '" class="text-blue-600 hover:underline mr-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="' . $lessonName . '">' . $truncatedLessonName . '</a>';
                 } else {
-                    $lessonLink = '<span class="text-gray-800 mr-2" title="' . $lessonName . '">' . $truncatedLessonName . '</span>';
+                    $lessonLink = '<span class="text-gray-800 mr-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="' . $lessonName . '">' . $truncatedLessonName . '</span>';
                 }
 
                 return '
-                <div class="flex justify-between items-center">
-                    ' . $lessonLink . '
-                </div>';
+                    <div class="flex justify-between items-center">
+                        ' . $lessonLink . '
+                    </div>';
             })
-            ->addColumn('deleted', function ($purchase) {
-                return ! $purchase->lesson->active_status ? ' <span class="text-gray-500 italic"> Deleted</span>' : 'Active';
-            })
-            // ->addColumn('pill', function ($purchase) {
-            //     $s = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
-            //     $lesson_type = $purchase->lesson->type ?? null;
-            //     $badgeClass = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? 'bg-green-600' : 'bg-cyan-500';
-            //     return '<label class="badge rounded-pill ' . $badgeClass . ' p-2 px-3">' . e($s) . '</label>';
-            // })
             ->addColumn('pill', function ($purchase) {
                 $s = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
                 $lesson_type = $purchase->lesson->type ?? null;
@@ -89,20 +79,13 @@ class PurchaseDataTable extends DataTable
                     : asset('assets/img/logo/logo.png');
 
                 return '
-                    <div class="flex justify-start items-center">
-                        <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
-                        <span class="px-0">' . e($purchase->student_name) . '</span>
-                    </div>';
+                        <div class="flex justify-start items-center">
+                            <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
+                            <span class="px-0">' . e($purchase->student_name) . '</span>
+                        </div>';
             })
-            // ->addColumn('status', function ($purchase) {
-            //     $s = Purchase::STATUS_MAPPING[$purchase->status] ?? 'Unknown';
-            //     $statusClass = $purchase->status == Purchase::STATUS_COMPLETE ? 'bg-green-600' : 'bg-red-600';
-
-            //     return '<label class="badge rounded-pill ' . $statusClass . ' p-2 px-3">' . e($s) . '</label>';
-            // })
             ->addColumn('status', function ($purchase) {
                 $s = Purchase::STATUS_MAPPING[$purchase->status] ?? 'Unknown';
-                // Inline styles for modal compatibility
                 $statusStyle = $purchase->status == Purchase::STATUS_COMPLETE
                     ? 'background-color: #16A34A; color: white; padding: 4px 12px; border-radius: 9999px; display: inline-block; font-size: 14px;'
                     : 'background-color: #DC2626; color: white; padding: 4px 12px; border-radius: 9999px; display: inline-block; font-size: 14px;';
@@ -133,34 +116,51 @@ class PurchaseDataTable extends DataTable
                     ->exists();
                 return view('admin.purchases.action', compact('purchase', 'hasBooking'));
             })
-            ->rawColumns(['action', 'status', 'student_name', 'instructor_name', 'lesson_name', 'pill', 'deleted', 'remaining_slots']);
+            ->rawColumns(['action', 'status', 'student_name', 'instructor_name', 'lesson_name', 'pill', 'remaining_slots']);
     }
-
 
     public function query(Purchase $model)
     {
         $user = Auth::user();
+        $lessonType = request('lesson_type');
+        if (request('lesson_type') === 'pre-set') {
+            $query = Purchase::query()
+                ->select([
+                    'purchases.id',
+                    'lessons.lesson_name',
+                    'students.name as student_name',
+                    'slots.date_time',
+                    'slots.location',
+                    'purchases.friend_names',
+                    'purchases.type'
+                ])
+                ->join('students', 'purchases.student_id', '=', 'students.id')
+                ->leftJoin('slots', 'slots.lesson_id', '=', 'purchases.lesson_id')
+                ->leftJoin('lessons', 'lessons.id', '=', 'purchases.lesson_id')
+                ->where('purchases.type', 'inPerson')
+                ->orderBy('slots.date_time', 'asc');
+
+            return datatables()->of($query)->make(true);
+        }
 
         $query = $model->newQuery()
             ->select([
-                'purchases.*',  // Select all purchase fields
-                'lessons.lesson_name as lesson_name',  // Get lesson name
-                'instructors.name as instructor_name', // Get instructor name
-                'students.name as student_name' // Get student name
+                'purchases.*',
+                'lessons.lesson_name as lesson_name',
+                'instructors.name as instructor_name',
+                'students.name as student_name'
             ])
             ->join('lessons', 'purchases.lesson_id', '=', 'lessons.id')
             ->join('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
             ->join('students as students', 'purchases.student_id', '=', 'students.id')
-            ->orderBy('purchases.created_at', 'desc'); // Order by creation date in descending order
+            ->orderBy('purchases.created_at', 'desc');
 
-        // Filter by lesson type if provided
         if (request()->has('lesson_type') && request('lesson_type')) {
             $query->where(function ($q) {
                 $q->where('lessons.type', request('lesson_type'));
             });
         }
 
-        // Filter query based on user role
         if ($user->type == Role::ROLE_STUDENT) {
             $query->where('purchases.student_id', $user->id);
         }
@@ -195,17 +195,11 @@ class PurchaseDataTable extends DataTable
         }
         $lessonTypeFilter .= "</select>";
 
-        $buttons = [
-            // ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
-            // ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
-
-        ];
+        $buttons = [];
 
         if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
             unset($buttons[0]);
         }
-
-        // ... (existing code remains the same until the builder)
 
         return $this->builder()
             ->setTableId('purchases-table')
@@ -223,87 +217,106 @@ class PurchaseDataTable extends DataTable
                 'search' => ''
             ])
             ->initComplete('function() {
-            var table = this;
-            var searchInput = $(\'#\'+table.api().table().container().id+\' label input[type="search"]\');
-            searchInput.removeClass(\'form-control form-control-sm\');
-            searchInput.addClass(\'dataTable-input\');
-            var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
-            
-            $(".dataTable-search").prepend("' . $lessonTypeFilter . '");
-            $(".dataTable-search").addClass("d-flex");
+                    var table = this;
+                    var searchInput = $(\'#\'+table.api().table().container().id+\' label input[type="search"]\');
+                    searchInput.removeClass(\'form-control form-control-sm\');
+                    searchInput.addClass(\'dataTable-input\');
+                    var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
+                    
+                    $(".dataTable-search").prepend("' . $lessonTypeFilter . '");
+                    $(".dataTable-search").addClass("d-flex");
 
-            $("#lessonTypeFilter").on("change", function() {
-                table.api().ajax.reload();
-            });
+                    $("#lessonTypeFilter").on("change", function() {
+                        var selectedValue = $(this).val();
+                        if (selectedValue === "pre-set") {
+                            $("#preSetModal").modal("show");
+                            table.api().ajax.reload(function(json) {
+                                delete json.data.lesson_type;
+                            });
+                        } else {
+                            table.api().ajax.reload();
+                        }
+                    });
 
-            $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
-                data.lesson_type = $("#lessonTypeFilter").val();
-            });
-        }')
+                    $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
+                        var selectedValue = $("#lessonTypeFilter").val();
+                        if (selectedValue !== "pre-set") {
+                            data.lesson_type = selectedValue;
+                        } else {
+                            data.lesson_type = "";
+                        }
+                    });
+                }')
             ->parameters([
                 "columnDefs" => [
                     ["responsivePriority" => 1, "targets" => 1],
-                    ["responsivePriority" => 2, "targets" => 4],
+                    ["responsivePriority" => 2, "targets" => 3],
                 ],
                 "dom" =>  "
-            <'dataTable-top row'<'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
-            <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>>
-            <'dataTable-container'<'col-sm-12'tr>>
-            <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
-            <'col-sm-7'p>>
-            ",
+                    <'dataTable-top row'<'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
+                    <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>>
+                    <'dataTable-container'<'col-sm-12'tr>>
+                    <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
+                    <'col-sm-7'p>>
+                    ",
                 'buttons'   => $buttons,
                 "scrollX" => true,
                 "responsive" => [
                     "scrollX" => false,
                     "details" => [
-                        // CHANGE: Use modal display instead of childRow
-                        "display" => "$.fn.dataTable.Responsive.display.modal({
-                        header: function (row) {
-                            var data = row.data();
-                            return 'Details for Lesson: ' + (data.lesson_name || 'Unknown');  // Customize modal header (e.g., based on lesson_name)
-                        }
-                    })",
-                        // CHANGE: Use a table renderer similar to your original vertical table
-                        "renderer" => "$.fn.dataTable.Responsive.renderer.tableAll({
-                        tableClass: 'table table-striped table-bordered vertical-table'  // Add classes for styling
-                    })"
+                        "display" => "$.fn.dataTable.Responsive.display.childRow",
+                        "renderer" => "function (api, rowIdx, columns) {
+                                var data = $('<table/>').addClass('vertical-table');
+                                $.each(columns, function (i, col) {
+                                    data.append(
+                                        '<tr>' +
+                                            '<td><strong>' + col.title + '</strong></td>' +
+                                            '<td>' + col.data + '</td>' +
+                                        '</tr>'
+                                    );
+                                });
+                                return data;
+                            }"
                     ]
                 ],
                 "rowCallback" => 'function(row, data, index) {
-                $(row).addClass("custom-parent-row"); 
-            }',
+                        $(row).addClass("custom-parent-row"); 
+                    }',
                 'headerCallback' => 'function(thead, data, start, end, display) {
-                $(thead).find("th").css({
-                    "background-color": "rgba(249, 252, 255, 1)",
-                    "font-weight": "400",
-                    "font":"sans",
-                    "border":"none",
-                });
-            }',
+                        $(thead).find("th").css({
+                            "background-color": "rgba(249, 252, 255, 1)",
+                            "font-weight": "400",
+                            "font":"sans",
+                            "border":"none",
+                        });
+                    }',
                 'rowCallback' => 'function(row, data, index) {
-                // Make the first column bold
-                $("td", row).css("font-family", "Helvetica");
-                $("td", row).css("font-weight", "300");
-            }',
+                        $("td", row).css("font-family", "Helvetica");
+                        $("td", row).css("font-weight", "300");
+                    }',
                 "drawCallback" => 'function( settings ) {
-                var tooltipTriggerList = [].slice.call(
-                    document.querySelectorAll("[data-bs-toggle=tooltip]")
-                  );
-                  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
-                  });
-                  var popoverTriggerList = [].slice.call(
-                    document.querySelectorAll("[data-bs-toggle=popover]")
-                  );
-                  var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-                    return new bootstrap.Popover(popoverTriggerEl);
-                  });
-                  var toastElList = [].slice.call(document.querySelectorAll(".toast"));
-                  var toastList = toastElList.map(function (toastEl) {
-                    return new bootstrap.Toast(toastEl);
-                  });
-            }'
+                        var tooltipTriggerList = [].slice.call(
+                            document.querySelectorAll("[data-bs-toggle=tooltip]")
+                        );
+                        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                                delay: { show: 100, hide: 200 },
+                                trigger: "hover"
+                            });
+                        });
+                        var popoverTriggerList = [].slice.call(
+                            document.querySelectorAll("[data-bs-toggle=popover]")
+                        );
+                        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                            return new bootstrap.Popover(popoverTriggerEl);
+                        });
+                        var toastElList = [].slice.call(
+                            document.querySelectorAll(".toast")
+                        );
+                        var toastList = toastElList.map(function (toastEl) {
+                            return new bootstrap.Toast(toastEl);
+                        });
+                    }'
             ])->language([
                 'buttons' => [
                     'create' => __('Choose Your Coach'),
@@ -316,40 +329,21 @@ class PurchaseDataTable extends DataTable
             ]);
     }
 
-    // protected function getColumns()
-    // {
-    //     $columns = [
-    //         Column::make('No')->title(__('Lesson Number'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-    //         Column::make('lesson_name')->title(__('Lesson'))->searchable(true),
-    //         Column::make('pill')->title('')->searchable(false)->orderable(false),
-    //         Column::make('deleted')->title('')->searchable(false)->orderable(false),
-    //         Column::make('remaining_slots')->title(__('Remaining Slots'))->orderable(false)->searchable(false)->addClass('text-center'),
-    //     ];
-    //     if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
-    //         $columns[] = Column::make('student_name')->title("Student")->searchable(true);
-    //         $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
-    //     } elseif (Auth::user()->type == Role::ROLE_STUDENT) {
-    //         $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
-    //     }
-    //     return array_merge($columns, [
-    //         Column::make('status')->title(__('Payment Status')),
-    //         Column::make("due_date")->title(__('Submission Date'))->defaultContent()->orderable(false)->searchable(false),
-    //         Column::make('total_amount')->title(__('Total ($)'))->orderable(false),
-    //         Column::computed('action')->title(__('Actions'))
-    //             ->exportable(false)
-    //             ->printable(false)
-    //             ->width(60)
-    //             ->addClass('text-center')
-    //             ->width('20%'),
-    //     ]);
-    // }
     protected function getColumns()
     {
+        if (request('lesson_type') === 'pre-set') {
+            return [
+                Column::make('student_name')->title(__('Student')),
+                Column::make('date_time')->title(__('Date & Time')),
+                Column::make('location')->title(__('Location')),
+                Column::make('friend_names')->title(__('Friend Names')),
+                Column::make('type')->title(__('Type')),
+            ];
+        }
         $columns = [
-            Column::make('No')->title(__('Lesson #'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false)->width('80px'),
+            Column::make('id')->title(__('Lesson #'))->searchable(true)->orderable(true)->width('80px'),
             Column::make('lesson_name')->title(__('Lesson Title'))->searchable(true)->width('250px'),
-            Column::make('pill')->title(__('Type'))->searchable(false)->orderable(false), // Updated: Set title to "Type"
-            Column::make('deleted')->title(__('Status'))->searchable(false)->orderable(false), // Updated: Set title to "Status"
+            Column::make('pill')->title(__('Type'))->searchable(false)->orderable(false),
             Column::make('remaining_slots')->title(__('Remaining Slots'))->orderable(false)->searchable(false)->addClass('text-center'),
         ];
 
@@ -367,12 +361,10 @@ class PurchaseDataTable extends DataTable
             Column::computed('action')->title(__('Actions'))
                 ->exportable(false)
                 ->printable(false)
-                // ->width(60)
                 ->addClass('text-center')
                 ->width('80px'),
         ]);
     }
-
 
     protected function filename(): string
     {

@@ -25,7 +25,7 @@
                             <input type="hidden" name="purchase_id" value="{{ $purchase->id }}"/>
                             <input type="hidden" name="redirect" value="1"/>
                             <div class="form-group">
-                                {{ Form::label('fdbk_video', _('Feedback File'), ['class' => 'form-label']) }}
+                                {{ Form::label('fdbk_video', __('Feedback File'), ['class' => 'form-label']) }}
                                 {{ Form::file('fdbk_video[]', ['class' => 'form-control', 'required', 'multiple']) }}
                             </div>
                             <div class="form-group">
