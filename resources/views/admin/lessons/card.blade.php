@@ -172,7 +172,7 @@
                         @else --}}
                     <button class="lesson-btn"
                         onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}', {{ $model->is_package_lesson }} ,'{{ $model->lesson_price }}', {{ $model->id }})">
-                        Purchase
+                        Schedule Lesson
                     </button>
                     {{-- @endif --}}
                 @else
