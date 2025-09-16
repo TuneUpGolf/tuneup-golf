@@ -122,26 +122,6 @@ class PurchaseDataTable extends DataTable
     public function query(Purchase $model)
     {
         $user = Auth::user();
-        $lessonType = request('lesson_type');
-        if (request('lesson_type') === 'pre-set') {
-            $query = Purchase::query()
-                ->select([
-                    'purchases.id',
-                    'lessons.lesson_name',
-                    'students.name as student_name',
-                    'slots.date_time',
-                    'slots.location',
-                    'purchases.friend_names',
-                    'purchases.type'
-                ])
-                ->join('students', 'purchases.student_id', '=', 'students.id')
-                ->leftJoin('slots', 'slots.lesson_id', '=', 'purchases.lesson_id')
-                ->leftJoin('lessons', 'lessons.id', '=', 'purchases.lesson_id')
-                ->where('purchases.type', 'inPerson')
-                ->orderBy('slots.date_time', 'asc');
-
-            return datatables()->of($query)->make(true);
-        }
 
         $query = $model->newQuery()
             ->select([
@@ -331,15 +311,6 @@ class PurchaseDataTable extends DataTable
 
     protected function getColumns()
     {
-        if (request('lesson_type') === 'pre-set') {
-            return [
-                Column::make('student_name')->title(__('Student')),
-                Column::make('date_time')->title(__('Date & Time')),
-                Column::make('location')->title(__('Location')),
-                Column::make('friend_names')->title(__('Friend Names')),
-                Column::make('type')->title(__('Type')),
-            ];
-        }
         $columns = [
             Column::make('id')->title(__('Lesson #'))->searchable(true)->orderable(true)->width('80px'),
             Column::make('lesson_name')->title(__('Lesson Title'))->searchable(true)->width('250px'),

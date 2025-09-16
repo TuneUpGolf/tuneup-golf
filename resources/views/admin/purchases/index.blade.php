@@ -37,6 +37,7 @@
                                 <th>Location</th>
                             </tr>
                         </thead>
+                        <tbody></tbody>
                     </table>
 
                 </div>
@@ -56,54 +57,37 @@
     @include('layouts.includes.datatable_js')
     {{ $dataTable->scripts() }}
     <script>
+        $(document).on('click', '#preSetActionButton', function() {
+            $("#preSetModal").modal('show');
+            let tenant_id = $(this).attr('data-tenant_id');
+            let lesson_id = $(this).attr('data-lesson_id');
+            fetch(`{{ route('purchase.data') }}?tenant_id=${tenant_id}&lesson_id=${lesson_id}`)
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.querySelector('#preSetTable tbody');
+                    tbody.innerHTML = '';
+
+                    if (data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="3" class="text-center">No data found</td></tr>`;
+                        return;
+                    }
+
+                    data.forEach(row => {
+                        tbody.innerHTML += `
+                    <tr>
+                        <td>${row.student_name ?? ''}</td>
+                        <td>${row.date_time ?? ''}</td>
+                        <td>${row.location ?? ''}</td>
+                    </tr>
+                `;
+                    });
+                })
+                .catch(err => console.error(err));
+        })
+
         function closeInstructorPopup() {
             $("#preSetModal").modal('hide');
         }
-        let preSetTable;
-
-
-        $(document).ready(function() {
-            // lessonTypeFilter ka event
-            $(document).on('change', '#lessonTypeFilter', function() {
-                let val = $(this).val(); // 👈 yahan 'val' use karo, 'va' nahi
-                console.log('selected:', val); // browser console me check karo
-
-                if (val === 'pre-set') {
-                    $('#preSetModal').modal('show');
-
-                    if (!$.fn.DataTable.isDataTable('#preSetTable')) {
-                        preSetTable = $('#preSetTable').DataTable({
-                            processing: true,
-                            serverSide: true,
-                            searching: false,
-                            ajax: {
-                                url: '{{ route('purchase.data') }}', // <-- ye JSON route hai
-                                type: 'GET',
-                                data: function(d) {
-                                    d.lesson_type = 'pre-set';
-                                }
-                            },
-                            columns: [{
-                                    data: 'student_name',
-                                    name: 'student_name'
-                                },
-                                {
-                                    data: 'date_time',
-                                    name: 'date_time'
-                                },
-                                {
-                                    data: 'location',
-                                    name: 'location'
-                                }
-                            ]
-                        });
-                    } else {
-                        preSetTable.ajax.reload();
-                    }
-                } else {
-                    $('#purchases-table').DataTable().ajax.reload();
-                }
-            });
-        });
+       
     </script>
 @endpush
