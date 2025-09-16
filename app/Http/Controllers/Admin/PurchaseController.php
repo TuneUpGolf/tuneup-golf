@@ -940,29 +940,28 @@ class PurchaseController extends Controller
 
     public function data(Request $request)
     {
-        if ($request->lesson_type === 'pre-set') {
-            $query = Purchase::select([
-                'purchases.id',
-                'lessons.lesson_name',
-                'students.name as student_name',
-                'slots.date_time',
-                'slots.location',
-                'purchases.friend_names',
-                'purchases.type'
-            ])
-                ->join('students', 'purchases.student_id', '=', 'students.id')
-                ->join('lessons', 'lessons.id', '=', 'purchases.lesson_id')
-                ->leftJoin('slots', function ($join) {
-                    $join->on('slots.lesson_id', '=', 'purchases.lesson_id')
-                        ->whereRaw('slots.date_time = (select MIN(s2.date_time) from slots as s2 where s2.lesson_id = purchases.lesson_id)');
-                })
-                ->where('purchases.type', 'inPerson')
-                ->orderBy('slots.date_time', 'asc');
+        $purchases = Purchase::select([
+            'purchases.id',
+            'lessons.lesson_name',
+            'students.name as student_name',
+            'slots.date_time',
+            'slots.location',
+            'purchases.friend_names',
+            'purchases.type',
+            'purchases.lesson_id',
+            'purchases.tenant_id',
+        ])
+            ->join('students', 'purchases.student_id', '=', 'students.id')
+            ->join('lessons', 'lessons.id', '=', 'purchases.lesson_id')
+            ->leftJoin('slots', function ($join) {
+                $join->on('slots.lesson_id', '=', 'purchases.lesson_id')
+                    ->whereRaw('slots.date_time = (select MIN(s2.date_time) from slots as s2 where s2.lesson_id = purchases.lesson_id)');
+            })
+            ->where('purchases.lesson_id', $request->input('lesson_id'))
+            ->where('purchases.tenant_id', $request->input('tenant_id'))
+            ->orderBy('slots.date_time', 'asc')
+            ->get();
 
-            return datatables()->of($query)->make(true);
-        }
-
-        // fallback (normal purchases table)
-        return datatables()->of(Purchase::query())->make(true);
+        return response()->json($purchases);
     }
 }
