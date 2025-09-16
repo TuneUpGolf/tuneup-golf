@@ -54,11 +54,7 @@
             $description = str_replace(
                 "\xC2\xA0",
                 ' ',
-                html_entity_decode(
-                    strip_tags($short_description),
-                    ENT_QUOTES | ENT_HTML5,
-                    'UTF-8',
-                ),
+                html_entity_decode(strip_tags($short_description), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
             );
             $shortDescription = \Illuminate\Support\Str::limit($description, 80, '');
 
@@ -68,8 +64,8 @@
             <span class="short-text" style="font-size:15px">{{ $shortDescription }}</span>
             @if (strlen($description) > 100)
                 <span class="hidden full-text" style="font-size:15px">{{ $description }}</span>
-                <a href="javascript:void(0);" style="font-size:15px"
-                    class="text-blue-600 toggle-read-more font-semibold" onclick="toggleDescription(this)">View Lesson
+                <a href="javascript:void(0);" style="font-size:15px" data-long_description="{!! e($long_description) !!}"
+                    class="text-blue-600 toggle-read-more font-semibold viewDescription">View Lesson
                     Description</a>
             @endif
         </p>
