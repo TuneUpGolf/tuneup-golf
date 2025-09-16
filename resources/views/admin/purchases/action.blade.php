@@ -18,7 +18,7 @@
             {!! Form::close() !!}
         @endcan
     @endif
-    @if ($purchase->type === 'inPerson')
+    @if ($purchase->type === 'inPerson' && $user->type == 'Instructor')
         <button class="btn btn-sm small btn btn-dark" data-lesson_id="{{ $purchase->lesson_id }}" data-tenant_id="{{ $purchase->tenant_id }}" id="preSetActionButton" type="button" data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-original-title="{{ __('View Students') }}">
             <svg width="800px" height="800px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">

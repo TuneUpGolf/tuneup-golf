@@ -5353,7 +5353,7 @@ fieldset:disabled .btn {
 
 .page-link {
   position: relative;
-  display: block;
+  /* display: block; */
   padding: var(--bs-pagination-padding-y) var(--bs-pagination-padding-x);
   font-size: var(--bs-pagination-font-size);
   color: var(--bs-pagination-color);
