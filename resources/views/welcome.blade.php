@@ -86,9 +86,11 @@
                                         @if (strlen($description) > 100)
                                             <span class="hidden full-text text-gray-600"
                                                 style="font-size: 15px">{{ $description }}</span>
-                                            <a href="javascript:void(0);" style="font-size: 15px"
-                                                class="text-blue-600 toggle-read-more font-semibold"
-                                                onclick="toggleDescription(this)">View Lesson Description</a>
+                                            <a href="javascript:void(0)"
+                                                data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
+                                                class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
+                                                tabindex="0"> View
+                                                Lesson Description</a>
                                         @endif
                                     </p>
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
@@ -164,14 +166,18 @@
                                         <h3 style="font-size:18px;font-weight:bold" class="font-weight-bolder">
                                             {{ $lesson->lesson_name }}</h3>
                                     </div>
-                                    <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h p-2">
-                                        <span class="short-text" style="font-size: 15px">{{ $shortDescription }}</span>
+                                    <p
+                                        class="text-gray-500 text-md mt-1 description font-medium ctm-min-h p-2  text-gray-600">
+                                        <span class="short-text  text-gray-600"
+                                            style="font-size: 15px">{{ $shortDescription }}</span>
                                         @if (strlen($description) > 20)
-                                            <span class="hidden full-text"
+                                            <span class="hidden full-text  text-gray-600"
                                                 style="font-size: 15px">{{ $description }}</span>
-                                            <a href="javascript:void(0);"
-                                                class="text-blue-600 toggle-read-more font-semibold"
-                                                onclick="toggleDescription(this)">View Lesson Description</a>
+                                            <a href="javascript:void(0)"
+                                                data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
+                                                class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
+                                                tabindex="0"> View
+                                                Lesson Description</a>
                                         @endif
                                     </p>
 
