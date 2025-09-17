@@ -236,7 +236,7 @@
             if (shortText.classList.contains('hidden')) {
                 shortText.classList.remove('hidden');
                 fullText.classList.add('hidden');
-                button.innerText = "Read More";
+                button.innerText = "View Lesson Description";
             } else {
                 shortText.classList.add('hidden');
                 fullText.classList.remove('hidden');
