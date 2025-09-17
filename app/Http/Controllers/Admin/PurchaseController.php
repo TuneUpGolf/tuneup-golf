@@ -951,6 +951,7 @@ class PurchaseController extends Controller
             'purchases.type',
             'purchases.lesson_id',
             'purchases.tenant_id',
+            \DB::raw('(SELECT COUNT(*) FROM purchasevideos WHERE purchasevideos.purchase_id = purchases.id) > 0 as has_video')
         ])
             ->join('students', 'purchases.student_id', '=', 'students.id')
             ->join('lessons', 'lessons.id', '=', 'purchases.lesson_id')
@@ -961,7 +962,12 @@ class PurchaseController extends Controller
             ->where('purchases.lesson_id', $request->input('lesson_id'))
             ->where('purchases.tenant_id', tenant()->id)
             ->orderBy('slots.date_time', 'asc')
-            ->get();
+            ->get()
+            ->map(function ($purchase) {
+                $purchase->user_type = Auth::user()->type;
+                $purchase->can_manage_purchases = Auth::user()->hasPermissionTo('manage-purchases');
+                return $purchase;
+            });
 
         return response()->json($purchases);
     }
