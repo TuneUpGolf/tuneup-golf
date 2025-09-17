@@ -18,8 +18,9 @@
             {!! Form::close() !!}
         @endcan
     @endif
-    @if ($purchase->type != 'online' && $purchase->type != 'package' && $user->type == 'Instructor')
-        <button class="btn btn-sm small btn btn-dark" data-lesson_id="{{ $purchase->lesson_id }}" data-tenant_id="{{ $purchase->tenant_id }}" id="preSetActionButton" type="button" data-bs-toggle="tooltip"
+    @if ($purchase->purchase_type == 'inPerson' && $user->type == 'Instructor')
+        <button class="btn btn-sm small btn btn-dark" data-lesson_id="{{ $purchase->lesson_id }}"
+            data-tenant_id="{{ $purchase->tenant_id }}" id="preSetActionButton" type="button" data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-original-title="{{ __('View Students') }}">
             <svg width="800px" height="800px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -30,7 +31,8 @@
     @endif
     @if (in_array($user->type, ['Student', 'Instructor']) &&
             ($purchase->status == 'complete' || $purchase->lesson->payment_method == 'cash' || $hasBooking) &&
-            $purchase->lesson->type != 'online' && $purchase->lesson->type != 'inPerson')
+            $purchase->lesson->type != 'online' &&
+            $purchase->lesson->type != 'inPerson')
         <a class="btn btn-sm small btn btn-info action-btn-fix"
             href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}" data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">
@@ -67,7 +69,7 @@
             </a>
         @endcan
     @endif  --}}
-    @if (in_array($user->type, ['Student', 'Instructor']) && ($purchaseVideo = $purchase->videos->first()))
+    {{--  @if (in_array($user->type, ['Student', 'Instructor']) && ($purchaseVideo = $purchase->videos->first()))
         @can('manage-purchases')
             <a class="btn btn-sm small btn btn-warning action-btn-fix"
                 href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
@@ -75,7 +77,7 @@
                 <i class="ti ti-eye text-white"></i>
             </a>
         @endcan
-    @endif
+    @endif  --}}
     {{-- @if ($purchase->status == 'incomplete' && $user->type == 'Instructor')
     @can('manage-purchases')
         <svg
