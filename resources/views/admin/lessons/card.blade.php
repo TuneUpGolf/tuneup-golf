@@ -1,3 +1,39 @@
+<style>
+    .description ul,
+    .description ol {
+        list-style-type: disc;
+        margin-left: 20px;
+        padding-left: 20px;
+    }
+
+    .description li {
+        display: list-item;
+        margin-bottom: 5px;
+    }
+
+    .description b,
+    .description strong {
+        font-weight: bold;
+    }
+
+    .description i,
+    .description em {
+        font-style: italic;
+    }
+
+    .description {
+        display: block !important;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .longDescContent ul {
+        list-style: disc;
+        padding-left: 1.5rem;
+    }
+</style>
 @props([
     'image' => '',
     'title' => '',
@@ -76,8 +112,13 @@
                     class=" text-blue-600 font-medium mt-1 inline-block viewDescription" tabindex="0"> View
                     Description</a>
             @endif  --}}
+
             @if (!empty($long_description))
-                <a href="javascript:void(0)" data-long_description="{!! e($long_description) !!}"
+                <div class="hidden long-text text-gray-600"
+                    style="font-size: 15px; max-height: 100px; overflow-y: auto;">
+                    {!! $long_description !!}
+                </div>
+                <a href="javascript:void(0)" data-long_description="{!! $long_description !!}"
                     class="text-blue-600 font-medium mt-1 inline-block viewDescription" tabindex="0">
                     View Description
                 </a>
@@ -205,7 +246,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <h3 class="longDescContent"></h3>
+                    <div class="longDescContent"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="lesson-btn" onclick="closeLongDescModal()">Close</button>
@@ -219,8 +260,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).on('click', '.viewDescription', function() {
+            const desc = $(this).siblings('.long-text').html();
             $('#longDescModal').modal('show');
-            let desc = $(this).attr('data-long_description');
             $('.longDescContent').html(desc);
         })
 

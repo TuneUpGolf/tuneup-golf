@@ -464,7 +464,6 @@
         }
         $(document).on('click', '.viewDescription', function() {
             const desc = $(this).siblings('.long-text').html();
-            console.log("desc =>", desc);
             $('#longDescModal').modal('show');
             $('.longDescContent').html(desc);
         })
