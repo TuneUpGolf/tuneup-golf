@@ -308,124 +308,134 @@ class PurchaseDataTable extends DataTable
     // }
 
     public function query(Purchase $model)
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    $query = $model->newQuery()
-        ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
-        ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
-        ->leftJoin('students as students', 'purchases.student_id', '=', 'students.id');
+        $query = $model->newQuery()
+            ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
+            ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+            ->leftJoin('students as students', 'purchases.student_id', '=', 'students.id');
 
-    $lessonType = request('lesson_type');
+        $lessonType = request('lesson_type');
 
-    if ($lessonType === Lesson::LESSON_TYPE_INPERSON) {
-        // group by – must aggregate non-group columns
-        $query->selectRaw('
-                purchases.lesson_id,
-                purchases.instructor_id,
-                MAX(purchases.id)            AS id,
-                MAX(purchases.created_at)    AS created_at,
-                MAX(purchases.total_amount)  AS total_amount,
-                MAX(purchases.type)          AS purchase_type,
-                lessons.lesson_name          AS lesson_name,
-                instructors.name             AS instructor_name
-            ')
-            ->where('lessons.type', Lesson::LESSON_TYPE_INPERSON)
-            ->groupBy(
-                'purchases.lesson_id',
-                'purchases.instructor_id',
-                'lessons.lesson_name',
-                'instructors.name'
-            )
-            ->orderByDesc('created_at');
-    }
-    elseif ($lessonType === Lesson::LESSON_TYPE_ONLINE) {
-        $query->select([
-                'purchases.*',
-                'purchases.type as purchase_type',
-                'lessons.lesson_name as lesson_name',
-                'instructors.name as instructor_name',
-                'students.name as student_name',
-            ])
-            ->where('lessons.type', Lesson::LESSON_TYPE_ONLINE)
-            ->orderByDesc('purchases.created_at');
-    }
-    elseif ($lessonType === Lesson::LESSON_TYPE_PACKAGE) {
-        $query->select([
-                'purchases.*',
-                'purchases.type as purchase_type',
-                'lessons.lesson_name as lesson_name',
-                'instructors.name as instructor_name',
-                'students.name as student_name',
-            ])
-            ->where('lessons.type', Lesson::LESSON_TYPE_PACKAGE)
-            ->orderByDesc('purchases.created_at');
-    }
-    elseif ($lessonType === null) {
-        $query->selectRaw('
-                purchases.lesson_id,
-                purchases.instructor_id,
-                MAX(purchases.id)            AS id,
-                MAX(purchases.created_at)    AS created_at,
-                MAX(purchases.total_amount)  AS total_amount,
-                MAX(purchases.type)          AS purchase_type,
-                MAX(purchases.status)          AS status,
-                lessons.lesson_name          AS lesson_name,
-                instructors.name             AS instructor_name
-            ')
-            ->groupBy(
-                'purchases.lesson_id',
-                'purchases.instructor_id',
-                'lessons.lesson_name',
-                'instructors.name'
-            )
-            ->orderByDesc('created_at');
-    }
-    else {
-        $query->select([
-                'purchases.*',
-                'purchases.type as purchase_type',
-                'purchases.status as status',
-                'lessons.lesson_name as lesson_name',
-                'instructors.name as instructor_name',
-                'students.name as student_name',
-            ])
-            ->orderByDesc('purchases.created_at');
-    }
+        if ($lessonType === Lesson::LESSON_TYPE_INPERSON) {
+            // group by – must aggregate non-group columns
+            $query->selectRaw('
+                    purchases.lesson_id,
+                    purchases.instructor_id,
+                    MAX(purchases.id)            AS id,
+                    MAX(purchases.created_at)    AS created_at,
+                    MAX(purchases.total_amount)  AS total_amount,
+                    MAX(purchases.type)          AS purchase_type,
+                    lessons.lesson_name          AS lesson_name,
+                    instructors.name             AS instructor_name
+                ')
+                ->where('lessons.type', Lesson::LESSON_TYPE_INPERSON)
+                ->groupBy(
+                    'purchases.lesson_id',
+                    'purchases.instructor_id',
+                    'lessons.lesson_name',
+                    'instructors.name'
+                )
+                ->orderByDesc('created_at');
+        }
+        elseif ($lessonType === Lesson::LESSON_TYPE_ONLINE) {
+            $query->select([
+                    'purchases.*',
+                    'purchases.type as purchase_type',
+                    'lessons.lesson_name as lesson_name',
+                    'instructors.name as instructor_name',
+                    'students.name as student_name',
+                ])
+                ->where('lessons.type', Lesson::LESSON_TYPE_ONLINE)
+                ->orderByDesc('purchases.created_at');
+        }
+        elseif ($lessonType === Lesson::LESSON_TYPE_PACKAGE) {
+            $query->select([
+                    'purchases.*',
+                    'purchases.type as purchase_type',
+                    'lessons.lesson_name as lesson_name',
+                    'instructors.name as instructor_name',
+                    'students.name as student_name',
+                ])
+                ->where('lessons.type', Lesson::LESSON_TYPE_PACKAGE)
+                ->orderByDesc('purchases.created_at');
+        }
+        elseif ($lessonType === null) {
+            $query->selectRaw('
+                    purchases.lesson_id,
+                    purchases.instructor_id,
+                    MAX(purchases.id)            AS id,
+                    MAX(purchases.created_at)    AS created_at,
+                    MAX(purchases.total_amount)  AS total_amount,
+                    MAX(purchases.type)          AS purchase_type,
+                    MAX(purchases.status)          AS status,
+                    lessons.lesson_name          AS lesson_name,
+                    instructors.name             AS instructor_name
+                ')
+                ->groupBy(
+                    'purchases.lesson_id',
+                    'purchases.instructor_id',
+                    'lessons.lesson_name',
+                    'instructors.name'
+                )
+                ->orderByDesc('created_at');
+        }
+        else {
+           $query->selectRaw('
+                    purchases.lesson_id,
+                    purchases.instructor_id,
+                    MAX(purchases.id)            AS id,
+                    MAX(purchases.created_at)    AS created_at,
+                    MAX(purchases.total_amount)  AS total_amount,
+                    MAX(purchases.type)          AS purchase_type,
+                    MAX(purchases.status)          AS status,
+                    lessons.lesson_name          AS lesson_name,
+                    instructors.name             AS instructor_name
+                ')
+                ->groupBy(
+                    'purchases.lesson_id',
+                    'purchases.instructor_id',
+                    'lessons.lesson_name',
+                    'instructors.name'
+                )
+                ->orderByDesc('created_at');
+        }
 
-    // ---------- role filters ----------
-    if ($user->type === Role::ROLE_STUDENT) {
-        $query->where('purchases.student_id', $user->id);
-    }
 
-    if ($user->type === Role::ROLE_ADMIN) {
-        $query->where(function ($q) {
-            $q->whereHas('lesson', function ($subQuery) {
-                    $subQuery->where('is_package_lesson', true)
-                             ->orWhere('type', 'online');
-                })
-                ->where('status', 'complete')
-              ->orWhere(function ($subQ) {
-                    $subQ->whereHas('lesson', function ($lessonQ) {
-                            $lessonQ->where('type', 'inPerson')
-                                    ->where('is_package_lesson', false);
-                        })
-                        ->whereIn('status', ['complete', 'incomplete']);
-                });
-        });
-    }
+        // ---------- role filters ----------
+        if ($user->type === Role::ROLE_STUDENT) {
+            $query->where('purchases.student_id', $user->id);
+        }
 
-    if ($user->type === Role::ROLE_INSTRUCTOR) {
-        $query->where('purchases.instructor_id', $user->id);
-    }
+        if ($user->type === Role::ROLE_ADMIN) {
+            $query->where(function ($q) {
+                $q->whereHas('lesson', function ($subQuery) {
+                        $subQuery->where('is_package_lesson', true)
+                                ->orWhere('type', 'online');
+                    })
+                    ->where('status', 'complete')
+                ->orWhere(function ($subQ) {
+                        $subQ->whereHas('lesson', function ($lessonQ) {
+                                $lessonQ->where('type', 'inPerson')
+                                        ->where('is_package_lesson', false);
+                            })
+                            ->whereIn('status', ['complete', 'incomplete']);
+                    });
+            });
+        }
 
-    return $query;
-}
+        if ($user->type === Role::ROLE_INSTRUCTOR) {
+            $query->where('purchases.instructor_id', $user->id);
+        }
+
+        return $query;
+    }
 
 
     public function html()
     {
-        $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto;max-width:200px;'><option value=''>- Lesson Type -</option>";
+        $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto;max-width:300px;'><option value='null'>- Lesson Type -</option>";
         foreach (Lesson::TYPE_MAPPING as $key => $label) {
             $selected = request('lesson_type') === $key ? 'selected' : '';
             $lessonTypeFilter .= "<option value='" . $key . "' " . $selected . ">" . $label . "</option>";
