@@ -47,8 +47,8 @@
                     <h3 style="font-size:22px;font-weight:bold;text-align:center">{{ $instructor_heading ?? '' }}</h3>
                     @forelse($instructors[0]->lessons as $lesson)
                         @if ($lesson->is_package_lesson == 0)
-                            <div class="col-md-4">
-                                <div class=" bg-gray rounded-lg shadow h-100  flex flex-col">
+                            <div class="col-md-4 mb-4">
+                                <div class="bg-gray rounded-lg shadow flex flex-col">
                                     <div class="relative text-center p-3 flex gap-3">
                                         <img src="{{ asset('storage/' . tenant()->id . '/' . ($instructors[0]->avatar ?? $user->dp)) }}"
                                             alt="{{ $instructors[0]->name }}"
@@ -65,40 +65,50 @@
                                     </div>
 
                                     @php
-                                        $description = str_replace(
-                                            "\xC2\xA0",
-                                            ' ',
-                                            html_entity_decode(
-                                                strip_tags($lesson->lesson_description),
-                                                ENT_QUOTES | ENT_HTML5,
-                                                'UTF-8',
-                                            ),
+                                        $description = html_entity_decode($lesson->lesson_description);
+                                        $cleanDescription = strip_tags(
+                                            $description,
+                                            '<ul><ol><li><span><a><strong><em><b><i>',
                                         );
-                                        $shortDescription = \Illuminate\Support\Str::limit($description, 80, '');
+                                        $cleanShortDescription = strip_tags($description, '<ul><ol><li><strong><b><i>');
+                                        $shortDescription = \Illuminate\Support\Str::limit(
+                                            $cleanShortDescription,
+                                            80,
+                                            '...',
+                                        );
+                                        
                                     @endphp
                                     <div class="text-gray-500 text-md px-2">
                                         <h3 style="font-size:18px;font-weight:bold" class="font-weight-bolder">
-                                            {{ $lesson->lesson_name }}</h3>
+                                            {{ $lesson->lesson_name }}
+                                        </h3>
                                     </div>
-                                    <p class="text-gray-500 text-md description font-medium ctm-min-h p-2">
-                                        <span class="short-text  text-gray-600"
-                                            style="font-size: 15px">{{ $shortDescription }}</span>
-                                        @if (strlen($description) > 100)
-                                            <span class="hidden full-text text-gray-600"
-                                                style="font-size: 15px">{{ $description }}</span>
+                                    <div class="text-gray-500 text-md description font-medium ctm-min-h p-2">
+                                        <div class="short-text text-gray-600"
+                                            style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
+                                            {!! $shortDescription !!}
+                                        </div>
+                                        @if (!empty($description) && strlen(strip_tags($description)) > 80)
+                                            <div class="hidden full-text text-gray-600"
+                                                style="font-size: 15px; max-height: auto; overflow-y: auto;">
+                                                {!! $cleanDescription !!}
+                                            </div>
                                             <a href="javascript:void(0);" style="font-size: 15px"
                                                 class="text-blue-600 toggle-read-more font-semibold"
-                                                onclick="toggleDescription(this)">View Lesson Description</a>
+                                                onclick="toggleDescription(this, event)">View Lesson Description</a>
                                         @endif
-                                    </p>
+                                    </div>
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                                        <div class="description-wrapper relative expanded">
+                                        <div class="description-wrapper relative">
                                             @if (!is_null($lesson?->long_description))
+                                                <div class="hidden long-text text-gray-600"
+                                                    style="font-size: 15px; max-height: 100px; overflow-y: auto;">
+                                                    {!! ($lesson->long_description) !!}
+                                                </div>
                                                 <a href="javascript:void(0)"
-                                                    data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
-                                                    class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
-                                                    tabindex="0"> View
-                                                    Description</a>
+                                                    data-long_description="{!! $lesson?->long_description !!}"
+                                                    class="text-blue-600 font-medium mt-1 inline-block viewDescription"
+                                                    tabindex="0">View Description</a>
                                             @endif
                                         </div>
                                         @if ($lesson?->type == 'online')
@@ -140,40 +150,40 @@
                                             <a class="font-bold text-dark text-xl" href="{{ route('login') }}">
                                                 {{ $instructors[0]->name }}
                                             </a>
-                                            {{--  @if ($slots != 0)
-                                            <div class="text-lg font-bold tracking-tight text-primary">
-                                                <p>{{ $slots }} Slots available.</p>
-                                            </div>
-                                            @endif
-                                            <div class="text-sm font-medium text-gray-500 italic">
-                                                <div class="flex flex-row justify-between">
-                                                    <div
-                                                        class="bg-green-500 text-white text-sm font-bold px-2 py-1 rounded-full">
-                                                        Package
-                                                        Lesson
-                                                    </div>
-                                                </div>
-                                            </div>  --}}
                                         </div>
                                     </div>
                                     @php
-                                        $description = html_entity_decode(strip_tags($lesson->lesson_description));
-                                        $shortDescription = \Illuminate\Support\Str::limit($description, 80, '');
+                                        $description = html_entity_decode($lesson->lesson_description);
+                                        $cleanDescription = strip_tags(
+                                            $description,
+                                            '<ul><ol><li><span><a><strong><em><b><i>',
+                                        );
+                                        $cleanShortDescription = strip_tags($description, '<ul><ol><li><strong><b><i>');
+                                        $shortDescription = \Illuminate\Support\Str::limit(
+                                            $cleanShortDescription,
+                                            80,
+                                            '...',
+                                        );
                                     @endphp
                                     <div class="text-gray-500 text-md px-2">
                                         <h3 style="font-size:18px;font-weight:bold" class="font-weight-bolder">
                                             {{ $lesson->lesson_name }}</h3>
                                     </div>
-                                    <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h p-2">
-                                        <span class="short-text" style="font-size: 15px">{{ $shortDescription }}</span>
-                                        @if (strlen($description) > 20)
-                                            <span class="hidden full-text"
-                                                style="font-size: 15px">{{ $description }}</span>
-                                            <a href="javascript:void(0);"
+                                    <div class="text-gray-500 text-md description font-medium ctm-min-h p-2">
+                                        <div class="short-text text-gray-600"
+                                            style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
+                                            {!! $shortDescription !!}
+                                        </div>
+                                        @if (!empty($description) && strlen(strip_tags($description)) > 80)
+                                            <div class="hidden full-text text-gray-600"
+                                                style="font-size: 15px; max-height: auto; overflow-y: auto;">
+                                                {!! $cleanDescription !!}
+                                            </div>
+                                            <a href="javascript:void(0);" style="font-size: 15px"
                                                 class="text-blue-600 toggle-read-more font-semibold"
-                                                onclick="toggleDescription(this)">View Lesson Description</a>
+                                                onclick="toggleDescription(this, event)">View Lesson Description</a>
                                         @endif
-                                    </p>
+                                    </div>
 
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
 
@@ -187,8 +197,8 @@
 
                                         <div class="mb-3 p-3 border rounded-lg shadow-sm bg-white">
                                             <h2 class="text-lg font-semibold flex items-center mb-2">
-                                                <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
+                                                <svg class="w-5 h-5 mr-2 text-gray-700" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-width="2"
                                                         d="M8 7V3m8 4V3m-9 8h10m-10 4h6m4 8H5a2 2 0 01-2-2V7a2 2 0 012-2h3l2-2h4l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2z">
                                                     </path>
@@ -228,7 +238,6 @@
                                         ? asset("storage/$tenantId/logo/app-favicon-logo.png")
                                         : asset('storage/' . $tenantId . '/' . $instructor->avatar);
                             @endphp
-
                             <div class="flex flex-col items-center text-center">
                                 <a href="{{ url('/login') }}" title="{{ $instructor->name }}">
                                     <img class="custom-instructor-avatar rounded" src="{{ $imgSrc }}"
@@ -369,6 +378,36 @@
         #instructorPopup.show {
             opacity: 1;
         }
+
+        .description ul,
+        .description ol {
+            list-style-type: disc;
+            margin-left: 20px;
+            padding-left: 20px;
+        }
+
+        .description li {
+            display: list-item;
+            margin-bottom: 5px;
+        }
+
+        .description b,
+        .description strong {
+            font-weight: bold;
+        }
+
+        .description i,
+        .description em {
+            font-style: italic;
+        }
+
+        .description {
+            display: block !important;
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
 @endpush
 
@@ -376,10 +415,38 @@
     <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
 
     <script>
-        function toggleDescription(button) {
+        //function toggleDescription(button) {
+        //    let parent = button.closest('.description');
+        //    let shortText = parent.querySelector('.short-text');
+        //    let fullText = parent.querySelector('.full-text');
+
+        //    if (shortText.classList.contains('hidden')) {
+        //        shortText.classList.remove('hidden');
+        //        fullText.classList.add('hidden');
+        //        button.innerText = "View Lesson Description";
+        //    } else {
+        //        shortText.classList.add('hidden');
+        //        fullText.classList.remove('hidden');
+        //        button.innerText = "Show Less";
+        //    }
+        //}
+
+        function toggleDescription(button, event) {
+            event.stopPropagation();
             let parent = button.closest('.description');
             let shortText = parent.querySelector('.short-text');
             let fullText = parent.querySelector('.full-text');
+
+            parent.style.display = 'block';
+
+            if (!shortText || !fullText) {
+                console.error('Short text or full text element not found in .description', {
+                    parent,
+                    shortText,
+                    fullText
+                });
+                return;
+            }
 
             if (shortText.classList.contains('hidden')) {
                 shortText.classList.remove('hidden');
