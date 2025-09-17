@@ -942,6 +942,7 @@ class PurchaseController extends Controller
     {
         $purchases = Purchase::select([
             'purchases.id',
+            'purchases.status',
             'lessons.lesson_name',
             'students.name as student_name',
             'slots.date_time',
@@ -958,7 +959,7 @@ class PurchaseController extends Controller
                     ->whereRaw('slots.date_time = (select MIN(s2.date_time) from slots as s2 where s2.lesson_id = purchases.lesson_id)');
             })
             ->where('purchases.lesson_id', $request->input('lesson_id'))
-            ->where('purchases.tenant_id', $request->input('tenant_id'))
+            ->where('purchases.tenant_id', tenant()->id)
             ->orderBy('slots.date_time', 'asc')
             ->get();
 

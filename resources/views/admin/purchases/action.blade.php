@@ -18,7 +18,7 @@
             {!! Form::close() !!}
         @endcan
     @endif
-    @if ($purchase->type === 'inPerson' && $user->type == 'Instructor')
+    @if ($purchase->type != 'online' && $purchase->type != 'package' && $user->type == 'Instructor')
         <button class="btn btn-sm small btn btn-dark" data-lesson_id="{{ $purchase->lesson_id }}" data-tenant_id="{{ $purchase->tenant_id }}" id="preSetActionButton" type="button" data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-original-title="{{ __('View Students') }}">
             <svg width="800px" height="800px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
@@ -26,12 +26,11 @@
                     d="M512 128a176 176 0 1 0 0 352 176 176 0 0 0 0-352zM160 800c0-176 144-320 352-320s352 144 352 320v48H160v-48z"
                     fill="#FFFFFF" />
             </svg>
-
         </button>
     @endif
     @if (in_array($user->type, ['Student', 'Instructor']) &&
             ($purchase->status == 'complete' || $purchase->lesson->payment_method == 'cash' || $hasBooking) &&
-            $purchase->lesson->type != 'online')
+            $purchase->lesson->type != 'online' && $purchase->lesson->type != 'inPerson')
         <a class="btn btn-sm small btn btn-info action-btn-fix"
             href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}" data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">
@@ -59,7 +58,7 @@
         </a>
     @endcan
 @endif --}}
-    @if ($user->type == 'Instructor')
+    {{--  @if ($user->type == 'Instructor')
         @can('manage-purchases')
             <a class="btn btn-sm small btn btn-warning action-btn-fix"
                 href="{{ route('purchase.feedback.create', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
@@ -67,7 +66,7 @@
                 <i class="ti ti-plus text-white"></i>
             </a>
         @endcan
-    @endif
+    @endif  --}}
     @if (in_array($user->type, ['Student', 'Instructor']) && ($purchaseVideo = $purchase->videos->first()))
         @can('manage-purchases')
             <a class="btn btn-sm small btn btn-warning action-btn-fix"
