@@ -76,7 +76,6 @@
                                             80,
                                             '...',
                                         );
-
                                     @endphp
                                     <div class="text-gray-500 text-md px-2">
                                         <h3 style="font-size:18px;font-weight:bold" class="font-weight-bolder">

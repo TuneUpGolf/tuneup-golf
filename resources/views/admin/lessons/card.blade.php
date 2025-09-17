@@ -87,24 +87,27 @@
         </div>  --}}
 
         @php
-            $description = str_replace(
-                "\xC2\xA0",
-                ' ',
-                html_entity_decode(strip_tags($short_description), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
-            );
-            $shortDescription = \Illuminate\Support\Str::limit($description, 80, '');
-
+            $description = html_entity_decode($short_description);
+            $cleanDescription = strip_tags($description, '<ul><ol><li><span><a><strong><em><b><i>');
+            $cleanShortDescription = strip_tags($description, '<ul><ol><li><strong><b><i>');
+            $shortDescription = \Illuminate\Support\Str::limit($cleanShortDescription, 80, '...');
         @endphp
 
-        <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h p-2">
-            <span class="short-text" style="font-size:15px">{{ $shortDescription }}</span>
-            @if (strlen($description) > 100)
-                <span class="hidden full-text" style="font-size:15px">{{ $description }}</span>
-                <a href="javascript:void(0);" style="font-size:15px"
-                    class="text-blue-600 toggle-read-more font-semibold" onclick="toggleDescription(this)">View Lesson
-                    Description</a>
+        <div class="text-gray-500 text-md description font-medium ctm-min-h p-2">
+            <div class="short-text text-gray-600"
+                style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
+                {!! $shortDescription !!}
+            </div>
+            @if (!empty($description) && strlen(strip_tags($description)) > 80)
+                <div class="hidden full-text text-gray-600"
+                    style="font-size: 15px; max-height: auto; overflow-y: auto;">
+                    {!! $cleanDescription !!}
+                </div>
+                <a href="javascript:void(0);" style="font-size: 15px"
+                    class="text-blue-600 toggle-read-more font-semibold" onclick="toggleDescription(this, event)">View
+                    Lesson Description</a>
             @endif
-        </p>
+        </div>
         <div class="description-wrapper relative expanded mb-2">
             {{--  @if (!is_null($long_description))
                 <a href="javascript:void(0)"
@@ -269,10 +272,38 @@
             $('#longDescModal').modal('hide');
         }
 
-        function toggleDescription(button) {
+        //function toggleDescription(button) {
+        //    let parent = button.closest('.description');
+        //    let shortText = parent.querySelector('.short-text');
+        //    let fullText = parent.querySelector('.full-text');
+
+        //    if (shortText.classList.contains('hidden')) {
+        //        shortText.classList.remove('hidden');
+        //        fullText.classList.add('hidden');
+        //        button.innerText = "View Lesson Description";
+        //    } else {
+        //        shortText.classList.add('hidden');
+        //        fullText.classList.remove('hidden');
+        //        button.innerText = "Show Less";
+        //    }
+        //}
+
+        function toggleDescription(button, event) {
+            event.stopPropagation();
             let parent = button.closest('.description');
             let shortText = parent.querySelector('.short-text');
             let fullText = parent.querySelector('.full-text');
+
+            parent.style.display = 'block';
+
+            if (!shortText || !fullText) {
+                console.error('Short text or full text element not found in .description', {
+                    parent,
+                    shortText,
+                    fullText
+                });
+                return;
+            }
 
             if (shortText.classList.contains('hidden')) {
                 shortText.classList.remove('hidden');
