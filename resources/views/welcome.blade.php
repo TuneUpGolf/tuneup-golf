@@ -76,7 +76,7 @@
                                             80,
                                             '...',
                                         );
-                                        
+
                                     @endphp
                                     <div class="text-gray-500 text-md px-2">
                                         <h3 style="font-size:18px;font-weight:bold" class="font-weight-bolder">
@@ -103,10 +103,9 @@
                                             @if (!is_null($lesson?->long_description))
                                                 <div class="hidden long-text text-gray-600"
                                                     style="font-size: 15px; max-height: 100px; overflow-y: auto;">
-                                                    {!! ($lesson->long_description) !!}
+                                                    {!! $lesson->long_description !!}
                                                 </div>
-                                                <a href="javascript:void(0)"
-                                                    data-long_description="{!! $lesson?->long_description !!}"
+                                                <a href="javascript:void(0)" style="font-size: 15px" data-long_description="{!! $lesson?->long_description !!}"
                                                     class="text-blue-600 font-medium mt-1 inline-block viewDescription"
                                                     tabindex="0">View Description</a>
                                             @endif
@@ -188,7 +187,7 @@
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
 
                                         @if (!empty($lesson?->long_description) || $lesson?->long_description != '' || $lesson?->long_description != null)
-                                            <a href="javascript:void(0)"
+                                            <a href="javascript:void(0)" style="font-size: 15px"
                                                 data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
                                                 class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
                                                 tabindex="0"> View
@@ -310,7 +309,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <h3 class="longDescContent"></h3>
+                    <div class="longDescContent"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="lesson-btn" onclick="closeLongDescModal()">Close</button>
@@ -408,6 +407,11 @@
         .hidden {
             display: none;
         }
+
+        .longDescContent ul {
+            list-style: disc;
+            padding-left: 1.5rem;
+        }
     </style>
 @endpush
 
@@ -459,8 +463,9 @@
             }
         }
         $(document).on('click', '.viewDescription', function() {
+            const desc = $(this).siblings('.long-text').html();
+            console.log("desc =>", desc);
             $('#longDescModal').modal('show');
-            let desc = $(this).attr('data-long_description');
             $('.longDescContent').html(desc);
         })
 
