@@ -60,7 +60,7 @@
         </a>
     @endcan
 @endif --}}
-    {{--  @if ($user->type == 'Instructor')
+    @if ($user->type == 'Instructor' && $purchase->purchase_type != 'inPerson')
         @can('manage-purchases')
             <a class="btn btn-sm small btn btn-warning action-btn-fix"
                 href="{{ route('purchase.feedback.create', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
@@ -68,8 +68,8 @@
                 <i class="ti ti-plus text-white"></i>
             </a>
         @endcan
-    @endif  --}}
-    {{--  @if (in_array($user->type, ['Student', 'Instructor']) && ($purchaseVideo = $purchase->videos->first()))
+    @endif
+    @if (in_array($user->type, ['Student', 'Instructor']) && $purchase->purchase_type !='inPerson' && ($purchaseVideo = $purchase->videos->first()))
         @can('manage-purchases')
             <a class="btn btn-sm small btn btn-warning action-btn-fix"
                 href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
@@ -77,7 +77,7 @@
                 <i class="ti ti-eye text-white"></i>
             </a>
         @endcan
-    @endif  --}}
+    @endif
     {{-- @if ($purchase->status == 'incomplete' && $user->type == 'Instructor')
     @can('manage-purchases')
         <svg
