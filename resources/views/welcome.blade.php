@@ -3,6 +3,9 @@
     $currency = tenancy()->central(function ($tenant) {
         return Utility::getsettings('currency_symbol');
     });
+    $currencySymbol = tenancy()->central(function ($tenant) {
+            return Utility::getsettings('currency');
+        });
     $tenantId = tenant('id');
     $banner = Utility::getsettings('banner_image');
 @endphp
@@ -135,7 +138,7 @@
                                 $packages_array = [];
                                 foreach ($lesson?->packages as $package) {
                                     $packages_array[] =
-                                        $package->number_of_slot . ' Pack ' . ' - ' . $package->price . ' USD ';
+                                        $package->number_of_slot . ' Pack ' . ' - ' .  $currency .$package->price . ' ' .$currencySymbol;
                                 }
                             @endphp
                             <div class="col-md-4">
