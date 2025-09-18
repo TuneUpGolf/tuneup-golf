@@ -98,7 +98,7 @@
                 style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
                 {!! $shortDescription !!}
             </div>
-            @if (!empty($description) && strlen(strip_tags($description)) > 80)
+            @if (!empty($description) && strlen(strip_tags($description)) >= 80)
                 <div class="hidden full-text text-gray-600"
                     style="font-size: 15px; max-height: auto; overflow-y: auto;">
                     {!! $cleanDescription !!}
