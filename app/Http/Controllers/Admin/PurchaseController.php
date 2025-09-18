@@ -951,9 +951,11 @@ class PurchaseController extends Controller
             'purchases.type',
             'purchases.lesson_id',
             'purchases.tenant_id',
+            'users.name',
             \DB::raw('(SELECT COUNT(*) FROM purchasevideos WHERE purchasevideos.purchase_id = purchases.id) > 0 as has_video')
         ])
             ->join('students', 'purchases.student_id', '=', 'students.id')
+            ->join('users', 'purchases.instructor_id', '=', 'users.id')
             ->join('lessons', 'lessons.id', '=', 'purchases.lesson_id')
             ->leftJoin('slots', function ($join) {
                 $join->on('slots.lesson_id', '=', 'purchases.lesson_id')

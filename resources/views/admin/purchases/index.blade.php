@@ -33,6 +33,7 @@
                         <thead>
                             <tr>
                                 <th>Student</th>
+                                <th>Instructor</th>
                                 <th>Date & Time</th>
                                 <th>Location</th>
                                 <th>Payment Status</th>
@@ -127,6 +128,7 @@
                         tbody.innerHTML += `
                     <tr>
                         <td>${row.student_name ?? ''}</td>
+                        <td>${row.name ?? ''}</td>
                         <td>${row.date_time ?? ''}</td>
                         <td>${row.location ?? ''}</td>
                         <td>${badge}</td>
