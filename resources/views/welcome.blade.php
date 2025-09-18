@@ -152,6 +152,11 @@
                                             <a class="font-bold text-dark text-xl" href="{{ route('login') }}">
                                                 {{ $instructors[0]->name }}
                                             </a>
+                                            <div class="text-lg font-bold tracking-tight text-primary">
+                                                @if($lesson?->packages->min('price'))
+                                                    {{ $currency }} {{ $lesson?->packages->min('price') }}
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                     @php
