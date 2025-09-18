@@ -29,22 +29,25 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <table id="preSetTable" class="table table-bordered" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>Student</th>
-                                <th>Date & Time</th>
-                                <th>Location</th>
-                                <th>Payment Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                    <div style="overflow-x: auto;">
+                        <table id="preSetTable" class="table table-bordered" style="min-width: 800px; width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Instructor</th>
+                                    <th>Date & Time</th>
+                                    <th>Location</th>
+                                    <th>Payment Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="lesson-btn" onclick="closeInstructorPopup()">Close</button>
+                    <button type="button" class="lesson-btn w-25" onclick="closeInstructorPopup()">Close</button>
                 </div>
             </div>
         </div>
@@ -127,6 +130,7 @@
                         tbody.innerHTML += `
                     <tr>
                         <td>${row.student_name ?? ''}</td>
+                        <td>${row.name ?? ''}</td>
                         <td>${row.date_time ?? ''}</td>
                         <td>${row.location ?? ''}</td>
                         <td>${badge}</td>

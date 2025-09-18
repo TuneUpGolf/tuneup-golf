@@ -82,15 +82,15 @@ class PurchaseDataTable extends DataTable
                 if (request('lesson_type') === 'inPerson') {
                     return '<span class="text-gray-600">Multiple Students</span>';
                 }
+               
 
                 $imageSrc = $purchase?->student?->dp
                     ? asset('/storage/' . tenant('id') . '/' . $purchase?->student?->dp)
                     : asset('assets/img/logo/logo.png');
-
                 return '
                     <div class="flex justify-start items-center">
                         <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
-                        <span class="px-0">' . e($purchase->student_name) . '</span>
+                        <span class="px-0">' . e($purchase?->student?->name) . '</span>
                     </div>';
             })
             ->addColumn('status', function ($purchase) {
@@ -362,45 +362,77 @@ class PurchaseDataTable extends DataTable
                 ->orderByDesc('purchases.created_at');
         }
         elseif ($lessonType === null) {
-            $query->selectRaw('
-                    purchases.lesson_id,
-                    purchases.instructor_id,
-                    MAX(purchases.id)            AS id,
-                    MAX(purchases.created_at)    AS created_at,
-                    MAX(purchases.total_amount)  AS total_amount,
-                    MAX(purchases.type)          AS purchase_type,
-                    MAX(purchases.status)          AS status,
-                    lessons.lesson_name          AS lesson_name,
-                    instructors.name             AS instructor_name
-                ')
-                ->groupBy(
+            $inPersonQuery = $model->newQuery()
+            ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
+            ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+            ->where('purchases.type', Lesson::LESSON_TYPE_INPERSON)
+            ->selectRaw('
+                purchases.lesson_id,
+                purchases.instructor_id,
+                MAX(purchases.id) AS id,
+                MAX(purchases.created_at) AS created_at,
+                MAX(purchases.total_amount) AS total_amount,
+                MAX(purchases.type) AS purchase_type,
+                MAX(purchases.status) AS status,
+                lessons.lesson_name AS lesson_name,
+                instructors.name AS instructor_name
+            ')
+            ->groupBy('purchases.lesson_id', 'purchases.instructor_id', 'lessons.lesson_name', 'instructors.name');
+
+            $onlinePackageQuery = $model->newQuery()
+                ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
+                ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+                ->whereIn('purchases.type', ['online', 'package'])
+                ->select(
                     'purchases.lesson_id',
                     'purchases.instructor_id',
+                    'purchases.id',
+                    'purchases.created_at',
+                    'purchases.total_amount',
+                    'purchases.type as purchase_type',
+                    'purchases.status',
                     'lessons.lesson_name',
-                    'instructors.name'
-                )
+                    'instructors.name as instructor_name'
+                );
+            $query = $inPersonQuery->unionAll($onlinePackageQuery)
                 ->orderByDesc('created_at');
-        }
-        else {
-           $query->selectRaw('
-                    purchases.lesson_id,
-                    purchases.instructor_id,
-                    MAX(purchases.id)            AS id,
-                    MAX(purchases.created_at)    AS created_at,
-                    MAX(purchases.total_amount)  AS total_amount,
-                    MAX(purchases.type)          AS purchase_type,
-                    MAX(purchases.status)          AS status,
-                    lessons.lesson_name          AS lesson_name,
-                    instructors.name             AS instructor_name
-                ')
-                ->groupBy(
+        }else {
+            $inPersonQuery = $model->newQuery()
+            ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
+            ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+            ->where('purchases.type', Lesson::LESSON_TYPE_INPERSON)
+            ->selectRaw('
+                purchases.lesson_id,
+                purchases.instructor_id,
+                MAX(purchases.id) AS id,
+                MAX(purchases.created_at) AS created_at,
+                MAX(purchases.total_amount) AS total_amount,
+                MAX(purchases.type) AS purchase_type,
+                MAX(purchases.status) AS status,
+                lessons.lesson_name AS lesson_name,
+                instructors.name AS instructor_name
+            ')
+            ->groupBy('purchases.lesson_id','purchases.instructor_id', 'lessons.lesson_name', 'instructors.name');
+
+            $onlinePackageQuery = $model->newQuery()
+                ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
+                ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+                ->whereIn('purchases.type', ['online', 'package'])
+                ->select(
                     'purchases.lesson_id',
                     'purchases.instructor_id',
+                    'purchases.id',
+                    'purchases.created_at',
+                    'purchases.total_amount',
+                    'purchases.type as purchase_type',
+                    'purchases.status',
                     'lessons.lesson_name',
-                    'instructors.name'
-                )
+                    'instructors.name as instructor_name'
+                );
+            $query = $inPersonQuery->unionAll($onlinePackageQuery)
                 ->orderByDesc('created_at');
         }
+       
 
 
         // ---------- role filters ----------

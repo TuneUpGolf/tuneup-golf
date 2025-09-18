@@ -85,8 +85,8 @@
 
         @php 
             $tenantId = tenant()->id;
-            $instructorDp = $purchase->plan->instructor->dp;
-            $studentDp = $purchase->student->dp;
+            $instructorDp = $purchase?->plan?->instructor?->dp;
+            $studentDp = $purchase?->student?->dp;
         @endphp
         
         window.chatConfig = {
