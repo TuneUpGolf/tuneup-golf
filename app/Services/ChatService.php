@@ -110,8 +110,9 @@ class ChatService
         return null;
     }
 
-    public function createGroup(string $chatUserId, string $instructorId): ?string
+    public function createGroup($chatUserId, $instructorId)
     {
+        if(is_null($chatUserId) || is_null($instructorId)) return false;
         $token = $this->getChatToken($chatUserId);
 
         $payload = [

@@ -87,7 +87,7 @@
                                             style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
                                             {!! $shortDescription !!}
                                         </div>
-                                        @if (!empty($description) && strlen(strip_tags($description)) > 80)
+                                        @if (!empty($description) && strlen(strip_tags($description)) >= 80)
                                             <div class="hidden full-text text-gray-600"
                                                 style="font-size: 15px; max-height: auto; overflow-y: auto;">
                                                 {!! $cleanDescription !!}
@@ -99,14 +99,15 @@
                                     </div>
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
                                         <div class="description-wrapper relative">
-                                            @if (!is_null($lesson?->long_description))
+                                            @if (!empty($lesson?->long_description) || !is_null($lesson?->long_description))
                                                 <div class="hidden long-text text-gray-600"
                                                     style="font-size: 15px; max-height: 100px; overflow-y: auto;">
                                                     {!! $lesson->long_description !!}
                                                 </div>
-                                                <a href="javascript:void(0)" style="font-size: 15px" data-long_description="{!! $lesson?->long_description !!}"
+                                                <a href="javascript:void(0)" style="font-size: 15px"
+                                                    data-long_description="{{ e($lesson->long_description) }}"
                                                     class="text-blue-600 font-medium mt-1 inline-block viewDescription"
-                                                    tabindex="0">View Description</a>
+                                                    tabindex="0">View Description </a>
                                             @endif
                                         </div>
                                         @if ($lesson?->type == 'online')
@@ -152,10 +153,7 @@
                                     </div>
                                     @php
                                         $description = html_entity_decode($lesson->lesson_description);
-                                        $cleanDescription = strip_tags(
-                                            $description,
-                                            '<ul><ol><li><span><a><strong><em><b><i>',
-                                        );
+                                        $cleanDescription = strip_tags($description, '<ul><ol><li><span><a><em><b><i>');
                                         $cleanShortDescription = strip_tags($description, '<ul><ol><li><strong><b><i>');
                                         $shortDescription = \Illuminate\Support\Str::limit(
                                             $cleanShortDescription,
@@ -172,7 +170,7 @@
                                             style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
                                             {!! $shortDescription !!}
                                         </div>
-                                        @if (!empty($description) && strlen(strip_tags($description)) > 80)
+                                        @if (!empty($description) && strlen(strip_tags($description)) >= 80)
                                             <div class="hidden full-text text-gray-600"
                                                 style="font-size: 15px; max-height: auto; overflow-y: auto;">
                                                 {!! $cleanDescription !!}
@@ -186,8 +184,12 @@
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
 
                                         @if (!empty($lesson?->long_description) || $lesson?->long_description != '' || $lesson?->long_description != null)
+                                            <div class="hidden long-text text-gray-600"
+                                                style="font-size: 15px; max-height: 100px; overflow-y: auto;">
+                                                {!! $lesson->long_description !!}
+                                            </div>
                                             <a href="javascript:void(0)" style="font-size: 15px"
-                                                data-long_description="{{ strip_tags($lesson?->long_description, '<strong><b><ul><li>') }}"
+                                                data-long_description="{!! $lesson?->long_description !!}"
                                                 class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
                                                 tabindex="0"> View
                                                 Description</a>
@@ -411,6 +413,21 @@
             list-style: disc;
             padding-left: 1.5rem;
         }
+        .longDescContent table {
+            width:100% !important;
+        }
+        .longDescContent table {
+            width: 100%;
+            border: 1px solid #000;
+            border-collapse: collapse;
+        }
+
+        .longDescContent th,
+        .longDescContent td {
+            border: 1px solid #000;
+            padding: 6px 10px;
+            text-align: left;
+        }
     </style>
 @endpush
 
@@ -463,6 +480,7 @@
         }
         $(document).on('click', '.viewDescription', function() {
             const desc = $(this).siblings('.long-text').html();
+            console.log('desc =>', desc);;
             $('#longDescModal').modal('show');
             $('.longDescContent').html(desc);
         })

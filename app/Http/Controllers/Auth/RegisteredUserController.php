@@ -106,15 +106,14 @@ class RegisteredUserController extends Controller
             session()->flash('warning', 'Registered successfully, but chat features may not work properly.');
         }
 
-        $instructor = User::where('type', Role::ROLE_INSTRUCTOR)->orderBy('id', 'desc')->first();
+        $instructor = User::where('type', Role::ROLE_INSTRUCTOR)->orderBy('id', 'desc')->first();   
         if ($instructorId = $instructor->id ?? false) {
             Follow::updateOrCreate(
                 ['student_id' => $user->id, 'instructor_id' => $instructorId],
                 ['active_status' => true, 'isPaid' => false]
             );
         }
-
-        if (!is_null($instructor->chat_user_id)) {
+        if (!is_null($instructor->chat_user_id) ) {
             $groupId = $this->chatService->createGroup($user->chat_user_id, $instructor->chat_user_id);
             if ($groupId) {
                 $user->group_id = $groupId;
@@ -122,7 +121,7 @@ class RegisteredUserController extends Controller
             }
         }
 
-        SendEmail::dispatch($user->email, new WelcomeMailStudent($user, ''));
+       SendEmail::dispatch($user->email, new WelcomeMailStudent($user, ''));
 
         // else {
         //     $user = User::create([

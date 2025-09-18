@@ -33,6 +33,23 @@
         list-style: disc;
         padding-left: 1.5rem;
     }
+
+    .longDescContent table {
+        width: 100% !important;
+    }
+
+    .longDescContent table {
+        width: 100%;
+        border: 1px solid #000;
+        border-collapse: collapse;
+    }
+
+    .longDescContent th,
+    .longDescContent td {
+        border: 1px solid #000;
+        padding: 6px 10px;
+        text-align: left;
+    }
 </style>
 @props([
     'image' => '',
@@ -98,7 +115,7 @@
                 style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
                 {!! $shortDescription !!}
             </div>
-            @if (!empty($description) && strlen(strip_tags($description)) > 80)
+            @if (!empty($description) && strlen(strip_tags($description)) >= 80)
                 <div class="hidden full-text text-gray-600"
                     style="font-size: 15px; max-height: auto; overflow-y: auto;">
                     {!! $cleanDescription !!}
@@ -121,7 +138,7 @@
                     style="font-size: 15px; max-height: 100px; overflow-y: auto;">
                     {!! $long_description !!}
                 </div>
-                <a href="javascript:void(0)" data-long_description="{!! $long_description !!}"
+                <a href="javascript:void(0)" data-long_description="{{ e($long_description) }}"
                     class="text-blue-600 font-medium mt-1 inline-block viewDescription" tabindex="0">
                     View Description
                 </a>

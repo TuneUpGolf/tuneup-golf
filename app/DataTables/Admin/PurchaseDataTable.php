@@ -82,15 +82,14 @@ class PurchaseDataTable extends DataTable
                 if (request('lesson_type') === 'inPerson') {
                     return '<span class="text-gray-600">Multiple Students</span>';
                 }
-               
-
+                $student = \App\Models\Student::find((int)$purchase->student_id);
                 $imageSrc = $purchase?->student?->dp
-                    ? asset('/storage/' . tenant('id') . '/' . $purchase?->student?->dp)
+                    ? asset('/storage/' . tenant('id') . '/' . $student?->dp)
                     : asset('assets/img/logo/logo.png');
                 return '
                     <div class="flex justify-start items-center">
                         <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
-                        <span class="px-0">' . e($purchase?->student?->name) . '</span>
+                        <span class="px-0">' . e($purchase->student_name) . '</span>
                     </div>';
             })
             ->addColumn('status', function ($purchase) {
@@ -139,179 +138,12 @@ class PurchaseDataTable extends DataTable
             ]);
     }
 
-    // public function query(Purchase $model)
-    // {
-    //     $user = Auth::user();
-
-    //      $query = $model->newQuery()
-    //     ->join('lessons', 'purchases.lesson_id', '=', 'lessons.id')
-    //     ->join('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
-    //     ->join('students as students', 'purchases.student_id', '=', 'students.id');
-
-    //     $lessonType = request('lesson_type');
-    //     $isInPerson = $lessonType === Lesson::LESSON_TYPE_INPERSON;
-
-    //     if ($isInPerson) {
-    //         $query->selectRaw('
-    //             purchases.lesson_id,
-    //             purchases.instructor_id,
-    //             MAX(purchases.id)            as id,
-    //             MAX(purchases.created_at)    as created_at,
-    //             MAX(purchases.total_amount)  as total_amount,
-    //             lessons.lesson_name          as lesson_name,
-    //             instructors.name             as instructor_name
-    //         ')
-    //         ->where('lessons.type', Lesson::LESSON_TYPE_INPERSON)
-    //         ->groupBy(
-    //             'purchases.lesson_id',
-    //             'purchases.instructor_id',
-    //             'lessons.lesson_name',
-    //             'instructors.name'
-    //         )
-    //         ->orderByDesc('created_at');
-    //     } else {
-    //         $query->select([
-    //             'purchases.*',
-    //             'lessons.lesson_name as lesson_name',
-    //             'instructors.name as instructor_name',
-    //             'students.name as student_name'
-    //         ])
-    //         ->orderByDesc('purchases.created_at');
-    //     }
-
-    //     if ($user->type == Role::ROLE_STUDENT) {
-    //         $query->where('purchases.student_id', $user->id);
-    //     }
-
-    //     if ($user->type == Role::ROLE_ADMIN) {
-    //         $query->where(function ($q) {
-    //             $q->whereHas('lesson', function ($subQuery) {
-    //                 $subQuery->where('is_package_lesson', true)
-    //                     ->orWhere('type', 'online');
-    //             })->where('status', 'complete')
-    //                 ->orWhere(function ($subQ) {
-    //                     $subQ->whereHas('lesson', function ($lessonQ) {
-    //                         $lessonQ->where('type', 'inPerson')
-    //                             ->where('is_package_lesson', false);
-    //                     })->whereIn('status', ['complete', 'incomplete']);
-    //                 });
-    //         });
-    //     }
-
-    //     if ($user->type == Role::ROLE_INSTRUCTOR) {
-    //         $query->where('purchases.instructor_id', $user->id);
-    //     }
-
-    //     return $query;
-    // }
-
-    // public function query(Purchase $model)
-    // {
-    //     $user = Auth::user();
-    //     $query = $model->newQuery()
-    //     ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
-    //     ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
-    //     ->leftJoin('students as students', 'purchases.student_id', '=', 'students.id');
-
-    //     $lessonType = request('lesson_type');
-
-    //     if ($lessonType === Lesson::LESSON_TYPE_INPERSON) {
-    //         $query->selectRaw('
-    //             purchases.lesson_id,
-    //             purchases.instructor_id,
-    //             MAX(purchases.id)            AS id,
-    //             MAX(purchases.created_at)    AS created_at,
-    //             MAX(purchases.total_amount)  AS total_amount,
-    //             lessons.lesson_name          AS lesson_name,
-    //             instructors.name             AS instructor_name
-    //         ')
-    //         ->where('lessons.type', Lesson::LESSON_TYPE_INPERSON)
-    //         ->groupBy(
-    //             'purchases.lesson_id',
-    //             'purchases.instructor_id',
-    //             'lessons.lesson_name',
-    //             'instructors.name'
-    //         )
-    //         ->orderByDesc('created_at');
-    //     } elseif ($lessonType === Lesson::LESSON_TYPE_ONLINE) {
-    //         $query->select([
-    //             'purchases.*',
-    //             'lessons.lesson_name as lesson_name',
-    //             'instructors.name as instructor_name',
-    //             'students.name as student_name'
-    //         ])
-    //         ->where('lessons.type', Lesson::LESSON_TYPE_ONLINE)
-    //         ->orderByDesc('purchases.created_at');
-    //     } elseif ($lessonType === Lesson::LESSON_TYPE_PACKAGE) {
-    //         $query->select([
-    //             'purchases.*',
-    //             'lessons.lesson_name as lesson_name',
-    //             'instructors.name as instructor_name',
-    //             'students.name as student_name'
-    //         ])
-    //         ->where('lessons.type', Lesson::LESSON_TYPE_PACKAGE)
-    //         ->orderByDesc('purchases.created_at');
-    //     } elseif ($lessonType === null) {
-    //     $query->selectRaw('
-    //             purchases.lesson_id,
-    //             purchases.instructor_id,
-    //             MAX(purchases.id)           AS id,
-    //             MAX(purchases.created_at)   AS created_at,
-    //             MAX(purchases.total_amount) AS total_amount,
-    //             lessons.lesson_name         AS lesson_name,
-    //             instructors.name            AS instructor_name
-    //         ')
-    //         ->groupBy(
-    //             'purchases.lesson_id',
-    //             'purchases.instructor_id',
-    //             'lessons.lesson_name',
-    //             'instructors.name'
-    //         )
-    //         ->orderByDesc('created_at');
-    //     } else {
-    //         $query->select([
-    //             'purchases.*',
-    //             'lessons.lesson_name as lesson_name',
-    //             'instructors.name as instructor_name',
-    //             'students.name as student_name'
-    //         ])
-    //         ->orderByDesc('purchases.created_at');
-    //     }
-    
-
-    //     if ($user->type === Role::ROLE_STUDENT) {
-    //         $query->where('purchases.student_id', $user->id);
-    //     }
-
-    //     if ($user->type === Role::ROLE_ADMIN) {
-    //         $query->where(function ($q) {
-    //             $q->whereHas('lesson', function ($subQuery) {
-    //                     $subQuery->where('is_package_lesson', true)
-    //                             ->orWhere('type', 'online');
-    //                 })
-    //                 ->where('status', 'complete')
-    //             ->orWhere(function ($subQ) {
-    //                     $subQ->whereHas('lesson', function ($lessonQ) {
-    //                             $lessonQ->where('type', 'inPerson')
-    //                                     ->where('is_package_lesson', false);
-    //                         })
-    //                         ->whereIn('status', ['complete', 'incomplete']);
-    //                 });
-    //         });
-    //     }
-
-    //     if ($user->type === Role::ROLE_INSTRUCTOR) {
-    //         $query->where('purchases.instructor_id', $user->id);
-    //     }
-
-    //     return $query;
-    // }
 
     public function query(Purchase $model)
     {
         $user = Auth::user();
 
-        $query = $model->newQuery()
+        $query = $model->with('student')->newQuery()
             ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
             ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
             ->leftJoin('students as students', 'purchases.student_id', '=', 'students.id');
@@ -319,7 +151,6 @@ class PurchaseDataTable extends DataTable
         $lessonType = request('lesson_type');
 
         if ($lessonType === Lesson::LESSON_TYPE_INPERSON) {
-            // group by – must aggregate non-group columns
             $query->selectRaw('
                     purchases.lesson_id,
                     purchases.instructor_id,
@@ -362,9 +193,10 @@ class PurchaseDataTable extends DataTable
                 ->orderByDesc('purchases.created_at');
         }
         elseif ($lessonType === null) {
-            $inPersonQuery = $model->newQuery()
+           $inPersonQuery = $model->newQuery()
             ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
             ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+            ->leftJoin('students', 'purchases.student_id', '=', 'students.id')
             ->where('purchases.type', Lesson::LESSON_TYPE_INPERSON)
             ->selectRaw('
                 purchases.lesson_id,
@@ -372,34 +204,47 @@ class PurchaseDataTable extends DataTable
                 MAX(purchases.id) AS id,
                 MAX(purchases.created_at) AS created_at,
                 MAX(purchases.total_amount) AS total_amount,
+                ANY_VALUE(purchases.student_id) AS student_id,
+                ANY_VALUE(students.name) AS student_name,
                 MAX(purchases.type) AS purchase_type,
                 MAX(purchases.status) AS status,
                 lessons.lesson_name AS lesson_name,
                 instructors.name AS instructor_name
             ')
-            ->groupBy('purchases.lesson_id', 'purchases.instructor_id', 'lessons.lesson_name', 'instructors.name');
+            ->groupBy(
+                'purchases.lesson_id',
+                'purchases.instructor_id',
+                'lessons.lesson_name',
+                'instructors.name'
+            );
 
             $onlinePackageQuery = $model->newQuery()
-                ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
-                ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
-                ->whereIn('purchases.type', ['online', 'package'])
-                ->select(
-                    'purchases.lesson_id',
-                    'purchases.instructor_id',
-                    'purchases.id',
-                    'purchases.created_at',
-                    'purchases.total_amount',
-                    'purchases.type as purchase_type',
-                    'purchases.status',
-                    'lessons.lesson_name',
-                    'instructors.name as instructor_name'
-                );
+            ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
+            ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+            ->leftJoin('students', 'purchases.student_id', '=', 'students.id')
+            ->whereIn('purchases.type', ['online', 'package'])
+            ->selectRaw('
+                purchases.lesson_id,
+                purchases.instructor_id,
+                purchases.id,
+                purchases.created_at,
+                purchases.total_amount,
+                purchases.student_id,
+                students.name AS student_name,
+                purchases.type AS purchase_type,
+                purchases.status,
+                lessons.lesson_name,
+                instructors.name AS instructor_name
+            ');
+
             $query = $inPersonQuery->unionAll($onlinePackageQuery)
-                ->orderByDesc('created_at');
+            ->orderByDesc('created_at');
+
         }else {
             $inPersonQuery = $model->newQuery()
             ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
             ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+            ->leftJoin('students', 'purchases.student_id', '=', 'students.id')
             ->where('purchases.type', Lesson::LESSON_TYPE_INPERSON)
             ->selectRaw('
                 purchases.lesson_id,
@@ -407,34 +252,43 @@ class PurchaseDataTable extends DataTable
                 MAX(purchases.id) AS id,
                 MAX(purchases.created_at) AS created_at,
                 MAX(purchases.total_amount) AS total_amount,
+                ANY_VALUE(purchases.student_id) AS student_id,
+                ANY_VALUE(students.name) AS student_name,
                 MAX(purchases.type) AS purchase_type,
                 MAX(purchases.status) AS status,
                 lessons.lesson_name AS lesson_name,
                 instructors.name AS instructor_name
             ')
-            ->groupBy('purchases.lesson_id','purchases.instructor_id', 'lessons.lesson_name', 'instructors.name');
+            ->groupBy(
+                'purchases.lesson_id',
+                'purchases.instructor_id',
+                'lessons.lesson_name',
+                'instructors.name'
+            );
 
-            $onlinePackageQuery = $model->newQuery()
-                ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
-                ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
-                ->whereIn('purchases.type', ['online', 'package'])
-                ->select(
-                    'purchases.lesson_id',
-                    'purchases.instructor_id',
-                    'purchases.id',
-                    'purchases.created_at',
-                    'purchases.total_amount',
-                    'purchases.type as purchase_type',
-                    'purchases.status',
-                    'lessons.lesson_name',
-                    'instructors.name as instructor_name'
-                );
-            $query = $inPersonQuery->unionAll($onlinePackageQuery)
-                ->orderByDesc('created_at');
+        $onlinePackageQuery = $model->newQuery()
+            ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
+            ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+            ->leftJoin('students', 'purchases.student_id', '=', 'students.id')
+            ->whereIn('purchases.type', ['online', 'package'])
+            ->selectRaw('
+                purchases.lesson_id,
+                purchases.instructor_id,
+                purchases.id,
+                purchases.created_at,
+                purchases.total_amount,
+                purchases.student_id,
+                students.name AS student_name,
+                purchases.type AS purchase_type,
+                purchases.status,
+                lessons.lesson_name,
+                instructors.name AS instructor_name
+            ');
+
+        $query = $inPersonQuery->unionAll($onlinePackageQuery)
+            ->orderByDesc('created_at');
         }
        
-
-
         // ---------- role filters ----------
         if ($user->type === Role::ROLE_STUDENT) {
             $query->where('purchases.student_id', $user->id);
@@ -465,183 +319,387 @@ class PurchaseDataTable extends DataTable
     }
 
 
+    // public function html()
+    // {
+    //     $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto;max-width:300px;'><option value='null'>- Lesson Type -</option>";
+    //     foreach (Lesson::TYPE_MAPPING as $key => $label) {
+    //         $selected = request('lesson_type') === $key ? 'selected' : '';
+    //         $lessonTypeFilter .= "<option value='" . $key . "' " . $selected . ">" . $label . "</option>";
+    //     }
+    //     $lessonTypeFilter .= "</select>";
+
+    //     $buttons = [];
+
+    //     if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
+    //         unset($buttons[0]);
+    //     }
+
+    //     return $this->builder()
+    //         ->setTableId('purchases-table')
+    //         ->addTableClass('display responsive nowrap')
+    //         ->columns($this->getColumns())
+    //         ->minifiedAjax()
+    //         ->orderBy(1)
+    //         ->language([
+    //             "paginate" => [
+    //                 "next" => '<i class="ti ti-chevron-right"></i>',
+    //                 "previous" => '<i class="ti ti-chevron-left"></i>'
+    //             ],
+    //             'lengthMenu' => __('_MENU_ entries per page'),
+    //             "searchPlaceholder" => __('Search'),
+    //             'search' => ''
+    //         ])
+    //         ->initComplete('function() {
+    //             var api = this.api();
+    //             var searchInput = $("#" + api.table().container().id + " label input[type=search]");
+    //             searchInput.removeClass("form-control form-control-sm").addClass("dataTable-input");
+    //             $(api.table().container()).find(".dataTables_length select")
+    //                 .removeClass("custom-select custom-select-sm form-control form-control-sm")
+    //                 .addClass("dataTable-selector");
+
+    //             $(".dataTable-search").prepend("' . $lessonTypeFilter . '");
+    //             $(".dataTable-search").addClass("d-flex");
+
+    //             var studentCol = api.column("student_name:name");
+    //             var instructorCol = api.column("instructor_name:name");
+    //             var statusCol = api.column("status:name");
+
+    //             // Check initial lesson type on page load
+    //             var initialLessonType = "' . addslashes(request('lesson_type', '')) . '" || $("#lessonTypeFilter").val();
+    //             if (initialLessonType === "inPerson") {
+    //                 studentCol.visible(false);
+    //                 instructorCol.visible(false);
+    //                 statusCol.visible(false);
+    //             } else {
+    //                 studentCol.visible(true);
+    //                 instructorCol.visible(true);
+    //                 statusCol.visible(true);
+    //             }
+
+    //             $("#lessonTypeFilter").on("change", function() {
+    //                 var val = $(this).val();
+    //                 if (val === "inPerson") {
+    //                     studentCol.visible(false);
+    //                     instructorCol.visible(false);
+    //                     statusCol.visible(false);
+    //                 } else {
+    //                     studentCol.visible(true);
+    //                     instructorCol.visible(true);
+    //                     statusCol.visible(true);
+    //                 }
+    //                 api.ajax.reload();
+    //             });
+
+    //             $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
+    //                 var v = $("#lessonTypeFilter").val();
+    //                 data.lesson_type = v !== "inPerson" ? v : "inPerson";
+    //             });
+    //         }')
+    //         ->parameters([
+    //             'columnDefs' => [
+    //                 ['responsivePriority' => 1, 'targets' => 1],
+    //                 ['responsivePriority' => 2, 'targets' => 3],
+    //             ],
+    //             'dom' => <<<'DOM'
+    //         <'dataTable-top row'
+    //             <'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
+    //             <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>>
+    //         <'dataTable-container'<'col-sm-12'tr>>
+    //         <'dataTable-bottom row'
+    //             <'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
+    //             <'col-sm-7'p>>
+    //         DOM
+    //         ,
+    //         'buttons' => $buttons,
+    //         'scrollX' => true,
+    //         'responsive' => [
+    //             'scrollX' => false,
+    //             'details' => [
+    //                 'display' => '$.fn.dataTable.Responsive.display.childRow',
+    //                 'renderer' => <<<'JS'
+    //                 function (api, rowIdx, columns) {
+    //                     var data = $('<table/>').addClass('vertical-table');
+    //                     $.each(columns, function (i, col) {
+    //                         data.append('<tr><td><strong>' + col.title + '</strong></td><td>' + col.data + '</td></tr>');
+    //                     });
+    //                     return data;
+    //                 }
+    //                 JS
+    //             ]
+    //         ],
+    //         'rowCallback' => <<<'JS'
+    //         function(row){
+    //             $('td', row).css({'font-family':'Helvetica','font-weight':'300'});
+    //         }
+    //         JS,
+    //         'drawCallback' => <<<'JS'
+    //         function(settings){
+    //             var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=tooltip]"));
+    //             tooltipTriggerList.map(function(el){
+    //                 return new bootstrap.Tooltip(el, { delay: { show: 100, hide: 200 }, trigger: "hover" });
+    //             });
+    //         }
+    //         JS
+    //         ])
+    //         ->language([
+    //             'buttons' => [
+    //                 'create' => __('Choose Your Coach'),
+    //                 'print' => __('Print'),
+    //                 'reset' => __('Reset'),
+    //                 'reload' => __('Reload'),
+    //                 'excel' => __('Excel'),
+    //                 'csv' => __('CSV'),
+    //             ]
+    //         ]);
+    // }
     public function html()
-    {
-        $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto;max-width:300px;'><option value='null'>- Lesson Type -</option>";
-        foreach (Lesson::TYPE_MAPPING as $key => $label) {
-            $selected = request('lesson_type') === $key ? 'selected' : '';
-            $lessonTypeFilter .= "<option value='" . $key . "' " . $selected . ">" . $label . "</option>";
-        }
-        $lessonTypeFilter .= "</select>";
+{
+    $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto;max-width:300px;'><option value='null'>- Lesson Type -</option>";
+    foreach (Lesson::TYPE_MAPPING as $key => $label) {
+        $selected = request('lesson_type') === $key ? 'selected' : '';
+        $lessonTypeFilter .= "<option value='" . $key . "' " . $selected . ">" . $label . "</option>";
+    }
+    $lessonTypeFilter .= "</select>";
 
-        $buttons = [];
+    $buttons = [];
 
-        if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
-            unset($buttons[0]);
-        }
+    if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
+        unset($buttons[0]);
+    }
 
-        return $this->builder()
-            ->setTableId('purchases-table')
-            ->addTableClass('display responsive nowrap')
-            ->columns($this->getColumns())
-            ->minifiedAjax()
-            ->orderBy(1)
-            ->language([
-                "paginate" => [
-                    "next" => '<i class="ti ti-chevron-right"></i>',
-                    "previous" => '<i class="ti ti-chevron-left"></i>'
-                ],
-                'lengthMenu' => __('_MENU_ entries per page'),
-                "searchPlaceholder" => __('Search'),
-                'search' => ''
-            ])
-            ->initComplete('function() {
-                var api = this.api();
-                var searchInput = $("#" + api.table().container().id + " label input[type=search]");
-                searchInput.removeClass("form-control form-control-sm").addClass("dataTable-input");
-                $(api.table().container()).find(".dataTables_length select")
-                    .removeClass("custom-select custom-select-sm form-control form-control-sm")
-                    .addClass("dataTable-selector");
+    return $this->builder()
+        ->setTableId('purchases-table')
+        ->addTableClass('display responsive nowrap')
+        ->columns($this->getColumns())
+        ->minifiedAjax()
+        ->orderBy(1)
+        ->language([
+            "paginate" => [
+                "next" => '<i class="ti ti-chevron-right"></i>',
+                "previous" => '<i class="ti ti-chevron-left"></i>'
+            ],
+            'lengthMenu' => __('_MENU_ entries per page'),
+            "searchPlaceholder" => __('Search'),
+            'search' => ''
+        ])
+        ->initComplete('function() {
+            var api = this.api();
+            var searchInput = $("#" + api.table().container().id + " label input[type=search]");
+            searchInput.removeClass("form-control form-control-sm").addClass("dataTable-input");
+            $(api.table().container()).find(".dataTables_length select")
+                .removeClass("custom-select custom-select-sm form-control form-control-sm")
+                .addClass("dataTable-selector");
 
-                $(".dataTable-search").prepend("' . $lessonTypeFilter . '");
-                $(".dataTable-search").addClass("d-flex");
+            $(".dataTable-search").prepend("' . $lessonTypeFilter . '");
+            $(".dataTable-search").addClass("d-flex");
 
-                var studentCol = api.column("student_name:name");
-                var instructorCol = api.column("instructor_name:name");
-                var statusCol = api.column("status:name");
+            var studentCol = api.column("student_name:name");
+            var instructorCol = api.column("instructor_name:name");
+            var statusCol = api.column("status:name");
+            var remainingSlotsCol = api.column("remaining_slots:name");
 
-                // Check initial lesson type on page load
-                var initialLessonType = "' . addslashes(request('lesson_type', '')) . '" || $("#lessonTypeFilter").val();
-                if (initialLessonType === "inPerson") {
+            // Check initial lesson type on page load
+            var initialLessonType = "' . addslashes(request('lesson_type', '')) . '" || $("#lessonTypeFilter").val();
+            if (initialLessonType === "inPerson") {
+                studentCol.visible(false);
+                instructorCol.visible(false);
+                statusCol.visible(false);
+                remainingSlotsCol.visible(false); // Hide remaining_slots for inPerson
+            } else if (initialLessonType === "package") {
+                studentCol.visible(true);
+                instructorCol.visible(true);
+                statusCol.visible(true);
+                remainingSlotsCol.visible(true); // Show remaining_slots for package
+            } else {
+                studentCol.visible(true);
+                instructorCol.visible(true);
+                statusCol.visible(true);
+                remainingSlotsCol.visible(false); // Hide remaining_slots for other types
+            }
+
+            $("#lessonTypeFilter").on("change", function() {
+                var val = $(this).val();
+                if (val === "inPerson") {
                     studentCol.visible(false);
                     instructorCol.visible(false);
                     statusCol.visible(false);
+                    remainingSlotsCol.visible(false); // Hide remaining_slots for inPerson
+                } else if (val === "package") {
+                    studentCol.visible(true);
+                    instructorCol.visible(true);
+                    statusCol.visible(true);
+                    remainingSlotsCol.visible(true); // Show remaining_slots for package
                 } else {
                     studentCol.visible(true);
                     instructorCol.visible(true);
                     statusCol.visible(true);
+                    remainingSlotsCol.visible(false); // Hide remaining_slots for other types
                 }
+                api.ajax.reload();
+            });
 
-                $("#lessonTypeFilter").on("change", function() {
-                    var val = $(this).val();
-                    if (val === "inPerson") {
-                        studentCol.visible(false);
-                        instructorCol.visible(false);
-                        statusCol.visible(false);
-                    } else {
-                        studentCol.visible(true);
-                        instructorCol.visible(true);
-                        statusCol.visible(true);
-                    }
-                    api.ajax.reload();
-                });
-
-                $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
-                    var v = $("#lessonTypeFilter").val();
-                    data.lesson_type = v !== "inPerson" ? v : "inPerson";
-                });
-            }')
-            ->parameters([
-                'columnDefs' => [
-                    ['responsivePriority' => 1, 'targets' => 1],
-                    ['responsivePriority' => 2, 'targets' => 3],
-                ],
-                'dom' => <<<'DOM'
-            <'dataTable-top row'
-                <'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
-                <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>>
-            <'dataTable-container'<'col-sm-12'tr>>
-            <'dataTable-bottom row'
-                <'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
-                <'col-sm-7'p>>
-            DOM
-            ,
-            'buttons' => $buttons,
-            'scrollX' => true,
-            'responsive' => [
-                'scrollX' => false,
-                'details' => [
-                    'display' => '$.fn.dataTable.Responsive.display.childRow',
-                    'renderer' => <<<'JS'
-                    function (api, rowIdx, columns) {
-                        var data = $('<table/>').addClass('vertical-table');
-                        $.each(columns, function (i, col) {
-                            data.append('<tr><td><strong>' + col.title + '</strong></td><td>' + col.data + '</td></tr>');
-                        });
-                        return data;
-                    }
-                    JS
-                ]
+            $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
+                var v = $("#lessonTypeFilter").val();
+                data.lesson_type = v !== "inPerson" ? v : "inPerson";
+            });
+        }')
+        ->parameters([
+            'columnDefs' => [
+                ['responsivePriority' => 1, 'targets' => 1],
+                ['responsivePriority' => 2, 'targets' => 3],
             ],
-            'rowCallback' => <<<'JS'
-            function(row){
-                $('td', row).css({'font-family':'Helvetica','font-weight':'300'});
-            }
-            JS,
-            'drawCallback' => <<<'JS'
-            function(settings){
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=tooltip]"));
-                tooltipTriggerList.map(function(el){
-                    return new bootstrap.Tooltip(el, { delay: { show: 100, hide: 200 }, trigger: "hover" });
-                });
-            }
-            JS
-            ])
-            ->language([
-                'buttons' => [
-                    'create' => __('Choose Your Coach'),
-                    'print' => __('Print'),
-                    'reset' => __('Reset'),
-                    'reload' => __('Reload'),
-                    'excel' => __('Excel'),
-                    'csv' => __('CSV'),
-                ]
-            ]);
-    }
+            'dom' => <<<'DOM'
+        <'dataTable-top row'
+            <'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
+            <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>>
+        <'dataTable-container'<'col-sm-12'tr>>
+        <'dataTable-bottom row'
+            <'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
+            <'col-sm-7'p>>
+        DOM
+        ,
+        'buttons' => $buttons,
+        'scrollX' => true,
+        'responsive' => [
+            'scrollX' => false,
+            'details' => [
+                'display' => '$.fn.dataTable.Responsive.display.childRow',
+                'renderer' => <<<'JS'
+                function (api, rowIdx, columns) {
+                    var data = $('<table/>').addClass('vertical-table');
+                    $.each(columns, function (i, col) {
+                        data.append('<tr><td><strong>' + col.title + '</strong></td><td>' + col.data + '</td></tr>');
+                    });
+                    return data;
+                }
+                JS
+            ]
+        ],
+        'rowCallback' => <<<'JS'
+        function(row){
+            $('td', row).css({'font-family':'Helvetica','font-weight':'300'});
+        }
+        JS,
+        'drawCallback' => <<<'JS'
+        function(settings){
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=tooltip]"));
+            tooltipTriggerList.map(function(el){
+                return new bootstrap.Tooltip(el, { delay: { show: 100, hide: 200 }, trigger: "hover" });
+            });
+        }
+        JS
+        ])
+        ->language([
+            'buttons' => [
+                'create' => __('Choose Your Coach'),
+                'print' => __('Print'),
+                'reset' => __('Reset'),
+                'reload' => __('Reload'),
+                'excel' => __('Excel'),
+                'csv' => __('CSV'),
+            ]
+        ]);
+}
+    // protected function getColumns()
+    // {
+    //     $columns = [
+    //         Column::make('id')->title(__('Lesson #'))->searchable(true)->orderable(true)->width('80px'),
+    //         Column::make('lesson_name')->title(__('Lesson Title'))->searchable(true)->width('250px'),
+    //         Column::make('pill')->title(__('Type'))->searchable(false)->orderable(false),
+    //         // Column::make('remaining_slots')->title(__('Remaining Slots'))->orderable(false)->searchable(false)->addClass('text-center'),
+    //     ];  
+    //     $lessonType = request('lesson_type');
+
+
+    //     if ($lessonType === Lesson::LESSON_TYPE_PACKAGE) {
+    //     $columns[] = Column::make('remaining_slots')
+    //         ->title(__('Remaining Slots'))
+    //         ->orderable(false)
+    //         ->searchable(false)
+    //         ->addClass('text-center');
+    //     }
+
+    //     if ($lessonType !== 'inPerson') {
+    //         if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
+    //             $columns[] = Column::make('student_name')
+    //                 ->name('student_name')
+    //                 ->title(__('Student'))
+    //                 ->searchable(true);
+    //             $columns[] = Column::make('instructor_name')
+    //                 ->name('instructor_name')
+    //                 ->title(__('Instructor'))
+    //                 ->searchable(true);
+    //         } elseif (Auth::user()->type == Role::ROLE_STUDENT) {
+    //             $columns[] = Column::make('instructor_name')
+    //                 ->name('instructor_name')
+    //                 ->title(__('Instructor'))
+    //                 ->searchable(true);
+    //         }
+            
+
+    //         $columns[] = Column::make('status')
+    //             ->name('status')
+    //             ->title(__('Payment Status'));
+    //     }
+
+    //     return array_merge($columns, [
+    //         Column::make('due_date')->title(__('Submission Date'))->defaultContent()->orderable(false)->searchable(false),
+    //         Column::make('total_amount')->title(__('Total ($)'))->orderable(false),
+    //         Column::computed('action')->title(__('Actions'))
+    //             ->exportable(false)
+    //             ->printable(false)
+    //             ->addClass('text-center')
+    //             ->width('80px'),
+    //     ]);
+    // }
 
     protected function getColumns()
-    {
-        $columns = [
-            Column::make('id')->title(__('Lesson #'))->searchable(true)->orderable(true)->width('80px'),
-            Column::make('lesson_name')->title(__('Lesson Title'))->searchable(true)->width('250px'),
-            Column::make('pill')->title(__('Type'))->searchable(false)->orderable(false),
-            Column::make('remaining_slots')->title(__('Remaining Slots'))->orderable(false)->searchable(false)->addClass('text-center'),
-        ];
+{
+    $columns = [
+        Column::make('id')->title(__('Lesson #'))->searchable(true)->orderable(true)->width('80px'),
+        Column::make('lesson_name')->title(__('Lesson Title'))->searchable(true)->width('250px'),
+        Column::make('pill')->title(__('Type'))->searchable(false)->orderable(false),
+        Column::make('remaining_slots')
+            ->title(__('Remaining Slots'))
+            ->orderable(false)
+            ->searchable(false)
+            ->addClass('text-center'),
+    ];
 
-        $lessonType = request('lesson_type');
-        if ($lessonType !== 'inPerson') {
-            if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
-                $columns[] = Column::make('student_name')
-                    ->name('student_name')
-                    ->title(__('Student'))
-                    ->searchable(true);
-                $columns[] = Column::make('instructor_name')
-                    ->name('instructor_name')
-                    ->title(__('Instructor'))
-                    ->searchable(true);
-            } elseif (Auth::user()->type == Role::ROLE_STUDENT) {
-                $columns[] = Column::make('instructor_name')
-                    ->name('instructor_name')
-                    ->title(__('Instructor'))
-                    ->searchable(true);
-            }
+    $lessonType = request('lesson_type');
 
-            $columns[] = Column::make('status')
-                ->name('status')
-                ->title(__('Payment Status'));
+    if ($lessonType !== 'inPerson') {
+        if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
+            $columns[] = Column::make('student_name')
+                ->name('student_name')
+                ->title(__('Student'))
+                ->searchable(true);
+            $columns[] = Column::make('instructor_name')
+                ->name('instructor_name')
+                ->title(__('Instructor'))
+                ->searchable(true);
+        } elseif (Auth::user()->type == Role::ROLE_STUDENT) {
+            $columns[] = Column::make('instructor_name')
+                ->name('instructor_name')
+                ->title(__('Instructor'))
+                ->searchable(true);
         }
 
-        return array_merge($columns, [
-            Column::make('due_date')->title(__('Submission Date'))->defaultContent()->orderable(false)->searchable(false),
-            Column::make('total_amount')->title(__('Total ($)'))->orderable(false),
-            Column::computed('action')->title(__('Actions'))
-                ->exportable(false)
-                ->printable(false)
-                ->addClass('text-center')
-                ->width('80px'),
-        ]);
+        $columns[] = Column::make('status')
+            ->name('status')
+            ->title(__('Payment Status'));
     }
 
+    return array_merge($columns, [
+        Column::make('due_date')->title(__('Submission Date'))->defaultContent()->orderable(false)->searchable(false),
+        Column::make('total_amount')->title(__('Total ($)'))->orderable(false),
+        Column::computed('action')->title(__('Actions'))
+            ->exportable(false)
+            ->printable(false)
+            ->addClass('text-center')
+            ->width('80px'),
+    ]);
+}
     protected function filename(): string
     {
         return 'Purchases_' . date('YmdHis');

@@ -206,6 +206,7 @@
 
     <script type="text/javascript">
         CKEDITOR.replace('long_description', {
+            removePlugins: 'image,link,elementspath',
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form'
         });
@@ -220,7 +221,7 @@
                     items: ['BulletedList']
                 }
             ],
-            removePlugins: 'image,table,link,uploadimage,elementspath',
+            removePlugins: 'image,table,link,anchor,uploadimage,elementspath',
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form'
         });
@@ -305,6 +306,7 @@
             }
         });
         $(document).ready(function() {
+
             let index = 1;
             // Add more package options dynamically
             $('.add-more-package').on('click', function() {
