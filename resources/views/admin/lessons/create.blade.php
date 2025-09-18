@@ -104,6 +104,7 @@
     <script src="{{ asset('vendor/ckeditor/ckeditor.js') }}"></script>
     <script>
         CKEDITOR.replace('long_description', {
+            removePlugins: 'image,link,anchor,elementspath',
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form'
         });

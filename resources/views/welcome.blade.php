@@ -105,9 +105,9 @@
                                                     {!! $lesson->long_description !!}
                                                 </div>
                                                 <a href="javascript:void(0)" style="font-size: 15px"
-                                                    data-long_description="{!! $lesson?->long_description !!}"
+                                                    data-long_description="{{ e($lesson->long_description) }}"
                                                     class="text-blue-600 font-medium mt-1 inline-block viewDescription"
-                                                    tabindex="0">View Description</a>
+                                                    tabindex="0">View Description </a>
                                             @endif
                                         </div>
                                         @if ($lesson?->type == 'online')
@@ -412,6 +412,21 @@
         .longDescContent ul {
             list-style: disc;
             padding-left: 1.5rem;
+        }
+        .longDescContent table {
+            width:100% !important;
+        }
+        .longDescContent table {
+            width: 100%;
+            border: 1px solid #000;
+            border-collapse: collapse;
+        }
+
+        .longDescContent th,
+        .longDescContent td {
+            border: 1px solid #000;
+            padding: 6px 10px;
+            text-align: left;
         }
     </style>
 @endpush
