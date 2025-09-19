@@ -517,7 +517,7 @@ class PurchaseDataTable extends DataTable
     public function html()
     {
         $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto;max-width:300px;'><option value='null'>- Lesson Type -</option>";
-        foreach (Lesson::TYPE_MAPPING as $key => $label) {
+        foreach (Lesson::SELECT_TYPE_MAPPING as $key => $label) {
             $selected = request('lesson_type') === $key ? 'selected' : '';
             $lessonTypeFilter .= "<option value='" . $key . "' " . $selected . ">" . $label . "</option>";
         }

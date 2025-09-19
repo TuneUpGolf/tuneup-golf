@@ -27,6 +27,13 @@ class Lesson extends Model
         'inPerson' => 'In-Person & Package Lessons'
     ];
 
+    const SELECT_TYPE_MAPPING = [
+        "package"  => "In-Person & Package Lessons",
+        "online" => "Online Lessons",
+        // "package" => "Package",
+        'inPerson' => 'Pre-Set Date Lessons'
+    ];
+
     // const TYPE_MAPPING = [
     //     "inPerson"  => "In-Person",
     //     "online" => "Online",
