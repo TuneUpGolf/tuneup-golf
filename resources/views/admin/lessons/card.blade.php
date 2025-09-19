@@ -50,6 +50,10 @@
         padding: 6px 10px;
         text-align: left;
     }
+
+    .short-text ul {
+        margin-bottom: 0px !important;
+    }
 </style>
 @props([
     'image' => '',
@@ -113,9 +117,9 @@
         <div class="text-gray-500 text-md description font-medium ctm-min-h p-2">
             <div class="short-text text-gray-600"
                 style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
-                {!! $shortDescription !!}
+                {!! $description !!}
             </div>
-            @if (!empty($description) && strlen(strip_tags($description)) >= 40)
+            {{--  @if (!empty($description) && strlen(strip_tags($description)) >= 40)
                 <div class="hidden full-text text-gray-600"
                     style="font-size: 15px; max-height: auto; overflow-y: auto;">
                     {!! $cleanDescription !!}
@@ -123,7 +127,7 @@
                 <a href="javascript:void(0);" style="font-size: 15px"
                     class="text-blue-600 toggle-read-more font-semibold" onclick="toggleDescription(this, event)">View
                     Lesson Description</a>
-            @endif
+            @endif  --}}
         </div>
         <div class="description-wrapper relative expanded mb-2">
             {{--  @if (!is_null($long_description))
