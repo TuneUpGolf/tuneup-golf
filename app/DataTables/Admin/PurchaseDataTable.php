@@ -75,7 +75,7 @@ class PurchaseDataTable extends DataTable
                 $lesson_type = $purchase->lesson->type ?? null;
                 $badgeStyle = $lesson_type == Lesson::LESSON_TYPE_ONLINE
                     ? 'background-color:#16A34A;color:white;padding:4px 12px;border-radius:9999px;display:inline-block;font-size:14px;'
-                    : 'background-color:#06B6D4;color:white;padding:4px 12px;border-radius:9999px;display:inline-block;font-size:14px;';
+                    : 'background-color:#cc8217;color:white;padding:4px 12px;border-radius:9999px;display:inline-block;font-size:14px;';
                 return '<span style="' . $badgeStyle . '">' . e($s) . '</span>';
             })
             ->editColumn('student_name', function ($purchase) {

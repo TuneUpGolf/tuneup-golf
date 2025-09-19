@@ -95,15 +95,15 @@ class RegisteredUserController extends Controller
                         'chat_user_id' => $created['_id'] ?? null,
                     ]);
                 } else {
-                    session()->flash('warning', 'Registered successfully, but chat user could not be created.');
+                    // session()->flash('warning', 'Registered successfully, but chat user could not be created.');
                 }
             } else {
-                session()->flash('warning', 'Registered successfully, but chat user could not be created.');
+                // session()->flash('warning', 'Registered successfully, but chat user could not be created.');
             }
         } catch (\Exception $e) {
             // Log the error and set a flash message instead of throwing
             Log::error('Chat user creation failed: ' . $e->getMessage());
-            session()->flash('warning', 'Registered successfully, but chat features may not work properly.');
+            // session()->flash('warning', 'Registered successfully, but chat features may not work properly.');
         }
 
         $instructor = User::where('type', Role::ROLE_INSTRUCTOR)->orderBy('id', 'desc')->first();   
