@@ -113,11 +113,14 @@ class RegisteredUserController extends Controller
                 ['active_status' => true, 'isPaid' => false]
             );
         }
-        if (!is_null($instructor->chat_user_id) ) {
-            $groupId = $this->chatService->createGroup($user->chat_user_id, $instructor->chat_user_id);
-            if ($groupId) {
-                $user->group_id = $groupId;
-                $user->save();
+        if(!is_null($instructor))
+        {
+            if (!is_null($instructor?->chat_user_id) ) {
+                $groupId = $this->chatService->createGroup($user?->chat_user_id, $instructor?->chat_user_id);
+                if ($groupId) {
+                    $user->group_id = $groupId;
+                    $user->save();
+                }
             }
         }
 

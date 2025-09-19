@@ -56,12 +56,20 @@
 
 @push('css')
     @include('layouts.includes.datatable_css')
+    <style>
+        .dataTables_filter {
+            display: none;
+        }
+    </style>
 @endpush
 
 @push('javascript')
     @include('layouts.includes.datatable_js')
     {{ $dataTable->scripts() }}
     <script>
+        $(document).ready(function() {
+            $('.dataTables_filter').addClass('d-none');
+        })
         $(document).on('click', '#preSetActionButton', function() {
             $("#preSetModal").modal('show');
             let lesson_id = $(this).attr('data-lesson_id');

@@ -9,6 +9,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 
 class PurchaseDataTable extends DataTable
 {
@@ -26,13 +28,15 @@ class PurchaseDataTable extends DataTable
             ->smart(false)
             ->addIndexColumn()
             ->filterColumn('lesson_name', function ($query, $keyword) {
-                $query->orWhere('lessons.lesson_name', 'like', "%{$keyword}%");
+                \Log::info('Filtering lesson_name with keyword: ' . $keyword);
+                $query->whereRaw('lessons.lesson_name LIKE ?', ['%' . $keyword . '%']);
+                \Log::info('Lesson name filter query: ' . $query->toSql(), $query->getBindings());
             })
             ->filterColumn('instructor_name', function ($query, $keyword) {
-                $query->orWhere('instructors.name', 'like', "%{$keyword}%");
+                $query->whereRaw('instructors.name LIKE ?', ['%' . $keyword . '%']);
             })
             ->filterColumn('student_name', function ($query, $keyword) {
-                $query->orWhere('students.name', 'like', "%{$keyword}%");
+                $query->whereRaw('students.name LIKE ?', ['%' . $keyword . '%']);
             })
             ->editColumn('instructor_name', function ($purchase) {
                 if ($purchase->lesson->type === Lesson::LESSON_TYPE_INPERSON) {
@@ -78,7 +82,6 @@ class PurchaseDataTable extends DataTable
                 if ($purchase->lesson->type === Lesson::LESSON_TYPE_INPERSON) {
                     return '<span class="text-gray-400">--</span>';
                 }
-                // If "inPerson", show generic text
                 if (request('lesson_type') === 'inPerson') {
                     return '<span class="text-gray-600">Multiple Students</span>';
                 }
@@ -138,184 +141,377 @@ class PurchaseDataTable extends DataTable
             ]);
     }
 
+    // public function query(Purchase $model)
+    // {
+    //     $user = Auth::user();
 
+    //     try {
+    //         $query = $model->with('student')->newQuery()
+    //             ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
+    //             ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+    //             ->leftJoin('students as students', 'purchases.student_id', '=', 'students.id');
+
+    //         $lessonType = request('lesson_type');
+    //         $lessonNameFilter = request('lesson_name_filter');
+
+    //         // Define base subqueries
+    //         $inPersonQuery = $model->newQuery()
+    //             ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
+    //             ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+    //             ->leftJoin('students', 'purchases.student_id', '=', 'students.id')
+    //             ->where('purchases.type', Lesson::LESSON_TYPE_INPERSON);
+    //         $onlinePackageQuery = $model->newQuery()
+    //             ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
+    //             ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+    //             ->leftJoin('students', 'purchases.student_id', '=', 'students.id')
+    //             ->whereIn('purchases.type', ['online', 'package']);
+
+    //         // Apply lesson_name filter
+    //         if ($lessonNameFilter) {
+    //             $inPersonQuery->whereRaw('lessons.lesson_name LIKE ?', ['%' . $lessonNameFilter . '%']);
+    //             $onlinePackageQuery->whereRaw('lessons.lesson_name LIKE ?', ['%' . $lessonNameFilter . '%']);
+    //             \Log::info('Applied lesson_name_filter: ' . $lessonNameFilter);
+    //         }
+
+    //         // Apply role-based filters
+    //         if ($user->type === Role::ROLE_STUDENT) {
+    //             $inPersonQuery->whereRaw('purchases.student_id = ?', [$user->id]);
+    //             $onlinePackageQuery->whereRaw('purchases.student_id = ?', [$user->id]);
+    //             $query->whereRaw('purchases.student_id = ?', [$user->id]);
+    //             \Log::info('Applied student filter for user ID: ' . $user->id);
+    //         }
+
+    //         if ($user->type === Role::ROLE_INSTRUCTOR) {
+    //             $inPersonQuery->whereRaw('purchases.instructor_id = ?', [$user->id]);
+    //             $onlinePackageQuery->whereRaw('purchases.instructor_id = ?', [$user->id]);
+    //             $query->whereRaw('purchases.instructor_id = ?', [$user->id]);
+    //             \Log::info('Applied instructor filter for user ID: ' . $user->id);
+    //         }
+
+    //         if ($user->type === Role::ROLE_ADMIN) {
+    //             $adminFilter = function ($q) {
+    //                 $q->whereRaw(
+    //                     '(EXISTS (SELECT 1 FROM lessons l WHERE l.id = purchases.lesson_id AND (l.is_package_lesson = ? OR l.type = ?) AND purchases.status = ?)) OR ' .
+    //                     '(EXISTS (SELECT 1 FROM lessons l WHERE l.id = purchases.lesson_id AND l.type = ? AND l.is_package_lesson = ?) AND purchases.status IN (?, ?))',
+    //                     [true, 'online', 'complete', 'inPerson', false, 'complete', 'incomplete']
+    //                 );
+    //             };
+    //             $inPersonQuery->where($adminFilter);
+    //             $onlinePackageQuery->where($adminFilter);
+    //             $query->where($adminFilter);
+    //             \Log::info('Applied admin filter');
+    //         }
+
+    //         // Log subqueries
+    //         \Log::info('inPersonQuery: ' . $inPersonQuery->toSql(), $inPersonQuery->getBindings());
+    //         \Log::info('onlinePackageQuery: ' . $onlinePackageQuery->toSql(), $onlinePackageQuery->getBindings());
+
+    //         // Build final query based on lesson_type
+    //         if ($lessonType === Lesson::LESSON_TYPE_INPERSON) {
+    //             $query->selectRaw('
+    //                     purchases.lesson_id,
+    //                     purchases.instructor_id,
+    //                     MAX(purchases.id)            AS id,
+    //                     MAX(purchases.created_at)    AS created_at,
+    //                     MAX(purchases.total_amount)  AS total_amount,
+    //                     MAX(purchases.type)          AS purchase_type,
+    //                     lessons.lesson_name          AS lesson_name,
+    //                     instructors.name             AS instructor_name
+    //                 ')
+    //                 ->where('lessons.type', Lesson::LESSON_TYPE_INPERSON)
+    //                 ->groupBy(
+    //                     'purchases.lesson_id',
+    //                     'purchases.instructor_id',
+    //                     'lessons.lesson_name',
+    //                     'instructors.name'
+    //                 )
+    //                 ->orderByDesc('created_at');
+    //         } elseif ($lessonType === Lesson::LESSON_TYPE_ONLINE) {
+    //             $query->select([
+    //                     'purchases.*',
+    //                     'purchases.type as purchase_type',
+    //                     'lessons.lesson_name as lesson_name',
+    //                     'instructors.name as instructor_name',
+    //                     'students.name as student_name',
+    //                 ])
+    //                 ->where('lessons.type', Lesson::LESSON_TYPE_ONLINE)
+    //                 ->orderByDesc('purchases.created_at');
+    //         } elseif ($lessonType === Lesson::LESSON_TYPE_PACKAGE) {
+    //             $query->select([
+    //                     'purchases.*',
+    //                     'purchases.type as purchase_type',
+    //                     'lessons.lesson_name as lesson_name',
+    //                     'instructors.name as instructor_name',
+    //                     'students.name as student_name',
+    //                 ])
+    //                 ->where('lessons.type', Lesson::LESSON_TYPE_PACKAGE)
+    //                 ->orderByDesc('purchases.created_at');
+    //         } elseif ($lessonType === null) {
+    //             $inPersonQuery->selectRaw('
+    //                 purchases.lesson_id,
+    //                 purchases.instructor_id,
+    //                 MAX(purchases.id) AS id,
+    //                 MAX(purchases.created_at) AS created_at,
+    //                 MAX(purchases.total_amount) AS total_amount,
+    //                 ANY_VALUE(purchases.student_id) AS student_id,
+    //                 ANY_VALUE(students.name) AS student_name,
+    //                 MAX(purchases.type) AS purchase_type,
+    //                 MAX(purchases.status) AS status,
+    //                 lessons.lesson_name AS lesson_name,
+    //                 instructors.name AS instructor_name
+    //             ')
+    //             ->groupBy(
+    //                 'purchases.lesson_id',
+    //                 'purchases.instructor_id',
+    //                 'lessons.lesson_name',
+    //                 'instructors.name'
+    //             );
+
+    //             $onlinePackageQuery->selectRaw('
+    //                 purchases.lesson_id,
+    //                 purchases.instructor_id,
+    //                 purchases.id,
+    //                 purchases.created_at,
+    //                 purchases.total_amount,
+    //                 purchases.student_id,
+    //                 students.name AS student_name,
+    //                 purchases.type AS purchase_type,
+    //                 purchases.status,
+    //                 lessons.lesson_name,
+    //                 instructors.name AS instructor_name
+    //             ');
+
+    //             $query = $inPersonQuery->unionAll($onlinePackageQuery)
+    //                 ->orderByDesc('created_at');
+    //         } else {
+    //             $inPersonQuery->selectRaw('
+    //                 purchases.lesson_id,
+    //                 purchases.instructor_id,
+    //                 MAX(purchases.id) AS id,
+    //                 MAX(purchases.created_at) AS created_at,
+    //                 MAX(purchases.total_amount) AS total_amount,
+    //                 ANY_VALUE(purchases.student_id) AS student_id,
+    //                 ANY_VALUE(students.name) AS student_name,
+    //                 MAX(purchases.type) AS purchase_type,
+    //                 MAX(purchases.status) AS status,
+    //                 lessons.lesson_name AS lesson_name,
+    //                 instructors.name AS instructor_name
+    //             ')
+    //             ->groupBy(
+    //                 'purchases.lesson_id',
+    //                 'purchases.instructor_id',
+    //                 'lessons.lesson_name',
+    //                 'instructors.name'
+    //             );
+
+    //             $onlinePackageQuery->selectRaw('
+    //                 purchases.lesson_id,
+    //                 purchases.instructor_id,
+    //                 purchases.id,
+    //                 purchases.created_at,
+    //                 purchases.total_amount,
+    //                 purchases.student_id,
+    //                 students.name AS student_name,
+    //                 purchases.type AS purchase_type,
+    //                 purchases.status,
+    //                 lessons.lesson_name,
+    //                 instructors.name AS instructor_name
+    //             ');
+
+    //             $query = $inPersonQuery->unionAll($onlinePackageQuery)
+    //                 ->orderByDesc('created_at');
+    //         }
+
+    //         \Log::info('Final query: ' . $query->toSql(), $query->getBindings());
+
+    //         return $query;
+    //     } catch (QueryException $e) {
+    //         \Log::error('Query error: ' . $e->getMessage(), [
+    //             'sql' => $query->toSql(),
+    //             'bindings' => $query->getBindings(),
+    //             'inPersonQuery' => $inPersonQuery->toSql(),
+    //             'inPersonBindings' => $inPersonQuery->getBindings(),
+    //             'onlinePackageQuery' => $onlinePackageQuery->toSql(),
+    //             'onlinePackageBindings' => $onlinePackageQuery->getBindings(),
+    //         ]);
+    //         throw $e;
+    //     }
+    // }
     public function query(Purchase $model)
     {
         $user = Auth::user();
 
-        $query = $model->with('student')->newQuery()
-            ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
-            ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
-            ->leftJoin('students as students', 'purchases.student_id', '=', 'students.id');
+        try {
+            $query = $model->with('student')->newQuery()
+                ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
+                ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+                ->leftJoin('students as students', 'purchases.student_id', '=', 'students.id');
 
-        $lessonType = request('lesson_type');
+            $lessonType = request('lesson_type');
+            $lessonNameFilter = request('lesson_name_filter');
 
-        if ($lessonType === Lesson::LESSON_TYPE_INPERSON) {
-            $query->selectRaw('
+            // Apply lesson_name filter to the main query
+            if ($lessonNameFilter) {
+                $query->whereRaw('lessons.lesson_name LIKE ?', ['%' . $lessonNameFilter . '%']);
+                Log::info('Applied lesson_name_filter to main query: ' . $lessonNameFilter);
+            }
+
+            // Apply role-based filters
+            if ($user->type === Role::ROLE_STUDENT) {
+                $query->whereRaw('purchases.student_id = ?', [$user->id]);
+                Log::info('Applied student filter for user ID: ' . $user->id);
+            }
+
+            if ($user->type === Role::ROLE_INSTRUCTOR) {
+                $query->whereRaw('purchases.instructor_id = ?', [$user->id]);
+                Log::info('Applied instructor filter for user ID: ' . $user->id);
+            }
+
+            if ($user->type === Role::ROLE_ADMIN) {
+                $query->whereRaw(
+                    '(EXISTS (SELECT 1 FROM lessons l WHERE l.id = purchases.lesson_id AND (l.is_package_lesson = ? OR l.type = ?) AND purchases.status = ?)) OR ' .
+                    '(EXISTS (SELECT 1 FROM lessons l WHERE l.id = purchases.lesson_id AND l.type = ? AND l.is_package_lesson = ?) AND purchases.status IN (?, ?))',
+                    [true, 'online', 'complete', 'inPerson', false, 'complete', 'incomplete']
+                );
+                Log::info('Applied admin filter');
+            }
+
+            // Build query based on lesson_type
+            if ($lessonType === Lesson::LESSON_TYPE_INPERSON) {
+                $query->selectRaw('
+                        purchases.lesson_id,
+                        purchases.instructor_id,
+                        MAX(purchases.id) AS id,
+                        MAX(purchases.created_at) AS created_at,
+                        MAX(purchases.total_amount) AS total_amount,
+                        MAX(purchases.type) AS purchase_type,
+                        lessons.lesson_name AS lesson_name,
+                        instructors.name AS instructor_name
+                    ')
+                    ->where('lessons.type', Lesson::LESSON_TYPE_INPERSON)
+                    ->groupBy(
+                        'purchases.lesson_id',
+                        'purchases.instructor_id',
+                        'lessons.lesson_name',
+                        'instructors.name'
+                    )
+                    ->orderByDesc('created_at');
+            } elseif ($lessonType === Lesson::LESSON_TYPE_ONLINE) {
+                $query->select([
+                        'purchases.*',
+                        'purchases.type as purchase_type',
+                        'lessons.lesson_name as lesson_name',
+                        'instructors.name as instructor_name',
+                        'students.name as student_name',
+                    ])
+                    ->where('lessons.type', Lesson::LESSON_TYPE_ONLINE)
+                    ->orderByDesc('purchases.created_at');
+            } elseif ($lessonType === Lesson::LESSON_TYPE_PACKAGE) {
+                $query->select([
+                        'purchases.*',
+                        'purchases.type as purchase_type',
+                        'lessons.lesson_name as lesson_name',
+                        'instructors.name as instructor_name',
+                        'students.name as student_name',
+                    ])
+                    ->where('lessons.type', Lesson::LESSON_TYPE_PACKAGE)
+                    ->orderByDesc('purchases.created_at');
+            } else {
+                // For no lesson_type or invalid lesson_type, use union of inPerson and online/package
+                $inPersonQuery = $model->newQuery()
+                    ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
+                    ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+                    ->leftJoin('students', 'purchases.student_id', '=', 'students.id')
+                    ->where('purchases.type', Lesson::LESSON_TYPE_INPERSON);
+
+                $onlinePackageQuery = $model->newQuery()
+                    ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
+                    ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+                    ->leftJoin('students', 'purchases.student_id', '=', 'students.id')
+                    ->whereIn('purchases.type', ['online', 'package']);
+
+                // Apply lesson_name filter to subqueries
+                if ($lessonNameFilter) {
+                    $inPersonQuery->whereRaw('lessons.lesson_name LIKE ?', ['%' . $lessonNameFilter . '%']);
+                    $onlinePackageQuery->whereRaw('lessons.lesson_name LIKE ?', ['%' . $lessonNameFilter . '%']);
+                    Log::info('Applied lesson_name_filter to subqueries: ' . $lessonNameFilter);
+                }
+
+                // Apply role-based filters to subqueries
+                if ($user->type === Role::ROLE_STUDENT) {
+                    $inPersonQuery->whereRaw('purchases.student_id = ?', [$user->id]);
+                    $onlinePackageQuery->whereRaw('purchases.student_id = ?', [$user->id]);
+                }
+
+                if ($user->type === Role::ROLE_INSTRUCTOR) {
+                    $inPersonQuery->whereRaw('purchases.instructor_id = ?', [$user->id]);
+                    $onlinePackageQuery->whereRaw('purchases.instructor_id = ?', [$user->id]);
+                }
+
+                if ($user->type === Role::ROLE_ADMIN) {
+                    $adminFilter = function ($q) {
+                        $q->whereRaw(
+                            '(EXISTS (SELECT 1 FROM lessons l WHERE l.id = purchases.lesson_id AND (l.is_package_lesson = ? OR l.type = ?) AND purchases.status = ?)) OR ' .
+                            '(EXISTS (SELECT 1 FROM lessons l WHERE l.id = purchases.lesson_id AND l.type = ? AND l.is_package_lesson = ?) AND purchases.status IN (?, ?))',
+                            [true, 'online', 'complete', 'inPerson', false, 'complete', 'incomplete']
+                        );
+                    };
+                    $inPersonQuery->where($adminFilter);
+                    $onlinePackageQuery->where($adminFilter);
+                }
+
+                $inPersonQuery->selectRaw('
                     purchases.lesson_id,
                     purchases.instructor_id,
-                    MAX(purchases.id)            AS id,
-                    MAX(purchases.created_at)    AS created_at,
-                    MAX(purchases.total_amount)  AS total_amount,
-                    MAX(purchases.type)          AS purchase_type,
-                    lessons.lesson_name          AS lesson_name,
-                    instructors.name             AS instructor_name
+                    MAX(purchases.id) AS id,
+                    MAX(purchases.created_at) AS created_at,
+                    MAX(purchases.total_amount) AS total_amount,
+                    ANY_VALUE(purchases.student_id) AS student_id,
+                    ANY_VALUE(students.name) AS student_name,
+                    MAX(purchases.type) AS purchase_type,
+                    MAX(purchases.status) AS status,
+                    lessons.lesson_name AS lesson_name,
+                    instructors.name AS instructor_name
                 ')
-                ->where('lessons.type', Lesson::LESSON_TYPE_INPERSON)
                 ->groupBy(
                     'purchases.lesson_id',
                     'purchases.instructor_id',
                     'lessons.lesson_name',
                     'instructors.name'
-                )
-                ->orderByDesc('created_at');
+                );
+
+                $onlinePackageQuery->selectRaw('
+                    purchases.lesson_id,
+                    purchases.instructor_id,
+                    purchases.id,
+                    purchases.created_at,
+                    purchases.total_amount,
+                    purchases.student_id,
+                    students.name AS student_name,
+                    purchases.type AS purchase_type,
+                    purchases.status,
+                    lessons.lesson_name,
+                    instructors.name AS instructor_name
+                ');
+
+                $query = $inPersonQuery->unionAll($onlinePackageQuery)
+                    ->orderByDesc('created_at');
+            }
+
+            Log::info('Final query: ' . $query->toSql(), $query->getBindings());
+
+            return $query;
+        } catch (QueryException $e) {
+            Log::error('Query error: ' . $e->getMessage(), [
+                'sql' => $query->toSql(),
+                'bindings' => $query->getBindings(),
+                'inPersonQuery' => isset($inPersonQuery) ? $inPersonQuery->toSql() : 'N/A',
+                'inPersonBindings' => isset($inPersonQuery) ? $inPersonQuery->getBindings() : [],
+                'onlinePackageQuery' => isset($onlinePackageQuery) ? $onlinePackageQuery->toSql() : 'N/A',
+                'onlinePackageBindings' => isset($onlinePackageQuery) ? $onlinePackageQuery->getBindings() : [],
+            ]);
+            throw $e;
         }
-        elseif ($lessonType === Lesson::LESSON_TYPE_ONLINE) {
-            $query->select([
-                    'purchases.*',
-                    'purchases.type as purchase_type',
-                    'lessons.lesson_name as lesson_name',
-                    'instructors.name as instructor_name',
-                    'students.name as student_name',
-                ])
-                ->where('lessons.type', Lesson::LESSON_TYPE_ONLINE)
-                ->orderByDesc('purchases.created_at');
-        }
-        elseif ($lessonType === Lesson::LESSON_TYPE_PACKAGE) {
-            $query->select([
-                    'purchases.*',
-                    'purchases.type as purchase_type',
-                    'lessons.lesson_name as lesson_name',
-                    'instructors.name as instructor_name',
-                    'students.name as student_name',
-                ])
-                ->where('lessons.type', Lesson::LESSON_TYPE_PACKAGE)
-                ->orderByDesc('purchases.created_at');
-        }
-        elseif ($lessonType === null) {
-           $inPersonQuery = $model->newQuery()
-            ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
-            ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
-            ->leftJoin('students', 'purchases.student_id', '=', 'students.id')
-            ->where('purchases.type', Lesson::LESSON_TYPE_INPERSON)
-            ->selectRaw('
-                purchases.lesson_id,
-                purchases.instructor_id,
-                MAX(purchases.id) AS id,
-                MAX(purchases.created_at) AS created_at,
-                MAX(purchases.total_amount) AS total_amount,
-                ANY_VALUE(purchases.student_id) AS student_id,
-                ANY_VALUE(students.name) AS student_name,
-                MAX(purchases.type) AS purchase_type,
-                MAX(purchases.status) AS status,
-                lessons.lesson_name AS lesson_name,
-                instructors.name AS instructor_name
-            ')
-            ->groupBy(
-                'purchases.lesson_id',
-                'purchases.instructor_id',
-                'lessons.lesson_name',
-                'instructors.name'
-            );
-
-            $onlinePackageQuery = $model->newQuery()
-            ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
-            ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
-            ->leftJoin('students', 'purchases.student_id', '=', 'students.id')
-            ->whereIn('purchases.type', ['online', 'package'])
-            ->selectRaw('
-                purchases.lesson_id,
-                purchases.instructor_id,
-                purchases.id,
-                purchases.created_at,
-                purchases.total_amount,
-                purchases.student_id,
-                students.name AS student_name,
-                purchases.type AS purchase_type,
-                purchases.status,
-                lessons.lesson_name,
-                instructors.name AS instructor_name
-            ');
-
-            $query = $inPersonQuery->unionAll($onlinePackageQuery)
-            ->orderByDesc('created_at');
-
-        }else {
-            $inPersonQuery = $model->newQuery()
-            ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
-            ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
-            ->leftJoin('students', 'purchases.student_id', '=', 'students.id')
-            ->where('purchases.type', Lesson::LESSON_TYPE_INPERSON)
-            ->selectRaw('
-                purchases.lesson_id,
-                purchases.instructor_id,
-                MAX(purchases.id) AS id,
-                MAX(purchases.created_at) AS created_at,
-                MAX(purchases.total_amount) AS total_amount,
-                ANY_VALUE(purchases.student_id) AS student_id,
-                ANY_VALUE(students.name) AS student_name,
-                MAX(purchases.type) AS purchase_type,
-                MAX(purchases.status) AS status,
-                lessons.lesson_name AS lesson_name,
-                instructors.name AS instructor_name
-            ')
-            ->groupBy(
-                'purchases.lesson_id',
-                'purchases.instructor_id',
-                'lessons.lesson_name',
-                'instructors.name'
-            );
-
-        $onlinePackageQuery = $model->newQuery()
-            ->leftJoin('lessons', 'purchases.lesson_id', '=', 'lessons.id')
-            ->leftJoin('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
-            ->leftJoin('students', 'purchases.student_id', '=', 'students.id')
-            ->whereIn('purchases.type', ['online', 'package'])
-            ->selectRaw('
-                purchases.lesson_id,
-                purchases.instructor_id,
-                purchases.id,
-                purchases.created_at,
-                purchases.total_amount,
-                purchases.student_id,
-                students.name AS student_name,
-                purchases.type AS purchase_type,
-                purchases.status,
-                lessons.lesson_name,
-                instructors.name AS instructor_name
-            ');
-
-        $query = $inPersonQuery->unionAll($onlinePackageQuery)
-            ->orderByDesc('created_at');
-        }
-       
-        // ---------- role filters ----------
-        if ($user->type === Role::ROLE_STUDENT) {
-            $query->where('purchases.student_id', $user->id);
-        }
-
-        if ($user->type === Role::ROLE_ADMIN) {
-            $query->where(function ($q) {
-                $q->whereHas('lesson', function ($subQuery) {
-                        $subQuery->where('is_package_lesson', true)
-                                ->orWhere('type', 'online');
-                    })
-                    ->where('status', 'complete')
-                ->orWhere(function ($subQ) {
-                        $subQ->whereHas('lesson', function ($lessonQ) {
-                                $lessonQ->where('type', 'inPerson')
-                                        ->where('is_package_lesson', false);
-                            })
-                            ->whereIn('status', ['complete', 'incomplete']);
-                    });
-            });
-        }
-
-        if ($user->type === Role::ROLE_INSTRUCTOR) {
-            $query->where('purchases.instructor_id', $user->id);
-        }
-
-        return $query;
     }
 
     public function html()
@@ -326,6 +522,8 @@ class PurchaseDataTable extends DataTable
             $lessonTypeFilter .= "<option value='" . $key . "' " . $selected . ">" . $label . "</option>";
         }
         $lessonTypeFilter .= "</select>";
+
+        $lessonNameFilter = "<input type='text' id='lessonNameFilter' class='form-control' style='max-width:300px;margin-right:10px;margin-left:10px;' placeholder='Filter by Lesson Name'>";
 
         $buttons = [];
 
@@ -356,6 +554,7 @@ class PurchaseDataTable extends DataTable
                     .removeClass("custom-select custom-select-sm form-control form-control-sm")
                     .addClass("dataTable-selector");
 
+                $(".dataTable-search").prepend("' . $lessonNameFilter . '");
                 $(".dataTable-search").prepend("' . $lessonTypeFilter . '");
                 $(".dataTable-search").addClass("d-flex");
 
@@ -364,23 +563,22 @@ class PurchaseDataTable extends DataTable
                 var statusCol = api.column("status:name");
                 var remainingSlotsCol = api.column("remaining_slots:name");
 
-                // Check initial lesson type on page load
                 var initialLessonType = "' . addslashes(request('lesson_type', '')) . '" || $("#lessonTypeFilter").val();
                 if (initialLessonType === "inPerson") {
                     studentCol.visible(false);
                     instructorCol.visible(false);
                     statusCol.visible(false);
-                    remainingSlotsCol.visible(false); // Hide remaining_slots for inPerson
+                    remainingSlotsCol.visible(false);
                 } else if (initialLessonType === "package") {
                     studentCol.visible(true);
                     instructorCol.visible(true);
                     statusCol.visible(true);
-                    remainingSlotsCol.visible(true); // Show remaining_slots for package
+                    remainingSlotsCol.visible(true);
                 } else {
                     studentCol.visible(true);
                     instructorCol.visible(true);
                     statusCol.visible(true);
-                    remainingSlotsCol.visible(false); // Hide remaining_slots for other types
+                    remainingSlotsCol.visible(false);
                 }
 
                 $("#lessonTypeFilter").on("change", function() {
@@ -389,24 +587,30 @@ class PurchaseDataTable extends DataTable
                         studentCol.visible(false);
                         instructorCol.visible(false);
                         statusCol.visible(false);
-                        remainingSlotsCol.visible(false); // Hide remaining_slots for inPerson
+                        remainingSlotsCol.visible(false);
                     } else if (val === "package") {
                         studentCol.visible(true);
                         instructorCol.visible(true);
                         statusCol.visible(true);
-                        remainingSlotsCol.visible(true); // Show remaining_slots for package
+                        remainingSlotsCol.visible(true);
                     } else {
                         studentCol.visible(true);
                         instructorCol.visible(true);
                         statusCol.visible(true);
-                        remainingSlotsCol.visible(false); // Hide remaining_slots for other types
+                        remainingSlotsCol.visible(false);
                     }
                     api.ajax.reload();
                 });
 
+                $("#lessonNameFilter").on("input", function() {
+                    api.ajax.reload();
+                });
+
                 $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
-                    var v = $("#lessonTypeFilter").val();
-                    data.lesson_type = v !== "inPerson" ? v : "inPerson";
+                    var lessonType = $("#lessonTypeFilter").val();
+                    var lessonName = $("#lessonNameFilter").val();
+                    data.lesson_type = lessonType !== "inPerson" ? lessonType : "inPerson";
+                    data.lesson_name_filter = lessonName;
                 });
             }')
             ->parameters([
@@ -514,6 +718,7 @@ class PurchaseDataTable extends DataTable
                 ->width('80px'),
         ]);
     }
+
     protected function filename(): string
     {
         return 'Purchases_' . date('YmdHis');

@@ -75,7 +75,7 @@
         <div class="text-left">
             <a class="font-bold text-dark text-xl"
                 href="{{ route('instructor.profile', ['instructor_id' => $model?->user?->id]) }}">
-                {!! \Illuminate\Support\Str::limit(ucfirst($model?->user?->name), 100, '...') !!}
+                {!! \Illuminate\Support\Str::limit(ucfirst($model?->user?->name), 80, '...') !!}
             </a>
             <div class="text-lg font-bold tracking-tight text-primary">
                 {!! $subtitle !!}
@@ -115,7 +115,7 @@
                 style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
                 {!! $shortDescription !!}
             </div>
-            @if (!empty($description) && strlen(strip_tags($description)) >= 80)
+            @if (!empty($description) && strlen(strip_tags($description)) >= 40)
                 <div class="hidden full-text text-gray-600"
                     style="font-size: 15px; max-height: auto; overflow-y: auto;">
                     {!! $cleanDescription !!}
