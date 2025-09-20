@@ -23,7 +23,7 @@
                 <a class="navbar-brand" href="/">
                     <img src="{{ asset('assets/images/landing-page-images/logo-1.png') }}" class="h-8" alt="...">
                 </a>
-                <button class="request-text border-0 rounded-pill demo px-4 py-2 bg-primary">
+                <button class="request-text border-0 rounded-pill demo px-4 py-2 bg-primary" style="background-color: #0071ce !important;">
                     <a class="text-white font-bold" href="{{ route('login') }}" style="text-decoration: none">
                         Login/Signup</a>
                 </button>
