@@ -226,7 +226,13 @@
                                 @endcan
                                 @can('manage-students')
                                     <li class="dash-item {{ request()->is('student*') ? 'active' : '' }}">
-                                        <a class="dash-link" href="{{ route('student.index') }}">{{ __('Student') }}</a>
+                                        <a class="dash-link" href="{{ route('student.index') }}">
+                                            @if ($userType === 'Instructor') 
+                                                {{ __('My Students') }}
+                                            @else 
+                                                {{ __('Students') }}
+                                            @endif
+                                        </a>
                                     </li>
                                 @endcan
                             </ul>
