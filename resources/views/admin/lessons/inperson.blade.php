@@ -47,8 +47,8 @@
                             </div>
                             <!-- Name -->
                             <div class="form-group">
-                                {{ Form::label('name', __('Name'), ['class' => 'form-label']) }}
-                                {!! Form::text('lesson_name', null, ['class' => 'form-control', 'required', 'placeholder' => __('Enter name')]) !!}
+                                {{ Form::label('name', __('Lesson Title'), ['class' => 'form-label']) }}
+                                {!! Form::text('lesson_name', null, ['class' => 'form-control', 'required', 'placeholder' => __('Enter lesson title')]) !!}
                             </div>
 
                             <div class="flex gap-1 itmes-center mb-2 cursor-pointer add-more-package">
