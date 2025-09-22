@@ -532,7 +532,7 @@ class LessonController extends Controller
             $bookedTimeRanges = [];
             foreach ($bookedSlots as $bookedSlot) {
                 $startDateTime = Carbon::parse($bookedSlot->date_time);
-                $duration = $bookedSlot->lesson->lesson_duration;
+                $duration = !is_null($bookedSlot->lesson) ? $bookedSlot->lesson->lesson_duration : null;
                 $whole = floor($duration);
                 $fraction = $duration - $whole;
                 $minutes = $fraction * 60;
