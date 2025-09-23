@@ -3,6 +3,9 @@
     $currency = tenancy()->central(function ($tenant) {
         return Utility::getsettings('currency_symbol');
     });
+    $currencySymbol = tenancy()->central(function ($tenant) {
+            return Utility::getsettings('currency');
+        });
     $tenantId = tenant('id');
     $banner = Utility::getsettings('banner_image');
 @endphp
@@ -20,7 +23,7 @@
                 <a class="navbar-brand" href="/">
                     <img src="{{ asset('assets/images/landing-page-images/logo-1.png') }}" class="h-8" alt="...">
                 </a>
-                <button class="request-text border-0 rounded-pill demo px-4 py-2 bg-primary">
+                <button class="request-text border-0 rounded-pill demo px-4 py-2 bg-primary" style="background-color: #0071ce !important;">
                     <a class="text-white font-bold" href="{{ route('login') }}" style="text-decoration: none">
                         Login/Signup</a>
                 </button>
@@ -135,7 +138,7 @@
                                 $packages_array = [];
                                 foreach ($lesson?->packages as $package) {
                                     $packages_array[] =
-                                        $package->number_of_slot . ' Pack ' . ' - ' . $package->price . ' USD ';
+                                        $package->number_of_slot . ' Pack ' . ' - ' .  $currency .$package->price . ' ' .$currencySymbol;
                                 }
                             @endphp
                             <div class="col-md-4">
@@ -149,6 +152,11 @@
                                             <a class="font-bold text-dark text-xl" href="{{ route('login') }}">
                                                 {{ $instructors[0]->name }}
                                             </a>
+                                            <div class="text-lg font-bold tracking-tight text-primary">
+                                                @if($lesson?->packages->min('price'))
+                                                    {{ $currency }} {{ $lesson?->packages->min('price') }}
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                     @php

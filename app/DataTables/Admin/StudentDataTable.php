@@ -209,7 +209,7 @@ class StudentDataTable extends DataTable
                         <'col-sm-7'p>>
                         ",
                 'buttons'   => [
-                    ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
+                    ['extend' => 'create', 'text' => '<i class="ti ti-plus"></i> Add New Student', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
                         window.location = '" . route('student.create') . "';
                    }"],
                     ['extend' => 'reload', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
