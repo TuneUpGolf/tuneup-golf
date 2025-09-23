@@ -53,7 +53,7 @@
                            class="rounded-pill px-4 py-2 w-auto text-white font-bold flex items-center gap-1 btn btn-danger">
                             <i class="ti ti-search text-2xl"></i> Analyze
                         </a>
-                        <a href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideoUrl]) }}"
+                        <a href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideoUrl, 'purchase_id' => $purchase->id]) }}"
                            class="rounded-pill px-4 py-2 w-auto text-white font-bold flex items-center gap-1 btn btn-warning">
                             <i class="ti ti-notebook text-2xl"></i> Feedback
                         </a>

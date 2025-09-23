@@ -385,7 +385,7 @@
 
                     slotDetailsHtml += `
                         <div class="slot-item">
-                            <span><strong>Slot ${index + 1}:</strong> ${formattedTime}</span><br/>
+                            <span><strong>Date ${index + 1}:</strong> ${formattedTime}</span><br/>
                         </div>`;
                 });
 

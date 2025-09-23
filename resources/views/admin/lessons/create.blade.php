@@ -28,8 +28,8 @@
                                 'enctype' => 'multipart/form-data',
                             ]) !!}
                             <div class="form-group">
-                                {{ Form::label('name', __('Name'), ['class' => 'form-label']) }}
-                                {!! Form::text('lesson_name', null, ['class' => 'form-control', 'required', 'placeholder' => __('Enter name')]) !!}
+                                {{ Form::label('name', __('Lesson Title'), ['class' => 'form-label']) }}
+                                {!! Form::text('lesson_name', null, ['class' => 'form-control', 'required', 'placeholder' => __('Enter lesson title')]) !!}
                             </div>
 
                             <div class="form-group">
