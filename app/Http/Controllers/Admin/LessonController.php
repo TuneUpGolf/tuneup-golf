@@ -1377,7 +1377,7 @@ class LessonController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'slot_id'      => 'required|integer',
+                'slot_id'      => 'integer',
                 'date_time'    => 'date|nullable',
                 'location'     => 'string',
                 'is_completed' => 'boolean',
@@ -1387,15 +1387,46 @@ class LessonController extends Controller
                 'student_ids'  => 'array',
                 'student_ids.*' => 'integer|exists:students,id',
                 'notes'         => 'string',
+                'lessonId'      =>'nullable|exists:lessons,id'
             ]);
             $user = Auth::user();
             $slot = Slots::find($request->slot_id);
+            if(array_key_exists('lessonId',$validatedData)){
+                $slots = Slots::where('lesson_id',$validatedData['lessonId'])->get();
+                foreach($slots as $slot)
+                {
+                    if ($slot->student->contains($user->id)) {
+                        $slot->student()->detach($user->id);
+                        Purchase::where('slot_id', $slot->id)->where('student_id', $user->id)->delete();
+                        $this->sendSlotNotification(
+                            $slot,
+                            'Slot Unreserved',
+                            null,
+                            "{$user->name}, has cancelled the lesson on :date."
+                        );
+
+                        SendEmail::dispatch($slot->lesson->user->email, new SlotCancelledMail(
+                            $user->name,
+                            date('Y-m-d', strtotime($slot->date_time)),
+                            date('h:i A', strtotime($slot->date_time)),
+                            $slot->lesson->lesson_name,
+                            $request->notes,
+                        ));
+
+                        if ($request->redirect == "1") {
+                            return redirect()->back()->with('success', 'Slot Successfully Updated');
+                        }
+                        return response()->json(new SlotAPIResource($slot), 200);
+                    }
+                }
+
+            }
+            $isInstructorOrAdmin = ($user->type === Role::ROLE_INSTRUCTOR && $slot->lesson->created_by === $user->id) || $user->type === Role::ROLE_ADMIN;
             if (!$slot) {
                 throw new Exception('Slot not found', 404);
             }
 
-            $isInstructorOrAdmin = ($user->type === Role::ROLE_INSTRUCTOR && $slot->lesson->created_by === $user->id) || $user->type === Role::ROLE_ADMIN;
-
+            
             if ($isInstructorOrAdmin) {
                 $slot->update($validatedData);
                 if ($slot->cancelled) {
@@ -1411,7 +1442,6 @@ class LessonController extends Controller
 
                 if ($request->unbook == '1'  && $request->filled('student_ids')) {
                     $unbookedStudents = $slot->student()->whereIn('students.id', $request->student_ids)->get();
-                    dd($unbookedStudents);
                     $slot->student()->detach($request->student_ids);
                     foreach ($unbookedStudents as $student) {
                         Purchase::where('slot_id', $slot->id)->where('student_id', $student->id)->delete();

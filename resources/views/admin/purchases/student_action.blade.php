@@ -18,57 +18,56 @@
             {!! Form::close() !!}
         @endcan
     @endif
-   @if (in_array($user->type, ['Student', 'Instructor']) &&
+    @if (in_array($user->type, ['Student', 'Instructor']) &&
             ($purchase->status == 'complete' || $purchase->lesson->payment_method == 'cash' || $hasBooking) &&
             $purchase->lesson->type != 'online' &&
             $purchase->lesson->type != 'inPerson')
-
-            {{--  @if($purchase->status == 'complete' && ($purchase->type == 'inPerson' || $purchase->type == 'package') )
+        {{--  @if ($purchase->status == 'complete' && ($purchase->type == 'inPerson' || $purchase->type == 'package'))
                  <a href="{{ route('slot.view', ['lesson_id' => $purchase?->lesson_id]) }}" class="btn btn-primary btn-sm">
                     Change Lesson Time
                 </a>
             @else  --}}
-                <a class="btn btn-sm small btn btn-info action-btn-fix"
-                    href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}" data-bs-toggle="tooltip"
-                    data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">
-                    <svg width="800px" height="800px" viewBox="0 0 1024 1024" class="icon" version="1.1"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M864 512a32 32 0 0 0-32 32v96a32 32 0 0 0 64 0v-96a32 32 0 0 0-32-32zM881.92 389.44a23.68 23.68 0 0 0-5.76-2.88 19.84 19.84 0 0 0-6.08-1.92 32 32 0 0 0-28.8 8.64A32 32 0 0 0 832 416a32 32 0 1 0 64 0 33.6 33.6 0 0 0-9.28-22.72z"
-                            fill="#FFFFFF" />
-                        <path
-                            d="M800 128h-32a96 96 0 0 0-96-96H352a96 96 0 0 0-96 96H224a96 96 0 0 0-96 93.44v677.12A96 96 0 0 0 224 992h576a96 96 0 0 0 96-93.44V736a32 32 0 0 0-64 0v162.56a32 32 0 0 1-32 29.44H224a32 32 0 0 1-32-29.44V221.44A32 32 0 0 1 224 192h32a96 96 0 0 0 96 96h320a96 96 0 0 0 96-96h32a32 32 0 0 1 32 29.44V288a32 32 0 0 0 64 0V221.44A96 96 0 0 0 800 128z m-96 64a32 32 0 0 1-32 32H352a32 32 0 0 1-32-32V128a32 32 0 0 1 32-32h320a32 32 0 0 1 32 32z"
-                            fill="#FFFFFF" />
-                        <path
-                            d="M712.32 426.56L448 721.6l-137.28-136.32A32 32 0 0 0 265.6 630.4l160 160a32 32 0 0 0 22.4 9.6 32 32 0 0 0 23.04-10.56l288-320a32 32 0 0 0-47.68-42.88z"
-                            fill="#FFFFFF" />
-                    </svg>
-                </a>
-            {{--  @endif  --}}
+        <a class="btn btn-sm small btn btn-info action-btn-fix"
+            href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}" data-bs-toggle="tooltip"
+            data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">
+            <svg width="800px" height="800px" viewBox="0 0 1024 1024" class="icon" version="1.1"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M864 512a32 32 0 0 0-32 32v96a32 32 0 0 0 64 0v-96a32 32 0 0 0-32-32zM881.92 389.44a23.68 23.68 0 0 0-5.76-2.88 19.84 19.84 0 0 0-6.08-1.92 32 32 0 0 0-28.8 8.64A32 32 0 0 0 832 416a32 32 0 1 0 64 0 33.6 33.6 0 0 0-9.28-22.72z"
+                    fill="#FFFFFF" />
+                <path
+                    d="M800 128h-32a96 96 0 0 0-96-96H352a96 96 0 0 0-96 96H224a96 96 0 0 0-96 93.44v677.12A96 96 0 0 0 224 992h576a96 96 0 0 0 96-93.44V736a32 32 0 0 0-64 0v162.56a32 32 0 0 1-32 29.44H224a32 32 0 0 1-32-29.44V221.44A32 32 0 0 1 224 192h32a96 96 0 0 0 96 96h320a96 96 0 0 0 96-96h32a32 32 0 0 1 32 29.44V288a32 32 0 0 0 64 0V221.44A96 96 0 0 0 800 128z m-96 64a32 32 0 0 1-32 32H352a32 32 0 0 1-32-32V128a32 32 0 0 1 32-32h320a32 32 0 0 1 32 32z"
+                    fill="#FFFFFF" />
+                <path
+                    d="M712.32 426.56L448 721.6l-137.28-136.32A32 32 0 0 0 265.6 630.4l160 160a32 32 0 0 0 22.4 9.6 32 32 0 0 0 23.04-10.56l288-320a32 32 0 0 0-47.68-42.88z"
+                    fill="#FFFFFF" />
+            </svg>
+        </a>
+        {{--  @endif  --}}
         {{--  New COde  --}}
-   
-    @elseif($user->type=='Student' &&
-            $purchase->status == 'complete' 
-             && $purchase->lesson->payment_method == 'cash' &&
+    @elseif(
+        $user->type == 'Student' &&
+            $purchase->status == 'complete' &&
+            $purchase->lesson->payment_method == 'cash' &&
             $purchase->lesson->type != 'online')
-            <a class="btn btn-sm small btn btn-info action-btn-fix"
-                    href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}" data-bs-toggle="tooltip"
-                    data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">
-                    <svg width="800px" height="800px" viewBox="0 0 1024 1024" class="icon" version="1.1"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M864 512a32 32 0 0 0-32 32v96a32 32 0 0 0 64 0v-96a32 32 0 0 0-32-32zM881.92 389.44a23.68 23.68 0 0 0-5.76-2.88 19.84 19.84 0 0 0-6.08-1.92 32 32 0 0 0-28.8 8.64A32 32 0 0 0 832 416a32 32 0 1 0 64 0 33.6 33.6 0 0 0-9.28-22.72z"
-                            fill="#FFFFFF" />
-                        <path
-                            d="M800 128h-32a96 96 0 0 0-96-96H352a96 96 0 0 0-96 96H224a96 96 0 0 0-96 93.44v677.12A96 96 0 0 0 224 992h576a96 96 0 0 0 96-93.44V736a32 32 0 0 0-64 0v162.56a32 32 0 0 1-32 29.44H224a32 32 0 0 1-32-29.44V221.44A32 32 0 0 1 224 192h32a96 96 0 0 0 96 96h320a96 96 0 0 0 96-96h32a32 32 0 0 1 32 29.44V288a32 32 0 0 0 64 0V221.44A96 96 0 0 0 800 128z m-96 64a32 32 0 0 1-32 32H352a32 32 0 0 1-32-32V128a32 32 0 0 1 32-32h320a32 32 0 0 1 32 32z"
-                            fill="#FFFFFF" />
-                        <path
-                            d="M712.32 426.56L448 721.6l-137.28-136.32A32 32 0 0 0 265.6 630.4l160 160a32 32 0 0 0 22.4 9.6 32 32 0 0 0 23.04-10.56l288-320a32 32 0 0 0-47.68-42.88z"
-                            fill="#FFFFFF" />
-                    </svg>
-            </a>
+        <a class="btn btn-sm small btn btn-info action-btn-fix"
+            href="{{ route('slot.view', ['lesson_id' => $purchase->lesson_id]) }}" data-bs-toggle="tooltip"
+            data-bs-placement="bottom" data-bs-original-title="{{ __('Manage Slots') }}">
+            <svg width="800px" height="800px" viewBox="0 0 1024 1024" class="icon" version="1.1"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M864 512a32 32 0 0 0-32 32v96a32 32 0 0 0 64 0v-96a32 32 0 0 0-32-32zM881.92 389.44a23.68 23.68 0 0 0-5.76-2.88 19.84 19.84 0 0 0-6.08-1.92 32 32 0 0 0-28.8 8.64A32 32 0 0 0 832 416a32 32 0 1 0 64 0 33.6 33.6 0 0 0-9.28-22.72z"
+                    fill="#FFFFFF" />
+                <path
+                    d="M800 128h-32a96 96 0 0 0-96-96H352a96 96 0 0 0-96 96H224a96 96 0 0 0-96 93.44v677.12A96 96 0 0 0 224 992h576a96 96 0 0 0 96-93.44V736a32 32 0 0 0-64 0v162.56a32 32 0 0 1-32 29.44H224a32 32 0 0 1-32-29.44V221.44A32 32 0 0 1 224 192h32a96 96 0 0 0 96 96h320a96 96 0 0 0 96-96h32a32 32 0 0 1 32 29.44V288a32 32 0 0 0 64 0V221.44A96 96 0 0 0 800 128z m-96 64a32 32 0 0 1-32 32H352a32 32 0 0 1-32-32V128a32 32 0 0 1 32-32h320a32 32 0 0 1 32 32z"
+                    fill="#FFFFFF" />
+                <path
+                    d="M712.32 426.56L448 721.6l-137.28-136.32A32 32 0 0 0 265.6 630.4l160 160a32 32 0 0 0 22.4 9.6 32 32 0 0 0 23.04-10.56l288-320a32 32 0 0 0-47.68-42.88z"
+                    fill="#FFFFFF" />
+            </svg>
+        </a>
     @endif
-        {{--  @if ($user->type== 'Student' && $purchase->type != 'online' && $purchase->status == 'complete')
+    {{--  @if ($user->type == 'Student' && $purchase->type != 'online' && $purchase->status == 'complete')
          <button type="button" data-lesson_name="{{ $purchase->lesson->lesson_name }}"
             data-instructor_name="{{ $purchase->lesson->user->name }}"
             data-slot_id="{{ $purchase->slot_id }}"
@@ -132,50 +131,45 @@
     @endcan
 </div>
 <script>
-    $(document).on('click','.cancelBooking',function(){
-        let lesson_name = $(this).data('lesson_name');
-        let instructor_name = $(this).data('instructor_name');
-        let slot_id = $(this).data('slot_id');
-        let authId = "{{ auth()->user()->id }}";
-        Swal.fire({
-            title: "Unbook Slot",
-            text: "Are you sure you want to unbook this slot?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, unbook",
-            cancelButtonText: "Cancel",
-            reverseButtons: true,
-            html: `
-            <div style="text-align: left; font-size: 14px;">
-                <span><strong>Lesson:</strong> ${lesson_name}</span><br/>
-                <span><strong>Instructor:</strong> ${instructor_name}</span><br/>
-           </div>
-            <textarea name="note" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="5"></textarea>`,
-        }).then((result) => {
-            const notes = document.querySelector("#notes")?.value || '';
-            if (!result.isConfirmed) return;
+    function cancelLesson(lessonId, rowIdx, buttonElement) {
+    // Capture textarea value immediately before opening confirmation (DOM still exists)
+    var textareaSelector = '#lessonNotes-' + rowIdx;
+    var notes = $(textareaSelector).val() || ''; // Capture value now, fallback to empty string
+    
+    console.log('Captured notes before confirmation:', notes); // Debug log
+    
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you want to cancel this lesson?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, cancel it!',
+        cancelButtonText: 'No, keep it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Use the pre-captured notes (no DOM query needed)
             $.ajax({
                 url: "{{ route('slot.update') }}",
-                type: "POST",
+                type: 'POST',
                 data: {
                     _token: $('meta[name="csrf-token"]').attr('content'),
                     unbook: 1,
-                    slot_id: slot_id,
-                    student_ids: [authId],
+                    lessonId: lessonId, // Use lesson_id as slot_id
+                    student_ids: ["{{ auth()->user()->id }}"], // Adjust if you have specific student IDs
                     redirect: 1,
-                    notes: notes,
+                    notes: notes
                 },
-                success: function() {
-                    Swal.fire("Success", "Slot unbooked successfully!", "success");
+                success: function(response) {
+                    Swal.fire('Success', 'Students unbooked successfully!', 'success');
                     showPageLoader();
                     window.location.reload();
                 },
                 error: function(error) {
-                    Swal.fire("Error", "Failed to unbook the slot.", "error");
+                    Swal.fire('Error', 'There was a problem processing the request.', 'error');
+                    console.log('AJAX error:', error);
                 }
             });
-        });
-
-    })
-
+        }
+    });
+}
 </script>
