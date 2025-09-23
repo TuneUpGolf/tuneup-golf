@@ -13,7 +13,7 @@
                 'id' => 'confirm-form-' . $purchase->id,
             ]) !!}
             {{ Form::button(__('Make Payment'), ['type' => 'submit', 'class' => 'btn btn-sm small btn btn-info action-btn-fix']) }}
-            <i class="ti ti-eye text-white"></i>
+            {{--  <i class="ti ti-eye text-white"></i>  --}}
             </a>
             {!! Form::close() !!}
         @endcan
