@@ -1378,7 +1378,7 @@ class LessonController extends Controller
         try {
             $validatedData = $request->validate([
                 'slot_id'      => 'required|integer',
-                'date_time'    => 'date',
+                'date_time'    => 'date|nullable',
                 'location'     => 'string',
                 'is_completed' => 'boolean',
                 'is_active'    => 'boolean',
@@ -1388,13 +1388,12 @@ class LessonController extends Controller
                 'student_ids.*' => 'integer|exists:students,id',
                 'notes'         => 'string',
             ]);
-
+            $user = Auth::user();
             $slot = Slots::find($request->slot_id);
             if (!$slot) {
                 throw new Exception('Slot not found', 404);
             }
 
-            $user = Auth::user();
             $isInstructorOrAdmin = ($user->type === Role::ROLE_INSTRUCTOR && $slot->lesson->created_by === $user->id) || $user->type === Role::ROLE_ADMIN;
 
             if ($isInstructorOrAdmin) {
@@ -1412,6 +1411,7 @@ class LessonController extends Controller
 
                 if ($request->unbook == '1'  && $request->filled('student_ids')) {
                     $unbookedStudents = $slot->student()->whereIn('students.id', $request->student_ids)->get();
+                    dd($unbookedStudents);
                     $slot->student()->detach($request->student_ids);
                     foreach ($unbookedStudents as $student) {
                         Purchase::where('slot_id', $slot->id)->where('student_id', $student->id)->delete();

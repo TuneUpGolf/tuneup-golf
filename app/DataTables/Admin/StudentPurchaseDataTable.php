@@ -79,8 +79,8 @@ class StudentPurchaseDataTable extends DataTable
                 $s = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
                 $lesson_type = $purchase->lesson->type ?? null;
                 $badgeStyle = $lesson_type == Lesson::LESSON_TYPE_ONLINE
-                    ? 'background-color: #16A34A; color: white; padding: 4px 12px; border-radius: 9999px; display: inline-block; font-size: 14px;'
-                    : 'background-color: #06B6D4; color: white; padding: 4px 12px; border-radius: 9999px; display: inline-block; font-size: 14px;';
+                    ? 'background-color: #16A34A; color: white; padding: .25rem .75rem; border-radius: 624.9375rem; display: inline-block; font-size: .875rem;'
+                    : 'background-color: #cc8217; color: white; padding: .25rem .75rem; border-radius: 624.9375rem; display: inline-block; font-size: .875rem;';
                 return '<span style="' . $badgeStyle . '">' . e($s) . '</span>';
             })
             ->editColumn('student_name', function ($purchase) {
@@ -104,8 +104,8 @@ class StudentPurchaseDataTable extends DataTable
                 $s = Purchase::STATUS_MAPPING[$purchase->status] ?? 'Unknown';
                 // Inline styles for modal compatibility
                 $statusStyle = $purchase->status == Purchase::STATUS_COMPLETE
-                    ? 'background-color: #16A34A; color: white; padding: 4px 12px; border-radius: 9999px; display: inline-block; font-size: 14px;'
-                    : 'background-color: #DC2626; color: white; padding: 4px 12px; border-radius: 9999px; display: inline-block; font-size: 14px;';
+                    ? 'background-color: #16A34A; color: white; padding: .25rem .75rem; border-radius: 624.9375rem; display: inline-block; font-size: .875rem;'
+                    : 'background-color: #DC2626; color: white; padding: .25rem .75rem; border-radius: 624.9375rem; display: inline-block; font-size: .875rem;';
                 return '<span style="' . $statusStyle . '">' . e($s) . '</span>';
             })
             ->editColumn('due_date', function ($purchase) {
@@ -113,7 +113,7 @@ class StudentPurchaseDataTable extends DataTable
             })
             ->addColumn('remaining_slots', function ($purchase) {
                 $lesson = $purchase->lesson;
-                if (!$lesson) return '-';
+                if (!$lesson) return '0';
 
                 if ($lesson->type == Lesson::LESSON_TYPE_PACKAGE) {
                     $used = \App\Models\StudentSlot::whereHas('slot', function ($query) use ($lesson) {
@@ -131,7 +131,7 @@ class StudentPurchaseDataTable extends DataTable
                 $hasBooking = \App\Models\Slots::where('lesson_id', $purchase->lesson_id)
                     ->whereHas('student')
                     ->exists();
-                return view('admin.purchases.action', compact('purchase', 'hasBooking'));
+                return view('admin.purchases.student_action', compact('purchase', 'hasBooking'));
             })
             ->rawColumns(['action', 'status', 'student_name', 'instructor_name', 'lesson_name', 'pill', 'deleted', 'remaining_slots']);
     }
@@ -146,7 +146,8 @@ class StudentPurchaseDataTable extends DataTable
                 'purchases.*',  // Select all purchase fields
                 'lessons.lesson_name as lesson_name',  // Get lesson name
                 'instructors.name as instructor_name', // Get instructor name
-                'students.name as student_name' // Get student name
+                'students.name as student_name', // Get student name
+                'lessons.type as lesson_type',
             ])
             ->join('lessons', 'purchases.lesson_id', '=', 'lessons.id')
             ->join('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
@@ -187,10 +188,11 @@ class StudentPurchaseDataTable extends DataTable
         return $query;
     }
 
+  
     public function html()
     {
-        $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto; max-width: 200px;'><option value=''>- Lesson Type -</option>";
-        foreach (Lesson::TYPE_MAPPING as $key => $label) {
+        $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto; max-width: 12.5rem;'><option value=''>- Lesson Type -</option>";
+        foreach (Lesson::SELECT_TYPE_MAPPING as $key => $label) {
             $lessonTypeFilter .= "<option value='" . $key . "'>" . $label . "</option>";
         }
         $lessonTypeFilter .= "</select>";
@@ -198,14 +200,11 @@ class StudentPurchaseDataTable extends DataTable
         $buttons = [
             // ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
             // ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
-
         ];
 
         if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
             unset($buttons[0]);
         }
-
-        // ... (existing code remains the same until the builder)
 
         return $this->builder()
             ->setTableId('purchases-table')
@@ -218,157 +217,193 @@ class StudentPurchaseDataTable extends DataTable
                     "next" => '<i class="ti ti-chevron-right"></i>',
                     "previous" => '<i class="ti ti-chevron-left"></i>'
                 ],
-                'lengthMenu' => __('_MENU_ entries per page'),
-                "searchPlaceholder" => __('Search'),
-                'search' => ''
+                'lengthMenu'       => __('_MENU_ entries per page'),
+                "searchPlaceholder"=> __('Search'),
+                'search'           => ''
             ])
             ->initComplete('function() {
-            var table = this;
-            var searchInput = $(\'#\'+table.api().table().container().id+\' label input[type="search"]\');
-            searchInput.removeClass(\'form-control form-control-sm\');
-            searchInput.addClass(\'dataTable-input\');
-            var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
-            
-            $(".dataTable-search").prepend("' . $lessonTypeFilter . '");
-            $(".dataTable-search").addClass("d-flex");
+                var table = this;
+                var searchInput = $(\'#\' + table.api().table().container().id + \' label input[type="search"]\');
+                searchInput.removeClass(\'form-control form-control-sm\').addClass(\'dataTable-input\');
 
-            $("#lessonTypeFilter").on("change", function() {
-                table.api().ajax.reload();
-            });
+                var select = $(table.api().table().container())
+                    .find(".dataTables_length select")
+                    .removeClass(\'custom-select custom-select-sm form-control form-control-sm\')
+                    .addClass(\'dataTable-selector\');
 
-            $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
-                data.lesson_type = $("#lessonTypeFilter").val();
-            });
-        }')
+                $(".dataTable-search").prepend("' . $lessonTypeFilter . '").addClass("d-flex");
+
+                $("#lessonTypeFilter").on("change", function() {
+                    table.api().ajax.reload();
+                });
+
+                $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
+                    data.lesson_type = $("#lessonTypeFilter").val();
+                });
+            }')
             ->parameters([
                 "columnDefs" => [
                     ["responsivePriority" => 1, "targets" => 1],
                     ["responsivePriority" => 2, "targets" => 4],
                 ],
-                "dom" =>  "
-            <'dataTable-top row'<'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
-            <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>>
-            <'dataTable-container'<'col-sm-12'tr>>
-            <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
-            <'col-sm-7'p>>
-            ",
-                'buttons'   => $buttons,
-                "scrollX" => true,
+                "dom" => "
+                    <'dataTable-top row'
+                        <'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
+                        <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>
+                    >
+                    <'dataTable-container'<'col-sm-12'tr>>
+                    <'dataTable-bottom row'
+                        <'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
+                        <'col-sm-7'p>
+                    >
+                ",
+                "buttons"   => $buttons,
+                "scrollX"   => true,
                 "responsive" => [
-                    "scrollX" => false,
                     "details" => [
-                        // CHANGE: Use modal display instead of childRow
                         "display" => "$.fn.dataTable.Responsive.display.modal({
-                        header: function (row) {
-                            var data = row.data();
-                            return 'Details for Lesson: ' + (data.lesson_name || 'Unknown');  // Customize modal header (e.g., based on lesson_name)
-                        }
-                    })",
-                        // CHANGE: Use a table renderer similar to your original vertical table
-                        "renderer" => "$.fn.dataTable.Responsive.renderer.tableAll({
-                        tableClass: 'table table-striped table-bordered vertical-table'  // Add classes for styling
-                    })"
+                            header: function () { return 'Lesson Details'; }
+                        })",
+                        "renderer" => "function (api, rowIdx, columns) {
+    var data = columns.map(function(col) {
+        switch(col.title) {
+            case 'Lesson #':
+            case 'Status':
+            case 'Remaining Slots': // 👈 remove from auto-render
+                return '';
+            default:
+                return '<tr data-dt-row=\"'+col.rowIndex+'\" data-dt-column=\"'+col.columnIndex+'\">'+
+                        '<td>'+col.title+':</td>'+
+                        '<td>'+col.data+'</td>'+
+                    '</tr>';
+        }
+    }).join('');
+
+    var rowData = api.row(rowIdx).data();
+    var baseSlotUrl = '".route('slot.view')."';
+
+    var lessonDateTime = rowData.lesson_datetime ?? rowData.due_date ?? '-';
+    var lessonDateHtml = '<tr><td>Lesson Date/Time:</td><td>'+ lessonDateTime +'</td></tr>';
+
+    // ✅ Show Remaining Slots only for inPerson or package
+    var remainingSlotsHtml = '';
+    if (rowData.lesson_type === 'inPerson' || rowData.lesson_type === 'package') {
+        remainingSlotsHtml = '<tr><td>Remaining Slots:</td><td>'+ (rowData.remaining_slots ?? '-') +'</td></tr>';
+    }
+
+    var buttonsHtml =
+        '<div class=\"mt-3 text-end\">' +
+            '<button type=\"button\" class=\"btn btn-danger btn-sm me-2\" onclick=\"cancelLesson('+rowData.id+')\">Cancel Lesson</button>' +
+            '<a href=\"'+ baseSlotUrl + '?lesson_id='+ rowData.lesson_id +'\" class=\"btn btn-primary btn-sm\">Change Lesson Time</a>' +
+        '</div>';
+
+    return $('<table class=\"table table-striped table-bordered vertical-table w-100\"/>')
+            .append('<tbody>' + data + lessonDateHtml + remainingSlotsHtml + '</tbody>')
+            .after(buttonsHtml);
+}"
                     ]
                 ],
-                "rowCallback" => 'function(row, data, index) {
-                $(row).addClass("custom-parent-row"); 
-            }',
-                'headerCallback' => 'function(thead, data, start, end, display) {
-                $(thead).find("th").css({
-                    "background-color": "rgba(249, 252, 255, 1)",
-                    "font-weight": "400",
-                    "font":"sans",
-                    "border":"none",
-                });
-            }',
-                'rowCallback' => 'function(row, data, index) {
-                // Make the first column bold
-                $("td", row).css("font-family", "Helvetica");
-                $("td", row).css("font-weight", "300");
-            }',
-                "drawCallback" => 'function( settings ) {
-                var tooltipTriggerList = [].slice.call(
-                    document.querySelectorAll("[data-bs-toggle=tooltip]")
-                  );
-                  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
-                  });
-                  var popoverTriggerList = [].slice.call(
-                    document.querySelectorAll("[data-bs-toggle=popover]")
-                  );
-                  var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-                    return new bootstrap.Popover(popoverTriggerEl);
-                  });
-                  var toastElList = [].slice.call(document.querySelectorAll(".toast"));
-                  var toastList = toastElList.map(function (toastEl) {
-                    return new bootstrap.Toast(toastEl);
-                  });
-            }'
-            ])->language([
+                "rowCallback" => 'function(row) {
+                    $("td", row).css({"font-family":"Helvetica", "font-weight":"300"});
+                    $(row).addClass("custom-parent-row");
+                }',
+                "headerCallback" => 'function(thead) {
+                    $(thead).find("th").css({
+                        "background-color": "rgba(249, 252, 255, 1)",
+                        "font-weight": "400",
+                        "font": "sans",
+                        "border": "none"
+                    });
+                }',
+                "drawCallback" => 'function() {
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=tooltip]"));
+                    tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
+
+                    var popoverTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=popover]"));
+                    popoverTriggerList.map(function (el) { return new bootstrap.Popover(el); });
+
+                    var toastElList = [].slice.call(document.querySelectorAll(".toast"));
+                    toastElList.map(function (el) { return new bootstrap.Toast(el); });
+                }'
+            ])
+            ->language([
                 'buttons' => [
                     'create' => __('Choose Your Coach'),
-                    'print' => __('Print'),
-                    'reset' => __('Reset'),
+                    'print'  => __('Print'),
+                    'reset'  => __('Reset'),
                     'reload' => __('Reload'),
-                    'excel' => __('Excel'),
-                    'csv' => __('CSV'),
+                    'excel'  => __('Excel'),
+                    'csv'    => __('CSV'),
                 ]
             ]);
     }
 
-    // protected function getColumns()
-    // {
-    //     $columns = [
-    //         Column::make('No')->title(__('Lesson Number'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-    //         Column::make('lesson_name')->title(__('Lesson'))->searchable(true),
-    //         Column::make('pill')->title('')->searchable(false)->orderable(false),
-    //         Column::make('deleted')->title('')->searchable(false)->orderable(false),
-    //         Column::make('remaining_slots')->title(__('Remaining Slots'))->orderable(false)->searchable(false)->addClass('text-center'),
-    //     ];
-    //     if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
-    //         $columns[] = Column::make('student_name')->title("Student")->searchable(true);
-    //         $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
-    //     } elseif (Auth::user()->type == Role::ROLE_STUDENT) {
-    //         $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
-    //     }
-    //     return array_merge($columns, [
-    //         Column::make('status')->title(__('Payment Status')),
-    //         Column::make("due_date")->title(__('Submission Date'))->defaultContent()->orderable(false)->searchable(false),
-    //         Column::make('total_amount')->title(__('Total ($)'))->orderable(false),
-    //         Column::computed('action')->title(__('Actions'))
-    //             ->exportable(false)
-    //             ->printable(false)
-    //             ->width(60)
-    //             ->addClass('text-center')
-    //             ->width('20%'),
-    //     ]);
-    // }
+    
     protected function getColumns()
     {
         $columns = [
-            Column::make('No')->title(__('Lesson #'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-            Column::make('lesson_name')->title(__('Lesson'))->searchable(true),
-            Column::make('pill')->title(__('Type'))->searchable(false)->orderable(false), // Updated: Set title to "Type"
-            Column::make('deleted')->title(__('Status'))->searchable(false)->orderable(false), // Updated: Set title to "Status"
-            Column::make('remaining_slots')->title(__('Remaining Slots'))->orderable(false)->searchable(false)->addClass('text-center'),
+            Column::make('No')
+                ->title(__('Lesson #'))
+                ->data('DT_RowIndex')
+                ->name('DT_RowIndex')
+                ->searchable(false)
+                ->orderable(false)
+                ->addClass('min-desktop'), // always visible
+
+            Column::make('lesson_name')
+                ->title(__('Lesson'))
+                ->searchable(true)
+                ->addClass('all'), // hide on phones, show on tablet/desktop
+
+            Column::make('pill')
+                ->title(__('Type'))
+                ->searchable(false)
+                ->orderable(false)
+                ->addClass('min-tablet'),
+
+            Column::make('deleted')
+                ->title(__('Status'))
+                ->searchable(false)
+                ->orderable(false)
+                ->addClass('min-tablet'),
+
+            Column::make('remaining_slots')
+                ->title(__('Remaining Slots'))
+                ->orderable(false)
+                ->searchable(false)
+                ->addClass('min-desktop text-center'), // hide on phones & small tablets
         ];
 
         if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
-            $columns[] = Column::make('student_name')->title(__('Student'))->searchable(true);
-            $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
+            $columns[] = Column::make('student_name')->title(__('Student'))->searchable(true)->addClass('min-tablet');
+            $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true)->addClass('min-tablet');
         } elseif (Auth::user()->type == Role::ROLE_STUDENT) {
-            $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true);
+            $columns[] = Column::make('instructor_name')->title(__('Instructor'))->searchable(true)->addClass('min-tablet');
         }
 
         return array_merge($columns, [
-            Column::make('status')->title(__('Payment Status')),
-            Column::make('due_date')->title(__('Submission Date'))->defaultContent()->orderable(false)->searchable(false),
-            Column::make('total_amount')->title(__('Total ($)'))->orderable(false),
-            Column::computed('action')->title(__('Actions'))
+            Column::make('status')
+                ->title(__('Payment Status'))
+                ->addClass('min-tablet'),
+
+            Column::make('due_date')
+                ->title(__('Submission Date'))
+                ->defaultContent()
+                ->orderable(false)
+                ->searchable(false)
+                ->addClass('all'), // always visible even on mobile
+
+            Column::make('total_amount')
+                ->title(__('Total ($)'))
+                ->orderable(false)
+                ->addClass('min-tablet'),
+
+            Column::computed('action')
+                ->title(__('Actions'))
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)
-                ->addClass('text-center')
+                ->addClass('min-desktop')
                 ->width('20%'),
         ]);
     }

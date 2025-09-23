@@ -117,68 +117,70 @@
                  </div>  --}}
                  <div class="row">
                      <div class="col-sm-12">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5>{{ __('Calendar') }}</h5>
-        </div>
-        <div class="row card-body">
-            <!-- Calendar Column -->
-            <div class="col-12 col-md-6 col-lg-5 mb-3 mb-lg-0">
-                <label for="slotDate">Date</label>
-                <div id="slotDate"></div>
-            </div>
+                         <div class="card">
+                             <div class="card-header d-flex justify-content-between align-items-center">
+                                 <h5>{{ __('Calendar') }}</h5>
+                             </div>
+                             <div class="row card-body">
+                                 <!-- Calendar Column -->
+                                 <div class="col-12 col-md-6 col-lg-5 mb-3 mb-lg-0">
+                                     <label for="slotDate">Date</label>
+                                     <div id="slotDate"></div>
+                                 </div>
 
-            <!-- Slots Column -->
-            <div class="col-12 col-md-6 col-lg-7 mb-3 mb-lg-0">
-                <div class="card card-width-manageSlots">
-                    <!-- Hide on small, show on large -->
-                    <div class="d-none d-lg-flex justify-content-between align-items-center card-header w-100">
-                        @if (Auth::user()->type === 'Student')
-                            <h5>{{ __('Book Slot') }}</h5>
-                            <p>{{ __('Click on an available slot to book') }}</p>
-                        @else
-                            <div>
-                                <h5>{{ __('Manage Slots') }}</h5>
-                                <div class="pt-2">
-                                    <p class="mb-0 text-muted">Name:
-                                        <strong>{{ $lesson->lesson_name }}</strong>
-                                    </p>
-                                    @if ($lesson->is_package_lesson)
-                                        <span class="badge bg-primary">Package Lesson</span>
-                                    @endif
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-                                <a class="text-white" href="{{ route('slot.create', ['lesson_id' => $lesson_id]) }}">
-                                    {{ __('Add New Slot') }}
-                                </a>
-                            </button>
-                        @endif
-                    </div>
+                                 <!-- Slots Column -->
+                                 <div class="col-12 col-md-6 col-lg-7 mb-3 mb-lg-0">
+                                     <div class="card card-width-manageSlots">
+                                         <!-- Hide on small, show on large -->
+                                         <div
+                                             class="d-none d-lg-flex justify-content-between align-items-center card-header w-100">
+                                             @if (Auth::user()->type === 'Student')
+                                                 <h5>{{ __('Book Slot') }}</h5>
+                                                 <p>{{ __('Click on an available slot to book') }}</p>
+                                             @else
+                                                 <div>
+                                                     <h5>{{ __('Manage Slots') }}</h5>
+                                                     <div class="pt-2">
+                                                         <p class="mb-0 text-muted">Name:
+                                                             <strong>{{ $lesson->lesson_name }}</strong>
+                                                         </p>
+                                                         @if ($lesson->is_package_lesson)
+                                                             <span class="badge bg-primary">Package Lesson</span>
+                                                         @endif
+                                                     </div>
+                                                 </div>
+                                                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                                                     <a class="text-white"
+                                                         href="{{ route('slot.create', ['lesson_id' => $lesson_id]) }}">
+                                                         {{ __('Add New Slot') }}
+                                                     </a>
+                                                 </button>
+                                             @endif
+                                         </div>
 
-                    <!-- Keys -->
-                    <div class="flex md:justify-center my-2 gap-2">
-                        <div class="flex gap-1 items-center">
-                            <div class="completed-key"></div>
-                            <span>Completed</span>
-                        </div>
-                        <div class="flex gap-1 items-center">
-                            <div class="booked-key"></div>
-                            <span>Booked</span>
-                        </div>
-                        <div class="flex gap-1 items-center">
-                            <div class="avaialable-key"></div>
-                            <span>Available</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                                         <!-- Keys -->
+                                         <div class="flex md:justify-center my-2 gap-2">
+                                             <div class="flex gap-1 items-center">
+                                                 <div class="completed-key"></div>
+                                                 <span>Completed</span>
+                                             </div>
+                                             <div class="flex gap-1 items-center">
+                                                 <div class="booked-key"></div>
+                                                 <span>Booked</span>
+                                             </div>
+                                             <div class="flex gap-1 items-center">
+                                                 <div class="avaialable-key"></div>
+                                                 <span>Available</span>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
 
-            <!-- Slot List -->
-            <div id="slotListContainer" class="row"></div>
-        </div>
-    </div>
-</div>
+                                 <!-- Slot List -->
+                                 <div id="slotListContainer" class="row"></div>
+                             </div>
+                         </div>
+                     </div>
 
                  </div>
 
@@ -280,9 +282,10 @@
      .choices__list--dropdown .choices__item {
          text-align: left;
      }
+
      @media(max-width: 768px) {
          .card-body {
-            max-height: fit-content;
+             max-height: fit-content;
          }
      }
  </style>
@@ -742,7 +745,7 @@
                  }
                  if (type == 'Student' && isAuthStudentBooked) {
                      Swal.fire({
-                         title: "Unbook Slot",
+                         title: "Unbook Slot fff",
                          text: "Are you sure you want to unbook this slot?",
                          icon: "warning",
                          showCancelButton: true,
@@ -1211,7 +1214,13 @@
                  confirmButtonText: "Yes, unbook",
                  cancelButtonText: "Cancel",
                  reverseButtons: true,
-                 html: `<textarea name="note" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="5"></textarea>`,
+                 html: `
+                 <div style="text-align: left; font-size: 14px;">
+                     <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
+                     <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
+                    <span><strong>Lesson Time:</strong> ${formattedTime}</span><br/>
+                </div>
+                 <textarea name="note" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="5"></textarea>`,
              }).then((result) => {
                  const notes = document.querySelector("#notes")?.value || '';
                  if (!result.isConfirmed) return;
@@ -1242,19 +1251,19 @@
 
      // format time on mobile screen
      function formatTime(date) {
-        console.log('f1',date)
-        let hours = date.getHours();
-        console.log('f2',hours)
-        const minutes = date.getMinutes().toString().padStart(2, "0");
-        console.log('f3',minutes)
-        const ampm = hours >= 12 ? "pm" : "am";
-        console.log('f4',ampm)
-        hours = hours % 12;
-        console.log('f5',hours)
-        hours = hours ? hours : 12; // 0 => 12
-        console.log('f6',hours)
+         console.log('f1', date)
+         let hours = date.getHours();
+         console.log('f2', hours)
+         const minutes = date.getMinutes().toString().padStart(2, "0");
+         console.log('f3', minutes)
+         const ampm = hours >= 12 ? "pm" : "am";
+         console.log('f4', ampm)
+         hours = hours % 12;
+         console.log('f5', hours)
+         hours = hours ? hours : 12; // 0 => 12
+         console.log('f6', hours)
 
-        console.log('f7',hours, minutes, ampm)
+         console.log('f7', hours, minutes, ampm)
 
          return `${hours}:${minutes}${ampm}`;
      }
@@ -1283,14 +1292,9 @@
                  `${payload.lesson?.lesson_name || 'Lesson'} (${payload.lesson?.booked || 0}/${payload.lesson?.capacity || 1})`;
              const start = new Date(payload.slot.date_time); // e.g. "2025-09-02 13:00:00"
 
-             console.log('1', start)
              const durationInMinutes = payload.slot.lesson.lesson_duration * 60; // 0.5 -> 30 mins
-             console.log('2', durationInMinutes)
              const end = new Date(start.getTime() + durationInMinutes * 60000);
-             console.log('3', end)
              const formattedTimeRange = `${formatTime(start)} - ${formatTime(end)}`;
-             console.log('4', formattedTimeRange)
-             
              const myClass = ev.className.split(' ')[0] || '';
 
              const card = $(`
