@@ -81,16 +81,16 @@
                                         );
                                     @endphp
                                     <div class="text-gray-500 text-md px-2">
-                                        <h3 style="font-size:18px;font-weight:bold" class="font-weight-bolder">
+                                        <h3 style="font-size:18px;font-weight:bold;margin-left:10px;" class="font-weight-bolder">
                                             {{ $lesson->lesson_name }}
                                         </h3>
                                     </div>
                                     <div class="text-gray-500 text-md description font-medium ctm-min-h p-2">
                                         <div class="short-text text-gray-600"
                                             style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
-                                            {!! $shortDescription !!}
+                                            {!! $description !!}
                                         </div>
-                                        @if (!empty($description) && strlen(strip_tags($description)) >= 20)
+                                        {{--  @if (!empty($description) && strlen(strip_tags($description)) >= 20)
                                             <div class="hidden full-text text-gray-600"
                                                 style="font-size: 15px; max-height: auto; overflow-y: auto;">
                                                 {!! $cleanDescription !!}
@@ -98,7 +98,7 @@
                                             <a href="javascript:void(0);" style="font-size: 15px"
                                                 class="text-blue-600 toggle-read-more font-semibold"
                                                 onclick="toggleDescription(this, event)">View Lesson Description</a>
-                                        @endif
+                                        @endif  --}}
                                     </div>
                                     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
                                         <div class="description-wrapper relative">
@@ -170,15 +170,15 @@
                                         );
                                     @endphp
                                     <div class="text-gray-500 text-md px-2">
-                                        <h3 style="font-size:18px;font-weight:bold" class="font-weight-bolder">
+                                        <h3 style="font-size:18px;font-weight:bold;margin-left:10px" class="font-weight-bolder">
                                             {{ $lesson->lesson_name }}</h3>
                                     </div>
                                     <div class="text-gray-500 text-md description font-medium ctm-min-h p-2">
                                         <div class="short-text text-gray-600"
                                             style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
-                                            {!! $shortDescription !!}
+                                            {!! $description !!}
                                         </div>
-                                        @if (!empty($description) && strlen(($description)) >= 20)
+                                        {{--  @if (!empty($description) && strlen(($description)) >= 20)
                                             <div class="hidden full-text text-gray-600"
                                                 style="font-size: 15px; max-height: auto; overflow-y: auto;">
                                                 {!! $cleanDescription !!}
@@ -186,24 +186,24 @@
                                             <a href="javascript:void(0);" style="font-size: 15px"
                                                 class="text-blue-600 toggle-read-more font-semibold"
                                                 onclick="toggleDescription(this, event)">View Lesson Description</a>
-                                        @endif
+                                        @endif  --}}
                                     </div>
 
-                                    <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
+                                    <div class="px-3 pb-4 flex flex-col flex-grow">
 
                                         @if (!empty($lesson?->long_description) || $lesson?->long_description != '' || $lesson?->long_description != null)
                                             <div class="hidden long-text text-gray-600"
                                                 style="font-size: 15px; max-height: 100px; overflow-y: auto;">
                                                 {!! $lesson->long_description !!}
                                             </div>
-                                            <a href="javascript:void(0)" style="font-size: 15px"
+                                            <a href="javascript:void(0)" style="font-size: 15px;margin-bottom:10px"
                                                 data-long_description="{!! $lesson?->long_description !!}"
                                                 class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
                                                 tabindex="0"> View
                                                 Description</a>
                                         @endif
 
-                                        <div class="mb-3 p-3 border rounded-lg shadow-sm bg-white">
+                                        <div class="mb-2 p-3 border rounded-lg shadow-sm bg-white">
                                             <h2 class="text-lg font-semibold flex items-center mb-2">
                                                 <svg class="w-5 h-5 mr-2 text-gray-700" fill="none"
                                                     stroke="currentColor" viewBox="0 0 24 24">
@@ -213,7 +213,7 @@
                                                 </svg>
                                                 Package Options Available
                                             </h2>
-                                            <p class="text-sm text-gray-500 mb-3">Save more with multi-lesson packages</p>
+                                            <p class="text-sm text-gray-500 mb-2">Save more with multi-lesson packages</p>
                                             <select name="package_slot"
                                                 class="no-nice-select w-full border rounded-lg p-2 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                                 <option value="--">Select Option</option>
@@ -435,6 +435,9 @@
             border: 1px solid #000;
             padding: 6px 10px;
             text-align: left;
+        }
+        .short-text ul {
+            margin-bottom: 0px !important;
         }
     </style>
 @endpush

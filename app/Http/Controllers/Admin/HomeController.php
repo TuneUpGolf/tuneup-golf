@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\DataTables\Admin\PurchaseDataTable;
 use App\Http\Controllers\Controller;
 use App\DataTables\Admin\SalesDataTable;
+use App\DataTables\Admin\StudentPurchaseDataTable;
 use App\Facades\Utility;
 use App\Facades\UtilityFacades;
 use App\Models\DocumentGenrator;
@@ -79,7 +80,7 @@ class HomeController extends Controller
             $plans = Plan::with('instructor')->whereHas('instructor')->get();
 
             $tab = !empty($tab) ? $tab : 'in-person';
-            $dataTable = $tab == 'my-lessons' ? new PurchaseDataTable($tab) : false;
+            $dataTable = $tab == 'my-lessons' ? new StudentPurchaseDataTable($tab) : false;
             $instructor_id = $request->input('instructor_id', null);
             // $tenant_instructors = User::with('lessons')
             //     ->instructors()
