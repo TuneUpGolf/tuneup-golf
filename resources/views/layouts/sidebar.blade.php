@@ -347,6 +347,11 @@
                                             <a class="dash-link"
                                                 href="{{ route('blogs.create') }}">{{ __('Create New Post') }}</a>
                                         </li>
+
+                                        <li class="dash-item {{ request()->is('album-category/create') ? 'active' : '' }}">
+                                            <a class="dash-link"
+                                                href="{{ route('album.category.create') }}">{{ __('Create New Album Category') }}</a>
+                                        </li>
                                     @endcan
                                     @can('manage-blog')
                                         <li class="dash-item {{ request()->is('blogs') ? 'active' : '' }}">
@@ -358,6 +363,13 @@
                                             <a class="dash-link"
                                                 href="{{ route('blogs.manage') }}">{{ __('Manage Posts') }}</a>
                                         </li>
+
+                                        <li class="dash-item {{ request()->is('album-category') ? 'active' : '' }}">
+                                            <a class="dash-link"
+                                                href="{{ route('album.category.manage') }}">{{ __('Manage Album Categories') }}</a>
+                                        </li>
+
+                                        
                                     @endcan
 
                                     {{-- @can('manage-category')
