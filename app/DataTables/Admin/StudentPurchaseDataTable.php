@@ -189,156 +189,345 @@ class StudentPurchaseDataTable extends DataTable
     }
 
   
-    public function html()
-    {
-        $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto; max-width: 12.5rem;'><option value=''>- Lesson Type -</option>";
-        foreach (Lesson::SELECT_TYPE_MAPPING as $key => $label) {
-            $lessonTypeFilter .= "<option value='" . $key . "'>" . $label . "</option>";
-        }
-        $lessonTypeFilter .= "</select>";
+   
+//   public function html()
+//     {
+//         $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto; max-width: 12.5rem;'><option value=''>- Lesson Type -</option>";
+//         foreach (Lesson::SELECT_TYPE_MAPPING as $key => $label) {
+//             $lessonTypeFilter .= "<option value='" . $key . "'>" . $label . "</option>";
+//         }
+//         $lessonTypeFilter .= "</select>";
 
-        $buttons = [
-            // ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
-            // ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
-        ];
+//         $buttons = [
+//             // ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
+//             // ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
+//         ];
 
-        if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
-            unset($buttons[0]);
-        }
+//         if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
+//             unset($buttons[0]);
+//         }
 
-        return $this->builder()
-            ->setTableId('purchases-table')
-            ->addTableClass('display responsive nowrap')
-            ->columns($this->getColumns())
-            ->minifiedAjax()
-            ->orderBy(1)
-            ->language([
-                "paginate" => [
-                    "next" => '<i class="ti ti-chevron-right"></i>',
-                    "previous" => '<i class="ti ti-chevron-left"></i>'
-                ],
-                'lengthMenu'       => __('_MENU_ entries per page'),
-                "searchPlaceholder"=> __('Search'),
-                'search'           => ''
-            ])
-            ->initComplete('function() {
-                var table = this;
-                var searchInput = $(\'#\' + table.api().table().container().id + \' label input[type="search"]\');
-                searchInput.removeClass(\'form-control form-control-sm\').addClass(\'dataTable-input\');
+//         return $this->builder()
+//             ->setTableId('purchases-table')
+//             ->addTableClass('display responsive nowrap')
+//             ->columns($this->getColumns())
+//             ->minifiedAjax()
+//             ->orderBy(1)
+//             ->language([
+//                 "paginate" => [
+//                     "next" => '<i class="ti ti-chevron-right"></i>',
+//                     "previous" => '<i class="ti ti-chevron-left"></i>'
+//                 ],
+//                 'lengthMenu' => __('_MENU_ entries per page'),
+//                 "searchPlaceholder" => __('Search'),
+//                 'search' => ''
+//             ])
+//             ->initComplete('function() {
+//                 var table = this;
+//                 var searchInput = $(\'#\' + table.api().table().container().id + \' label input[type="search"]\');
+//                 searchInput.removeClass(\'form-control form-control-sm\').addClass(\'dataTable-input\');
 
-                var select = $(table.api().table().container())
-                    .find(".dataTables_length select")
-                    .removeClass(\'custom-select custom-select-sm form-control form-control-sm\')
-                    .addClass(\'dataTable-selector\');
+//                 var select = $(table.api().table().container())
+//                     .find(".dataTables_length select")
+//                     .removeClass(\'custom-select custom-select-sm form-control form-control-sm\')
+//                     .addClass(\'dataTable-selector\');
 
-                $(".dataTable-search").prepend("' . $lessonTypeFilter . '").addClass("d-flex");
+//                 $(".dataTable-search").prepend("' . $lessonTypeFilter . '").addClass("d-flex");
 
-                $("#lessonTypeFilter").on("change", function() {
-                    table.api().ajax.reload();
-                });
+//                 $("#lessonTypeFilter").on("change", function() {
+//                     table.api().ajax.reload();
+//                 });
 
-                $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
-                    data.lesson_type = $("#lessonTypeFilter").val();
-                });
-            }')
-            ->parameters([
-                "columnDefs" => [
-                    ["responsivePriority" => 1, "targets" => 1],
-                    ["responsivePriority" => 2, "targets" => 4],
-                ],
-                "dom" => "
-                    <'dataTable-top row'
-                        <'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
-                        <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>
-                    >
-                    <'dataTable-container'<'col-sm-12'tr>>
-                    <'dataTable-bottom row'
-                        <'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
-                        <'col-sm-7'p>
-                    >
-                ",
-                "buttons"   => $buttons,
-                "scrollX"   => true,
-                "responsive" => [
-                    "details" => [
-                        "display" => "$.fn.dataTable.Responsive.display.modal({
-                            header: function () { return 'Lesson Details'; }
-                        })",
-                        "renderer" => "function (api, rowIdx, columns) {
-    var data = columns.map(function(col) {
-        switch(col.title) {
-            case 'Lesson #':
-            case 'Status':
-            case 'Remaining Slots': // 👈 remove from auto-render
-                return '';
-            default:
-                return '<tr data-dt-row=\"'+col.rowIndex+'\" data-dt-column=\"'+col.columnIndex+'\">'+
-                        '<td>'+col.title+':</td>'+
-                        '<td>'+col.data+'</td>'+
-                    '</tr>';
-        }
-    }).join('');
+//                 $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
+//                     data.lesson_type = $("#lessonTypeFilter").val();
+//                 });
+//             }')
+//             ->parameters([
+//                 "columnDefs" => [
+//                     ["responsivePriority" => 1, "targets" => 1],
+//                     ["responsivePriority" => 2, "targets" => 4],
+//                 ],
+//                 "dom" => "
+//                     <'dataTable-top row'
+//                         <'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
+//                         <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>
+//                     >
+//                     <'dataTable-container'<'col-sm-12'tr>>
+//                     <'dataTable-bottom row'
+//                         <'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
+//                         <'col-sm-7'p>
+//                     >
+//                 ",
+//                 "buttons" => $buttons,
+//                 "scrollX" => true,
+//                 "responsive" => [
+//                     "details" => [
+//                         "display" => "$.fn.dataTable.Responsive.display.childRow",
+//                         "renderer" => "function (api, rowIdx, columns) {
+//                             console.log('Renderer called for rowIdx:', rowIdx); 
 
-    var rowData = api.row(rowIdx).data();
-    var baseSlotUrl = '".route('slot.view')."';
+//                             var data = columns.map(function(col) {
+//                                 switch(col.title) {
+//                                     case 'Lesson #':
+//                                     case 'Status':
+//                                     case 'Remaining Slots':
+//                                         return '';
+//                                     default:
+//                                         return '<tr><td style=\"font-weight: bold; padding: 5px;\">' + col.title + ':</td><td style=\"padding: 5px;\">' + (col.data || '-') + '</td></tr>';
+//                                 }
+//                             }).join('');
 
-    var lessonDateTime = rowData.lesson_datetime ?? rowData.due_date ?? '-';
-    var lessonDateHtml = '<tr><td>Lesson Date/Time:</td><td>'+ lessonDateTime +'</td></tr>';
+//                             var rowData = api.row(rowIdx).data();
+//                             console.log('rowData:', rowData); 
+//                             console.log('lesson_type:', rowData.lesson_type);
 
-    // ✅ Show Remaining Slots only for inPerson or package
-    var remainingSlotsHtml = '';
-    if (rowData.lesson_type === 'inPerson' || rowData.lesson_type === 'package') {
-        remainingSlotsHtml = '<tr><td>Remaining Slots:</td><td>'+ (rowData.remaining_slots ?? '-') +'</td></tr>';
+//                             var lessonDateTime = rowData.lesson_datetime ?? rowData.due_date ?? '-';
+//                             var lessonDateHtml = '<tr><td style=\"font-weight: bold; padding: 5px;\">Lesson Date/Time:</td><td style=\"padding: 5px;\">' + lessonDateTime + '</td></tr>';
+
+//                             var remainingSlotsHtml = '';
+//                             if (rowData.remaining_slots && rowData.remaining_slots !== '-') {
+//                                 remainingSlotsHtml = '<tr><td style=\"font-weight: bold; padding: 5px;\">Remaining Slots:</td><td style=\"padding: 5px;\">' + rowData.remaining_slots + '</td></tr>';
+//                             }
+
+//                             var textareaHtml = '';
+//                             var buttonsHtml = '';
+//                             if (rowData.lesson_type && rowData.lesson_type !== 'online') {
+//                             textareaHtml = '<div style=\"margin-top: 10px; margin-bottom: 10px;\">' +
+//                                 '<textarea id=\"lessonNotes\" name=\"notes\" class=\"form-control lesson-notes\" rows=\"4\" placeholder=\"Enter your notes here...\" style=\"width: 100%; resize: vertical;\"></textarea>' +
+//                                 '</div>';
+//                             var baseSlotUrl = '" . route('slot.view') . "';
+//                             buttonsHtml = '<div class=\"mt-3 text-end\">' +
+//                                 '<button type=\"button\" class=\"btn btn-warning btn-sm me-2\" onclick=\"cancelLesson('+rowData.lesson_id+')\">Cancel Lesson</button>' +
+//                                 '<a href=\"'+baseSlotUrl+'?lesson_id='+rowData.lesson_id+'\" class=\"btn btn-success btn-sm\">Change Lesson Time</a>' +
+//                             '</div>';
+//                         } else {
+//                             console.log('Not showing buttons, lesson_type:', rowData.lesson_type); 
+//                         }
+
+//                             var content = '<div style=\"padding: 0px;\"><table style=\"width: 100%; border-collapse: collapse;\">' + data + lessonDateHtml + remainingSlotsHtml + '</table>' + textareaHtml + buttonsHtml + '</div>';
+
+//                             Swal.fire({
+//                                 title: 'Lesson Details',
+//                                 html: content,
+//                                 showCloseButton: true,
+//                                 showConfirmButton: false,
+//                                 customClass: {
+//                                     container: 'swal2-responsive-container',
+//                                     popup: 'swal2-responsive-popup'
+//                                 }
+//                             });
+
+//                             return false; // Prevent default child row rendering
+//                         }"
+//                     ]
+//                 ],
+//                 "rowCallback" => 'function(row) {
+//                     $("td", row).css({"font-family":"Helvetica", "font-weight":"300"});
+//                     $(row).addClass("custom-parent-row");
+//                 }',
+//                 "headerCallback" => 'function(thead) {
+//                     $(thead).find("th").css({
+//                         "background-color": "rgba(249, 252, 255, 1)",
+//                         "font-weight": "400",
+//                         "font": "sans",
+//                         "border": "none"
+//                     });
+//                 }',
+//                 "drawCallback" => 'function() {
+//                     var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=tooltip]"));
+//                     tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
+
+//                     var popoverTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=popover]"));
+//                     popoverTriggerList.map(function (el) { return new bootstrap.Popover(el); });
+
+//                     var toastElList = [].slice.call(document.querySelectorAll(".toast"));
+//                     toastElList.map(function (el) { return new bootstrap.Toast(el); });
+//                 }'
+//             ])
+//             ->language([
+//                 'buttons' => [
+//                     'create' => __('Choose Your Coach'),
+//                     'print' => __('Print'),
+//                     'reset' => __('Reset'),
+//                     'reload' => __('Reload'),
+//                 'excel' => __('Excel'),
+//                 'csv' => __('CSV'),
+//             ]
+//         ]);
+//     }
+
+public function html()
+{
+    $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto; max-width: 12.5rem;'><option value=''>- Lesson Type -</option>";
+    foreach (Lesson::SELECT_TYPE_MAPPING as $key => $label) {
+        $lessonTypeFilter .= "<option value='" . $key . "'>" . $label . "</option>";
+    }
+    $lessonTypeFilter .= "</select>";
+
+    $buttons = [
+        // ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
+        // ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
+    ];
+
+    if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
+        unset($buttons[0]);
     }
 
-    var buttonsHtml =
-        '<div class=\"mt-3 text-end\">' +
-            '<button type=\"button\" class=\"btn btn-danger btn-sm me-2\" onclick=\"cancelLesson('+rowData.id+')\">Cancel Lesson</button>' +
-            '<a href=\"'+ baseSlotUrl + '?lesson_id='+ rowData.lesson_id +'\" class=\"btn btn-primary btn-sm\">Change Lesson Time</a>' +
-        '</div>';
+    return $this->builder()
+        ->setTableId('purchases-table')
+        ->addTableClass('display responsive nowrap')
+        ->columns($this->getColumns())
+        ->minifiedAjax()
+        ->orderBy(1)
+        ->language([
+            "paginate" => [
+                "next" => '<i class="ti ti-chevron-right"></i>',
+                "previous" => '<i class="ti ti-chevron-left"></i>'
+            ],
+            'lengthMenu' => __('_MENU_ entries per page'),
+            "searchPlaceholder" => __('Search'),
+            'search' => ''
+        ])
+        ->initComplete('function() {
+            var table = this;
+            var searchInput = $(\'#\' + table.api().table().container().id + \' label input[type="search"]\');
+            searchInput.removeClass(\'form-control form-control-sm\').addClass(\'dataTable-input\');
 
-    return $('<table class=\"table table-striped table-bordered vertical-table w-100\"/>')
-            .append('<tbody>' + data + lessonDateHtml + remainingSlotsHtml + '</tbody>')
-            .after(buttonsHtml);
-}"
-                    ]
-                ],
-                "rowCallback" => 'function(row) {
-                    $("td", row).css({"font-family":"Helvetica", "font-weight":"300"});
-                    $(row).addClass("custom-parent-row");
-                }',
-                "headerCallback" => 'function(thead) {
-                    $(thead).find("th").css({
-                        "background-color": "rgba(249, 252, 255, 1)",
-                        "font-weight": "400",
-                        "font": "sans",
-                        "border": "none"
-                    });
-                }',
-                "drawCallback" => 'function() {
-                    var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=tooltip]"));
-                    tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
+            var select = $(table.api().table().container())
+                .find(".dataTables_length select")
+                .removeClass(\'custom-select custom-select-sm form-control form-control-sm\')
+                .addClass(\'dataTable-selector\');
 
-                    var popoverTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=popover]"));
-                    popoverTriggerList.map(function (el) { return new bootstrap.Popover(el); });
+            $(".dataTable-search").prepend("' . $lessonTypeFilter . '").addClass("d-flex");
 
-                    var toastElList = [].slice.call(document.querySelectorAll(".toast"));
-                    toastElList.map(function (el) { return new bootstrap.Toast(el); });
-                }'
-            ])
-            ->language([
-                'buttons' => [
-                    'create' => __('Choose Your Coach'),
-                    'print'  => __('Print'),
-                    'reset'  => __('Reset'),
-                    'reload' => __('Reload'),
-                    'excel'  => __('Excel'),
-                    'csv'    => __('CSV'),
+            $("#lessonTypeFilter").on("change", function() {
+                table.api().ajax.reload();
+            });
+
+            $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
+                data.lesson_type = $("#lessonTypeFilter").val();
+            });
+        }')
+        ->parameters([
+            "columnDefs" => [
+                ["responsivePriority" => 1, "targets" => 1],
+                ["responsivePriority" => 2, "targets" => 4],
+            ],
+            "dom" => "
+                <'dataTable-top row'
+                    <'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
+                    <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>
+                >
+                <'dataTable-container'<'col-sm-12'tr>>
+                <'dataTable-bottom row'
+                    <'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
+                    <'col-sm-7'p>
+                >
+            ",
+            "buttons" => $buttons,
+            "scrollX" => true,
+            "responsive" => [
+                "details" => [
+                    "display" => "$.fn.dataTable.Responsive.display.childRow",
+                    "renderer" => "function (api, rowIdx, columns) {
+                        console.log('Renderer called for rowIdx:', rowIdx); 
+
+                        var data = columns.map(function(col) {
+                            switch(col.title) {
+                                case 'Lesson #':
+                                case 'Status':
+                                case 'Remaining Slots':
+                                    return '';
+                                default:
+                                    return '<tr><td style=\"font-weight: bold; padding: 5px;\">' + col.title + ':</td><td style=\"padding: 5px;\">' + (col.data || '-') + '</td></tr>';
+                            }
+                        }).join('');
+
+                        var rowData = api.row(rowIdx).data();
+                        console.log('rowData:', rowData); 
+                        console.log('lesson_type:', rowData.lesson_type);
+
+                        var lessonDateTime = rowData.lesson_datetime ?? rowData.due_date ?? '-';
+                        var lessonDateHtml = '<tr><td style=\"font-weight: bold; padding: 5px;\">Lesson Date/Time:</td><td style=\"padding: 5px;\">' + lessonDateTime + '</td></tr>';
+
+                        var remainingSlotsHtml = '';
+                        if (rowData.remaining_slots && rowData.remaining_slots !== '-') {
+                            remainingSlotsHtml = '<tr><td style=\"font-weight: bold; padding: 5px;\">Remaining Slots:</td><td style=\"padding: 5px;\">' + rowData.remaining_slots + '</td></tr>';
+                        }
+
+                        var textareaHtml = '';
+                        var buttonsHtml = '';
+                        var currentNotes = ''; // Variable to store textarea value
+                        if (rowData.lesson_type && rowData.lesson_type !== 'online') {
+                            textareaHtml = '<div style=\"margin-top: 10px; margin-bottom: 10px;\">' +
+                                '<textarea id=\"lessonNotes-' + rowIdx + '\" class=\"form-control lesson-notes\" rows=\"4\" placeholder=\"Enter your notes here...\" style=\"width: 100%; resize: vertical;\"></textarea>' +
+                                '</div>';
+                            var baseSlotUrl = '" . route('slot.view') . "';
+                            buttonsHtml = '<div class=\"mt-3 text-end\">' +
+                                '<button type=\"button\" class=\"btn btn-warning btn-sm me-2\" onclick=\"cancelLesson('+rowData.lesson_id+', '+rowIdx+', this, \'' + rowIdx + '\')\">Cancel Lesson</button>' +
+                                '<a href=\"'+baseSlotUrl+'?lesson_id='+rowData.lesson_id+'\" class=\"btn btn-success btn-sm\">Change Lesson Time</a>' +
+                            '</div>';
+                        } else {
+                            console.log('Not showing buttons, lesson_type:', rowData.lesson_type); 
+                        }
+
+                        var content = '<div style=\"padding: 0px;\"><table style=\"width: 100%; border-collapse: collapse;\">' + data + lessonDateHtml + remainingSlotsHtml + '</table>' + textareaHtml + buttonsHtml + '</div>';
+
+                        Swal.fire({
+                            title: 'Lesson Details',
+                            html: content,
+                            showCloseButton: true,
+                            showConfirmButton: false,
+                            customClass: {
+                                container: 'swal2-responsive-container',
+                                popup: 'swal2-responsive-popup'
+                            },
+                            didOpen: function() {
+                                console.log('SweetAlert2 popup opened for rowIdx:', rowIdx);
+                                // Capture notes after popup is open (user can enter text)
+                                // Notes will be captured in cancelLesson onclick
+                            }
+                        });
+
+                        return false; // Prevent default child row rendering
+                    }"
                 ]
-            ]);
-    }
+            ],
+            "rowCallback" => 'function(row) {
+                $("td", row).css({"font-family":"Helvetica", "font-weight":"300"});
+                $(row).addClass("custom-parent-row");
+            }',
+            "headerCallback" => 'function(thead) {
+                $(thead).find("th").css({
+                    "background-color": "rgba(249, 252, 255, 1)",
+                    "font-weight": "400",
+                    "font": "sans",
+                    "border": "none"
+                });
+            }',
+            "drawCallback" => 'function() {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=tooltip]"));
+                tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
 
-    
+                var popoverTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=popover]"));
+                popoverTriggerList.map(function (el) { return new bootstrap.Popover(el); });
+
+                var toastElList = [].slice.call(document.querySelectorAll(".toast"));
+                toastElList.map(function (el) { return new bootstrap.Toast(el); });
+            }'
+        ])
+        ->language([
+            'buttons' => [
+                'create' => __('Choose Your Coach'),
+                'print' => __('Print'),
+                'reset' => __('Reset'),
+                'reload' => __('Reload'),
+                'excel' => __('Excel'),
+                'csv' => __('CSV'),
+            ]
+        ]);
+}
+        
     protected function getColumns()
     {
         $columns = [
