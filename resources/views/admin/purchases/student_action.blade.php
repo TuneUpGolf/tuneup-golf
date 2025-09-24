@@ -3,7 +3,8 @@
     @if (
         $purchase->status !== 'complete' &&
             $purchase->lesson->payment_method != 'cash' &&
-            $user->type == 'Student' &&
+            $user->type == 'Student'
+            && $purchase->lesson->active_status == true &&
             $purchase->type != 'package')
         @can('create-purchases')
             {!! Form::open([
@@ -20,7 +21,8 @@
     @endif
     @if (in_array($user->type, ['Student', 'Instructor']) &&
             ($purchase->status == 'complete' || $purchase->lesson->payment_method == 'cash' || $hasBooking) &&
-            $purchase->lesson->type != 'online' &&
+            $purchase->lesson->type != 'online'
+            && $purchase->lesson->active_status == true &&
             $purchase->lesson->type != 'inPerson')
         {{--  @if ($purchase->status == 'complete' && ($purchase->type == 'inPerson' || $purchase->type == 'package'))
                  <a href="{{ route('slot.view', ['lesson_id' => $purchase?->lesson_id]) }}" class="btn btn-primary btn-sm">
