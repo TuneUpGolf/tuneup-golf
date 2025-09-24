@@ -91,4 +91,10 @@ class Purchase extends Model
 
         return $bookedSlotCount < $this->purchased_slot;
     }
+
+    public function getIsDeletedAttribute()
+{
+    return strip_tags($this->deleted) === 'Deleted';
+}
+
 }

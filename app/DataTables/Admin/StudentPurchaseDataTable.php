@@ -69,6 +69,7 @@ class StudentPurchaseDataTable extends DataTable
             ->addColumn('deleted', function ($purchase) {
                 return ! $purchase->lesson->active_status ? ' <span class="text-gray-500 italic"> Deleted</span>' : 'Active';
             })
+
             // ->addColumn('pill', function ($purchase) {
             //     $s = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
             //     $lesson_type = $purchase->lesson->type ?? null;
@@ -458,7 +459,7 @@ public function html()
                         var textareaHtml = '';
                         var buttonsHtml = '';
                         var currentNotes = ''; // Variable to store textarea value
-                        if (rowData.lesson_type && rowData.lesson_type !== 'online') {
+                        if (rowData.lesson_type && rowData.lesson_type !== 'online' && rowData.deleted =='Active') {
                             textareaHtml = '<div style=\"margin-top: 10px; margin-bottom: 10px;\">' +
                                 '<textarea id=\"lessonNotes-' + rowIdx + '\" class=\"form-control lesson-notes\" rows=\"4\" placeholder=\"Enter your notes here...\" style=\"width: 100%; resize: vertical;\"></textarea>' +
                                 '</div>';
