@@ -1583,7 +1583,15 @@ class LessonController extends Controller
     }
     public function destroy($lessonId)
     {
-        $lesson = Lesson::findOrFail($lessonId);
+        $lesson = Lesson::with(['slots'=>function($query){
+            $query->where('is_active', true);
+        }])
+        ->findOrFail($lessonId);
+        if(count($lesson->slots) > 0){
+            foreach($lesson->slots as $slot){
+                $slot->update(['is_active' => false]);
+            }
+        }
         $lesson->update(['active_status' => false]);
 
         return redirect()->route('lesson.index')->with('success', 'Lesson disabled successfully!');
