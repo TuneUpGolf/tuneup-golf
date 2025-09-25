@@ -12,7 +12,6 @@ use Illuminate\Support\Str;
 
 class AlbumCategoryController extends Controller
 {
-
     public function index(AlbumCategoryDataTable $dataTable)
     {
         if (Auth::user()->can('manage-blog')) {
@@ -51,7 +50,7 @@ class AlbumCategoryController extends Controller
                 }
                 $album_category->status = 'active';
                 $album_category->save();
-                return redirect()->back()->with('success', __('Album Category created successfully.'));
+                return redirect()->route('album.category.manage')->with('success', __('Album Category created successfully.'));
             } catch (ValidationException $e) {
                 Log::info($e->getMessage());
                 return redirect()->back()->withErrors($e->errors())->withInput();

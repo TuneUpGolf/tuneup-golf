@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\AlbumController;
 use App\Http\Resources\StudentAPIResource;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\SmsController;
@@ -332,8 +333,19 @@ Route::middleware([
         Route::post('settings/cookie-setting/update', [SettingsController::class, 'cookieSettingUpdate'])->name('settings.cookie.setting.update');
         Route::post('setting/seo/save', [SettingsController::class, 'SeoSetting'])->name('setting.seo.save');
 
-        // Album Routes
+        // Album Category Routes
         Route::controller(AlbumCategoryController::class)->prefix('album-category')->name('album.category.')->group(function () {
+            Route::get('/', 'index')->name('manage');
+            Route::get('create', 'create')->name('create');
+            Route::post('store', 'store')->name('store');
+            Route::get('edit/{id}', 'edit')->name('edit');
+            Route::patch('update/{id}', 'update')->name('update');
+            Route::delete('delete/{id}', 'destroy')->name('destroy');
+        }); 
+
+        //Album Routes
+
+        Route::controller(AlbumController::class)->prefix('album')->name('album.')->group(function () {
             Route::get('/', 'index')->name('manage');
             Route::get('create', 'create')->name('create');
             Route::post('store', 'store')->name('store');
