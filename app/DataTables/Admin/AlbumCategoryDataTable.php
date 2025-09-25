@@ -43,7 +43,7 @@ class AlbumCategoryDataTable extends DataTable
                 return $count;
             })
             ->editColumn('price', function (AlbumCategory $post) {
-                $price = $post->payment_mode == true ? $post->price : 0;
+                $price = $post->payment_mode == 'paid' ? $post->price : 0;
                 return $price;
             })
             ->rawColumns(['action',  'photo']);
