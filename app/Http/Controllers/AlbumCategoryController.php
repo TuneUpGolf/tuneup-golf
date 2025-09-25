@@ -63,4 +63,55 @@ class AlbumCategoryController extends Controller
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
     }
+
+    public function destroy($id)
+    {
+        if (Auth::user()->can('delete-blog')) {
+            $post = AlbumCategory::find($id);
+            $post->delete();
+            return redirect()->route('album.category.manage')->with('success', __('Album Category deleted successfully.'));
+        } else {
+            return redirect()->back()->with('failed', __('Permission denied.'));
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        if (Auth::user()->can('edit-blog')) {
+            request()->validate([
+                'title'         => 'required|max:50',
+                'description'   => 'required',
+            ]);
+            $album_category   = AlbumCategory::find($id);
+            if ($request->hasFile('file')) {
+                $path           = $request->file('file')->store('posts');
+                $album_category->file    = $path;
+            }
+            $album_category->instructor_id = Auth::user()->id;
+            $album_category->tenant_id = tenant('id');
+            $album_category->title = $request->title;               
+            $album_category->slug = Str::slug($request->title);
+            $album_category->description = $request->description;
+            $album_category->payment_mode = array_key_exists('paid',$request->all()) ? ($request?->paid == 'on' ? 'paid' : 'un-paid') : 'un-paid';
+            $album_category->price = array_key_exists('paid',$request->all()) && $request?->paid == 'on' && !empty($request?->price) ? $request?->price : 0;
+            $album_category->save();
+            return redirect()->route('album.category.manage')->with('success', __('Album Category updated successfully'));
+        } else {
+            return redirect()->back()->with('failed', __('Permission denied.'));
+        }
+    }
+
+    public function edit($id)
+    {
+        if (Auth::user()->can('edit-blog')) {
+            $posts      = AlbumCategory::find($id);
+            if(!is_null($posts)) {
+                return  view('admin.album.category.edit', compact('posts'));
+            }else {
+                return redirect()->back()->with('failed', __('Album Category not found.'));
+            }
+        } else {
+            return redirect()->back()->with('failed', __('Permission denied.'));
+        }
+    }
 }

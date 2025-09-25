@@ -337,9 +337,9 @@ Route::middleware([
             Route::get('/', 'index')->name('manage');
             Route::get('create', 'create')->name('create');
             Route::post('store', 'store')->name('store');
-            // Route::get('edit/{id}', 'edit')->name('edit');
-            // Route::post('update/{id}', 'update')->name('update');
-            // Route::delete('delete/{id}', 'destroy')->name('destroy');
+            Route::get('edit/{id}', 'edit')->name('edit');
+            Route::patch('update/{id}', 'update')->name('update');
+            Route::delete('delete/{id}', 'destroy')->name('destroy');
         }); 
 
         //frontend

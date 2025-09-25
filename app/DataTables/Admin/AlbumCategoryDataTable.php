@@ -35,7 +35,7 @@ class AlbumCategoryDataTable extends DataTable
                 return $return;
             })
             ->editColumn('paid', function (AlbumCategory $post) {
-                $paid = $post->payment_mode == true ? "Yes"  : "No";
+                $paid = $post->payment_mode == 'paid' ? "Yes"  : "No";
                 return $paid;
             })
             ->editColumn('sales', function (AlbumCategory $post) {
@@ -94,7 +94,7 @@ class AlbumCategoryDataTable extends DataTable
                 ",
                 'buttons'   => [
                     ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
-                        window.location = '" . route('blogs.create') . "';
+                        window.location = '" . route('album.category.create') . "';
                    }"],
                     [
                         'extend' => 'collection',
