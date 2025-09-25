@@ -18,6 +18,11 @@ class AlbumCategoryDataTable extends DataTable
         return datatables()
             ->eloquent($query)
             ->addIndexColumn()
+            ->filter(function ($query) {
+                if (request()->has('search') && $search = request('search')['value']) {
+                    $query->where('title', 'like', "%{$search}%");
+                }
+            })
             ->editColumn('created_at', function ($request) {
                 $created_at = UtilityFacades::date_time_format($request->created_at);
                 return $created_at;
@@ -180,12 +185,12 @@ class AlbumCategoryDataTable extends DataTable
     {
         return [
             Column::make('No')->title(__('No'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-            Column::make('title')->title(__('Title')),
-            Column::make('paid')->title(__('Paid')),
-            Column::make('price')->title(__('Price ($)')),
-            Column::computed('sales')->title(__('Sales')),
-            Column::make('photo')->title(__('Photo')),
-            Column::make('created_at')->title(__('Created At')),
+            Column::make('title')->title(__('Title'))->searchable(true)->orderable(true),
+            Column::make('paid')->title(__('Paid'))->searchable(true)->orderable(true),
+            Column::make('price')->title(__('Price ($)'))->searchable(true)->orderable(true),
+            Column::computed('sales')->title(__('Sales'))->searchable(true)->orderable(true),
+            Column::make('photo')->title(__('Photo'))->searchable(true)->orderable(true),
+            Column::make('created_at')->title(__('Created At'))->searchable(true)->orderable(true),
             Column::computed('action')->title(__('Action'))
                 ->exportable(false)
                 ->printable(false)

@@ -16,6 +16,11 @@ class AlbumDataTable extends DataTable
     {
         return datatables()
             ->eloquent($query)
+            ->filter(function ($query) {
+                if (request()->has('search') && $search = request('search')['value']) {
+                    $query->where('title', 'like', "%{$search}%");
+                }
+            })
             ->addIndexColumn()
             ->editColumn('created_at', function ($request) {
                 $created_at = UtilityFacades::date_time_format($request->created_at);
@@ -170,10 +175,10 @@ class AlbumDataTable extends DataTable
     {
         return [
             Column::make('No')->title(__('No'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-            Column::make('title')->title(__('Title')),
-            Column::make('category')->title(__('Category')),
-            Column::make('media')->title(__('Media')),
-            Column::make('created_at')->title(__('Created At')),
+            Column::make('title')->title(__('Title'))->searchable(true)->orderable(true),
+            Column::make('category')->title(__('Category'))->searchable(false)->orderable(false),
+            Column::make('media')->title(__('Media'))->searchable(false)->orderable(false),
+            Column::make('created_at')->title(__('Created At'))->searchable(false)->orderable(false),
             Column::computed('action')->title(__('Action'))
                 ->exportable(false)
                 ->printable(false)
