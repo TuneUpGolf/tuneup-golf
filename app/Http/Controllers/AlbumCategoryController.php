@@ -83,8 +83,8 @@ class AlbumCategoryController extends Controller
             ]);
             $album_category   = AlbumCategory::find($id);
             if ($request->hasFile('file')) {
-                $path           = $request->file('file')->store('posts');
-                $album_category->file    = $path;
+                $path           = $request->file('file')->store('album_category');
+                $album_category->image    = $path;
             }
             $album_category->instructor_id = Auth::user()->id;
             $album_category->tenant_id = tenant('id');
