@@ -378,6 +378,10 @@
                                             <a class="dash-link"
                                                 href="{{ route('album.manage') }}">{{ __('Manage Albums') }}</a>
                                         </li>
+
+                                          <li class="dash-item {{ request()->is('album-category/show') ? 'active' : '' }}">
+                                            <a class="dash-link" href="{{ route('album.category.show') }}">{{ __('Album Categories') }}</a>
+                                        </li>
                                         
                                     @endcan
 
@@ -496,6 +500,7 @@
                                         <li class="dash-item {{ request()->is('blogs') ? 'active' : '' }}">
                                             <a class="dash-link" href="{{ route('blogs.index') }}">{{ __('Feed') }}</a>
                                         </li>
+
                                     @endcan
                                 </ul>
                             </li>

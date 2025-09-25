@@ -41,8 +41,8 @@ class AlbumCategoryController extends Controller
                 $album_category->title = $request->title;               
                 $album_category->slug = Str::slug($request->title);
                 $album_category->description = $request->description;
-                $album_category->payment_mode = $request?->paid == 'on' ? true : false;
-                $album_category->price = $request?->paid == 'on' && !empty($request?->price) ? $request?->price : 0;
+                $album_category->payment_mode = array_key_exists('paid', $request->all()) ? ($request?->paid == 'on' ? "paid" : "un-paid") : "un-paid";
+                $album_category->price =  array_key_exists('paid', $request->all()) ? ($request?->paid == 'on' && !empty($request?->price) ? $request?->price : 0) : 0;
                 
                 if ($request->hasfile('file')) {
                     $file = $request->file('file')->store('album_category');
@@ -109,6 +109,28 @@ class AlbumCategoryController extends Controller
             }else {
                 return redirect()->back()->with('failed', __('Album Category not found.'));
             }
+        } else {
+            return redirect()->back()->with('failed', __('Permission denied.'));
+        }
+    }
+
+    public function getCategories()
+    {
+        $album_categories = AlbumCategory::where([
+            ['tenant_id', tenant()->id],
+            ['status', 'active'],
+        ]);
+        if (Auth::user()->can('manage-blog')) {
+            switch (request()->query('filter')) {
+                case ('free'):
+                    $album_categories = $album_categories->where('payment_mode', 'un-paid');
+                    break;
+                case ('paid'):
+                    $album_categories = $album_categories->where('payment_mode', 'paid');
+                    break;
+            }
+            $album_categories = $album_categories->orderBy('created_at', 'desc')->paginate(6);
+            return view('admin.posts.student_album_category', compact('album_categories'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }

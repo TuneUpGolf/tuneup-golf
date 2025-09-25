@@ -341,6 +341,7 @@ Route::middleware([
             Route::get('edit/{id}', 'edit')->name('edit');
             Route::patch('update/{id}', 'update')->name('update');
             Route::delete('delete/{id}', 'destroy')->name('destroy');
+            Route::get('show', 'getCategories')->name('show');
         }); 
 
         //Album Routes
