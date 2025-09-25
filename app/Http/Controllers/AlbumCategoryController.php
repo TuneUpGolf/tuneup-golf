@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\Admin\AlbumCategoryDataTable;
+use App\Models\Album;
 use App\Models\AlbumCategory;
+use App\Models\LikeAlbum;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
@@ -133,6 +136,43 @@ class AlbumCategoryController extends Controller
             return view('admin.posts.student_album_category', compact('album_categories'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
+        }
+    }
+
+    public function getCategoryAlbums($id)
+    {
+        if (Auth::user()->can('manage-blog')) {
+            $albums = Album::where('album_category_id', $id)->get();
+            return view('admin.posts.album', compact('albums'));
+        }else {
+            return redirect()->back()->with('failed', __('Permission denied.'));
+        }
+    }
+
+     public function likeAlbum()
+    {
+        try {
+            $post = Album::find(request()->post_id);
+            if (!!$post) {
+                $postLike = Auth::user()->likeAlbum->firstWhere('album_id', $post->id);
+
+                if (!!$postLike) {
+                    $postLike->delete();
+                    return redirect()->back()->with('success', __('Unliked'));
+                }
+
+                $postLike = new LikeAlbum();
+                $postLike->album_id = $post->id;
+                if (Auth::user()->type === Role::ROLE_STUDENT)
+                    $postLike->student_id = Auth::user()->id;
+                else
+                    $postLike->instructor_id = Auth::user()->id;
+                $postLike->save();
+                return redirect()->back()->with('success', __('Album Liked Successfully'));
+            } else
+                return redirect()->back()->with('failed', __('UnSuccessfull'));
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

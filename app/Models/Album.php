@@ -35,4 +35,9 @@ class Album extends Model
         return $this->belongsTo(AlbumCategory::class,'album_category_id','id');
     }
 
+    public function likeAlbum()
+    {
+        return $this->hasMany(LikeAlbum::class);
+    }
+
 }

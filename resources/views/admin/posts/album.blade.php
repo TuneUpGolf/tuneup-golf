@@ -1,8 +1,8 @@
 @extends('layouts.main')
-@section('title', __('Album Categories'))
+@section('title', __('Albums'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Album Categories') }}</li>
+    <li class="breadcrumb-item">{{ __('Albums') }}</li>
 @endsection
 
 @section('content')
@@ -10,41 +10,17 @@
         <div class="col-xl-12">
             <div class="card ctm-post-card">
                 <div id="blog" class="sm:p-4 ">
-                    <div class="dropdown dash-h-item drp-company">
-                        <a class="dash-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
-                            href="javascript:void(0);" role="button" aria-haspopup="false" aria-expanded="false">
-                            <span class="hide-mob ms-sm-3 text-lg">Filter</span>
-                            <i class="ti ti-chevron-down drp-arrow nocolor hide-mob"></i>
-                        </a>
-                        <div class="dropdown-menu dash-h-dropdown">
-                            <a href="{{ route('album.category.show', ['filter' => 'all']) }}"
-                                class="dropdown-item {{ request()->query('filter') === 'all' ? 'active' : '' }}">
-                                <span>{{ __('All') }}</span>
-                            </a>
-                            <a href="{{ route('album.category.show', ['filter' => 'free']) }}"
-                                class="dropdown-item  {{ request()->query('filter') === 'free' ? 'active' : '' }}">
-                                <span>{{ __('Free') }}</span>
-                            </a>
-                            <a href="{{ route('album.category.show', ['filter' => 'paid']) }}"
-                                class="dropdown-item {{ request()->query('filter') === 'paid' ? 'active' : '' }}">
-                                <span>{{ __('Paid') }}</span>
-                            </a>
-                        </div>
-                    </div>
                     <div class="">
                         <div class="focus:outline-none mt-3 mb-3 lg:mt-24">
                             <div class="infinity">
                                 <div class="flex flex-wrap w-100">
-                                    @if ($album_categories->count() > 0)
-                                        @foreach ($album_categories as $post)
+                                    @if ($albums->count() > 0)
+                                        @foreach ($albums as $post)
                                             <div
                                                 @if (request()->get('view') == '') class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md" @endif>
                                                 <div class="shadow rounded-2 overflow-hidden position-relative">
-                                                    @if ($post->payment_mode == 'paid')
-                                                        <?php $cls = 'p-3 position-absolute left-0 top-0 z-10 w-full'; ?>
-                                                    @else
-                                                        <?php $cls = 'p-3 position-absolute left-0 top-0 z-10 w-full custom-gradient'; ?>
-                                                    @endif
+
+                                                    <?php $cls = 'p-3 position-absolute left-0 top-0 z-10 w-full custom-gradient'; ?>
                                                     <div class="{{ $cls }}">
                                                         <div class="flex justify-between items-center w-full">
                                                             <div class="flex items-center gap-3">
@@ -62,7 +38,19 @@
                                                                 </div>
                                                             </div>
 
-                                                        
+                                                            <div class="bg-white py-2 px-3 rounded-3xl shadow">
+                                                                {!! Form::open([
+                                                                    'route' => ['album.category.album.like', ['post_id' => $post->id]],
+                                                                    'method' => 'Post',
+                                                                    'data-validate',
+                                                                ]) !!}
+                                                                <button type="submit"
+                                                                    class="text-md font-semibold flex items-center gap-2"><i
+                                                                        class="text-2xl lh-sm ti ti-heart"></i><span>
+                                                                        {{ $post->likeAlbum()->count() }}
+                                                                        Likes</span></button>
+                                                                {!! Form::close() !!}
+                                                            </div>
 
                                                         </div>
                                                     </div>
@@ -94,11 +82,13 @@
                                                             </div>
                                                         </div>
                                                     @else
-                                                        <a href="{{ route('album.category.album',['id'=>$post->id]) }}">
-                                                            <img class=" w-full post-thumbnail open-full-thumbnail"
-                                                                src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->image) }}"
-                                                                alt="Profile" />
-                                                        </a>
+                                                        <img class=" w-full post-thumbnail open-full-thumbnail"
+                                                            src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->media) }}"
+                                                            alt="Profile" />
+                                                        <div id="imageModal" class="modal">
+                                                            <span class="close" id="closeBtn">&times;</span>
+                                                            <img class="modal-content" id="fullImage">
+                                                        </div>
                                                     @endif
                                                     {{--  @if ($post->payment_mode == 'paid')
                                                             <div
