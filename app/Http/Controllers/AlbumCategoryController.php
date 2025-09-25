@@ -48,8 +48,16 @@ class AlbumCategoryController extends Controller
                 $album_category->price =  array_key_exists('paid', $request->all()) ? ($request?->paid == 'on' && !empty($request?->price) ? $request?->price : 0) : 0;
                 
                 if ($request->hasfile('file')) {
-                    $file = $request->file('file')->store('album_category');
-                    $album_category->image = $file ?? null;
+                    // $file = $request->file('file')->store('album_category');
+                    // $album_category->image = $file ?? null;
+                    $tenantId = tenant()->id; // e.g. 3
+                    $destination = public_path("{$tenantId}/album_category");
+                    if (!file_exists($destination)) {
+                        mkdir($destination, 0777, true);
+                    }
+                    $filename = time() . '_' . $request->file('file')->getClientOriginalName();
+                    $request->file('file')->move($destination, $filename);
+                    $album_category->image = "{$tenantId}/album_category/{$filename}";
                 }
                 $album_category->status = 'active';
                 $album_category->save();
@@ -86,8 +94,16 @@ class AlbumCategoryController extends Controller
             ]);
             $album_category   = AlbumCategory::find($id);
             if ($request->hasFile('file')) {
-                $path           = $request->file('file')->store('album_category');
-                $album_category->image    = $path;
+                // $path           = $request->file('file')->store('album_category');
+                // $album_category->image    = $path;
+                 $tenantId = tenant()->id; // e.g. 3
+                    $destination = public_path("{$tenantId}/album_category");
+                    if (!file_exists($destination)) {
+                        mkdir($destination, 0777, true);
+                    }
+                    $filename = time() . '_' . $request->file('file')->getClientOriginalName();
+                    $request->file('file')->move($destination, $filename);
+                    $album_category->image = "{$tenantId}/album_category/{$filename}";
             }
             $album_category->instructor_id = Auth::user()->id;
             $album_category->tenant_id = tenant('id');

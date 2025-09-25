@@ -32,7 +32,7 @@ class AlbumCategoryDataTable extends DataTable
             })
             ->editColumn("photo", function (AlbumCategory $post) {
                 if ($post->image) {
-                    $imageSrc = asset('/storage' . '/' . tenant('id') . '/' . $post->image);
+                    $imageSrc = asset($post->image);
                     return "<img src=' " . $imageSrc . " ' width='50'/>";
                 } else {
                     $return = "<img src='" . asset('/storage' . '/' . tenant('id') . '/seeder-image/350x250.png') . "' width='50' />";

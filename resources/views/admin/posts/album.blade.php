@@ -83,7 +83,7 @@
                                                         </div>
                                                     @else
                                                         <img class=" w-full post-thumbnail open-full-thumbnail"
-                                                            src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->media) }}"
+                                                            src="{{ asset($post->media) }}"
                                                             alt="Profile" />
                                                         <div id="imageModal" class="modal">
                                                             <span class="close" id="closeBtn">&times;</span>

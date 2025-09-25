@@ -96,7 +96,7 @@
                                                     @else
                                                         <a href="{{ route('album.category.album',['id'=>$post->id]) }}">
                                                             <img class=" w-full post-thumbnail open-full-thumbnail"
-                                                                src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->image) }}"
+                                                                src="{{ asset($post->image) }}"
                                                                 alt="Profile" />
                                                         </a>
                                                     @endif

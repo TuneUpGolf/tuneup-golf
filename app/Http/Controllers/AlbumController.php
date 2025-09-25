@@ -47,8 +47,16 @@ class AlbumController extends Controller
                 $album_category->description = $request->description;
                 
                 if ($request->hasfile('file')) {
-                    $file = $request->file('file')->store('album');
-                    $album_category->media = $file ?? null;
+                    $tenantId = tenant()->id; // e.g. 3
+                    $destination = public_path("{$tenantId}/album");
+                    if (!file_exists($destination)) {
+                        mkdir($destination, 0777, true);
+                    }
+                    $filename = time() . '_' . $request->file('file')->getClientOriginalName();
+                    $request->file('file')->move($destination, $filename);
+                    $album_category->media = "{$tenantId}/album/{$filename}";
+                    // $file = $request->file('file')->store('album');
+                    // $album_category->media = $file ?? null;
                 }
                 $album_category->status = 'active';
                 $album_category->save();
@@ -86,8 +94,16 @@ class AlbumController extends Controller
             ]);
             $album_category   = Album::find($id);
             if ($request->hasFile('file')) {
-                $path           = $request->file('file')->store('posts');
-                $album_category->media    = $path;
+                $tenantId = tenant()->id; // e.g. 3
+                $destination = public_path("{$tenantId}/album");
+                if (!file_exists($destination)) {
+                    mkdir($destination, 0777, true);
+                }
+                $filename = time() . '_' . $request->file('file')->getClientOriginalName();
+                $request->file('file')->move($destination, $filename);
+                $album_category->media = "{$tenantId}/album/{$filename}";
+                // $path           = $request->file('file')->store('posts');
+                // $album_category->media    = $path;
             }
              $album_category->instructor_id = Auth::user()->id;
             $album_category->album_category_id = $request->input('album_category_id');
