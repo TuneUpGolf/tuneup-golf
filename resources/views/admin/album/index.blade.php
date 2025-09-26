@@ -1,8 +1,8 @@
 @extends('layouts.main')
-@section('title', __('Album Categories'))
+@section('title', __('Albums'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Album Categories') }}</li>
+    <li class="breadcrumb-item">{{ __('Albums') }}</li>
 @endsection
 @section('content')
     <div class="row">
@@ -27,7 +27,7 @@
         $(document).ready(function() {
             var html =
                 $('.dataTable-title').html(
-                    "<div class='flex justify-start items-center'><div class='custom-table-header'></div><span class='font-medium text-2xl pl-4'>Album Categories</span></div>"
+                    "<div class='flex justify-start items-center'><div class='custom-table-header'></div><span class='font-medium text-2xl pl-4'>Albums</span></div>"
                 );
         });
     </script>

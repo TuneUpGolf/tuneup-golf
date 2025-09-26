@@ -1,6 +1,6 @@
 <div class="action-btn-fix-wraper">
 @can('edit-blog')
-    <a class="btn btn-sm small btn btn-warning action-btn-fix" href="{{ route('album.category.edit', $post->id) }}" data-bs-toggle="tooltip"
+    <a class="btn btn-sm small btn btn-warning action-btn-fix" href="{{ route('album.edit', $post->id) }}" data-bs-toggle="tooltip"
         data-bs-placement="bottom" data-bs-original-title="{{ __('Edit') }}">
         <i class="ti ti-edit text-white"></i>
     </a>
@@ -9,7 +9,7 @@
     {!! Form::open([
         'method' => 'DELETE',
         'class' => 'd-flex',
-        'route' => ['album.category.destroy', $post->id],
+        'route' => ['album.destroy', $post->id],
         'id' => 'delete-form-' . $post->id,
     ]) !!}
     <a href="javascript:void(0);" class="btn btn-sm small btn btn-danger show_confirm action-btn-fix" data-bs-toggle="tooltip"

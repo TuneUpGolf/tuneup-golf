@@ -10,7 +10,7 @@ class Album extends Model
     use HasFactory;
     protected $table = 'albums';
     protected $fillable = [
-        'user_id',
+        'instructor_id',
         'tenant_id',
         'album_category_id',
         'title',
@@ -19,5 +19,25 @@ class Album extends Model
         'status',
         'slug'
     ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    public function instructor()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(AlbumCategory::class,'album_category_id','id');
+    }
+
+    public function likeAlbum()
+    {
+        return $this->hasMany(LikeAlbum::class);
+    }
 
 }

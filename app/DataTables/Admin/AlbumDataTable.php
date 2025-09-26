@@ -3,58 +3,48 @@
 namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
-use App\Models\AlbumCategory;
-use App\Models\Post;
+use App\Models\Album;
 use App\Models\PurchasePost;
 use App\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class AlbumCategoryDataTable extends DataTable
+class AlbumDataTable extends DataTable
 {
     public function dataTable($query)
     {
         return datatables()
             ->eloquent($query)
-            ->addIndexColumn()
             ->filter(function ($query) {
                 if (request()->has('search') && $search = request('search')['value']) {
                     $query->where('title', 'like', "%{$search}%");
                 }
             })
+            ->addIndexColumn()
             ->editColumn('created_at', function ($request) {
                 $created_at = UtilityFacades::date_time_format($request->created_at);
                 return $created_at;
             })
-            ->addColumn('action', function (AlbumCategory $post) {
-                return view('admin.album.category.action', compact('post'));
+            ->addColumn('action', function (Album $post) {
+                return view('admin.album.action', compact('post'));
             })
-            ->editColumn("photo", function (AlbumCategory $post) {
-                if ($post->image) {
-                    $imageSrc = asset($post->image);
-                    return "<img src=' " . $imageSrc . " ' width='50'/>";
+            ->editColumn("media", function (Album $post) {
+                if ($post->media) {
+                    $mediaSrc = asset('/storage' . '/' . tenant('id') . '/' . $post->media);
+                    return "<img src=' " . $mediaSrc . " ' width='50'/>";
                 } else {
                     $return = "<img src='" . asset('/storage' . '/' . tenant('id') . '/seeder-image/350x250.png') . "' width='50' />";
                 }
                 return $return;
             })
-            ->editColumn('paid', function (AlbumCategory $post) {
-                $paid = $post->payment_mode == 'paid' ? "Yes"  : "No";
-                return $paid;
+            ->editColumn("category", function (Album $post) {
+                return '<span class="btn-light-success p-1 rounded text-black">' . e($post->category->title) . '</span>';
             })
-            ->editColumn('sales', function (AlbumCategory $post) {
-                $count = PurchasePost::where('active_status', true)->where('post_id', $post->id)->count();
-                return $count;
-            })
-            ->editColumn('price', function (AlbumCategory $post) {
-                $price = $post->payment_mode == 'paid' ? $post->price : 0;
-                return $price;
-            })
-            ->rawColumns(['action',  'photo']);
+            ->rawColumns(['action',  'media','category']);
     }
 
-    public function query(AlbumCategory $model)
+    public function query(Album $model)
     {
         if (Auth::user()->type == Role::ROLE_ADMIN)
             return $model->newQuery();
@@ -99,7 +89,7 @@ class AlbumCategoryDataTable extends DataTable
                 ",
                 'buttons'   => [
                     ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
-                        window.location = '" . route('album.category.create') . "';
+                        window.location = '" . route('album.create') . "';
                    }"],
                     [
                         'extend' => 'collection',
@@ -186,11 +176,9 @@ class AlbumCategoryDataTable extends DataTable
         return [
             Column::make('No')->title(__('No'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
             Column::make('title')->title(__('Title'))->searchable(true)->orderable(true),
-            Column::make('paid')->title(__('Paid'))->searchable(true)->orderable(true),
-            Column::make('price')->title(__('Price ($)'))->searchable(true)->orderable(true),
-            Column::computed('sales')->title(__('Sales'))->searchable(true)->orderable(true),
-            Column::make('photo')->title(__('Photo'))->searchable(true)->orderable(true),
-            Column::make('created_at')->title(__('Created At'))->searchable(true)->orderable(true),
+            Column::make('category')->title(__('Category'))->searchable(false)->orderable(false),
+            Column::make('media')->title(__('Media'))->searchable(false)->orderable(false),
+            Column::make('created_at')->title(__('Created At'))->searchable(false)->orderable(false),
             Column::computed('action')->title(__('Action'))
                 ->exportable(false)
                 ->printable(false)
