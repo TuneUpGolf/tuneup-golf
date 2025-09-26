@@ -32,8 +32,12 @@ class AlbumCategoryDataTable extends DataTable
             })
             ->editColumn("photo", function (AlbumCategory $post) {
                 if ($post->image) {
-                    $imageSrc = asset('public/'.$post->image);
-                    return "<img src=' " . $imageSrc . " ' width='50'/>";
+                    if($post->file_type =='image') {
+                        $imageSrc = asset('public/'.$post->image);
+                        return "<img src=' " . $imageSrc . " ' width='50'/>";
+                    }else {
+                        return 'Video';
+                    }
                 } else {
                     $return = "<img src='" . asset('/storage' . '/' . tenant('id') . '/seeder-image/350x250.png') . "' width='50' />";
                 }
