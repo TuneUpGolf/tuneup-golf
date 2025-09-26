@@ -34,24 +34,19 @@
                                     {{ Form::label('photo', __('Photo'), ['class' => 'form-label']) }} *
                                     {!! Form::file('file', ['class' => 'form-control', 'required' => 'required']) !!}
                                 </div>
-                               
 
                             </div>
                             <div class="col-xl-6">
                                 <div class="form-group">
-                                    {{ Form::label('album_category_id', __('Album Category'), ['class' => 'form-label']) }} *
-                                    {!! Form::select(
-                                        'album_category_id',
-                                        $album_categories->pluck('title', 'id'),
-                                        null,
-                                        [
-                                            'class' => 'form-control',
-                                            'placeholder' => __('Select Album Category'),
-                                            'required' => 'required',
-                                        ]
-                                    ) !!}
+                                    {{ Form::label('album_category_id', __('Album Category'), ['class' => 'form-label']) }}
+                                    *
+                                    {!! Form::select('album_category_id', $album_categories->pluck('title', 'id'), null, [
+                                        'class' => 'form-control',
+                                        'placeholder' => __('Select Album Category'),
+                                        'required' => 'required',
+                                    ]) !!}
                                 </div>
-                                 <div class="form-group">
+                                <div class="form-group">
                                     {{ Form::label('description', __('Description'), ['class' => 'form-label']) }} *
                                     {!! Form::textarea('description', null, [
                                         'class' => 'form-control col-md-12',

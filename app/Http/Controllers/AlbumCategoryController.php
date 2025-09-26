@@ -50,7 +50,8 @@ class AlbumCategoryController extends Controller
                 $album_category->description = $request->description;
                 $album_category->payment_mode = array_key_exists('paid', $request->all()) ? ($request?->paid == 'on' ? "paid" : "un-paid") : "un-paid";
                 $album_category->price =  array_key_exists('paid', $request->all()) ? ($request?->paid == 'on' && !empty($request?->price) ? $request?->price : 0) : 0;
-                
+                $album_category->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
+
                 if ($request->hasfile('file')) {
                     // $file = $request->file('file')->store('album_category');
                     // $album_category->image = $file ?? null;
@@ -116,6 +117,7 @@ class AlbumCategoryController extends Controller
             $album_category->description = $request->description;
             $album_category->payment_mode = array_key_exists('paid',$request->all()) ? ($request?->paid == 'on' ? 'paid' : 'un-paid') : 'un-paid';
             $album_category->price = array_key_exists('paid',$request->all()) && $request?->paid == 'on' && !empty($request?->price) ? $request?->price : 0;
+            $album_category->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
             $album_category->save();
             return redirect()->route('album.category.manage')->with('success', __('Album Category updated successfully'));
         } else {
@@ -139,7 +141,8 @@ class AlbumCategoryController extends Controller
 
     public function getCategories()
     {
-        $album_categories = AlbumCategory::where([
+        $album_categories = AlbumCategory::with('purchaseAlbum')
+        ->where([
             ['tenant_id', tenant()->id],
             ['status', 'active'],
         ]);

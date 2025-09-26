@@ -45,9 +45,10 @@ class AlbumController extends Controller
                 $album_category->title = $request->title;               
                 $album_category->slug = Str::slug($request->title);
                 $album_category->description = $request->description;
+                $album_category->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
                 
                 if ($request->hasfile('file')) {
-                    $tenantId = tenant()->id; // e.g. 3
+                    $tenantId = tenant()->id;
                     $destination = public_path("{$tenantId}/album");
                     if (!file_exists($destination)) {
                         mkdir($destination, 0777, true);
@@ -111,6 +112,7 @@ class AlbumController extends Controller
             $album_category->title = $request->title;               
             $album_category->slug = Str::slug($request->title);
             $album_category->description = $request->description;
+            $album_category->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
             $album_category->save();
             return redirect()->route('album.manage')->with('success', __('Album updated successfully'));
         } else {

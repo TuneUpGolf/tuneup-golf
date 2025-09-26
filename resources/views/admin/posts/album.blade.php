@@ -55,59 +55,21 @@
                                                         </div>
                                                     </div>
 
-                                                    @if ($post->payment_mode == 'paid')
-                                                        <div class="relative paid-post-wrap">
-                                                            <img class=" w-full post-thumbnail"
-                                                                src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
-                                                                alt="Post Image" />
-                                                            <div
-                                                                class="absolute inset-0 flex justify-center items-center paid-post flex-col">
-                                                                <div
-                                                                    class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
-                                                                    <i class="ti ti-lock-open"></i>
-                                                                </div>
 
-                                                                {!! Form::open([
-                                                                    'route' => ['purchase.post.index', ['post_id' => $post->id]],
-                                                                    'method' => 'Post',
-                                                                    'data-validate',
-                                                                ]) !!}
-
-                                                                <div
-                                                                    class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
-                                                                    <i class="ti ti-lock-open text-2xl lh-sm"></i>
-                                                                    {{ Form::button(__('Unlock for - $' . $post->price), ['type' => 'submit', 'class' => 'btn p-0 pl-1 text-white border-0']) }}
-                                                                    {!! Form::close() !!}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    @else
+                                                    @if ($post->file_type == 'image' || is_null($post->file_type))
                                                         <img class=" w-full post-thumbnail open-full-thumbnail"
-                                                            src="{{ asset($post->media) }}"
-                                                            alt="Profile" />
+                                                            src="{{ asset($post->media) }}" alt="Profile" />
                                                         <div id="imageModal" class="modal">
                                                             <span class="close" id="closeBtn">&times;</span>
                                                             <img class="modal-content" id="fullImage">
                                                         </div>
+                                                    @else
+                                                        <video controls class="w-full post-thumbnail">
+                                                            <source
+                                                                src="{{ asset( $post?->media) }}"
+                                                                type="video/mp4">
+                                                        </video>
                                                     @endif
-                                                    {{--  @if ($post->payment_mode == 'paid')
-                                                            <div
-                                                                class="relative bg-black h-48 flex justify-center items-center">
-                                                                {!! Form::open([
-                                                                    'route' => ['purchase.post.index', ['post_id' => $post->id]],
-                                                                    'method' => 'Post',
-                                                                    'data-validate',
-                                                                ]) !!}
-                                                                {{ Form::button(__('Purchase Post - $' . $post->price), ['type' => 'submit', 'class' => 'btn btn-primary bg-white text-black px-4 py-2 rounded-lg']) }}
-                                                                {!! Form::close() !!}
-                                                            </div>
-                                                        @else
-                                                            <video controls class="w-full post-thumbnail">
-                                                                <source
-                                                                    src="{{ Storage::url(tenant('id') . '/' . $post?->file) }}"
-                                                                    type="video/mp4">
-                                                            </video>
-                                                        @endif  --}}
 
                                                     <div class="px-4 py-2">
                                                         <div class="text-md italic text-gray-500">

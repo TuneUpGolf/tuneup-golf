@@ -127,4 +127,9 @@ class Student extends User implements MustVerifyEmail
     {
         return $this->hasMany(StudentSlot::class);
     }
+
+    public function likeAlbum(): HasMany
+    {
+        return $this->hasMany(LikeAlbum::class, 'student_id');
+    }
 }
