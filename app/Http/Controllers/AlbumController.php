@@ -112,7 +112,7 @@ class AlbumController extends Controller
             $album_category->title = $request->title;               
             $album_category->slug = Str::slug($request->title);
             $album_category->description = $request->description;
-            $album_category->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
+            $album_category->file_type = array_key_exists('file',$request->all()) ? (Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image') : $album_category->file_type;
             $album_category->save();
             return redirect()->route('album.manage')->with('success', __('Album updated successfully'));
         } else {
