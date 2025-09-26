@@ -45,7 +45,7 @@ class AlbumController extends Controller
                 $album_category->title = $request->title;               
                 $album_category->slug = Str::slug($request->title);
                 $album_category->description = $request->description;
-                $album_category->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
+                // $album_category->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
                 
                 if ($request->hasfile('file')) {
                     $tenantId = tenant()->id;
@@ -56,6 +56,9 @@ class AlbumController extends Controller
                     $filename = time() . '_' . $request->file('file')->getClientOriginalName();
                     $request->file('file')->move($destination, $filename);
                     $album_category->media = "{$tenantId}/album/{$filename}";
+
+                    $mimeType = $request->file('file')->getClientOriginalExtension();
+                    $album_category->file_type = Str::contains($mimeType, 'video') ? 'video' : 'image';
                     // $file = $request->file('file')->store('album');
                     // $album_category->media = $file ?? null;
                 }
@@ -103,6 +106,9 @@ class AlbumController extends Controller
                 $filename = time() . '_' . $request->file('file')->getClientOriginalName();
                 $request->file('file')->move($destination, $filename);
                 $album_category->media = "{$tenantId}/album/{$filename}";
+
+                $mimeType = $request->file('file')->getClientOriginalExtension();
+                $album_category->file_type = Str::contains($mimeType, 'video') ? 'video' : 'image';
                 // $path           = $request->file('file')->store('posts');
                 // $album_category->media    = $path;
             }
@@ -112,7 +118,7 @@ class AlbumController extends Controller
             $album_category->title = $request->title;               
             $album_category->slug = Str::slug($request->title);
             $album_category->description = $request->description;
-            $album_category->file_type = array_key_exists('file',$request->all()) ? (Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image') : $album_category->file_type;
+            // $album_category->file_type = array_key_exists('file',$request->all()) ? (Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image') : $album_category->file_type;
             $album_category->save();
             return redirect()->route('album.manage')->with('success', __('Album updated successfully'));
         } else {

@@ -50,7 +50,7 @@ class AlbumCategoryController extends Controller
                 $album_category->description = $request->description;
                 $album_category->payment_mode = array_key_exists('paid', $request->all()) ? ($request?->paid == 'on' ? "paid" : "un-paid") : "un-paid";
                 $album_category->price =  array_key_exists('paid', $request->all()) ? ($request?->paid == 'on' && !empty($request?->price) ? $request?->price : 0) : 0;
-                $album_category->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
+                // $album_category->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
 
                 if ($request->hasfile('file')) {
                     // $file = $request->file('file')->store('album_category');
@@ -63,6 +63,9 @@ class AlbumCategoryController extends Controller
                     $filename = time() . '_' . $request->file('file')->getClientOriginalName();
                     $request->file('file')->move($destination, $filename);
                     $album_category->image = "{$tenantId}/album_category/{$filename}";
+
+                    $mimeType = $request->file('file')->getClientOriginalExtension();
+                    $album_category->file_type = Str::contains($mimeType, 'video') ? 'video' : 'image';
                 }
                 $album_category->status = 'active';
                 $album_category->save();
@@ -98,7 +101,7 @@ class AlbumCategoryController extends Controller
                 'description'   => 'required',
             ]);
             $album_category   = AlbumCategory::find($id);
-            if ($request->hasFile('file')) {
+            if ($request->hasFile('file') && $request->file('file')->isValid()) {
                 // $path           = $request->file('file')->store('album_category');
                 // $album_category->image    = $path;
                  $tenantId = tenant()->id; // e.g. 3
@@ -109,6 +112,8 @@ class AlbumCategoryController extends Controller
                     $filename = time() . '_' . $request->file('file')->getClientOriginalName();
                     $request->file('file')->move($destination, $filename);
                     $album_category->image = "{$tenantId}/album_category/{$filename}";
+                    $mimeType = $request->file('file')->getClientOriginalExtension();
+                    $album_category->file_type = Str::contains($mimeType, 'video') ? 'video' : 'image';
             }
             $album_category->instructor_id = Auth::user()->id;
             $album_category->tenant_id = tenant('id');
@@ -117,7 +122,6 @@ class AlbumCategoryController extends Controller
             $album_category->description = $request->description;
             $album_category->payment_mode = array_key_exists('paid',$request->all()) ? ($request?->paid == 'on' ? 'paid' : 'un-paid') : 'un-paid';
             $album_category->price = array_key_exists('paid',$request->all()) && $request?->paid == 'on' && !empty($request?->price) ? $request?->price : 0;
-            $album_category->file_type = array_key_exists ('file',$request->all()) ? (Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image') : $album_category->file_type;
             $album_category->save();
             return redirect()->route('album.category.manage')->with('success', __('Album Category updated successfully'));
         } else {
