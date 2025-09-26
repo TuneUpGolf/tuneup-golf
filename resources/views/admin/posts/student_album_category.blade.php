@@ -67,24 +67,23 @@
                                                                             {{ $post->isStudentPost ? 'Student' : 'Instructor' }}
                                                                         </span>
                                                                     @else
-                                                                        @if($post->file_type == 'video' && $has_purchase_album)
-                                                                        <p
-                                                                            class="text-xl text-black font-bold mb-0 leading-tight">
-                                                                            {{ ucfirst($post->isStudentPost ? $post?->student->name : $post?->instructor?->name) }}
-                                                                        </p>
-                                                                        <span class="text-md text-black">
-                                                                            {{ $post->isStudentPost ? 'Student' : 'Instructor' }}
-                                                                        </span>
+                                                                        @if ($post->file_type == 'video' && $has_purchase_album)
+                                                                            <p
+                                                                                class="text-xl text-black font-bold mb-0 leading-tight">
+                                                                                {{ ucfirst($post->isStudentPost ? $post?->student->name : $post?->instructor?->name) }}
+                                                                            </p>
+                                                                            <span class="text-md text-black">
+                                                                                {{ $post->isStudentPost ? 'Student' : 'Instructor' }}
+                                                                            </span>
                                                                         @else
-                                                                        <p
-                                                                            class="text-xl text-white font-bold mb-0 leading-tight">
-                                                                            {{ ucfirst($post->isStudentPost ? $post?->student->name : $post?->instructor?->name) }}
-                                                                        </p>
-                                                                        <span class="text-md text-white">
-                                                                            {{ $post->isStudentPost ? 'Student' : 'Instructor' }}
-                                                                        </span>
+                                                                            <p
+                                                                                class="text-xl text-white font-bold mb-0 leading-tight">
+                                                                                {{ ucfirst($post->isStudentPost ? $post?->student->name : $post?->instructor?->name) }}
+                                                                            </p>
+                                                                            <span class="text-md text-white">
+                                                                                {{ $post->isStudentPost ? 'Student' : 'Instructor' }}
+                                                                            </span>
                                                                         @endif
-                                                                        
                                                                     @endif
 
                                                                 </div>
@@ -150,32 +149,32 @@
                                                             @endif
                                                         @endif
                                                     @else
-                                                        @if ($post->file_type == 'image' || !is_null($post->file_type))
+                                                        @if ($post->file_type === 'image' || is_null($post->file_type))
                                                             <a
                                                                 href="{{ route('album.category.album', ['id' => $post->id]) }}">
-                                                                <img class="w-full post-thumbnail open-full-thumbnail"
+                                                                <img class="hjjh w-full post-thumbnail open-full-thumbnail"
                                                                     src="{{ asset('public/' . $post->image) }}"
                                                                     alt="Profile" />
                                                             </a>
                                                         @elseif($post->file_type == 'video')
                                                             <video controls class="w-full post-thumbnail">
-                                                                <source src="{{ asset('public/'.$post?->image) }}" type="video/mp4">
+                                                                <source src="{{ asset('public/' . $post?->image) }}"
+                                                                    type="video/mp4">
                                                             </video>
                                                         @endif
                                                     @endif
-
-
 
                                                     <div class="px-4 py-2">
                                                         <div class="text-md italic text-gray-500">
                                                             {{ \Carbon\Carbon::parse($post->created_at)->format('d M Y') }}
                                                         </div>
-                                                        @if($has_purchase_album)
-                                                        <a href="{{ route('album.category.album', ['id' => $post->id]) }}">
-                                                            <h1 class="text-xl font-bold truncate">
-                                                                {{ $post->title }}
-                                                            </h1>
-                                                        </a>
+                                                        @if ($has_purchase_album)
+                                                            <a
+                                                                href="{{ route('album.category.album', ['id' => $post->id]) }}">
+                                                                <h1 class="text-xl font-bold truncate">
+                                                                    {{ $post->title }}
+                                                                </h1>
+                                                            </a>
                                                         @else
                                                             <h1 class="text-xl font-bold truncate">
                                                                 {{ $post->title }}
