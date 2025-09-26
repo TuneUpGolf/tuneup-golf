@@ -139,7 +139,8 @@ class AlbumCategoryController extends Controller
 
     public function getCategories()
     {
-        $album_categories = AlbumCategory::where([
+        $album_categories = AlbumCategory::with('purchaseAlbum')
+        ->where([
             ['tenant_id', tenant()->id],
             ['status', 'active'],
         ]);

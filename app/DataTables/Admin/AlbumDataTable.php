@@ -31,7 +31,7 @@ class AlbumDataTable extends DataTable
             })
             ->editColumn("media", function (Album $post) {
                 if ($post->media) {
-                    $mediaSrc = asset('/storage' . '/' . tenant('id') . '/' . $post->media);
+                    $mediaSrc = asset($post->media);
                     return "<img src=' " . $mediaSrc . " ' width='50'/>";
                 } else {
                     $return = "<img src='" . asset('/storage' . '/' . tenant('id') . '/seeder-image/350x250.png') . "' width='50' />";

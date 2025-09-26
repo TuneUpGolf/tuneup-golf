@@ -37,6 +37,15 @@
                                 <div class="flex flex-wrap w-100">
                                     @if ($album_categories->count() > 0)
                                         @foreach ($album_categories as $post)
+                                        @php
+                                            $has_purchase_album = App\Models\PurchaseAlbum::where(
+                                                [
+                                                    ['student_id',auth()->user()->id],
+                                                    ['album_category_id', $post->id]
+                                                ]
+                                            )
+                                            ->exists();
+                                        @endphp
                                             <div
                                                 @if (request()->get('view') == '') class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md" @endif>
                                                 <div class="shadow rounded-2 overflow-hidden position-relative">
@@ -67,7 +76,7 @@
                                                         </div>
                                                     </div>
 
-                                                    @if ($post->payment_mode == 'paid')
+                                                    @if ($post->payment_mode == 'paid' && !$has_purchase_album)
                                                         <div class="relative paid-post-wrap">
                                                             <img class=" w-full post-thumbnail"
                                                                 src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
@@ -100,24 +109,7 @@
                                                                 alt="Profile" />
                                                         </a>
                                                     @endif
-                                                    {{--  @if ($post->payment_mode == 'paid')
-                                                            <div
-                                                                class="relative bg-black h-48 flex justify-center items-center">
-                                                                {!! Form::open([
-                                                                    'route' => ['purchase.post.index', ['post_id' => $post->id]],
-                                                                    'method' => 'Post',
-                                                                    'data-validate',
-                                                                ]) !!}
-                                                                {{ Form::button(__('Purchase Post - $' . $post->price), ['type' => 'submit', 'class' => 'btn btn-primary bg-white text-black px-4 py-2 rounded-lg']) }}
-                                                                {!! Form::close() !!}
-                                                            </div>
-                                                        @else
-                                                            <video controls class="w-full post-thumbnail">
-                                                                <source
-                                                                    src="{{ Storage::url(tenant('id') . '/' . $post?->file) }}"
-                                                                    type="video/mp4">
-                                                            </video>
-                                                        @endif  --}}
+                                                    
 
                                                     <div class="px-4 py-2">
                                                         <div class="text-md italic text-gray-500">

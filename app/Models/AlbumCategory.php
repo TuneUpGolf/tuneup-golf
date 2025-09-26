@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use PDO;
 
 class AlbumCategory extends Model
 {
@@ -27,5 +28,13 @@ class AlbumCategory extends Model
     public function instructor()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function purchaseAlbum()
+    {
+        return $this->hasOne(PurchaseAlbum::class)->where([
+            ['student_id',$this->student_id],
+            ['album_category_id', $this->album_category_id]
+        ]);
     }
 }
