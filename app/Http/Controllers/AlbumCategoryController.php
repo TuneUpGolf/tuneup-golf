@@ -117,7 +117,7 @@ class AlbumCategoryController extends Controller
             $album_category->description = $request->description;
             $album_category->payment_mode = array_key_exists('paid',$request->all()) ? ($request?->paid == 'on' ? 'paid' : 'un-paid') : 'un-paid';
             $album_category->price = array_key_exists('paid',$request->all()) && $request?->paid == 'on' && !empty($request?->price) ? $request?->price : 0;
-            $album_category->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
+            $album_category->file_type = array_key_exists ('file',$request->all()) ? (Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image') : $album_category->file_type;
             $album_category->save();
             return redirect()->route('album.category.manage')->with('success', __('Album Category updated successfully'));
         } else {
