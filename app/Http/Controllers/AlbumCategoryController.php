@@ -6,12 +6,16 @@ use App\DataTables\Admin\AlbumCategoryDataTable;
 use App\Models\Album;
 use App\Models\AlbumCategory;
 use App\Models\LikeAlbum;
+use App\Models\PurchaseAlbum;
 use App\Models\Role;
+use Error;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Stripe\Stripe;
+use Stripe\Checkout\Session;
 
 class AlbumCategoryController extends Controller
 {
@@ -189,6 +193,61 @@ class AlbumCategoryController extends Controller
                 return redirect()->back()->with('failed', __('UnSuccessfull'));
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function purchaseAlbumCategory(Request $request)
+    {
+        $request->validate([
+            'post_id' => 'required'
+        ]);
+
+        try {
+            $post = AlbumCategory::where('payment_mode', 'paid')->where('id', $request->post_id)->where('status', 'active')->first();
+            $purchasePost = PurchaseAlbum::firstOrCreate(
+                [
+                    'student_id' => Auth::user()->id,
+                    'album_category_id' => $post->id,
+                ],
+                [
+                    'active_status' => false,
+                ]
+            );
+
+            Stripe::setApiKey(config('services.stripe.secret'));
+
+            $session = Session::create(
+                [
+                    'line_items'            => [[
+                        'price_data'    => [
+                            'currency'      => config('services.stripe.currency'),
+                            'product_data'  => [
+                                'name'      => "$post->title",
+                            ],
+                            'unit_amount'   => $post->price * 100,
+                        ],
+                        'quantity'      => 1,
+                    ]],
+                    'customer' => Auth::user()?->stripe_cus_id,
+                    'mode' => 'payment',
+                    'success_url' => route('purchase-post-success', [
+                        'purchase_post_id' => $purchasePost?->id,
+                        'student_id' => Auth::user()->id,
+                        'redirect' => $request->redirect
+                    ]),
+                    'cancel_url' => route('subscription-unsuccess'),
+                ]
+            );
+            if (!empty($session?->id)) {
+                $purchasePost->session_id = $session?->id;
+                $purchasePost->save();
+            }
+            if ($request->redirect == 1) {
+                return response($session->url);
+            }
+            return redirect($session->url);
+        } catch (Error $e) {
+            return response($e, 419);
         }
     }
 }
