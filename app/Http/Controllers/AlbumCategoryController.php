@@ -65,7 +65,8 @@ class AlbumCategoryController extends Controller
                     $album_category->image = "{$tenantId}/album_category/{$filename}";
 
                     $mimeType = $request->file('file')->getClientOriginalExtension();
-                    $album_category->file_type = Str::contains($mimeType, 'video') ? 'video' : 'image';
+                    $video_types = ['mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'webm', 'mpeg', '3gp'];
+                    $album_category->file_type = in_array($mimeType, $video_types) ? 'video' : 'image';
                 }
                 $album_category->status = 'active';
                 $album_category->save();
@@ -113,7 +114,8 @@ class AlbumCategoryController extends Controller
                     $request->file('file')->move($destination, $filename);
                     $album_category->image = "{$tenantId}/album_category/{$filename}";
                     $mimeType = $request->file('file')->getClientOriginalExtension();
-                    $album_category->file_type = Str::contains($mimeType, 'video') ? 'video' : 'image';
+                    $video_types = ['mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'webm', 'mpeg', '3gp'];
+                    $album_category->file_type = in_array($mimeType, $video_types) ? 'video' : 'image';
             }
             $album_category->instructor_id = Auth::user()->id;
             $album_category->tenant_id = tenant('id');

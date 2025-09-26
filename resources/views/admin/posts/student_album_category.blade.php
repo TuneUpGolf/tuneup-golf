@@ -96,7 +96,7 @@
                                                     </div>
 
                                                     @if ($post->payment_mode == 'paid')
-                                                        @if ($post->file_type == 'image' || is_null($post->file_type))
+                                                        @if ($post->file_type === 'image' || is_null($post->file_type))
                                                             @if (!$has_purchase_album)
                                                                 <div class="relative paid-post-wrap">
                                                                     <img class="w-full post-thumbnail"
@@ -125,7 +125,7 @@
                                                             @else
                                                                 <a
                                                                     href="{{ route('album.category.album', ['id' => $post->id]) }}">
-                                                                    <img class="w-full post-thumbnail open-full-thumbnail"
+                                                                    <img class="w-full post-thumbnail open-full-thumbnail dd"
                                                                         src="{{ asset('public/' . $post->image) }}"
                                                                         alt="Profile" />
                                                                 </a>
@@ -159,7 +159,7 @@
                                                             </a>
                                                         @elseif($post->file_type == 'video')
                                                             <video controls class="w-full post-thumbnail">
-                                                                <source src="{{ asset($post?->image) }}" type="video/mp4">
+                                                                <source src="{{ asset('public/'.$post?->image) }}" type="video/mp4">
                                                             </video>
                                                         @endif
                                                     @endif

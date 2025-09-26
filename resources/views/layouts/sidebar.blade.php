@@ -363,9 +363,9 @@
                                             <a class="dash-link" href="{{ route('blogs.index') }}">{{ __('Feed') }}</a>
                                         </li>
 
-                                        <li class="dash-item {{ request()->is('album-category/show') ? 'active' : '' }}">
+                                        {{--  <li class="dash-item {{ request()->is('album-category/show') ? 'active' : '' }}">
                                             <a class="dash-link" href="{{ route('album.category.show') }}">{{ __('Albums') }}</a>
-                                        </li> 
+                                        </li>   --}}
                                     @endcan
                                     @can('manage-blog')
                                         <li class="dash-item {{ request()->is('blogs/manage/posts') ? 'active' : '' }}">

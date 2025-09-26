@@ -56,9 +56,10 @@ class AlbumController extends Controller
                     $filename = time() . '_' . $request->file('file')->getClientOriginalName();
                     $request->file('file')->move($destination, $filename);
                     $album_category->media = "{$tenantId}/album/{$filename}";
-
                     $mimeType = $request->file('file')->getClientOriginalExtension();
-                    $album_category->file_type = Str::contains($mimeType, 'video') ? 'video' : 'image';
+                    $video_types = ['mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'webm', 'mpeg', '3gp'];
+                    $album_category->file_type = in_array($mimeType, $video_types) ? 'video' : 'image';
+                    // $album_category->file_type = Str::contains($mimeType, 'video') ? 'video' : 'image';
                     // $file = $request->file('file')->store('album');
                     // $album_category->media = $file ?? null;
                 }
@@ -108,7 +109,9 @@ class AlbumController extends Controller
                 $album_category->media = "{$tenantId}/album/{$filename}";
 
                 $mimeType = $request->file('file')->getClientOriginalExtension();
-                $album_category->file_type = Str::contains($mimeType, 'video') ? 'video' : 'image';
+                $video_types = ['mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'webm', 'mpeg', '3gp'];
+                $album_category->file_type = in_array($mimeType, $video_types) ? 'video' : 'image';
+                // $album_category->file_type = Str::contains($mimeType, 'video') ? 'video' : 'image';
                 // $path           = $request->file('file')->store('posts');
                 // $album_category->media    = $path;
             }
