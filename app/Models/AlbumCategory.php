@@ -19,6 +19,7 @@ class AlbumCategory extends Model
         'payment_mode',
         'price',
         'image',
+        'file_type'
     ];
     protected $casts = [
         'created_at' => 'datetime',

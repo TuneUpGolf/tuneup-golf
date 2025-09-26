@@ -31,7 +31,6 @@ class AlbumController extends Controller
 
     public function store(Request $request)
     {
-
         if (Auth::user()->can('create-blog')) {
             try {
                 request()->validate([
