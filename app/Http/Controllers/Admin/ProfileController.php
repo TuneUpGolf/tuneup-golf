@@ -120,6 +120,7 @@ class ProfileController extends Controller
             $user->country      = $request?->country;
             $user->sub_price    = $request?->sub_price;
             $user->golf_course  = $request?->golf_course;
+            $user->reminder_minutes_before  = $request?->reminder_minutes_before;
         }
 
 
