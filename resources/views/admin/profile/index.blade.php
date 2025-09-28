@@ -141,6 +141,21 @@
                                     </span>
                                 @endif
                             </div>
+                            @if (Auth::user()->type === 'Instructor')
+                            <div class="form-group">
+                                {{ Form::label('reminder_minutes_before', __('Send Reminder Before (minutes)'), ['class' => 'form-label']) }}
+                                {!! Form::number('reminder_minutes_before', $user->reminder_minutes_before ?? 60, [
+                                    'class' => 'form-control',
+                                    'min' => 5,
+                                    'step' => 5,
+                                    'required',
+                                    'placeholder' => __('Enter minutes (e.g. 30 for 30 minutes before)'),
+                                ]) !!}
+                                <small class="form-text text-muted">
+                                    This applies to all lessons created by you.
+                                </small>
+                            </div>
+                            @endif
                         </div>
                         <div class="col-sm-6">
                             <div class="form-group">

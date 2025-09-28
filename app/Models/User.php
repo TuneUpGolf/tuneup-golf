@@ -59,7 +59,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_stripe_connected',
         'chat_user_id',
         'group_id',
-        'avatar'
+        'avatar',
+        'reminder_minutes_before'
     ];
 
     protected $hidden = [

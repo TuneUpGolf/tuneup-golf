@@ -9,6 +9,7 @@ use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\LessonAPIResource;
 use App\Http\Resources\SlotAPIResource;
+use App\Jobs\SendLessonReminderJob;
 use App\Mail\Admin\StudentPaymentLink;
 use App\Mail\Admin\SlotBookedByStudentMail;
 use App\Mail\Admin\SlotCancelledMail;
@@ -1062,6 +1063,17 @@ class LessonController extends Controller
                     date('h:i A', strtotime($slot->date_time)),
                     $request->notes
                 ));
+
+                // Reminder Scheduling
+                $instructor = $slot->lesson->user;
+                $reminderMinutes = $instructor->reminder_minutes_before ?? 0;
+
+                if ($reminderMinutes > 0) {
+                    $lessonStart = \Carbon\Carbon::parse($slot->date_time);
+                    $sendTime = $lessonStart->copy()->subMinutes($reminderMinutes);
+
+                    SendLessonReminderJob::dispatch($slot->lesson)->delay($sendTime);
+                }
             }
         } else {
             if ($slot->student()->count() + $totalNewBookings > $slot->lesson->max_students) {
