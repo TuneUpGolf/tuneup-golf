@@ -4,8 +4,8 @@
         return Utility::getsettings('currency_symbol');
     });
     $currencySymbol = tenancy()->central(function ($tenant) {
-            return Utility::getsettings('currency');
-        });
+        return Utility::getsettings('currency');
+    });
     $tenantId = tenant('id');
     $banner = Utility::getsettings('banner_image');
 @endphp
@@ -23,7 +23,8 @@
                 <a class="navbar-brand" href="/">
                     <img src="{{ asset('assets/images/landing-page-images/logo-1.png') }}" class="h-8" alt="...">
                 </a>
-                <button class="request-text border-0 rounded-pill demo px-4 py-2 bg-primary" style="background-color: #0071ce !important;">
+                <button class="request-text border-0 rounded-pill demo px-4 py-2 bg-primary"
+                    style="background-color: #0071ce !important;">
                     <a class="text-white font-bold" href="{{ route('login') }}" style="text-decoration: none">
                         Login/Signup</a>
                 </button>
@@ -81,7 +82,8 @@
                                         );
                                     @endphp
                                     <div class="text-gray-500 text-md px-2">
-                                        <h3 style="font-size:18px;font-weight:bold;margin-left:10px;" class="font-weight-bolder">
+                                        <h3 style="font-size:18px;font-weight:bold;margin-left:10px;"
+                                            class="font-weight-bolder">
                                             {{ $lesson->lesson_name }}
                                         </h3>
                                     </div>
@@ -138,7 +140,13 @@
                                 $packages_array = [];
                                 foreach ($lesson?->packages as $package) {
                                     $packages_array[] =
-                                        $package->number_of_slot . ' Pack ' . ' - ' .  $currency .$package->price . ' ' .$currencySymbol;
+                                        $package->number_of_slot .
+                                        ' Pack ' .
+                                        ' - ' .
+                                        $currency .
+                                        $package->price .
+                                        ' ' .
+                                        $currencySymbol;
                                 }
                             @endphp
                             <div class="col-md-4">
@@ -153,7 +161,7 @@
                                                 {{ $instructors[0]->name }}
                                             </a>
                                             <div class="text-lg font-bold tracking-tight text-primary">
-                                                @if($lesson?->packages->min('price'))
+                                                @if ($lesson?->packages->min('price'))
                                                     {{ $currency }} {{ $lesson?->packages->min('price') }}
                                                 @endif
                                             </div>
@@ -170,7 +178,8 @@
                                         );
                                     @endphp
                                     <div class="text-gray-500 text-md px-2">
-                                        <h3 style="font-size:18px;font-weight:bold;margin-left:10px" class="font-weight-bolder">
+                                        <h3 style="font-size:18px;font-weight:bold;margin-left:10px"
+                                            class="font-weight-bolder">
                                             {{ $lesson->lesson_name }}</h3>
                                     </div>
                                     <div class="text-gray-500 text-md description font-medium ctm-min-h p-2">
@@ -178,7 +187,7 @@
                                             style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
                                             {!! $description !!}
                                         </div>
-                                        {{--  @if (!empty($description) && strlen(($description)) >= 20)
+                                        {{--  @if (!empty($description) && strlen($description) >= 20)
                                             <div class="hidden full-text text-gray-600"
                                                 style="font-size: 15px; max-height: auto; overflow-y: auto;">
                                                 {!! $cleanDescription !!}
@@ -205,8 +214,8 @@
 
                                         <div class="mb-2 p-3 border rounded-lg shadow-sm bg-white">
                                             <h2 class="text-lg font-semibold flex items-center mb-2">
-                                                <svg class="w-5 h-5 mr-2 text-gray-700" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-width="2"
                                                         d="M8 7V3m8 4V3m-9 8h10m-10 4h6m4 8H5a2 2 0 01-2-2V7a2 2 0 012-2h3l2-2h4l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2z">
                                                     </path>
@@ -310,7 +319,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title font-bold" style="font-size: 20px">Long Description</h1>
+                    <h1 class="modal-title font-bold" style="font-size: 20px">Description</h1>
                     <button type="button"
                         class="bg-gray-900 flex font-bold h-8 items-center justify-center m-2 right-2 rounded-full shadow-md text-2xl top-2 w-8 z-10"
                         onclick="closeLongDescModal()" class="close" data-dismiss="modal" aria-label="Close">
@@ -421,9 +430,11 @@
             list-style: disc;
             padding-left: 1.5rem;
         }
+
         .longDescContent table {
-            width:100% !important;
+            width: 100% !important;
         }
+
         .longDescContent table {
             width: 100%;
             border: 1px solid #000;
@@ -436,6 +447,7 @@
             padding: 6px 10px;
             text-align: left;
         }
+
         .short-text ul {
             margin-bottom: 0px !important;
         }

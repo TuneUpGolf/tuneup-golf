@@ -27,25 +27,20 @@ class StudentDashboardView extends GridView
         $this->currentView = !empty($currentView) ? $currentView : 'in-person';
     }
 
-    /**
-     * Sets a model class to get the initial data
-     */
     public function repository(): Builder
     {
         if (request()->query('category')) {
-
             $this->cardComponent = 'admin.posts.album-view';
             return Album::where('album_category_id', request()->query('category'));
         }
 
         if ($this->currentView == 'posts') {
             $this->cardComponent = 'admin.posts.card';
-            return Post::orderBy('created_at', 'desc');
+            return Post::orderBy('created_at', 'desc')->distinct();
         }
 
         $query = Lesson::where('active_status', true);
 
-        // ✅ Apply instructor filter if available
         if (!empty($this->instructor_id)) {
             $query->where('created_by', $this->instructor_id);
         }
@@ -127,18 +122,11 @@ class StudentDashboardView extends GridView
 
     public function render()
     {
-        $data = $this->repository()->get();
-
-        if ($data->isEmpty()) {
-            return view('admin.lessons.nolesson');
-        }
         if (request()->query('category')) {
-            $albums = $data; // ✅ make albums alias
+            $albums = $this->repository()->get();
             return view('admin.posts.album-view', compact('albums'));
         }
-        // ✅ Special case for albums
 
-
-        return parent::render();
+        return parent::render(); // ✅ let GridView handle posts and lessons
     }
 }
