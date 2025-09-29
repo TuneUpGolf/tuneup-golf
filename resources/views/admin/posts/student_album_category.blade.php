@@ -12,218 +12,151 @@
                 <div id="blog" class="sm:p-4 ">
                     <div class="dropdown dash-h-item drp-company">
                         <a class="dash-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
-                            href="javascript:void(0);" role="button" aria-haspopup="false" aria-expanded="false">
+                           href="javascript:void(0);" role="button" aria-haspopup="false" aria-expanded="false">
                             <span class="hide-mob ms-sm-3 text-lg">Filter</span>
                             <i class="ti ti-chevron-down drp-arrow nocolor hide-mob"></i>
                         </a>
                         <div class="dropdown-menu dash-h-dropdown">
                             <a href="{{ route('album.category.show', ['filter' => 'all']) }}"
-                                class="dropdown-item {{ request()->query('filter') === 'all' ? 'active' : '' }}">
+                               class="dropdown-item {{ request()->query('filter') === 'all' ? 'active' : '' }}">
                                 <span>{{ __('All') }}</span>
                             </a>
                             <a href="{{ route('album.category.show', ['filter' => 'free']) }}"
-                                class="dropdown-item  {{ request()->query('filter') === 'free' ? 'active' : '' }}">
+                               class="dropdown-item  {{ request()->query('filter') === 'free' ? 'active' : '' }}">
                                 <span>{{ __('Free') }}</span>
                             </a>
                             <a href="{{ route('album.category.show', ['filter' => 'paid']) }}"
-                                class="dropdown-item {{ request()->query('filter') === 'paid' ? 'active' : '' }}">
+                               class="dropdown-item {{ request()->query('filter') === 'paid' ? 'active' : '' }}">
                                 <span>{{ __('Paid') }}</span>
                             </a>
                         </div>
                     </div>
-                    <div class="">
-                        <div class="focus:outline-none mt-3 mb-3 lg:mt-24">
-                            <div class="infinity">
-                                <div class="flex flex-wrap w-100">
-                                    @if ($album_categories->count() > 0)
-                                        @foreach ($album_categories as $post)
-                                            @php
-                                                $has_purchase_album = App\Models\PurchaseAlbum::where([
-                                                    ['student_id', auth()->user()->id],
-                                                    ['album_category_id', $post->id],
-                                                ])->exists();
-                                            @endphp
-                                            <div
-                                                @if (request()->get('view') == '') class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md" @endif>
-                                                <div class="shadow rounded-2 overflow-hidden position-relative">
-                                                    @if ($post->payment_mode == 'paid')
-                                                        <?php $cls = 'p-3 position-absolute left-0 top-0 z-10 w-full'; ?>
-                                                    @else
-                                                        <?php $cls = 'p-3 position-absolute left-0 top-0 z-10 w-full custom-gradient'; ?>
-                                                    @endif
-                                                    <div class="{{ $cls }}">
-                                                        <div class="flex justify-between items-center w-full">
-                                                            <div class="flex items-center gap-3">
-                                                                <img class="w-16 h-16 rounded-full"
-                                                                    src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
-                                                                    alt="Profile" />
-                                                                <div>
-                                                                    @if ($post->file_type == 'image' || is_null($post->file_type))
-                                                                        <p
-                                                                            class="text-xl text-white font-bold mb-0 leading-tight">
-                                                                            {{ ucfirst($post->isStudentPost ? $post?->student->name : $post?->instructor?->name) }}
-                                                                        </p>
-                                                                        <span class="text-md text-white">
-                                                                            {{ $post->isStudentPost ? 'Student' : 'Instructor' }}
-                                                                        </span>
-                                                                    @else
-                                                                        @if ($post->file_type == 'video' && $has_purchase_album)
-                                                                            <p
-                                                                                class="text-xl text-black font-bold mb-0 leading-tight">
-                                                                                {{ ucfirst($post->isStudentPost ? $post?->student->name : $post?->instructor?->name) }}
-                                                                            </p>
-                                                                            <span class="text-md text-black">
-                                                                                {{ $post->isStudentPost ? 'Student' : 'Instructor' }}
-                                                                            </span>
-                                                                        @else
-                                                                            <p
-                                                                                class="text-xl text-white font-bold mb-0 leading-tight">
-                                                                                {{ ucfirst($post->isStudentPost ? $post?->student->name : $post?->instructor?->name) }}
-                                                                            </p>
-                                                                            <span class="text-md text-white">
-                                                                                {{ $post->isStudentPost ? 'Student' : 'Instructor' }}
-                                                                            </span>
-                                                                        @endif
-                                                                    @endif
 
-                                                                </div>
+                    <div class="mt-3 mb-3 lg:mt-24">
+                        <div class="infinity">
+                            <div class="flex flex-wrap w-100">
+                                @if ($album_categories->count() > 0)
+                                    @foreach ($album_categories as $post)
+                                        @php
+                                            $has_purchase_album = App\Models\PurchaseAlbum::where([
+                                                ['student_id', auth()->user()->id],
+                                                ['album_category_id', $post->id],
+                                            ])->exists();
+                                        @endphp
+                                        <div class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md">
+                                            <div class="shadow rounded-2 overflow-hidden position-relative">
+
+                                                {{-- Header (author info) --}}
+                                                <div
+                                                    class="p-3 position-absolute left-0 top-0 z-10 w-full {{ $post->payment_mode == 'paid' ? '' : 'custom-gradient' }}">
+                                                    <div class="flex justify-between items-center w-full">
+                                                        <div class="flex items-center gap-3">
+                                                            <img class="w-16 h-16 rounded-full"
+                                                                 src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
+                                                                 alt="Profile"/>
+                                                            <div>
+                                                                <p class="text-xl text-white font-bold mb-0 leading-tight">
+                                                                    {{ ucfirst($post->isStudentPost ? $post?->student->name : $post?->instructor?->name) }}
+                                                                </p>
+                                                                <span class="text-md text-white">
+                                                                    {{ $post->isStudentPost ? 'Student' : 'Instructor' }}
+                                                                </span>
                                                             </div>
-
-
-
                                                         </div>
-                                                    </div>
-
-                                                    @if ($post->payment_mode == 'paid')
-                                                        @if ($post->file_type === 'image' || is_null($post->file_type))
-                                                            @if (!$has_purchase_album)
-                                                                <div class="relative paid-post-wrap">
-                                                                    <img class="w-full post-thumbnail"
-                                                                        src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
-                                                                        alt="Post Image" />
-                                                                    <div
-                                                                        class="absolute inset-0 flex justify-center items-center paid-post flex-col">
-                                                                        <div
-                                                                            class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
-                                                                            <i class="ti ti-lock-open"></i>
-                                                                        </div>
-
-                                                                        {!! Form::open([
-                                                                            'route' => ['album.category.purchase.album.index', ['post_id' => $post->id]],
-                                                                            'method' => 'Post',
-                                                                            'data-validate',
-                                                                        ]) !!}
-                                                                        <div
-                                                                            class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
-                                                                            <i class="ti ti-lock-open text-2xl lh-sm"></i>
-                                                                            {{ Form::button(__('Unlock for - $' . $post->price), ['type' => 'submit', 'class' => 'btn p-0 pl-1 text-white border-0']) }}
-                                                                        </div>
-                                                                        {!! Form::close() !!}
-                                                                    </div>
-                                                                </div>
-                                                            @else
-                                                                <a
-                                                                    href="{{ route('album.category.album', ['id' => $post->id]) }}">
-                                                                    <img class="w-full post-thumbnail open-full-thumbnail dd"
-                                                                        src="{{ asset('public/' . $post->image) }}"
-                                                                        alt="Profile" />
-                                                                </a>
-                                                            @endif
-                                                        @else
-                                                            @if ($post->payment_mode == 'paid' && !$has_purchase_album)
-                                                                <div
-                                                                    class="relative bg-black h-48 flex justify-center items-center">
-                                                                    {!! Form::open([
-                                                                        'route' => ['album.category.purchase.album.index', ['post_id' => $post->id]],
-                                                                        'method' => 'Post',
-                                                                        'data-validate',
-                                                                    ]) !!}
-                                                                    {{ Form::button(__('Purchase Post - $' . $post->price), ['type' => 'submit', 'class' => 'btn btn-primary bg-white text-black px-4 py-2 rounded-lg']) }}
-                                                                    {!! Form::close() !!}
-                                                                </div>
-                                                            @else
-                                                                <video controls class="w-full post-thumbnail">
-                                                                    <source src="{{ asset('public/' . $post?->image) }}"
-                                                                        type="video/mp4">
-                                                                </video>
-                                                            @endif
-                                                        @endif
-                                                    @else
-                                                        @if ($post->file_type === 'image' || is_null($post->file_type))
-                                                            <a
-                                                                href="{{ route('album.category.album', ['id' => $post->id]) }}">
-                                                                <img class="hjjh w-full post-thumbnail open-full-thumbnail"
-                                                                    src="{{ asset('public/' . $post->image) }}"
-                                                                    alt="Profile" />
-                                                            </a>
-                                                        @elseif($post->file_type == 'video')
-                                                            <video controls class="w-full post-thumbnail">
-                                                                <source src="{{ asset('public/' . $post?->image) }}"
-                                                                    type="video/mp4">
-                                                            </video>
-                                                        @endif
-                                                    @endif
-
-                                                    <div class="px-4 py-2">
-                                                        <div class="text-md italic text-gray-500">
-                                                            {{ \Carbon\Carbon::parse($post->created_at)->format('d M Y') }}
-                                                        </div>
-                                                        @if ($has_purchase_album)
-                                                            <a
-                                                                href="{{ route('album.category.album', ['id' => $post->id]) }}">
-                                                                <h1 class="text-xl font-bold truncate">
-                                                                    {{ $post->title }}
-                                                                </h1>
-                                                            </a>
-                                                        @else
-                                                            <h1 class="text-xl font-bold truncate">
-                                                                {{ $post->title }}
-                                                            </h1>
-                                                        @endif
-
-                                                        @php
-                                                            $description = $post->description;
-                                                            $shortDescription = \Illuminate\Support\Str::limit(
-                                                                $description,
-                                                                80,
-                                                                '',
-                                                            );
-                                                        @endphp
-
-                                                        @if (!empty($description))
-                                                            <div class="hidden long-text text-gray-600"
-                                                                style="font-size: 15px; max-height: 100px; overflow-y: auto;">
-                                                                {!! $description !!}
-                                                            </div>
-                                                            <a href="javascript:void(0)"
-                                                                data-long_description="{{ e($description) }}"
-                                                                class="text-blue-600 font-medium mt-1 inline-block viewDescription"
-                                                                tabindex="0">
-                                                                View Description
-                                                            </a>
-                                                        @endif
                                                     </div>
                                                 </div>
+
+                                                {{-- Paid Posts --}}
+                                                @if ($post->payment_mode == 'paid')
+                                                    @if (!$has_purchase_album)
+                                                        <div class="relative paid-post-wrap">
+                                                            <img class="w-full post-thumbnail"
+                                                                 src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
+                                                                 alt="Post Image"/>
+                                                            <div
+                                                                class="absolute inset-0 flex justify-center items-center paid-post flex-col">
+                                                                <div
+                                                                    class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
+                                                                    <i class="ti ti-lock-open"></i>
+                                                                </div>
+
+                                                                {!! Form::open([
+                                                                    'route' => ['album.category.purchase.album.index', ['post_id' => $post->id]],
+                                                                    'method' => 'Post',
+                                                                    'data-validate',
+                                                                ]) !!}
+                                                                <div
+                                                                    class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
+                                                                    <i class="ti ti-lock-open text-2xl lh-sm"></i>
+                                                                    {{ Form::button(__('Unlock for - $' . $post->price), ['type' => 'submit', 'class' => 'btn p-0 pl-1 text-white border-0']) }}
+                                                                </div>
+                                                                {!! Form::close() !!}
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <a href="{{ route('album.category.album', ['id' => $post->id]) }}">
+                                                            <img class="w-full post-thumbnail open-full-thumbnail"
+                                                                 src="{{ asset('public/' . $post->image) }}"
+                                                                 alt="Post Image"/>
+                                                        </a>
+                                                    @endif
+                                                @else
+                                                    {{-- Free Posts --}}
+                                                    <a href="{{ route('album.category.album', ['id' => $post->id]) }}">
+                                                        <img class="w-full post-thumbnail open-full-thumbnail"
+                                                             src="{{ asset('public/' . $post->image) }}"
+                                                             alt="Post Image"/>
+                                                    </a>
+                                                @endif
+
+                                                {{-- Footer --}}
+                                                <div class="px-4 py-2">
+                                                    <div class="text-md italic text-gray-500">
+                                                        {{ \Carbon\Carbon::parse($post->created_at)->format('d M Y') }}
+                                                    </div>
+                                                    @if ($has_purchase_album)
+                                                        <a href="{{ route('album.category.album', ['id' => $post->id]) }}">
+                                                            <h1 class="text-xl font-bold truncate">{{ $post->title }}</h1>
+                                                        </a>
+                                                    @else
+                                                        <h1 class="text-xl font-bold truncate">{{ $post->title }}</h1>
+                                                    @endif
+
+                                                    @if (!empty($post->description))
+                                                        <div class="hidden long-text text-gray-600"
+                                                             style="font-size: 15px; max-height: 100px; overflow-y: auto;">
+                                                            {!! $post->description !!}
+                                                        </div>
+                                                        <a href="javascript:void(0)"
+                                                           data-long_description="{{ e($post->description) }}"
+                                                           class="text-blue-600 font-medium mt-1 inline-block viewDescription"
+                                                           tabindex="0">
+                                                            View Description
+                                                        </a>
+                                                    @endif
+                                                </div>
                                             </div>
-                                        @endforeach
-                                    @else
-                                        <p class="text-gray-500 text-lg mt-5">No Album Category Available.</p>
-                                    @endif
-                                </div>
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <p class="text-gray-500 text-lg mt-5">No Album Category Available.</p>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        {{-- Long Description Modal --}}
         <div class="modal" id="longDescModal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h1 class="modal-title font-bold" style="font-size: 20px">Long Description</h1>
                         <button type="button"
-                            class="bg-gray-900 flex font-bold h-8 items-center justify-center m-2 right-2 rounded-full shadow-md text-2xl top-2 w-8 z-10"
-                            onclick="closeLongDescModal()" class="close" data-dismiss="modal" aria-label="Close">
+                                class="bg-gray-900 flex font-bold h-8 items-center justify-center m-2 right-2 rounded-full shadow-md text-2xl top-2 w-8 z-10"
+                                onclick="closeLongDescModal()" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
