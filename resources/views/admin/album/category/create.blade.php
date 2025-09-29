@@ -34,16 +34,9 @@
                                     {{ Form::label('photo', __('Photo'), ['class' => 'form-label']) }} *
                                     {!! Form::file('file', ['class' => 'form-control', 'required' => 'required']) !!}
                                 </div>
-                                <div class="form-group">
-                                    {{ Form::label('description', __('Description'), ['class' => 'form-label']) }} *
-                                    {!! Form::textarea('description', null, [
-                                        'class' => 'form-control col-md-12',
-                                        'placeholder' => __('Enter description'),
-                                        'required' => 'required',
-                                    ]) !!}
-                                </div>
 
                             </div>
+
                             <div class="col-xl-6">
                                 @if (Auth::user()->type != 'Student')
                                     <div class="form-group flex flex-col">
@@ -59,6 +52,17 @@
                                         {{ Form::number('price', null, ['class' => 'form-control', 'placeholder' => __('Enter Price'), 'step' => '0.01']) }}
                                     </div>
                                 @endif
+                            </div>
+                            <div class="col-xl-12">
+                                <div class="form-group">
+                                    {{ Form::label('description', __('Description'), ['class' => 'form-label']) }} *
+                                    {!! Form::textarea('description', null, [
+                                        'class' => 'form-control col-md-12',
+                                        'placeholder' => __('Enter description'),
+                                        'required' => 'required',
+                                    ]) !!}
+                                </div>
+
                             </div>
                         </div>
                     </div>

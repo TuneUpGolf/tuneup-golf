@@ -32,10 +32,10 @@ class AlbumCategoryDataTable extends DataTable
             })
             ->editColumn("photo", function (AlbumCategory $post) {
                 if ($post->image) {
-                    if($post->file_type =='image') {
-                        $imageSrc = asset('public/'.$post->image);
+                    if ($post->file_type == 'image') {
+                        $imageSrc = asset('public/' . $post->image);
                         return "<img src=' " . $imageSrc . " ' width='50'/>";
-                    }else {
+                    } else {
                         return 'Video';
                     }
                 } else {
@@ -47,6 +47,11 @@ class AlbumCategoryDataTable extends DataTable
                 $paid = $post->payment_mode == 'paid' ? "Yes"  : "No";
                 return $paid;
             })
+            ->editColumn('title', function (AlbumCategory $post) {
+                $title = $post->title;
+                $url = route('album.category.album', $post->id);
+                return '<a href="' . $url . '">' . e($title) . '</a>';
+            })
             ->editColumn('sales', function (AlbumCategory $post) {
                 $count = PurchasePost::where('active_status', true)->where('post_id', $post->id)->count();
                 return $count;
@@ -55,7 +60,7 @@ class AlbumCategoryDataTable extends DataTable
                 $price = $post->payment_mode == 'paid' ? $post->price : 0;
                 return $price;
             })
-            ->rawColumns(['action',  'photo']);
+            ->rawColumns(['action',  'photo', 'title']);
     }
 
     public function query(AlbumCategory $model)
@@ -105,23 +110,23 @@ class AlbumCategoryDataTable extends DataTable
                     ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
                         window.location = '" . route('album.category.create') . "';
                    }"],
-                    [
-                        'extend' => 'collection',
-                        'className' => 'btn btn-light-secondary me-1 dropdown-toggle',
-                        'text' => '<i class="ti ti-download"></i> Export',
-                        "buttons" => [
-                            ["extend" => "print", "text" => '<i class="fas fa-print"></i> Print', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
-                            ["extend" => "csv", "text" => '<i class="fas fa-file-csv"></i> CSV', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
-                            ["extend" => "excel", "text" => '<i class="fas fa-file-excel"></i> Excel', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
-                            ["extend" => "pdf", "text" => '<i class="fas fa-file-pdf"></i> PDF', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
-                        ],
-                    ],
-                    ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
-                    ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
+                    // [
+                    //     'extend' => 'collection',
+                    //     'className' => 'btn btn-light-secondary me-1 dropdown-toggle',
+                    //     'text' => '<i class="ti ti-download"></i> Export',
+                    //     "buttons" => [
+                    //         ["extend" => "print", "text" => '<i class="fas fa-print"></i> Print', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
+                    //         ["extend" => "csv", "text" => '<i class="fas fa-file-csv"></i> CSV', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
+                    //         ["extend" => "excel", "text" => '<i class="fas fa-file-excel"></i> Excel', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
+                    //         ["extend" => "pdf", "text" => '<i class="fas fa-file-pdf"></i> PDF', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
+                    //     ],
+                    // ],
+                    // ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
+                    // ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
                 ],
                 "scrollX" => true,
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {

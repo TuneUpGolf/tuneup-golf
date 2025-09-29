@@ -227,9 +227,9 @@
                                 @can('manage-students')
                                     <li class="dash-item {{ request()->is('student*') ? 'active' : '' }}">
                                         <a class="dash-link" href="{{ route('student.index') }}">
-                                            @if ($userType === 'Instructor') 
+                                            @if ($userType === 'Instructor')
                                                 {{ __('My Students') }}
-                                            @else 
+                                            @else
                                                 {{ __('Students') }}
                                             @endif
                                         </a>
@@ -375,18 +375,17 @@
 
                                         <li class="dash-item {{ request()->is('album-category') ? 'active' : '' }}">
                                             <a class="dash-link"
-                                                href="{{ route('album.category.manage') }}">{{ __('Manage Album Categories') }}</a>
+                                                href="{{ route('album.category.manage') }}">{{ __('Create/Manage Categories') }}</a>
                                         </li>
 
-                                        <li class="dash-item {{ request()->is('album') ? 'active' : '' }}">
+                                        {{-- <li class="dash-item {{ request()->is('album') ? 'active' : '' }}">
                                             <a class="dash-link"
                                                 href="{{ route('album.manage') }}">{{ __('Manage Albums') }}</a>
-                                        </li>
+                                        </li> --}}
 
-                                          {{--  <li class="dash-item {{ request()->is('album-category/show') ? 'active' : '' }}">
+                                        {{--  <li class="dash-item {{ request()->is('album-category/show') ? 'active' : '' }}">
                                             <a class="dash-link" href="{{ route('album.category.show') }}">{{ __('Album Categories') }}</a>
                                         </li>  --}}
-                                        
                                     @endcan
 
                                     {{-- @can('manage-category')
@@ -505,10 +504,10 @@
                                             <a class="dash-link" href="{{ route('blogs.index') }}">{{ __('Feed') }}</a>
                                         </li>
 
-                                        <li class="dash-item {{ request()->is('album-category/show') ? 'active' : '' }}">
-                                            <a class="dash-link" href="{{ route('album.category.show') }}">{{ __('Albums') }}</a>
-                                        </li> 
-                                        
+                                        {{-- <li class="dash-item {{ request()->is('album-category/show') ? 'active' : '' }}">
+                                            <a class="dash-link"
+                                                href="{{ route('album.category.show') }}">{{ __('Albums') }}</a>
+                                        </li> --}}
                                     @endcan
                                 </ul>
                             </li>

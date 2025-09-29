@@ -40,12 +40,16 @@
                                 <div class="form-group">
                                     {{ Form::label('album_category_id', __('Album Category'), ['class' => 'form-label']) }}
                                     *
-                                    {!! Form::select('album_category_id', $album_categories->pluck('title', 'id'), null, [
+
+                                    {!! Form::select('album_category_id', $album_categories, $album_category->id, [
                                         'class' => 'form-control',
-                                        'placeholder' => __('Select Album Category'),
-                                        'required' => 'required',
+                                        'disabled' => 'disabled',
                                     ]) !!}
+
+                                    {{-- Hidden input to actually submit the value --}}
+                                    <input type="hidden" name="album_category_id" value="{{ $album_category->id }}">
                                 </div>
+
                                 <div class="form-group">
                                     {{ Form::label('description', __('Description'), ['class' => 'form-label']) }} *
                                     {!! Form::textarea('description', null, [

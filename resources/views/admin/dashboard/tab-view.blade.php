@@ -22,7 +22,7 @@
 @section('title', __('Dashboard'))
 <style>
     .title {
-        display:none;
+        display: none;
     }
 </style>
 {{--  @section('instructor')  --}}
@@ -243,8 +243,8 @@
                                     </div>
                                 </div>
                             @else
-                                @if($tab=='in-person')
-                                    @if (isset($inPerson_instructors) && $inPerson_instructors->count() )
+                                @if ($tab == 'in-person')
+                                    @if (isset($inPerson_instructors) && $inPerson_instructors->count())
                                         <div class="col-md-2 mt-2">
                                             <select name="instructor" id="instructor" class="form-control"
                                                 onchange="updateInstructorUrl(this.value)">
@@ -258,8 +258,8 @@
                                             </select>
                                         </div>
                                     @endif
-                                @elseif($tab=='online')
-                                    @if (isset($online_instructors) && $online_instructors->count() )
+                                @elseif($tab == 'online')
+                                    @if (isset($online_instructors) && $online_instructors->count())
                                         <div class="col-md-2 mt-2">
                                             <select name="instructor" id="instructor" class="form-control"
                                                 onchange="updateInstructorUrl(this.value)">
@@ -274,6 +274,24 @@
                                         </div>
                                     @endif
                                 @endif
+                                <div class="dataTable-top row">
+                                    <div class="col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block"></div>
+                                    <div class="tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex">
+                                        <select id="album-category" class="form-select"
+                                            style="margin-left:auto; max-width: 12.5rem;">
+                                            <option value="" {{ request()->query('category') ? '' : 'selected' }}>
+                                                - Select Category -
+                                            </option>
+                                            @foreach (App\Models\AlbumCategory::get() as $category)
+                                                <option value="{{ $category->id }}"
+                                                    {{ request()->query('category') == $category->id ? 'selected' : '' }}>
+                                                    {{ $category->title }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <livewire:student-dashboard-view :instructor_id="$instructor_id" />
                             @endif
                         </div>
@@ -290,6 +308,19 @@
 @endpush
 @push('javascript')
     <script>
+        document.getElementById('album-category').addEventListener('change', function() {
+            let categoryId = this.value;
+
+            // Get current URL
+            let url = new URL(window.location.href);
+
+            // Add or update category param
+            url.searchParams.set('category', categoryId);
+
+            // Redirect
+            window.location.href = url.toString();
+        });
+
         function switchTab(view) {
             const url = new URL(window.location.href);
             url.searchParams.set('view', view);

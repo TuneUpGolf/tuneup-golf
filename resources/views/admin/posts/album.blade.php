@@ -65,8 +65,7 @@
                                                         </div>
                                                     @else
                                                         <video controls class="w-full post-thumbnail">
-                                                            <source
-                                                                src="{{ asset('public/'.$post?->media) }}"
+                                                            <source src="{{ asset('public/' . $post?->media) }}"
                                                                 type="video/mp4">
                                                         </video>
                                                     @endif

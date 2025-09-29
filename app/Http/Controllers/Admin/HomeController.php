@@ -53,7 +53,9 @@ class HomeController extends Controller
         $userType = $user->type;
         $tenantId = tenant('id');
         $tab = $request->get('view');
+
         if ($userType == Role::ROLE_STUDENT) {
+
             $user = Student::find($user->id);
             if ($purchase = Purchase::find($request->query('purchase_id'))) {
                 Stripe::setApiKey(config('services.stripe.secret'));
@@ -80,28 +82,30 @@ class HomeController extends Controller
             $plans = Plan::with('instructor')->whereHas('instructor')->get();
 
             $tab = !empty($tab) ? $tab : 'in-person';
+
             $dataTable = $tab == 'my-lessons' ? new StudentPurchaseDataTable($tab) : false;
+
             $instructor_id = $request->input('instructor_id', null);
             // $tenant_instructors = User::with('lessons')
             //     ->instructors()
             //     ->get()
             //     ->filter(fn($instructor) => $instructor->lessons->isNotEmpty());
             $inPerson_instructors = User::with('lessons')
-            ->instructors()
-            ->whereHas('lessons', function ($q) {
-                $q->where('type', 'inPerson')
-                ->orWhere('type','package'); 
-            })
-            ->get();
+                ->instructors()
+                ->whereHas('lessons', function ($q) {
+                    $q->where('type', 'inPerson')
+                        ->orWhere('type', 'package');
+                })
+                ->get();
 
             $online_instructors = User::with('lessons')
-            ->instructors()
-            ->whereHas('lessons', function ($q) {
-                $q->where('type', 'online'); 
-            })
-            ->get();
+                ->instructors()
+                ->whereHas('lessons', function ($q) {
+                    $q->where('type', 'online');
+                })
+                ->get();
             return $dataTable ? $dataTable->render('admin.dashboard.tab-view', compact('tab', 'dataTable')) :
-                view('admin.dashboard.tab-view', compact('tab', 'dataTable', 'chatEnabled', 'token', 'instructor', 'plans', 'inPerson_instructors','online_instructors', 'instructor_id'));
+                view('admin.dashboard.tab-view', compact('tab', 'dataTable', 'chatEnabled', 'token', 'instructor', 'plans', 'inPerson_instructors', 'online_instructors', 'instructor_id'));
         }
 
         $user = User::find($user->id);

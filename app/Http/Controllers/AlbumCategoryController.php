@@ -45,7 +45,7 @@ class AlbumCategoryController extends Controller
                 $album_category = new AlbumCategory();
                 $album_category->instructor_id = Auth::user()->id;
                 $album_category->tenant_id = tenant('id');
-                $album_category->title = $request->title;               
+                $album_category->title = $request->title;
                 $album_category->slug = Str::slug($request->title);
                 $album_category->description = $request->description;
                 $album_category->payment_mode = array_key_exists('paid', $request->all()) ? ($request?->paid == 'on' ? "paid" : "un-paid") : "un-paid";
@@ -76,7 +76,7 @@ class AlbumCategoryController extends Controller
                 return redirect()->back()->withErrors($e->errors())->withInput();
             } catch (\Exception $e) {
                 Log::info($e->getMessage());
-                return redirect()->back()->with('danger',$e->getMessage())->withInput();
+                return redirect()->back()->with('danger', $e->getMessage())->withInput();
             }
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
@@ -105,25 +105,25 @@ class AlbumCategoryController extends Controller
             if ($request->hasFile('file') && $request->file('file')->isValid()) {
                 // $path           = $request->file('file')->store('album_category');
                 // $album_category->image    = $path;
-                 $tenantId = tenant()->id; // e.g. 3
-                    $destination = public_path("{$tenantId}/album_category");
-                    if (!file_exists($destination)) {
-                        mkdir($destination, 0777, true);
-                    }
-                    $filename = time() . '_' . $request->file('file')->getClientOriginalName();
-                    $request->file('file')->move($destination, $filename);
-                    $album_category->image = "{$tenantId}/album_category/{$filename}";
-                    $mimeType = $request->file('file')->getClientOriginalExtension();
-                    $video_types = ['mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'webm', 'mpeg', '3gp'];
-                    $album_category->file_type = in_array($mimeType, $video_types) ? 'video' : 'image';
+                $tenantId = tenant()->id; // e.g. 3
+                $destination = public_path("{$tenantId}/album_category");
+                if (!file_exists($destination)) {
+                    mkdir($destination, 0777, true);
+                }
+                $filename = time() . '_' . $request->file('file')->getClientOriginalName();
+                $request->file('file')->move($destination, $filename);
+                $album_category->image = "{$tenantId}/album_category/{$filename}";
+                $mimeType = $request->file('file')->getClientOriginalExtension();
+                $video_types = ['mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'webm', 'mpeg', '3gp'];
+                $album_category->file_type = in_array($mimeType, $video_types) ? 'video' : 'image';
             }
             $album_category->instructor_id = Auth::user()->id;
             $album_category->tenant_id = tenant('id');
-            $album_category->title = $request->title;               
+            $album_category->title = $request->title;
             $album_category->slug = Str::slug($request->title);
             $album_category->description = $request->description;
-            $album_category->payment_mode = array_key_exists('paid',$request->all()) ? ($request?->paid == 'on' ? 'paid' : 'un-paid') : 'un-paid';
-            $album_category->price = array_key_exists('paid',$request->all()) && $request?->paid == 'on' && !empty($request?->price) ? $request?->price : 0;
+            $album_category->payment_mode = array_key_exists('paid', $request->all()) ? ($request?->paid == 'on' ? 'paid' : 'un-paid') : 'un-paid';
+            $album_category->price = array_key_exists('paid', $request->all()) && $request?->paid == 'on' && !empty($request?->price) ? $request?->price : 0;
             $album_category->save();
             return redirect()->route('album.category.manage')->with('success', __('Album Category updated successfully'));
         } else {
@@ -135,9 +135,9 @@ class AlbumCategoryController extends Controller
     {
         if (Auth::user()->can('edit-blog')) {
             $posts      = AlbumCategory::find($id);
-            if(!is_null($posts)) {
+            if (!is_null($posts)) {
                 return  view('admin.album.category.edit', compact('posts'));
-            }else {
+            } else {
                 return redirect()->back()->with('failed', __('Album Category not found.'));
             }
         } else {
@@ -148,10 +148,10 @@ class AlbumCategoryController extends Controller
     public function getCategories()
     {
         $album_categories = AlbumCategory::with('purchaseAlbum')
-        ->where([
-            ['tenant_id', tenant()->id],
-            ['status', 'active'],
-        ]);
+            ->where([
+                ['tenant_id', tenant()->id],
+                ['status', 'active'],
+            ]);
         if (Auth::user()->can('manage-blog')) {
             switch (request()->query('filter')) {
                 case ('free'):
@@ -173,12 +173,12 @@ class AlbumCategoryController extends Controller
         if (Auth::user()->can('manage-blog')) {
             $albums = Album::where('album_category_id', $id)->get();
             return view('admin.posts.album', compact('albums'));
-        }else {
+        } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
     }
 
-     public function likeAlbum()
+    public function likeAlbum()
     {
         try {
             $post = Album::find(request()->post_id);
@@ -257,6 +257,26 @@ class AlbumCategoryController extends Controller
             return redirect($session->url);
         } catch (Error $e) {
             return response($e, 419);
+        }
+    }
+
+    public function createAlbum($id)
+    {
+        if (Auth::user()->can('create-blog')) {
+            $album_category = AlbumCategory::where('id', $id)
+                ->where('instructor_id', Auth::user()->id)
+                ->first(['id', 'title']);
+
+            if (!$album_category) {
+                return redirect()->back()->with('failed', __('Category not found.'));
+            }
+
+            // convert to array for Form::select
+            $album_categories = [$album_category->id => $album_category->title];
+
+            return view('admin.album.create', compact('album_categories', 'album_category'));
+        } else {
+            return redirect()->back()->with('failed', __('Permission denied.'));
         }
     }
 }
