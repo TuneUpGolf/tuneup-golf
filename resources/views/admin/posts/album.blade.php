@@ -47,8 +47,27 @@
                                                                         <i class="ti ti-dots-vertical"></i>
                                                                     </button>
                                                                     <ul class="dropdown-menu">
-                                                                        <li><a class="dropdown-item"
-                                                                                href="{{ route('album.edit', $post->id) }}">Edit</a>
+                                                                        {{-- Edit --}}
+                                                                        <li>
+                                                                            <a class="dropdown-item"
+                                                                                href="{{ route('album.edit', $post->id) }}">
+                                                                                <i class="ti ti-edit me-2 text-black"></i>
+                                                                                Edit
+                                                                            </a>
+                                                                        </li>
+
+                                                                        {{-- Delete --}}
+                                                                        <li>
+                                                                            {!! Form::open([
+                                                                                'method' => 'DELETE',
+                                                                                'route' => ['album.destroy', $post->id],
+                                                                                'id' => 'delete-form-' . $post->id,
+                                                                            ]) !!}
+                                                                            <a href="javascript:void(0);"
+                                                                                class="dropdown-item text-danger show_confirm">
+                                                                                <i class="ti ti-trash me-2"></i> Delete
+                                                                            </a>
+                                                                            {!! Form::close() !!}
                                                                         </li>
                                                                     </ul>
                                                                 </div>
