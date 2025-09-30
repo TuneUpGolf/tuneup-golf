@@ -287,7 +287,7 @@
                         title: "Book Slot",
                         html: `
                             <div style="text-align: left; font-size: 14px; margin-bottom: 10px;">
-                                <span><strong>Slot Start Time:</strong> ${formattedTime}</span><br/>
+                                <span><strong>Lesson Date/Time:</strong> ${formattedTime}</span><br/>
                                 <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
                                 <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
                                 <span><strong>Location:</strong> ${slot.location}</span><br/>
