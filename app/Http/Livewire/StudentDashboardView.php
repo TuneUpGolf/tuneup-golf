@@ -35,8 +35,8 @@ class StudentDashboardView extends GridView
         }
 
         if ($this->currentView == 'posts') {
-            $this->cardComponent = 'admin.posts.card';
-            return Post::orderBy('created_at', 'desc')->distinct();
+            $this->cardComponent = 'admin.posts.card-new';
+            return  Post::orderBy('created_at', 'desc');
         }
 
         $query = Lesson::where('active_status', true);
@@ -125,6 +125,10 @@ class StudentDashboardView extends GridView
         if (request()->query('category')) {
             $albums = $this->repository()->get();
             return view('admin.posts.album-view', compact('albums'));
+        }
+        if ($this->currentView === 'posts') {
+            $posts = $this->repository()->paginate(6);
+            return view('admin.posts.card-new', compact('posts'));
         }
 
         return parent::render(); // ✅ let GridView handle posts and lessons

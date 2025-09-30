@@ -123,7 +123,7 @@ class AlbumController extends Controller
             $album_category->description = $request->description;
             // $album_category->file_type = array_key_exists('file',$request->all()) ? (Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image') : $album_category->file_type;
             $album_category->save();
-            return redirect()->route('album.manage')->with('success', __('Album updated successfully'));
+            return redirect()->route('album.category.album', ['id' => $album_category->id])->with('success', __('Album updated successfully'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }

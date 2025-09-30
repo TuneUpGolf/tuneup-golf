@@ -38,19 +38,37 @@
                                                                 </div>
                                                             </div>
 
-                                                            <div class="bg-white py-2 px-3 rounded-3xl shadow">
-                                                                {!! Form::open([
-                                                                    'route' => ['album.category.album.like', ['post_id' => $post->id]],
-                                                                    'method' => 'Post',
-                                                                    'data-validate',
-                                                                ]) !!}
-                                                                <button type="submit"
-                                                                    class="text-md font-semibold flex items-center gap-2"><i
-                                                                        class="text-2xl lh-sm ti ti-heart"></i><span>
-                                                                        {{ $post->likeAlbum()->count() }}
-                                                                        Likes</span></button>
-                                                                {!! Form::close() !!}
-                                                            </div>
+                                                            {{-- Check if current request is album detail page --}}
+                                                            @if (Request::is('album-category/albums/*') && \App\Models\Role::ROLE_INSTRUCTOR)
+                                                                {{-- Show 3-dots dropdown --}}
+                                                                <div class="dropdown">
+                                                                    <button class="btn btn-light" type="button"
+                                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                                        <i class="ti ti-dots-vertical"></i>
+                                                                    </button>
+                                                                    <ul class="dropdown-menu">
+                                                                        <li><a class="dropdown-item"
+                                                                                href="{{ route('album.edit', $post->id) }}">Edit</a>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            @else
+                                                                {{-- Show like button --}}
+                                                                <div class="bg-white py-2 px-3 rounded-3xl shadow">
+                                                                    {!! Form::open([
+                                                                        'route' => ['album.category.album.like', ['post_id' => $post->id]],
+                                                                        'method' => 'Post',
+                                                                        'data-validate',
+                                                                    ]) !!}
+                                                                    <button type="submit"
+                                                                        class="text-md font-semibold flex items-center gap-2">
+                                                                        <i class="text-2xl lh-sm ti ti-heart"></i>
+                                                                        <span>{{ $post->likeAlbum()->count() }} Likes</span>
+                                                                    </button>
+                                                                    {!! Form::close() !!}
+                                                                </div>
+                                                            @endif
+
 
                                                         </div>
                                                     </div>
