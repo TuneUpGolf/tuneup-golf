@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 
 class Plan extends Model
 {
@@ -33,5 +34,15 @@ class Plan extends Model
     public function instructor()
     {
         return $this->belongsTo(User::class, 'instructor_id', 'id')->where('created_by', '>', 0);
+    }
+
+    /**
+     * Encrypt the plan ID
+     *
+     * @return string
+     */
+    public function getEncryptedIdAttribute()
+    {
+        return Crypt::encrypt($this->id);
     }
 }

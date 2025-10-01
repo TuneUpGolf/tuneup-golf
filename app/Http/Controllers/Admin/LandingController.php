@@ -60,6 +60,7 @@ class LandingController extends Controller
             if (UtilityFacades::getsettings('landing_page_status') == '1') {
                 $bio_heading = UtilityFacades::getsettings('bio_heading');
                 $instructor_heading = UtilityFacades::getsettings('instructor_heading');
+                // dd("test");
                 return view('welcome', compact(
                     'lang',
                     'admin',
