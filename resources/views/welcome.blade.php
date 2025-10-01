@@ -44,9 +44,12 @@
             <p class="text-xl text-gray-600">{{ $admin->bio }}</p>
         </div>
     </section>
+
+
     @if (!$instructors->isEmpty())
-        <section class="container">
-            @if (count($instructors) == 1)
+        @if (count($instructors) == 1)
+            <section class="container">
+
                 <div class="row g-4 py-4">
                     <h3 style="font-size:22px;font-weight:bold;text-align:center">{{ $instructor_heading ?? '' }}</h3>
                     @forelse($instructors[0]->lessons as $lesson)
@@ -133,6 +136,10 @@
                                     </div>
                                 </div>
                             </div>
+
+
+
+                            {{-- Post Section End --}}
                         @else
                             @php
                                 $slots = 0;
@@ -244,26 +251,105 @@
                         <h3>No Lessons Found</h3>
                     @endforelse
                 </div>
-            @else
+            </section>
+
+            {{-- Subscription Section --}}
+
+            <section class="lession-sec subscription-sec">
                 <div class="container ctm-container">
-                    <h2 class="font-bold text-4xl mb-2">{{ $instructor_heading ?? 'Instructors' }}</h2>
-                    <div class="flex flex-wrap gap-5 w-full my-10">
-                        @foreach ($instructors as $instructor)
-                            @php
-                                $imgSrc =
-                                    $instructor->avatar == "storage/$tenantId/logo/app-favicon-logo.png"
-                                        ? asset("storage/$tenantId/logo/app-favicon-logo.png")
-                                        : asset('storage/' . $tenantId . '/' . $instructor->avatar);
-                            @endphp
-                            <div class="flex flex-col items-center text-center">
-                                <a href="{{ url('/login') }}" title="{{ $instructor->name }}">
-                                    <img class="custom-instructor-avatar rounded" src="{{ $imgSrc }}"
-                                        alt="Instructor Avatar">
-                                    <h1 class="text-xl font-bold truncate mt-2">{{ $instructor->name }}</h1>
-                                </a>
-                                <div class="py-2">
-                                    <button
-                                        onclick='openInstructorPopup(
+                    <h2 class="font-bold text-4xl mb-2">
+                        Subscription Offerings
+                    </h2>
+                    <p class="text-xl text-gray-600">
+                        Subscription plans give you full access to your coach's posts, training content, and
+                        the ability to connect
+                        directly.
+                    </p>
+                    @if (!$instructors[0]->plans->isEmpty())
+                        <div class="subscription-slider pt-5 slick-initialized slick-slider">
+                            <div class="slick-list draggable">
+                                <div class="slick-track"
+                                    style="opacity: 1; width: 1086px; transform: translate3d(0px, 0px, 0px);">
+                                    @foreach ($instructors[0]->plans as $plan)
+                                        {{-- @dd($plan) --}}
+                                        <div class="px-3 py-4 slick-slide slick-active" data-slick-index="2"
+                                            aria-hidden="false" style="width: 362px;" tabindex="0">
+                                            <div
+                                                class="bg-white subs-feature rounded-lg shadow popular-wrap position-relative h-100">
+                                                {{-- <div class="rounded-pill px-4 py-2 popular-plan w-auto bg-primary text-white font-bold position-absolute"
+                                                                    style="top: -22px; left: 50%; transform: translateX(-50%);">
+                                                                    POPULAR
+                                                                </div> --}}
+                                                <div class="relative px-3 py-4  flex flex-col">
+                                                    <p class="text-3xl font-bold mb-1">{{ $plan->name }}
+                                                    </p>
+                                                    <div class="flex gap-2 items-center my-2 ">
+                                                        <p class=" text-6xl font-bold">$
+                                                            {{ $plan->price }} /</p>
+                                                        <p class="text-2xl text-gray-600">
+                                                            {{ $plan->duration }}
+                                                            {{ $plan->durationtype }}
+                                                        </p>
+
+                                                    </div>
+                                                    <a href="{{ auth()->check() ? route('payment', $plan->encrypted_id) : route('login') }}"
+                                                        class="lesson-btn text-center font-bold text-lg mt-auto"
+                                                        tabindex="0">
+                                                        Purchase
+                                                    </a>
+                                                </div>
+                                                <div class="border-t border-gray-300"></div>
+                                                <div class="p-3">
+                                                    <p class="font-semibold text-xl mb-2">Features</p>
+                                                    <p class="text-gray-600">
+                                                    </p>
+                                                    {!! $plan->description !!}
+                                                    <p></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <h3>No Subscriptions Found</h3>
+                    @endif
+                </div>
+            </section>
+            {{-- End Subscription Section --}}
+
+
+            {{-- Post Secton  --}}
+            <section class="lession-sec feed-sec">
+                <div class="container ctm-container">
+                    <h2 class="font-bold text-4xl mb-2">Coaches Corner</h2>
+
+                    <div class="flex flex-wrap gap-5 w-100">
+                        @each('admin.posts.blog', $instructors[0]->post, 'post')
+                    </div>
+                </div>
+            </section>
+        @else
+            <div class="container ctm-container">
+                <h2 class="font-bold text-4xl mb-2">{{ $instructor_heading ?? 'Instructors' }}</h2>
+                <div class="flex flex-wrap gap-5 w-full my-10">
+                    @foreach ($instructors as $instructor)
+                        @php
+                            $imgSrc =
+                                $instructor->avatar == "storage/$tenantId/logo/app-favicon-logo.png"
+                                    ? asset("storage/$tenantId/logo/app-favicon-logo.png")
+                                    : asset('storage/' . $tenantId . '/' . $instructor->avatar);
+                        @endphp
+                        <div class="flex flex-col items-center text-center">
+                            <a href="{{ url('/login') }}" title="{{ $instructor->name }}">
+                                <img class="custom-instructor-avatar rounded" src="{{ $imgSrc }}"
+                                    alt="Instructor Avatar">
+                                <h1 class="text-xl font-bold truncate mt-2">{{ $instructor->name }}</h1>
+                            </a>
+                            <div class="py-2">
+                                <button
+                                    onclick='openInstructorPopup(
                                         @json($instructor->name),
                                         @json($imgSrc),
                                         @json($instructor->bio),
@@ -274,17 +360,24 @@
                                                 ])),
                                         @json($currency)
                                     )'
-                                        class="read-more-btn text-blue-600 hover:text-blue-800 underline text-sm">
-                                        View Bio
-                                    </button>
-                                </div>
+                                    class="read-more-btn text-blue-600 hover:text-blue-800 underline text-sm">
+                                    View Bio
+                                </button>
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
                 </div>
-            @endif
-        </section>
+            </div>
+        @endif
     @endif
+
+
+
+
+
+
+
+
 
     <!-- Instructor Popup Modal -->
     <div id="instructorPopup"

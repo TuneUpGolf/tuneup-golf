@@ -302,4 +302,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return $query->where('type', 'Instructor')
                     ->where('tenant_id', auth()->user()->tenant_id);
     }
+
+    public function plans(){
+        return $this->hasMany(Plan::class, 'instructor_id', 'id');
+    }
 }
