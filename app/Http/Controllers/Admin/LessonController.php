@@ -1583,21 +1583,28 @@ class LessonController extends Controller
 
     public function bulkDelete(Request $request)
     {
-        // dd($request->all());
         try {
             $ids = $request->input('ids', []);
-            $purchases = Purchase::whereIn('slot_id', $ids)->get();
-            if(!$purchases->isEmpty()){
-            return response()->json(['error' => 'Slot is booked or completed']);
 
+            $purchases = Purchase::whereIn('slot_id', $ids)->get();
+            if (!$purchases->isEmpty()) {
+                return response()->json(
+                    ['error' => 'Some slots are booked or completed and cannot be deleted.'],
+                    400 // <-- send proper HTTP error
+                );
             }
+
             Slots::whereIn('id', $ids)->delete();
 
             return response()->json(['message' => 'Selected slots deleted successfully.']);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 400);
+            return response()->json(
+                ['error' => $e->getMessage()],
+                $e->getCode() ?: 400
+            );
         }
     }
+
 
 
     public function getAllByInstructor(Request $request)
