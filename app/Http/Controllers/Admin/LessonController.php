@@ -2,38 +2,39 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Actions\SendEmail;
-use App\Actions\SendPushNotification;
-use App\DataTables\Admin\LessonDataTable;
-use App\Facades\UtilityFacades;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\LessonAPIResource;
-use App\Http\Resources\SlotAPIResource;
-use App\Jobs\SendLessonReminderJob;
-use App\Mail\Admin\StudentPaymentLink;
-use App\Mail\Admin\SlotBookedByStudentMail;
-use App\Mail\Admin\SlotCancelledMail;
-use App\Models\Instructor;
-use App\Models\Role;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Stancl\Tenancy\Database\Models\Domain;
-use App\Models\Lesson;
-use App\Models\Purchase;
-use App\Models\Slots;
-use App\Models\Student;
-use App\Traits\PurchaseTrait;
-use Carbon\Carbon;
-use DateInterval;
-use DatePeriod;
 use Error;
 use Exception;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use DatePeriod;
+use DateInterval;
+use Carbon\Carbon;
+use App\Models\Role;
+use App\Models\User;
+use App\Models\Slots;
+use App\Models\Lesson;
+use App\Models\Student;
+use App\Models\Purchase;
+use App\Actions\SendEmail;
+use App\Models\Instructor;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use App\Models\PackageLesson;
+use App\Traits\PurchaseTrait;
+use App\Facades\UtilityFacades;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\SendLessonReminderJob;
+use App\Models\InstructorBlockSlot;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Actions\SendPushNotification;
+use App\Mail\Admin\SlotCancelledMail;
+use App\Mail\Admin\StudentPaymentLink;
+use App\Http\Resources\SlotAPIResource;
+use App\DataTables\Admin\LessonDataTable;
+use App\Http\Resources\LessonAPIResource;
+use Stancl\Tenancy\Database\Models\Domain;
+use App\Mail\Admin\SlotBookedByStudentMail;
+use Illuminate\Validation\ValidationException;
 
 class LessonController extends Controller
 {
@@ -259,6 +260,41 @@ class LessonController extends Controller
         }
     }
 
+    public function deleteBlockSlots(Request $request){
+        InstructorBlockSlot::find($request->id)->delete();
+        return response()->json([
+            'status'  => true,
+            'message' => 'Slot block deleted successfully',
+        ]);
+    }
+
+    public function blockSlots(Request $request)
+    {
+        $validated = $request->validate([
+            'start_time' => 'required|date',
+            'end_time'   => 'required|date|after:start_time',
+            'reason'     => 'required|string|max:5000',
+        ]);
+
+        // 2. Get the authenticated instructor
+        $instructor = auth()->user();
+
+        // 3. Store in DB
+        $slot = new InstructorBlockSlot();
+        $slot->instructor_id = $instructor->id;
+        $slot->start_time    = $validated['start_time'];
+        $slot->end_time      = $validated['end_time'];
+        $slot->description   = $validated['reason'];
+        $slot->save();
+
+        // 4. Return success response
+        return response()->json([
+            'status'  => true,
+            'message' => 'Slot blocked successfully',
+            'data'    => $slot
+        ]);
+    }
+
     public function manageSlots()
     {
         $type = Auth::user()->type;
@@ -383,6 +419,8 @@ class LessonController extends Controller
             $lesson_id = request()->get('lesson_id');
             $instructors = User::where('type', Role::ROLE_INSTRUCTOR)->get();
             $students = Student::where('active_status', true)->where('isGuest', false)->get();
+            // Block Slots
+            // $blockSlots = InstructorBlockSlot::all();
             return view('admin.lessons.manageSlots', compact('events', 'resources', 'lesson_id', 'type', 'payment_method', 'instructors', 'students'));
         }
         if ($type === Role::ROLE_INSTRUCTOR) {
@@ -499,11 +537,14 @@ class LessonController extends Controller
             $lesson_id = request()->get('lesson_id');
             $lessons = Lesson::where('created_by', Auth::user()->id)->where('active_status', 1)->where('type', '!=', Lesson::LESSON_TYPE_ONLINE)->get();
             $students = Student::where('active_status', true)->where('isGuest', false)->get();
-            return view('admin.lessons.instructorSlots', compact('events', 'lesson_id', 'type', 'payment_method', 'lessons', 'students'));
+            // Block Instructor Slots
+            $blockSlots = InstructorBlockSlot::where('instructor_id', Auth::user()->id)->get();
+            return view('admin.lessons.instructorSlots', compact('events', 'lesson_id', 'type', 'payment_method', 'lessons', 'students', 'blockSlots'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
     }
+
 
     public function viewSlots()
     {
@@ -1399,14 +1440,13 @@ class LessonController extends Controller
                 'student_ids'  => 'array',
                 'student_ids.*' => 'integer|exists:students,id',
                 'notes'         => 'string',
-                'lessonId'      =>'nullable|exists:lessons,id'
+                'lessonId'      => 'nullable|exists:lessons,id'
             ]);
             $user = Auth::user();
             $slot = Slots::find($request->slot_id);
-            if(array_key_exists('lessonId',$validatedData)){
-                $slots = Slots::where('lesson_id',$validatedData['lessonId'])->get();
-                foreach($slots as $slot)
-                {
+            if (array_key_exists('lessonId', $validatedData)) {
+                $slots = Slots::where('lesson_id', $validatedData['lessonId'])->get();
+                foreach ($slots as $slot) {
                     if ($slot->student->contains($user->id)) {
                         $slot->student()->detach($user->id);
                         Purchase::where('slot_id', $slot->id)->where('student_id', $user->id)->delete();
@@ -1431,14 +1471,13 @@ class LessonController extends Controller
                         return response()->json(new SlotAPIResource($slot), 200);
                     }
                 }
-
             }
             $isInstructorOrAdmin = ($user->type === Role::ROLE_INSTRUCTOR && $slot->lesson->created_by === $user->id) || $user->type === Role::ROLE_ADMIN;
             if (!$slot) {
                 throw new Exception('Slot not found', 404);
             }
 
-            
+
             if ($isInstructorOrAdmin) {
                 $slot->update($validatedData);
                 if ($slot->cancelled) {
@@ -1595,12 +1634,12 @@ class LessonController extends Controller
     }
     public function destroy($lessonId)
     {
-        $lesson = Lesson::with(['slots'=>function($query){
+        $lesson = Lesson::with(['slots' => function ($query) {
             $query->where('is_active', true);
         }])
-        ->findOrFail($lessonId);
-        if(count($lesson->slots) > 0){
-            foreach($lesson->slots as $slot){
+            ->findOrFail($lessonId);
+        if (count($lesson->slots) > 0) {
+            foreach ($lesson->slots as $slot) {
                 $slot->update(['is_active' => false]);
             }
         }
