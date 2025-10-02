@@ -1,11 +1,7 @@
 @component('mail::message')
 # Lesson Reminder
 
-Hi {{ $studentName }},
-
-This is a reminder that you have a lesson with **{{ $instructorName }}**.
-
-📅 **Date:** {{ $date }} at {{ $time }}
+Hello {{ $studentName }}, this is a reminder that you have a lesson scheduled with **{{ $instructorName }}** on **Date:** {{ $date }} at {{ $time }}
 
 @component('mail::button', ['url' => route('lessons.show', $lessonId)])
 View Lesson Details
