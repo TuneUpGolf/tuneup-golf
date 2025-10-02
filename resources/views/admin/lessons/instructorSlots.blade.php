@@ -103,19 +103,135 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
+
         var type = @json($type);
         var students = @json($students);
         var payment_method = @json($payment_method);
         var isMobile = window.innerWidth <= 768;
         var initialCalendarView = isMobile ? 'listWeek' : 'timeGridWeek';
+        var blockSlots = @json($blockSlots ?? []);
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'timeGridWeek',
+            selectable: true, //
             eventMinHeight: 20,
             eventShortHeight: 45,
             nowIndicator: true,
-            slotMinTime: '5:00:00',
-            slotMaxTime: '20:00:00',
-            events: @json($events),
+            slotMinTime: '00:00:00',
+            slotMaxTime: '23:59:00',
+            events: [
+                ...@json($events), // ✅ your normal events
+                ...(blockSlots || []).map(slot => ({
+                    title: "Blocked", // only label as Blocked
+                    start: slot.start_time,
+                    end: slot.end_time,
+                    color: "#ff3d41", // light red
+                    extendedProps: {
+                        isBlocked: true,
+                        description: slot.description,
+                        id: slot.id
+                    }
+                }))
+            ],
+            select: function(info) {
+                // info.startStr and info.endStr give ISO time range
+
+                let isBlocked = (blockSlots || []).some(slot => {
+                    let blockStart = new Date(slot.start_time);
+                    let blockEnd = new Date(slot.end_time);
+                    return (
+                        (info.start >= blockStart && info.start < blockEnd) ||
+                        (info.end > blockStart && info.end <= blockEnd)
+                    );
+                });
+
+                if (isBlocked) {
+                    Swal.fire("Blocked", "This time is blocked and cannot be booked.", "warning");
+                    return;
+                }
+
+                const startTime = new Date(info.startStr).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const endTime = new Date(info.endStr).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const timeRange = `${startTime} - ${endTime}`;
+
+                Swal.fire({
+                    title: "Add Reason for Empty Slot",
+                    html: `
+                        <div style="text-align:left;">
+                            <label><strong>Time:</strong></label>
+                            <input type="text" id="selectedTime" class="form-control mb-3" value="${timeRange}" readonly>
+                    
+                            <label><strong>Reason:</strong></label>
+                            <textarea id="reason" class="form-control" placeholder="Enter reason here..." rows="4"></textarea>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: "Save",
+                    cancelButtonText: "Cancel",
+                    preConfirm: () => {
+                        const reason = document.getElementById('reason').value;
+                        if (!reason) {
+                            Swal.showValidationMessage(
+                                "Please enter a reason before saving.");
+                        }
+                        return {
+                            reason,
+                            start: info.startStr,
+                            end: info.endStr
+                        };
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // ✅ Send AJAX request to save reason
+                        $.ajax({
+                            url: "{{ route('slot.block.reason') }}", // create a route for this
+                            type: "POST",
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr(
+                                    'content'),
+                                reason: result.value.reason,
+                                start_time: result.value.start,
+                                end_time: result.value.end
+                            },
+                            success: function(response) {
+                                Swal.fire("Success",
+                                    "Reason saved successfully!", "success");
+                                // Optionally add a dummy event to show in calendar
+                                blockSlots.push({
+                                    id: response
+                                    .id, // return new block id from backend
+                                    start_time: result.value.start,
+                                    end_time: result.value.end,
+                                    description: result.value.reason
+                                });
+
+                                // ✅ render it in calendar
+                                calendar.addEvent({
+                                    id: response.id,
+                                    title: "Blocked",
+                                    start: result.value.start,
+                                    end: result.value.end,
+                                    color: '#ff3d41',
+                                    extendedProps: {
+                                        isBlocked: true,
+                                        description: result.value.reason
+                                    }
+                                });
+                            },
+                            error: function() {
+                                Swal.fire("Error",
+                                    "Something went wrong while saving.",
+                                    "error");
+                            }
+                        });
+                    }
+                });
+            },
             eventDidMount: function(info) {
                 if (type == 'Instructor') {
                     const deleteBtn = document.createElement('span');
@@ -125,31 +241,49 @@
                     deleteBtn.style.marginLeft = '8px';
                     deleteBtn.style.cursor = 'pointer';
                     deleteBtn.style.color = 'red';
+
                     deleteBtn.addEventListener('click', function(e) {
                         e.stopPropagation();
-                        const slot_id = info?.event?.extendedProps?.slot_id;
-                        if (confirm(`Do you want to delete this slot?`) && slot_id > 0) {
-                            info.event.remove();
-                            $.ajax({
-                                url: "{{ route('slot.delete') }}",
-                                type: 'POST',
-                                data: {
-                                    _token: $('meta[name="csrf-token"]').attr(
-                                        'content'),
-                                    id: slot_id,
-                                },
-                                success: function(response) {
-                                    Swal.fire('Success', response.message,
-                                        'success');
-                                },
-                                error: function(error) {
-                                    Swal.fire('Error',
-                                        'There was a problem deleting the slot.',
-                                        error);
-                                    console.log(error);
-                                }
-                            });
-                        }
+
+                        const isBlocked = info?.event?.extendedProps?.isBlocked;
+                        const eventId = isBlocked ? info?.event?.extendedProps?.id : info
+                            ?.event?.extendedProps?.slot_id;
+                        const deleteUrl = isBlocked ? "{{ route('slot.block.delete') }}" :
+                            "{{ route('slot.delete') }}";
+                        const slotType = isBlocked ? "blocked slot" : "slot";
+
+                        Swal.fire({
+                            title: `Delete ${slotType}?`,
+                            text: `Are you sure you want to delete this ${slotType}?`,
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Yes, delete it",
+                            cancelButtonText: "Cancel",
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed && eventId > 0) {
+                                info.event.remove();
+                                $.ajax({
+                                    url: deleteUrl,
+                                    type: 'POST',
+                                    data: {
+                                        _token: $('meta[name="csrf-token"]')
+                                            .attr('content'),
+                                        id: eventId,
+                                    },
+                                    success: function(response) {
+                                        Swal.fire('Deleted!', response
+                                            .message, 'success');
+                                    },
+                                    error: function(error) {
+                                        Swal.fire('Error',
+                                            'There was a problem deleting the slot.',
+                                            'error');
+                                        console.log(error);
+                                    }
+                                });
+                            }
+                        });
                     });
 
                     const titleContainer = info.el.querySelector('.fc-event-title-container');
@@ -158,7 +292,25 @@
                     }
                 }
             },
+
+
             eventClick: function(info) {
+                if (info.event.extendedProps.isBlocked) {
+                    Swal.fire({
+                        title: "Blocked Slot",
+                        html: `
+                    <div style="text-align:left;">
+                        <p><strong>Time:</strong> ${new Date(info.event.start).toLocaleString()} - ${new Date(info.event.end).toLocaleTimeString()}</p>
+                        <p><strong>Description:</strong></p>
+                        <p>${info.event.extendedProps.description || "No description provided."}</p>
+                    </div>
+                `,
+                        icon: "info",
+                        confirmButtonText: "Close"
+                    });
+                    return; // stop normal eventClick behavior
+                }
+
                 const slot_id = info?.event?.extendedProps?.slot_id;
                 const isBooked = !!info?.event?.extendedProps?.is_student_assigned;
                 const isCompleted = !!info.event?.extendedProps?.is_completed;
@@ -408,7 +560,6 @@
                 },
             },
         });
-
         calendar.render();
     });
 
@@ -423,9 +574,9 @@
         });
 
         let studentsHtml = `
-        <label for="unbookStudents"><strong>Select Students to Unbook:</strong></label>
-        <select id="unbookStudents" class="form-select w-full" multiple>
-    `;
+                <label for="unbookStudents"><strong>Select Students to Unbook:</strong></label>
+                <select id="unbookStudents" class="form-select w-full" multiple>
+                `;
 
         if (Array.isArray(student) && student.length > 0) {
             studentsHtml += student.map(s =>

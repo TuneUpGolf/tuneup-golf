@@ -202,6 +202,8 @@ Route::middleware([
 
         Route::resource('lesson', LessonController::class);
         Route::get('lesson/manage/slot', [LessonController::class, 'manageSlots'])->name('slot.manage');
+        Route::post('lesson/block/slot', [LessonController::class, 'blockSlots'])->name('slot.block.reason');
+        Route::post('lesson/block/slot/delete', [LessonController::class, 'deleteBlockSlots'])->name('slot.block.delete');
         Route::get('lesson/purchase/all', [LessonController::class, 'availableLessons'])->name('lesson.available');
         Route::get('get/lesson/instructor/', [LessonController::class, 'getAllByInstructor']);
         Route::get('get/all', [LessonController::class, 'getAll']);
