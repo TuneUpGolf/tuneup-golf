@@ -16,7 +16,14 @@ class InstructorBlockSlot extends Model
         'description'
     ];
 
-    public function instructor(){
+    protected $casts = [
+        'start_time' => 'datetime:Y-m-d H:i:s',
+        'end_time'   => 'datetime:Y-m-d H:i:s',
+    ];
+
+
+    public function instructor()
+    {
         return $this->belongsTo(User::class, 'instructor_id');
     }
 }
