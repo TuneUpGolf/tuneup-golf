@@ -50,6 +50,9 @@ class LessonController extends Controller
         }
     }
 
+
+
+
     public function create()
     {
         if (Auth::user()->can('create-lessons')) {
@@ -260,7 +263,8 @@ class LessonController extends Controller
         }
     }
 
-    public function deleteBlockSlots(Request $request){
+    public function deleteBlockSlots(Request $request)
+    {
         InstructorBlockSlot::find($request->id)->delete();
         return response()->json([
             'status'  => true,
@@ -1572,6 +1576,24 @@ class LessonController extends Controller
             if (Slots::find($request->id)->delete()) {
                 return response()->json(['message' => 'Slot deleted'], 200);
             }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 400);
+        }
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        // dd($request->all());
+        try {
+            $ids = $request->input('ids', []);
+            $purchases = Purchase::whereIn('slot_id', $ids)->get();
+            if(!$purchases->isEmpty()){
+            return response()->json(['error' => 'Slot is booked or completed']);
+
+            }
+            Slots::whereIn('id', $ids)->delete();
+
+            return response()->json(['message' => 'Selected slots deleted successfully.']);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 400);
         }
