@@ -1605,8 +1605,6 @@ class LessonController extends Controller
         }
     }
 
-
-
     public function getAllByInstructor(Request $request)
     {
         $request->validate([

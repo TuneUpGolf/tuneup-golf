@@ -106,16 +106,15 @@ class RegisteredUserController extends Controller
             // session()->flash('warning', 'Registered successfully, but chat features may not work properly.');
         }
 
-        $instructor = User::where('type', Role::ROLE_INSTRUCTOR)->orderBy('id', 'desc')->first();   
+        $instructor = User::where('type', Role::ROLE_INSTRUCTOR)->orderBy('id', 'desc')->first();
         if ($instructorId = $instructor->id ?? false) {
             Follow::updateOrCreate(
                 ['student_id' => $user->id, 'instructor_id' => $instructorId],
                 ['active_status' => true, 'isPaid' => false]
             );
         }
-        if(!is_null($instructor))
-        {
-            if (!is_null($instructor?->chat_user_id) ) {
+        if (!is_null($instructor)) {
+            if (!is_null($instructor?->chat_user_id)) {
                 $groupId = $this->chatService->createGroup($user?->chat_user_id, $instructor?->chat_user_id);
                 if ($groupId) {
                     $user->group_id = $groupId;
@@ -124,7 +123,7 @@ class RegisteredUserController extends Controller
             }
         }
 
-       SendEmail::dispatch($user->email, new WelcomeMailStudent($user, ''));
+        SendEmail::dispatch($user->email, new WelcomeMailStudent($user, ''));
 
         // else {
         //     $user = User::create([
@@ -146,12 +145,21 @@ class RegisteredUserController extends Controller
         //     $user->assignRole(Role::ROLE_INSTRUCTOR);
         //     return redirect(RouteServiceProvider::LOGIN)->with('success', 'Signup successful, please contact admin to activate your account.');
         // }
-
+        $current_guard = 'student';
         $res = Auth::loginUsingId($user->id);
-
-        if ($res) {
-            return redirect()->route('home');
+        if (Auth::guard($current_guard)->loginUsingId($user->id)) {
+            $request->session()->regenerate();
+            if ($user->phone_verified_at == '' && UtilityFacades::getsettings('sms_verification') == '1') {
+                return redirect()->route('smsindex.noticeverification');
+            }
+            return redirect()->intended(RouteServiceProvider::HOME);
+        } else {
+            return redirect(RouteServiceProvider::LOGIN)->with('success', 'Signup successful, please login with your credentials');
         }
+
+        // if ($res) {
+        //     return redirect()->route('home');
+        // }
 
         return redirect(RouteServiceProvider::LOGIN)->with('success', 'Signup successful, please login with your credentials');
     }

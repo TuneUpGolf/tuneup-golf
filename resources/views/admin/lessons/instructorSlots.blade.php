@@ -152,11 +152,24 @@
                         return;
                     }
 
-                    const startTime = new Date(info.startStr).toLocaleTimeString([], {
+                    unction formatDate(d) {
+                        return d.getFullYear() + "-" +
+                            String(d.getMonth() + 1).padStart(2, "0") + "-" +
+                            String(d.getDate()).padStart(2, "0") + " " +
+                            String(d.getHours()).padStart(2, "0") + ":" +
+                            String(d.getMinutes()).padStart(2, "0") + ":" +
+                            String(d.getSeconds()).padStart(2, "0");
+                    }
+
+                    const startFormatted = formatDate(info.start);
+                    const endFormatted = formatDate(info.end);
+
+                    // Use startFormatted & endFormatted instead of info.startStr/info.endStr
+                    const startTime = new Date(info.start).toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit'
                     });
-                    const endTime = new Date(info.endStr).toLocaleTimeString([], {
+                    const endTime = new Date(info.end).toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit'
                     });
@@ -165,14 +178,14 @@
                     Swal.fire({
                         title: "Add Reason for Empty Slot",
                         html: `
-                            <div style="text-align:left;">
-                                <label><strong>Time:</strong></label>
-                                <input type="text" id="selectedTime" class="form-control mb-3" value="${timeRange}" readonly>
-                    
-                                <label><strong>Reason:</strong></label>
-                                <textarea id="reason" class="form-control" placeholder="Enter reason here..." rows="4"></textarea>
-                            </div>
-                        `,
+            <div style="text-align:left;">
+                <label><strong>Time:</strong></label>
+                <input type="text" id="selectedTime" class="form-control mb-3" value="${timeRange}" readonly>
+    
+                <label><strong>Reason:</strong></label>
+                <textarea id="reason" class="form-control" placeholder="Enter reason here..." rows="4"></textarea>
+            </div>
+        `,
                         showCancelButton: true,
                         confirmButtonText: "Save",
                         cancelButtonText: "Cancel",
@@ -184,15 +197,14 @@
                             }
                             return {
                                 reason,
-                                start: info.startStr,
-                                end: info.endStr
+                                start: startFormatted,
+                                end: endFormatted
                             };
                         }
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            // ✅ Send AJAX request to save reason
                             $.ajax({
-                                url: "{{ route('slot.block.reason') }}", // create a route for this
+                                url: "{{ route('slot.block.reason') }}",
                                 type: "POST",
                                 data: {
                                     _token: $('meta[name="csrf-token"]').attr(
@@ -204,16 +216,12 @@
                                 success: function(response) {
                                     Swal.fire("Success",
                                         "Reason saved successfully!", "success");
-                                    // Optionally add a dummy event to show in calendar
                                     blockSlots.push({
-                                        id: response
-                                            .id, // return new block id from backend
+                                        id: response.id,
                                         start_time: result.value.start,
                                         end_time: result.value.end,
                                         description: result.value.reason
                                     });
-
-                                    // ✅ render it in calendar
                                     calendar.addEvent({
                                         id: response.id,
                                         title: "Blocked",
