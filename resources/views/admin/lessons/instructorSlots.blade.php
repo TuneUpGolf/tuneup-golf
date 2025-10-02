@@ -704,22 +704,44 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: "{{ route('slot.bulkDelete') }}", // you'll define this route
+                        url: "{{ route('slot.bulkDelete') }}",
                         type: "POST",
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content'),
                             ids: slotIds
                         },
                         success: function(response) {
-                            Swal.fire("Deleted!", response.message, "success");
-                            showPageLoader();
-                            window.location.reload();
+                            if (response.error) {
+                                Swal.fire("Error", response.error, "error");
+                            } else {
+                                Swal.fire("Deleted!", response.message, "success");
+                                showPageLoader();
+                                window.location.reload();
+                            }
                         },
-                        error: function(error) {
-                            Swal.fire("Error", "Something went wrong." + error, "error");
-                            console.error(error);
+                        error: function(xhr) {
+                            let errorMessage = "Something went wrong.";
+
+                            // Try to get error message from JSON response
+                            if (xhr.responseJSON && xhr.responseJSON.error) {
+                                errorMessage = xhr.responseJSON.error;
+                            }
+                            // Or fallback to raw text from server
+                            else if (xhr.responseText) {
+                                try {
+                                    let parsed = JSON.parse(xhr.responseText);
+                                    errorMessage = parsed.error || xhr.responseText;
+                                } catch (e) {
+                                    errorMessage = xhr.responseText;
+                                }
+                            }
+
+                            Swal.fire("Error", errorMessage, "error");
+                            console.error("Bulk delete failed:", xhr);
                         }
                     });
+
+
                 }
             });
         }
