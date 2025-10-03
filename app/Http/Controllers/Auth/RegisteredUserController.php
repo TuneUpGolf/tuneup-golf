@@ -145,6 +145,7 @@ class RegisteredUserController extends Controller
         //     $user->assignRole(Role::ROLE_INSTRUCTOR);
         //     return redirect(RouteServiceProvider::LOGIN)->with('success', 'Signup successful, please contact admin to activate your account.');
         // }
+        
         $current_guard = 'student';
         $res = Auth::loginUsingId($user->id);
         if (Auth::guard($current_guard)->loginUsingId($user->id)) {
