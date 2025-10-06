@@ -109,12 +109,14 @@ trait PurchaseTrait
 
             $instructorCurrency = $account?->default_currency ?? 'usd';
             $convertedAmount = $purchase?->total_amount * 100;
-
             if ($instructorCurrency !== $application_currency) {
                 $exchangeRates = \Stripe\ExchangeRate::retrieve($instructorCurrency);
                 $conversionRate = $exchangeRates['rates'][$application_currency] ?? 1;
                 $convertedAmount = round($convertedAmount / $conversionRate);
             }
+
+       
+
 
             $applicationFeeAmount = round(($application_fee_percentage / 100) * $convertedAmount);
 
@@ -134,7 +136,6 @@ trait PurchaseTrait
                 $success_params['slot_id'] = $slot_id;
             }
 
-            $purchase->load('instructor');
 
             $sessionData = [
                 'line_items' => [[
@@ -164,7 +165,9 @@ trait PurchaseTrait
             if (!$isInstructorUSA) {
                 $sessionData['payment_intent_data']['on_behalf_of'] = $accountId;
             }
+            // dd($instructor?->active_status, !empty($account->id), $account->charges_enabled, !empty($account->capabilities['card_payments']),$account->capabilities['card_payments'] === 'active');
 
+            // Want to test on local comment next if and uncomment session below
             if (
                 $instructor?->active_status &&
                 !empty($account->id) &&
@@ -176,6 +179,7 @@ trait PurchaseTrait
             } else {
                 throw new Exception('There is a problem with booking lessons for this instructor. Kindly contact admin.');
             }
+                // $session = Session::create($sessionData);
 
             if (!empty($session?->id)) {
                 $purchase->session_id = $session->id;
@@ -184,6 +188,7 @@ trait PurchaseTrait
 
             return $session;
         } catch (\Exception $e) {
+            // dd($e);
             return redirect()->back()->with('errors', $e->getMessage());
         }
     }
@@ -199,10 +204,11 @@ trait PurchaseTrait
             $purchase = Purchase::find($request?->purchase_id);
             if ($purchase && Auth::user()->can('create-purchases') && !!$purchase->instructor->is_stripe_connected) {
                 $session = $this->createSessionForPayment($purchase, true);
-
                 if (empty($session->url)) {
                     throw new \Exception('Failed to generate payment link');
                 }
+                // dd($session);
+
 
                 return $returnJson
                     ? response()->json(['payment_url' => $session->url], 200)

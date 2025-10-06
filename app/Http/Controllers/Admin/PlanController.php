@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\DataTables\Admin\PlanDataTable;
-use App\Facades\UtilityFacades;
-use App\Models\Order;
+use Stripe\Price;
+use Stripe\Stripe;
+use Stripe\Product;
 use App\Models\Plan;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Facades\UtilityFacades;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\DataTables\Admin\PlanDataTable;
 
 class PlanController extends Controller
 {
@@ -75,6 +78,8 @@ class PlanController extends Controller
                 'max_users'     => 'required'
             ]);
 
+            // dd($request->all());
+
             $paymentTypes = UtilityFacades::getpaymenttypes();
             if (!$paymentTypes) {
                 return redirect()->route('plans.index')->with('errors', __('Please on at list one payment type.'));
@@ -94,6 +99,30 @@ class PlanController extends Controller
                 }
             }
 
+            $totalPrice = $request->price;
+            $intervalCount = (int) $request->duration;
+            if ($intervalCount <= 0) {
+                $intervalCount = 1;
+            }
+            $perIntervalPrice = $totalPrice / $intervalCount;
+
+            Stripe::setApiKey(config('services.stripe.secret'));
+
+            $product = Product::create([
+                'name' => $request->name,
+                'description' => $request->description,
+            ]);
+
+            // 2️⃣ Create a Recurring Price
+            $price = Price::create([
+                'unit_amount' => round($perIntervalPrice * 100), // Stripe expects cents
+                'currency' => 'usd',
+                'recurring' => [
+                    'interval' =>  strtolower($request->durationtype), // "month" or "year"
+                ],
+                'product' => $product->id,
+            ]);
+
             Plan::create([
                 'name'            => $request->name,
                 'price'           => $request->price,
@@ -105,6 +134,8 @@ class PlanController extends Controller
                 'is_chat_enabled' => $request->chat == '1' ? 1 : 0,
                 'is_feed_enabled' => $request->feed == '1' ? 1 : 0,
                 'instructor_id'   => $instructorId,
+                'stripe_product_id' => $product->id, // store Stripe IDs!
+                'stripe_price_id'   => $price->id,
             ]);
             return redirect()->route('plans.myplan')->with('success', __('Plan created successfully.'));
         } else {
@@ -125,43 +156,88 @@ class PlanController extends Controller
     public function update(Request $request, $id)
     {
         if (Auth::user()->can('edit-plan')) {
-            if (Auth::user()->type == 'Super Admin') {
-                request()->validate([
-                    'name'          => 'required|max:50|unique:plans,name,' . $id,
-                    'price'         => 'required',
-                    'duration'      => 'required',
-                    'description'   => 'max:100',
-                ]);
-                $plan               = Plan::find($id);
-                $plan->name         = $request->input('name');
-                $plan->price        = $request->input('price');
-                $plan->duration     = $request->input('duration');
-                $plan->durationtype = $request->input('durationtype');
-                $plan->description  = $request->input('description');
-                $plan->save();
-            } else {
-                request()->validate([
-                    'name'      => 'required|max:50|unique:plans,name,' . $id,
-                    'price'     => 'required',
-                    'duration'  => 'required',
-                    'max_users' => 'required',
-                ]);
-                $plan                  = Plan::find($id);
-                $plan->name            = $request->input('name');
-                $plan->price           = $request->input('price');
-                $plan->duration        = $request->input('duration');
-                $plan->durationtype    = $request->input('durationtype');
-                $plan->max_users       = $request->input('max_users');
-                $plan->description     = $_POST['description'];
-                $plan->is_chat_enabled = $request->input('chat') ? true : false;
-                $plan->is_feed_enabled = $request->input('feed') ? true : false;
-                $plan->save();
+            request()->validate([
+                'name'          => 'required|max:50|unique:plans,name,' . $id,
+                'price'         => 'required',
+                'duration'      => 'required',
+                'durationtype'  => 'required',
+                'max_users'     => 'required',
+            ]);
+
+            $plan = Plan::findOrFail($id);
+
+            $instructorId = Auth::user()->type === Role::ROLE_INSTRUCTOR ? Auth::user()->id : null;
+            $tenantId     = Auth::user()->type === Role::ROLE_INSTRUCTOR ? tenant()->id : null;
+
+            // 🔹 Calculate price per interval
+            $totalPrice = $request->price;
+            $intervalCount = (int) $request->duration;
+            if ($intervalCount <= 0) {
+                $intervalCount = 1;
             }
+            $perIntervalPrice = $totalPrice / $intervalCount;
+
+            // 🔹 Initialize Stripe
+            \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+
+            try {
+                /**
+                 * 1️⃣ Update or Create Stripe Product
+                 */
+                if ($plan->stripe_product_id) {
+                    // Update existing product in Stripe
+                    $product = \Stripe\Product::update($plan->stripe_product_id, [
+                        'name' => $request->name,
+                        'description' => $request->description,
+                    ]);
+                } else {
+                    // Create a new product in Stripe if missing
+                    $product = \Stripe\Product::create([
+                        'name' => $request->name,
+                        'description' => $request->description,
+                    ]);
+                    $plan->stripe_product_id = $product->id;
+                }
+
+                /**
+                 * 2️⃣ Create New Stripe Price (since prices cannot be edited)
+                 */
+                $price = \Stripe\Price::create([
+                    'unit_amount' => round($perIntervalPrice * 100), // Stripe expects cents
+                    'currency' => 'usd',
+                    'recurring' => [
+                        'interval' => strtolower($request->durationtype), // month or year
+                    ],
+                    'product' => $plan->stripe_product_id,
+                ]);
+
+                // ✅ Save the new price ID in the plan
+                $plan->stripe_price_id = $price->id;
+            } catch (\Exception $e) {
+                return redirect()->back()->with('failed', __('Stripe Error: ') . $e->getMessage());
+            }
+
+            /**
+             * 3️⃣ Update Local Plan Data
+             */
+            $plan->name            = $request->name;
+            $plan->price           = $totalPrice;
+            $plan->duration        = $request->duration;
+            $plan->durationtype    = $request->durationtype;
+            $plan->max_users       = $request->max_users;
+            $plan->description     = $request->description;
+            $plan->is_chat_enabled = $request->chat == '1' ? 1 : 0;
+            $plan->is_feed_enabled = $request->feed == '1' ? 1 : 0;
+            $plan->tenant_id       = $tenantId;
+            $plan->instructor_id   = $instructorId;
+            $plan->save();
+
             return redirect()->route('plans.myplan')->with('success', __('Plan updated successfully.'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
     }
+
 
     public function destroy($id)
     {

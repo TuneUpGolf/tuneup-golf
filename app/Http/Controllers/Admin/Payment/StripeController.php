@@ -138,6 +138,7 @@ class StripeController extends Controller
 
     public function stripePostPending(Request $request)
     {
+        // dd('$stop');
         $planID    = \Illuminate\Support\Facades\Crypt::decrypt($request->plan_id);
         $authUser  = Auth::user();
         if ($authUser->type == 'Admin') {
@@ -190,6 +191,7 @@ class StripeController extends Controller
                 $authUserId = $authUser->id;
                 $studentId = null;
             }
+
             $studentId    = $authUser->type == 'Student' ? $authUserId : null;
             $plan           =  Plan::find($planID);
 
@@ -202,11 +204,13 @@ class StripeController extends Controller
                     'error' => 'Chat user ID is required to proceed with the payment.'
                 ]);
             }
+
             $couponId       = '0';
             $price          = $plan->price;
             $couponCode     = null;
             $discountValue  = null;
             $coupons        = Coupon::where('code', $request->coupon)->where('is_active', '1')->first();
+
             if ($coupons) {
                 $couponCode     = $coupons->code;
                 $usedCoupun     = $coupons->used_coupon();
@@ -223,6 +227,8 @@ class StripeController extends Controller
                     $couponId       = $coupons->id;
                 }
             }
+
+
             $data = Order::create([
                 'plan_id'           => $plan->id,
                 'user_id'           => $authUserId,
@@ -237,11 +243,15 @@ class StripeController extends Controller
             $resData['plan_id']     = $plan->id;
             $resData['coupon']      = $couponId;
             $resData['order_id']    = $data->id;
+            // dd($resData);
             return $resData;
         }
     }
+
+
     public function stripeSession(Request $request)
     {
+        // dd($request->all());
         if (Auth::user()->type != 'Admin') {
             Stripe::setApiKey(UtilityFacades::getsettings('stripe_secret'));
             $currency       = UtilityFacades::getsettings('currency');
@@ -263,32 +273,58 @@ class StripeController extends Controller
                 $planDetails   =  Plan::find($request->plan_id);
             }
             try {
+                // $checkout_session = \Stripe\Checkout\Session::create([
+                //     'payment_method_types'  => ['card'],
+                //     'line_items'            => [[
+                //         'price_data'    => [
+                //             'currency'      => $currency,
+                //             'product_data'  => [
+                //                 'name'      => $planDetails->name,
+                //                 'metadata'  => [
+                //                     'plan_id'           => $request->plan_id,
+                //                     'domainrequest_id'  => $request->domainrequest_id
+                //                 ]
+                //             ],
+                //             'unit_amount'   => $request->amount * 100,
+                //         ],
+                //         'quantity'      => 1,
+                //     ]],
+                //     'mode'          => 'payment',
+                //     'success_url'   => route('stripe.success.pay', Crypt::encrypt([
+                //         'coupon'    => $request->coupon,
+                //         'plan_id'   => $planDetails->id,
+                //         'price'     => $request->amount,
+                //         'user_id'   => Auth::user()->id,
+                //         'order_id'  => $request->order_id,
+                //         'type'      => 'stripe'
+                //     ])),
+                //     'cancel_url'    => route('stripe.cancel.pay', Crypt::encrypt([
+                //         'coupon'    => $request->coupon,
+                //         'plan_id'   => $planDetails->id,
+                //         'price'     => $request->amount,
+                //         'user_id'   => Auth::user()->id,
+                //         'order_id'  => $request->order_id,
+                //         'type'      => 'stripe'
+                //     ])),
+                // ]);
+
                 $checkout_session = \Stripe\Checkout\Session::create([
-                    'payment_method_types'  => ['card'],
-                    'line_items'            => [[
-                        'price_data'    => [
-                            'currency'      => $currency,
-                            'product_data'  => [
-                                'name'      => $planDetails->name,
-                                'metadata'  => [
-                                    'plan_id'           => $request->plan_id,
-                                    'domainrequest_id'  => $request->domainrequest_id
-                                ]
-                            ],
-                            'unit_amount'   => $request->amount * 100,
-                        ],
-                        'quantity'      => 1,
+                    'payment_method_types' => ['card'],
+                    'mode' => 'subscription',
+                    'line_items' => [[
+                        'price' => $planDetails->stripe_price_id,
+                        'quantity' => 1,
                     ]],
-                    'mode'          => 'payment',
-                    'success_url'   => route('stripe.success.pay', Crypt::encrypt([
+                    'customer_email' => Auth::user()->email,
+                    'success_url' => route('stripe.success.pay', Crypt::encrypt([
                         'coupon'    => $request->coupon,
                         'plan_id'   => $planDetails->id,
                         'price'     => $request->amount,
                         'user_id'   => Auth::user()->id,
                         'order_id'  => $request->order_id,
                         'type'      => 'stripe'
-                    ])),
-                    'cancel_url'    => route('stripe.cancel.pay', Crypt::encrypt([
+                    ])) . '?session_id={CHECKOUT_SESSION_ID}',
+                    'cancel_url' => route('stripe.cancel.pay', Crypt::encrypt([
                         'coupon'    => $request->coupon,
                         'plan_id'   => $planDetails->id,
                         'price'     => $request->amount,
@@ -369,6 +405,7 @@ class StripeController extends Controller
 
     function paymentCancel($data)
     {
+
         $data = Crypt::decrypt($data);
         if (Auth::user()->type == 'Admin') {
             $order  = tenancy()->central(function ($tenant) use ($data) {
@@ -388,6 +425,14 @@ class StripeController extends Controller
 
     function paymentSuccess($data)
     {
+        $session_id = request('session_id');
+
+        // ✅ Clean the $data variable (remove query params if accidentally included)
+        if (strpos($data, '?') !== false) {
+            $data = explode('?', $data)[0];
+        }
+
+        // Then decrypt as usual
         $data = Crypt::decrypt($data);
         $user = Auth::user();
         if ($user->type == 'Admin') {
@@ -459,6 +504,39 @@ class StripeController extends Controller
             }
             $user->save();
         }
+
+        /**
+         * 🆕 NEW STRIPE LOGIC STARTS HERE
+         * --------------------------------
+         * After successful payment, find the checkout session and
+         * update the subscription to auto-cancel after plan duration.
+         */
+        try {
+            $session_id = request('session_id');
+            if ($session_id) {
+                \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+                $session = \Stripe\Checkout\Session::retrieve($session_id);
+
+                if (!empty($session->subscription)) {
+                    $subscription_id = $session->subscription;
+
+                    // Calculate when the subscription should end
+                    $cancelAt = now()->addMonths(
+                        strtolower($plan->durationtype) === 'month'
+                            ? $plan->duration
+                            : $plan->duration * 12
+                    )->timestamp;
+
+                    // Update Stripe subscription to auto-cancel
+                    \Stripe\Subscription::update($subscription_id, [
+                        'cancel_at' => $cancelAt,
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error('Stripe cancel_at update failed: ' . $e->getMessage());
+        }
+        /** 🆕 END STRIPE LOGIC */
 
         if ($user->type == 'Student') {
             return redirect()->route('home', ['view' => 'subscriptions'])->with('status', __('Payment successfully!'));

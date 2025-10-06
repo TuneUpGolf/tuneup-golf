@@ -28,7 +28,9 @@ class Plan extends Model
         'active_status',
         'is_chat_enabled',
         'discount_setting',
-        'instructor_id'
+        'instructor_id',
+        'stripe_product_id',
+        'stripe_price_id'
     ];
 
     public function instructor()
