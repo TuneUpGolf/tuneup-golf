@@ -2,33 +2,34 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\Admin\PurchaseDataTable;
-use App\Http\Controllers\Controller;
-use App\DataTables\Admin\SalesDataTable;
-use App\DataTables\Admin\StudentPurchaseDataTable;
+use DatePeriod;
+use Carbon\Carbon;
+use Stripe\Stripe;
+use App\Models\Plan;
+use App\Models\Role;
+use App\Models\User;
+use App\Models\Event;
+use App\Models\Posts;
+use App\Models\Slots;
+use App\Models\Lesson;
+use App\Models\Student;
 use App\Facades\Utility;
+use App\Models\Purchase;
+use Carbon\CarbonInterval;
+use Illuminate\Http\Request;
+use Stripe\Checkout\Session;
+use App\Models\AlbumCategory;
+use App\Models\SupportTicket;
+use App\Services\ChatService;
 use App\Facades\UtilityFacades;
 use App\Models\DocumentGenrator;
-use App\Models\Event;
-use App\Models\Lesson;
-use App\Models\Plan;
-use App\Models\Posts;
-use App\Models\Purchase;
-use App\Models\Role;
-use App\Models\Slots;
-use App\Models\Student;
-use App\Models\SupportTicket;
-use App\Models\User;
-use App\Providers\AuthServiceProvider;
-use App\Services\ChatService;
-use Carbon\Carbon;
-use Carbon\CarbonInterval;
-use DatePeriod;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Stripe\Checkout\Session;
-use Stripe\Stripe;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Providers\AuthServiceProvider;
+use App\DataTables\Admin\SalesDataTable;
+use App\DataTables\Admin\PurchaseDataTable;
+use App\DataTables\Admin\StudentPurchaseDataTable;
 
 class HomeController extends Controller
 {
@@ -104,8 +105,28 @@ class HomeController extends Controller
                     $q->where('type', 'online');
                 })
                 ->get();
+
+
+
+            $album_instructors = User::instructors()
+                ->whereHas('albums')
+                ->get();
+
+
+            $album_categories = AlbumCategory::query();
+
+            if ($request->has('instructor_id') && !empty($request->instructor_id)) {
+                $album_categories->where('instructor_id', $request->instructor_id);
+            }
+
+            $album_categories = $album_categories->get();
+
+         
+
+
+            // dd($online_instructors, $inPerson_instructors[0]->lessons);
             return $dataTable ? $dataTable->render('admin.dashboard.tab-view', compact('tab', 'dataTable')) :
-                view('admin.dashboard.tab-view', compact('tab', 'dataTable', 'chatEnabled', 'token', 'instructor', 'plans', 'inPerson_instructors', 'online_instructors', 'instructor_id'));
+                view('admin.dashboard.tab-view', compact('tab', 'dataTable', 'chatEnabled', 'token', 'instructor', 'plans', 'inPerson_instructors', 'online_instructors', 'instructor_id', 'album_instructors', 'album_categories'));
         }
 
         $user = User::find($user->id);

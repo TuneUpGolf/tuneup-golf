@@ -244,6 +244,7 @@
                                 </div>
                             @else
                                 @if ($tab == 'in-person')
+                                    {{-- @dd($inPerson_instructors) --}}
                                     @if (isset($inPerson_instructors) && $inPerson_instructors->count())
                                         <div class="col-md-2 mt-2">
                                             <select name="instructor" id="instructor" class="form-control"
@@ -273,24 +274,39 @@
                                             </select>
                                         </div>
                                     @endif
-                                @endif
-                                <div class="dataTable-top row">
-                                    <div class="col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block"></div>
-                                    <div class="tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex">
-                                        <select id="album-category" class="form-select"
-                                            style="margin-left:auto; max-width: 12.5rem;">
-                                            <option value="" {{ request()->query('category') ? '' : 'selected' }}>
-                                                - Select Category -
-                                            </option>
-                                            @foreach (App\Models\AlbumCategory::get() as $category)
-                                                <option value="{{ $category->id }}"
-                                                    {{ request()->query('category') == $category->id ? 'selected' : '' }}>
-                                                    {{ $category->title }}
+                                @else
+                                    <div class="col-md-2 mt-2">
+                                        <select name="instructor" id="instructor" class="form-control"
+                                            onchange="updateInstructorUrl(this.value)">
+                                            <option value="">All Instructors</option>
+                                            @foreach ($album_instructors as $instructor)
+                                                <option value="{{ $instructor->id }}"
+                                                    {{ request('instructor_id') == $instructor->id ? 'selected' : '' }}>
+                                                    {{ $instructor->name }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
-                                </div>
+                                    <div class="dataTable-top row">
+
+                                        <div class="col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block"></div>
+                                        <div class="tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex">
+                                            <select id="album-category" class="form-select"
+                                                style="margin-left:auto; max-width: 12.5rem;">
+                                                <option value=""
+                                                    {{ request()->query('category') ? '' : 'selected' }}>
+                                                    - Select Category -
+                                                </option>
+                                                @foreach ($album_categories as $category)
+                                                    <option value="{{ $category->id }}"
+                                                        {{ request()->query('category') == $category->id ? 'selected' : '' }}>
+                                                        {{ $category->title }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                @endif
 
                                 <livewire:student-dashboard-view :instructor_id="$instructor_id" />
                             @endif
@@ -311,27 +327,36 @@
         document.getElementById('album-category').addEventListener('change', function() {
             let categoryId = this.value;
 
-            // Get current URL
-            let url = new URL(window.location.href);
+            // Only redirect if current view is 'posts' (or not in-person/online)
+            const url = new URL(window.location.href);
+            const currentView = url.searchParams.get('view') || 'in-person';
 
-            // Add or update category param
-            url.searchParams.set('category', categoryId);
-
-            // Redirect
-            window.location.href = url.toString();
+            if (currentView === 'posts') {
+                url.searchParams.set('category', categoryId);
+                window.location.href = url.toString();
+            }
         });
+
 
         function switchTab(view) {
             const url = new URL(window.location.href);
             url.searchParams.set('view', view);
+
             const instructorId = document.getElementById('instructor')?.value;
             if (instructorId) {
                 url.searchParams.set('instructor_id', instructorId);
             } else {
                 url.searchParams.delete('instructor_id');
             }
+
+            // Remove category when switching to lessons tabs
+            if (view === 'in-person' || view === 'online' || view === 'my-lessons' || view === 'chat') {
+                url.searchParams.delete('category');
+            }
+
             window.location.href = url.toString();
         }
+
 
         function updateInstructorUrl(instructorId) {
             const url = new URL(window.location.href);
