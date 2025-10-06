@@ -63,6 +63,7 @@ class AlbumController extends Controller
                     // $file = $request->file('file')->store('album');
                     // $album_category->media = $file ?? null;
                 }
+                
                 $album_category->status = 'active';
                 $album_category->save();
                 return redirect()->route('album.category.manage')->with('success', __('Album created successfully.'));

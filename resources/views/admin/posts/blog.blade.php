@@ -58,13 +58,13 @@
             <div class="flex justify-between items-center w-full">
                 <div class="flex items-center gap-3">
                     <!-- @if ($post->isStudentPost)
-<img class="w-10 h-10 rounded-full"
-                        src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post?->student?->dp) }}" alt="Profile" />
-@else
-<img class="w-10 h-10 rounded-full"
-                        src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post?->instructor?->logo) }}"
-                        alt="Profile" />
-@endif -->
+                        <img class="w-10 h-10 rounded-full"
+                                                src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post?->student?->dp) }}" alt="Profile" />
+                        @else
+                        <img class="w-10 h-10 rounded-full"
+                                                src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post?->instructor?->logo) }}"
+                                                alt="Profile" />
+                        @endif -->
                     <img class="w-16 h-16 rounded-full"
                         src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
                         alt="Profile" />
