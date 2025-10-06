@@ -340,6 +340,7 @@
                                     <div class="card-header d-flex justify-content-between">
                                         <h5>{{ __($paymenttype) }}</h5>
                                     </div>
+                                    {{-- @dd($id) --}}
                                     <form role="form" action="{{ $route }}" method="post" name="payuForm"
                                         class="require-validation" id="{{ $id }}">
                                         @csrf

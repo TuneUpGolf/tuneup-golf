@@ -93,6 +93,18 @@
         .choices__list--dropdown .choices__item {
             text-align: left;
         }
+
+        .fc-event-main-frame {
+            flex-direction: column !important;
+        }
+
+        .fc-event-time::after {
+            content: none !important;
+        }
+
+        .fc-event, .fc-event:not([href]) {
+            padding: 0 !important;
+        }
     </style>
     <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.min.css">
@@ -178,14 +190,14 @@
                     Swal.fire({
                         title: "Add Reason for Empty Slot",
                         html: `
-            <div style="text-align:left;">
-                <label><strong>Time:</strong></label>
-                <input type="text" id="selectedTime" class="form-control mb-3" value="${timeRange}" readonly>
+                            <div style="text-align:left;">
+                                <label><strong>Time:</strong></label>
+                                <input type="text" id="selectedTime" class="form-control mb-3" value="${timeRange}" readonly>
     
-                <label><strong>Reason:</strong></label>
-                <textarea id="reason" class="form-control" placeholder="Enter reason here..." rows="4"></textarea>
-            </div>
-        `,
+                                <label><strong>Reason:</strong></label>
+                                <textarea id="reason" class="form-control" placeholder="Enter reason here..." rows="4"></textarea>
+                            </div>
+                        `,
                         showCancelButton: true,
                         confirmButtonText: "Save",
                         cancelButtonText: "Cancel",
@@ -245,13 +257,21 @@
                 },
                 eventDidMount: function(info) {
                     const isBlocked = info.event.extendedProps?.isBlocked;
-                    const titleContainer = info.el.querySelector(".fc-event-title-container");
+                    const titleContainer = info.el.querySelector(".fc-event-time");
 
                     if (!titleContainer) return;
+                    titleContainer.style.display = "flex";
+
+                    titleContainer.style.justifyContent = "space-between";
 
                     // Wrapper for checkbox + delete icon
-                    const actionContainer = document.createElement("span");
-                    actionContainer.style.display = "inline-flex";
+                    const actionContainer = document.createElement("div");
+                    actionContainer.style.display = "flex";
+                    actionContainer.style.justifyContent = "end";
+
+                    // actionContainer.style.position = 'absolute'
+                    // actionContainer.style.top = '0px'
+                    // actionContainer.style.right = '2px'
                     actionContainer.style.alignItems = "center";
                     actionContainer.style.gap = "6px"; // space between checkbox and delete icon
                     actionContainer.style.marginLeft = "8px";
@@ -260,9 +280,8 @@
                     if (!isBlocked) {
                         const checkbox = document.createElement("input");
                         checkbox.type = "checkbox";
-                        checkbox.style.position = 'absolute'
-                        checkbox.style.top = '10px'
-                        checkbox.style.right = '32px'
+                        // checkbox.style.top = '3px'
+                        // checkbox.style.right = '20px'
                         checkbox.className = "slot-select-checkbox";
                         checkbox.dataset.slotId = info.event.extendedProps.slot_id;
 
@@ -278,11 +297,13 @@
 
                         // ✅ Delete button (only for instructors)
                         const deleteBtn = document.createElement('span');
-                        deleteBtn.className = 'fc-delete-btn';
+                        deleteBtn.className = '';
                         deleteBtn.innerHTML = `<i class="ti ti-trash text-white"></i>`; // ⬅️ unchanged
                         deleteBtn.title = 'Delete';
                         deleteBtn.style.cursor = 'pointer';
                         deleteBtn.style.marginLeft = "4px";
+                        // deleteBtn.style.top = '0px'
+                        // deleteBtn.style.right = '2px'
 
                         deleteBtn.addEventListener('click', function(e) {
                             e.stopPropagation();
