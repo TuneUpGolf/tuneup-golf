@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Services\StripeWebhookService;
 use App\DataTables\Admin\PlanDataTable;
 
 class PlanController extends Controller
@@ -59,6 +60,7 @@ class PlanController extends Controller
 
     public function createMyPlan()
     {
+        // dd(tenant(), tenant()->domains->first()->domain);
         if (Auth::user()->can('create-plan')) {
             if (Auth::user()->is_stripe_connected == 0) {
                 return back()->with('failed', 'Stripe account not connected');
@@ -83,10 +85,10 @@ class PlanController extends Controller
 
             // dd($request->all());
 
-            $paymentTypes = UtilityFacades::getpaymenttypes();
-            if (!$paymentTypes) {
-                return redirect()->route('plans.index')->with('errors', __('Please on at list one payment type.'));
-            }
+            // $paymentTypes = UtilityFacades::getpaymenttypes();
+            // if (!$paymentTypes) {
+            //     return redirect()->route('plans.index')->with('failed', __('Please on at list one payment type.'));
+            // }
 
             $currency = UtilityFacades::getsettings('currency') ?? 'usd';
 
@@ -148,6 +150,22 @@ class PlanController extends Controller
                 'stripe_product_id' => $product->id, // store Stripe IDs!
                 'stripe_price_id'   => $price->id,
             ]);
+
+            // // ---- 4️⃣ Create Webhook (only if teacher connected Stripe) ----
+            // if ($stripeAccountId && isset(tenant()->domains->first()->domain)) {
+            //     // Use the service you defined earlier
+            //     $webhookId = StripeWebhookService::ensureWebhookForConnectedAccount(
+            //         $stripeAccountId,
+            //         tenant()->domains->first()->domain,
+            //         $instructor->stripe_webhook_id ?? null
+            //     );
+
+            //     // Store webhook ID if new
+            //     if ($webhookId && empty($instructor->stripe_webhook_id)) {
+            //         $instructor->update(['stripe_webhook_id' => $webhookId]);
+            //     }
+            // }
+
             return redirect()->route('plans.myplan')->with('success', __('Plan created successfully.'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));

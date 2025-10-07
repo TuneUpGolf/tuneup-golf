@@ -26,13 +26,14 @@ class LessonDataTable extends DataTable
             ->editColumn('type', function (Lesson $lesson) {
                 $s = Lesson::TYPE_MAPPING[$lesson->type] ?? ucfirst($lesson->type);
 
-                if ($lesson->type == Lesson::LESSON_TYPE_INPERSON && $lesson->is_package_lesson)
-                    $s .= ' - PL';
+                if ($lesson->type == Lesson::LESSON_TYPE_INPERSON )
+                    // $s .= ' - PL';
+                    return '<label class="badge rounded-pill bg-cyan-600 p-2 px-3">' . 'Pre-sets Date Lesson' . '</label>';
 
                 if ($lesson->type == Lesson::LESSON_TYPE_ONLINE) {
                     return '<label class="badge rounded-pill bg-green-600 p-2 px-3">' . $s . '</label>';
                 }
-                if ($lesson->type == Lesson::LESSON_TYPE_INPERSON) {
+                if ($lesson->type == Lesson::LESSON_TYPE_PACKAGE) {
                     return '<label class="badge rounded-pill bg-yellow-600 p-2 px-3">' . $s . '</label>';
                 }
                 return '<label class="badge rounded-pill bg-yellow-600 p-2 px-3">' . $s . '</label>';

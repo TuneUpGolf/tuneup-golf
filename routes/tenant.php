@@ -48,6 +48,7 @@ use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\LoginSecurityController;
 use App\Http\Controllers\Admin\Payment\PaytmController;
 use App\Http\Controllers\Admin\Payment\SSPayController;
+use App\Http\Controllers\Admin\StripeWebhookController;
 use App\Http\Controllers\Admin\SupportTicketController;
 use App\Http\Controllers\Admin\OfflineRequestController;
 use App\Http\Controllers\Admin\Payment\PaypalController;
@@ -100,6 +101,10 @@ Route::middleware([
     Route::get('/tenant-impersonate/{token}', function ($token) {
         return UserImpersonation::makeResponse($token);
     });
+
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
+
+
     Route::group(['middleware' => ['Setting', 'xss']], function () {
         Route::get('redirect/{provider}', [SocialLoginController::class, 'redirect']);
         Route::get('callback/{provider}', [SocialLoginController::class, 'callback'])->name('social.callback');
@@ -718,4 +723,5 @@ Route::group(['middleware' => [
     PreventAccessFromCentralDomains::class,
 ]], function () {
     Route::post('/student/signup', [StudentController::class, 'signup']);
+
 });
