@@ -46,5 +46,7 @@ class VerifyCsrfToken extends Middleware
         '/aamarpay*',
         '/aamarpaypayment*',
 
+        // Stripe Api Webhook
+        '/stripe/webhook'
     ];
 }

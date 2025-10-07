@@ -71,12 +71,22 @@ class PurchaseDataTable extends DataTable
                 return '<div class="flex justify-between items-center">' . $lessonLink . '</div>';
             })
             ->addColumn('pill', function ($purchase) {
-                $s = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
+                $s = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? ucfirst($purchase->lesson->type ?? 'N/A');
                 $lesson_type = $purchase->lesson->type ?? null;
-                $badgeStyle = $lesson_type == Lesson::LESSON_TYPE_ONLINE
-                    ? 'background-color:#16A34A;color:white;padding:4px 12px;border-radius:9999px;display:inline-block;font-size:14px;'
-                    : 'background-color:#cc8217;color:white;padding:4px 12px;border-radius:9999px;display:inline-block;font-size:14px;';
-                return '<span style="' . $badgeStyle . '">' . e($s) . '</span>';
+
+                if ($lesson_type == Lesson::LESSON_TYPE_INPERSON) {
+                    return '<label class="badge rounded-pill bg-cyan-600 p-2 px-3">Pre-sets Date Lesson</label>';
+                }
+
+                if ($lesson_type == Lesson::LESSON_TYPE_ONLINE) {
+                    return '<label class="badge rounded-pill bg-green-600 p-2 px-3">' . e($s) . '</label>';
+                }
+
+                if ($lesson_type == Lesson::LESSON_TYPE_PACKAGE) {
+                    return '<label class="badge rounded-pill bg-yellow-600 p-2 px-3">' . e($s) . '</label>';
+                }
+
+                return '<label class="badge rounded-pill bg-yellow-600 p-2 px-3">' . e($s) . '</label>';
             })
             ->editColumn('student_name', function ($purchase) {
                 if ($purchase->lesson->type === Lesson::LESSON_TYPE_INPERSON) {
@@ -370,7 +380,7 @@ class PurchaseDataTable extends DataTable
             if ($user->type === Role::ROLE_ADMIN) {
                 $query->whereRaw(
                     '(EXISTS (SELECT 1 FROM lessons l WHERE l.id = purchases.lesson_id AND (l.is_package_lesson = ? OR l.type = ?) AND purchases.status = ?)) OR ' .
-                    '(EXISTS (SELECT 1 FROM lessons l WHERE l.id = purchases.lesson_id AND l.type = ? AND l.is_package_lesson = ?) AND purchases.status IN (?, ?))',
+                        '(EXISTS (SELECT 1 FROM lessons l WHERE l.id = purchases.lesson_id AND l.type = ? AND l.is_package_lesson = ?) AND purchases.status IN (?, ?))',
                     [true, 'online', 'complete', 'inPerson', false, 'complete', 'incomplete']
                 );
                 Log::info('Applied admin filter');
@@ -398,22 +408,22 @@ class PurchaseDataTable extends DataTable
                     ->orderByDesc('created_at');
             } elseif ($lessonType === Lesson::LESSON_TYPE_ONLINE) {
                 $query->select([
-                        'purchases.*',
-                        'purchases.type as purchase_type',
-                        'lessons.lesson_name as lesson_name',
-                        'instructors.name as instructor_name',
-                        'students.name as student_name',
-                    ])
+                    'purchases.*',
+                    'purchases.type as purchase_type',
+                    'lessons.lesson_name as lesson_name',
+                    'instructors.name as instructor_name',
+                    'students.name as student_name',
+                ])
                     ->where('lessons.type', Lesson::LESSON_TYPE_ONLINE)
                     ->orderByDesc('purchases.created_at');
             } elseif ($lessonType === Lesson::LESSON_TYPE_PACKAGE) {
                 $query->select([
-                        'purchases.*',
-                        'purchases.type as purchase_type',
-                        'lessons.lesson_name as lesson_name',
-                        'instructors.name as instructor_name',
-                        'students.name as student_name',
-                    ])
+                    'purchases.*',
+                    'purchases.type as purchase_type',
+                    'lessons.lesson_name as lesson_name',
+                    'instructors.name as instructor_name',
+                    'students.name as student_name',
+                ])
                     ->where('lessons.type', Lesson::LESSON_TYPE_PACKAGE)
                     ->orderByDesc('purchases.created_at');
             } else {
@@ -452,7 +462,7 @@ class PurchaseDataTable extends DataTable
                     $adminFilter = function ($q) {
                         $q->whereRaw(
                             '(EXISTS (SELECT 1 FROM lessons l WHERE l.id = purchases.lesson_id AND (l.is_package_lesson = ? OR l.type = ?) AND purchases.status = ?)) OR ' .
-                            '(EXISTS (SELECT 1 FROM lessons l WHERE l.id = purchases.lesson_id AND l.type = ? AND l.is_package_lesson = ?) AND purchases.status IN (?, ?))',
+                                '(EXISTS (SELECT 1 FROM lessons l WHERE l.id = purchases.lesson_id AND l.type = ? AND l.is_package_lesson = ?) AND purchases.status IN (?, ?))',
                             [true, 'online', 'complete', 'inPerson', false, 'complete', 'incomplete']
                         );
                     };
@@ -473,12 +483,12 @@ class PurchaseDataTable extends DataTable
                     lessons.lesson_name AS lesson_name,
                     instructors.name AS instructor_name
                 ')
-                ->groupBy(
-                    'purchases.lesson_id',
-                    'purchases.instructor_id',
-                    'lessons.lesson_name',
-                    'instructors.name'
-                );
+                    ->groupBy(
+                        'purchases.lesson_id',
+                        'purchases.instructor_id',
+                        'lessons.lesson_name',
+                        'instructors.name'
+                    );
 
                 $onlinePackageQuery->selectRaw('
                     purchases.lesson_id,
@@ -626,15 +636,14 @@ class PurchaseDataTable extends DataTable
             <'dataTable-bottom row'
                 <'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
                 <'col-sm-7'p>>
-            DOM
-            ,
-            'buttons' => $buttons,
-            'scrollX' => true,
-            'responsive' => [
-                'scrollX' => false,
-                'details' => [
-                    'display' => '$.fn.dataTable.Responsive.display.childRow',
-                    'renderer' => <<<'JS'
+            DOM,
+                'buttons' => $buttons,
+                'scrollX' => true,
+                'responsive' => [
+                    'scrollX' => false,
+                    'details' => [
+                        'display' => '$.fn.dataTable.Responsive.display.childRow',
+                        'renderer' => <<<'JS'
                     function (api, rowIdx, columns) {
                         var data = $('<table/>').addClass('vertical-table');
                         $.each(columns, function (i, col) {
@@ -643,14 +652,14 @@ class PurchaseDataTable extends DataTable
                         return data;
                     }
                     JS
-                ]
-            ],
-            'rowCallback' => <<<'JS'
+                    ]
+                ],
+                'rowCallback' => <<<'JS'
             function(row){
                 $('td', row).css({'font-family':'Helvetica','font-weight':'300'});
             }
             JS,
-            'drawCallback' => <<<'JS'
+                'drawCallback' => <<<'JS'
             function(settings){
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=tooltip]"));
                 tooltipTriggerList.map(function(el){
