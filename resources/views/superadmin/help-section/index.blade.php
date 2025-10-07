@@ -31,6 +31,7 @@
                     {{-- Dummy Cards --}}
                     <div class="row g-3 mt-2">
                         @forelse ($help_sections as $item)
+                            {{-- @dd($item) --}}
                             <div class="col-md-4 col-sm-6 mb-3">
                                 <div class="card shadow-sm " style="display: flex; flex-direction: column;">
                                     <div class="card-body text-center d-flex flex-column justify-content-between overflow-hidden mb-4"
@@ -38,26 +39,31 @@
                                         <p class="mb-2 font-bold">{{ $item['title'] }}</p>
 
                                         <div class="mb-2 d-flex flex-column">
-                                            @if ($item['type'] == 'video')
+                                            @php
+                                                // Clean up the URL
+                                                $url = str_replace('public/', '', $item['url']); // remove "public/" if present
+                                                $url = str_replace(' ', '%20', $url); // encode spaces
+                                            @endphp
+
+                                            @if ($item['type'] === 'video')
                                                 <video class="w-100 rounded" style="max-height: 150px; object-fit: cover;"
                                                     controls>
-                                                    <source src="{{ $item['url'] }}"
-                                                        type="video/mp4">
+                                                    <source src="{{ $url }}" type="video/mp4">
                                                     Your browser does not support the video tag.
                                                 </video>
-                                            @elseif($item['type'] == 'image')
-                                                <img src="{{ $item['url'] }}"
-                                                    style="max-height: 150px; object-fit: cover;" alt="">
+                                            @elseif ($item['type'] === 'image')
+                                                <img src="{{ $url }}" style="max-height: 150px; object-fit: cover;"
+                                                    alt="">
                                             @endif
                                         </div>
+
 
                                         {{-- Title --}}
 
 
                                         {{-- Buttons --}}
                                         <div class="d-flex justify-content-center gap-2 mt-2">
-                                            <a href="{{$item['url'] }}" target="_blank"
-                                                class="btn btn-sm btn-primary">
+                                            <a href="{{ $url }}" target="_blank" class="btn btn-sm btn-primary">
                                                 <i class="fa fa-eye"></i> View
                                             </a>
                                             @if (auth()->user()->hasAnyRole(['Admin', 'Super Admin']))

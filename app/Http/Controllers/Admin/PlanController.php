@@ -60,6 +60,9 @@ class PlanController extends Controller
     public function createMyPlan()
     {
         if (Auth::user()->can('create-plan')) {
+            if (Auth::user()->is_stripe_connected == 0) {
+                return back()->with('failed', 'Stripe account not connected');
+            }
             return view('admin.plans.create');
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
@@ -85,6 +88,8 @@ class PlanController extends Controller
                 return redirect()->route('plans.index')->with('errors', __('Please on at list one payment type.'));
             }
 
+            $currency = UtilityFacades::getsettings('currency') ?? 'usd';
+
             $instructorId = Auth::user()->type === Role::ROLE_INSTRUCTOR ? Auth::user()->id : null;
             $tenantId     = Auth::user()->type === Role::ROLE_INSTRUCTOR ? tenant()->id : null;
 
@@ -99,29 +104,35 @@ class PlanController extends Controller
                 }
             }
 
+            $instructor = $instructorId ? User::find($instructorId) : null;
+
+            $duration = strtolower($request->durationtype) == 'month' ? $request->duration : ($request->duration * 12);
             $totalPrice = $request->price;
-            $intervalCount = (int) $request->duration;
+            $intervalCount = (int) $duration;
             if ($intervalCount <= 0) {
                 $intervalCount = 1;
             }
             $perIntervalPrice = $totalPrice / $intervalCount;
+
+            $stripeAccountId = $instructor->stripe_account_id ?? null;
 
             Stripe::setApiKey(config('services.stripe.secret'));
 
             $product = Product::create([
                 'name' => $request->name,
                 'description' => $request->description,
-            ]);
+            ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
 
             // 2️⃣ Create a Recurring Price
             $price = Price::create([
                 'unit_amount' => round($perIntervalPrice * 100), // Stripe expects cents
-                'currency' => 'usd',
+                'currency' => $currency,
                 'recurring' => [
-                    'interval' =>  strtolower($request->durationtype), // "month" or "year"
+                    // 'interval' =>  strtolower($request->durationtype), // "month" or "year"
+                    'interval' =>  'month', // "month" or "year"
                 ],
                 'product' => $product->id,
-            ]);
+            ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
 
             Plan::create([
                 'name'            => $request->name,
@@ -130,7 +141,7 @@ class PlanController extends Controller
                 'durationtype'    => $request->durationtype,
                 'tenant_id'       => $tenantId,
                 'max_users'       => $request->max_users,
-                'description'     => $_POST['description'],
+                'description'     => $request->description,
                 'is_chat_enabled' => $request->chat == '1' ? 1 : 0,
                 'is_feed_enabled' => $request->feed == '1' ? 1 : 0,
                 'instructor_id'   => $instructorId,
@@ -170,48 +181,56 @@ class PlanController extends Controller
             $tenantId     = Auth::user()->type === Role::ROLE_INSTRUCTOR ? tenant()->id : null;
 
             // 🔹 Calculate price per interval
+            $duration = strtolower($request->durationtype) == 'month' ? $request->duration : ($request->duration * 12);
             $totalPrice = $request->price;
-            $intervalCount = (int) $request->duration;
+            $intervalCount = (int) $duration;
             if ($intervalCount <= 0) {
                 $intervalCount = 1;
             }
             $perIntervalPrice = $totalPrice / $intervalCount;
 
+            $instructor = $instructorId ? User::find($instructorId) : null;
+            $stripeAccountId = $instructor->stripe_account_id ?? null;
+
             // 🔹 Initialize Stripe
-            \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+            Stripe::setApiKey(config('services.stripe.secret'));
 
             try {
                 /**
                  * 1️⃣ Update or Create Stripe Product
                  */
                 if ($plan->stripe_product_id) {
-                    // Update existing product in Stripe
-                    $product = \Stripe\Product::update($plan->stripe_product_id, [
-                        'name' => $request->name,
-                        'description' => $request->description,
-                    ]);
+                    $product = Product::update(
+                        $plan->stripe_product_id,
+                        [
+                            'name' => $request->name,
+                            'description' => $request->description,
+                        ],
+                        $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
+                    );
                 } else {
-                    // Create a new product in Stripe if missing
-                    $product = \Stripe\Product::create([
-                        'name' => $request->name,
-                        'description' => $request->description,
-                    ]);
+                    $product = Product::create(
+                        [
+                            'name' => $request->name,
+                            'description' => $request->description,
+                        ],
+                        $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
+                    );
                     $plan->stripe_product_id = $product->id;
                 }
 
-                /**
-                 * 2️⃣ Create New Stripe Price (since prices cannot be edited)
-                 */
-                $price = \Stripe\Price::create([
-                    'unit_amount' => round($perIntervalPrice * 100), // Stripe expects cents
-                    'currency' => 'usd',
-                    'recurring' => [
-                        'interval' => strtolower($request->durationtype), // month or year
+                $price = Price::create(
+                    [
+                        'unit_amount' => round($perIntervalPrice * 100),
+                        'currency' => 'usd',
+                        'recurring' => [
+                            'interval' => strtolower($request->durationtype),
+                        ],
+                        'product' => $plan->stripe_product_id,
                     ],
-                    'product' => $plan->stripe_product_id,
-                ]);
+                    $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
+                );
 
-                // ✅ Save the new price ID in the plan
                 $plan->stripe_price_id = $price->id;
             } catch (\Exception $e) {
                 return redirect()->back()->with('failed', __('Stripe Error: ') . $e->getMessage());
