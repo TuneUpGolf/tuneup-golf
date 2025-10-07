@@ -339,13 +339,13 @@
                                 class="dash-item dash-hasmenu {{ request()->is('blogs*') || request()->is('category*') ? 'active dash-trigger' : 'collapsed' }}">
                                 <a href="#!" class="dash-link">
                                     <span class="dash-micon"><i class="ti ti-server"></i></span>
-                                    <span class="dash-mtext">{{ __('Post') }}</span><span class="dash-arrow"><i
+                                    <span class="dash-mtext">{{ __('Tips/Drills') }}</span><span class="dash-arrow"><i
                                             data-feather="chevron-right"></i></span></a>
                                 <ul class="dash-submenu">
                                     @can('create-blog')
                                         <li class="dash-item {{ request()->is('blogs/create') ? 'active' : '' }}">
                                             <a class="dash-link"
-                                                href="{{ route('blogs.create') }}">{{ __('Create New Post') }}</a>
+                                                href="{{ route('blogs.create') }}">{{ __('Create New Tips/Drills') }}</a>
                                         </li>
 
                                         {{--  <li class="dash-item {{ request()->is('album/create') ? 'active' : '' }}">
@@ -370,7 +370,7 @@
                                     @can('manage-blog')
                                         <li class="dash-item {{ request()->is('blogs/manage/posts') ? 'active' : '' }}">
                                             <a class="dash-link"
-                                                href="{{ route('blogs.manage') }}">{{ __('Manage Posts') }}</a>
+                                                href="{{ route('blogs.manage') }}">{{ __('Manage Tips/Drills') }}</a>
                                         </li>
 
                                         <li class="dash-item {{ request()->is('album-category') ? 'active' : '' }}">
@@ -495,7 +495,7 @@
                                 class="dash-item dash-hasmenu {{ request()->is('blogs*') || request()->is('category*') ? 'active dash-trigger' : 'collapsed' }}">
                                 <a href="#!" class="dash-link">
                                     <span class="dash-micon"><i class="ti ti-server"></i></span>
-                                    <span class="dash-mtext">{{ __('Post') }}</span><span class="dash-arrow"><i
+                                    <span class="dash-mtext">{{ __('Tips/Drills') }}</span><span class="dash-arrow"><i
                                             data-feather="chevron-right"></i></span>
                                 </a>
                                 <ul class="dash-submenu">
@@ -526,7 +526,7 @@
                                 class="dash-item dash-hasmenu {{ request()->is('blogs*') || request()->is('category*') ? 'active dash-trigger' : 'collapsed' }}">
                                 <a href="#!" class="dash-link">
                                     <span class="dash-micon"><i class="ti ti-server"></i></span>
-                                    <span class="dash-mtext">{{ __('Post') }}</span><span class="dash-arrow"><i
+                                    <span class="dash-mtext">{{ __('Tips/Drills') }}</span><span class="dash-arrow"><i
                                             data-feather="chevron-right"></i></span></a>
                                 <ul class="dash-submenu">
 
@@ -538,7 +538,7 @@
                                     @can('manage-blog')
                                         <li class="dash-item {{ request()->is('blogs/manage/report') ? 'active' : '' }}">
                                             <a class="dash-link"
-                                                href="{{ route('blogs.report') }}">{{ __('Reported Posts') }}</a>
+                                                href="{{ route('blogs.report') }}">{{ __('Reported Tips/Drills') }}</a>
                                         </li>
                                     @endcan
                                 </ul>

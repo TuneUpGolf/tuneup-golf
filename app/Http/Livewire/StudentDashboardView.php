@@ -102,10 +102,10 @@ class StudentDashboardView extends GridView
             ? $model->slots->filter(fn($slot) => $slot->student->count() < $slot->lesson->max_students)->values()
             : null;
 
-        if ($model->type == Lesson::LESSON_TYPE_INPERSON) {
-            $subtitle = str_replace(['(', ')'], '', $symbol) . ' ' . $model->lesson_price . ' (' . strtoupper($currency) . ')';
-        } else {
+        if ($model->type == Lesson::LESSON_TYPE_PACKAGE) {
             $subtitle = str_replace(['(', ')'], '', $symbol) . ' ' . $model->packages[0]->price . ' (' . strtoupper($currency) . ')';
+        } else {
+            $subtitle = str_replace(['(', ')'], '', $symbol) . ' ' . $model->lesson_price . ' (' . strtoupper($currency) . ')';
         }
 
         return [
