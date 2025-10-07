@@ -1117,7 +1117,7 @@ class LessonController extends Controller
                     $lessonStart = \Carbon\Carbon::parse($slot->date_time);
                     $sendTime = $lessonStart->copy()->subMinutes($reminderMinutes);
 
-                    SendLessonReminderJob::dispatch($slot->lesson)->delay($sendTime);
+                    SendLessonReminderJob::dispatch($slot)->delay($sendTime);
                 }
             }
         } else {
