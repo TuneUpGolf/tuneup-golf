@@ -29,6 +29,7 @@ class HelpSectionController extends Controller
         })
             ->orderBy('id', 'desc')
             ->paginate(8);
+
         return view('superadmin.help-section.index', compact('help_sections', 'role'));
     }
 
