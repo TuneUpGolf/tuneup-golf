@@ -78,7 +78,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white py-2 px-3 rounded-3xl shadow">
+                {{-- <div class="bg-white py-2 px-3 rounded-3xl shadow">
                     {!! Form::open([
                         'route' => ['purchase.like', ['post_id' => $post->id]],
                         'method' => 'Post',
@@ -89,7 +89,7 @@
                             class="text-2xl lh-sm ti ti-heart"></i><span> {{ $post->likePost->count() }}
                             Likes</span></button>
                     {!! Form::close() !!}
-                </div>
+                </div> --}}
 
             </div>
         </div>
