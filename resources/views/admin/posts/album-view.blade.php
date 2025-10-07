@@ -29,7 +29,7 @@
                                                              </div>
                                                          </div>
 
-                                                         <div class="bg-white py-2 px-3 rounded-3xl shadow">
+                                                         {{-- <div class="bg-white py-2 px-3 rounded-3xl shadow">
                                                              {!! Form::open([
                                                                  'route' => ['album.category.album.like', ['post_id' => $post->id]],
                                                                  'method' => 'Post',
@@ -41,7 +41,7 @@
                                                                      {{ $post->likeAlbum()->count() }}
                                                                      Likes</span></button>
                                                              {!! Form::close() !!}
-                                                         </div>
+                                                         </div> --}}
 
                                                      </div>
                                                  </div>

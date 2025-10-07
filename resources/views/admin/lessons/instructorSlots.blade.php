@@ -293,63 +293,63 @@
                         actionContainer.appendChild(checkbox);
                     }
 
-                    if (type == 'Instructor') {
+                    // if (type == 'Instructor') {
 
-                        // ✅ Delete button (only for instructors)
-                        const deleteBtn = document.createElement('span');
-                        deleteBtn.className = '';
-                        deleteBtn.innerHTML = `<i class="ti ti-trash text-white"></i>`; // ⬅️ unchanged
-                        deleteBtn.title = 'Delete';
-                        deleteBtn.style.cursor = 'pointer';
-                        deleteBtn.style.marginLeft = "4px";
-                        // deleteBtn.style.top = '0px'
-                        // deleteBtn.style.right = '2px'
+                    //     // ✅ Delete button (only for instructors)
+                    //     const deleteBtn = document.createElement('span');
+                    //     deleteBtn.className = '';
+                    //     deleteBtn.innerHTML = `<i class="ti ti-trash text-white"></i>`; // ⬅️ unchanged
+                    //     deleteBtn.title = 'Delete';
+                    //     deleteBtn.style.cursor = 'pointer';
+                    //     deleteBtn.style.marginLeft = "4px";
+                    //     // deleteBtn.style.top = '0px'
+                    //     // deleteBtn.style.right = '2px'
 
-                        deleteBtn.addEventListener('click', function(e) {
-                            e.stopPropagation();
+                    //     deleteBtn.addEventListener('click', function(e) {
+                    //         e.stopPropagation();
 
-                            const eventId = isBlocked ? info?.event?.extendedProps?.id : info
-                                ?.event?.extendedProps?.slot_id;
-                            const deleteUrl = isBlocked ? "{{ route('slot.block.delete') }}" :
-                                "{{ route('slot.delete') }}";
-                            const slotType = isBlocked ? "blocked slot" : "slot";
+                    //         const eventId = isBlocked ? info?.event?.extendedProps?.id : info
+                    //             ?.event?.extendedProps?.slot_id;
+                    //         const deleteUrl = isBlocked ? "{{ route('slot.block.delete') }}" :
+                    //             "{{ route('slot.delete') }}";
+                    //         const slotType = isBlocked ? "blocked slot" : "slot";
 
-                            Swal.fire({
-                                title: `Delete ${slotType}?`,
-                                text: `Are you sure you want to delete this ${slotType}?`,
-                                icon: "warning",
-                                showCancelButton: true,
-                                confirmButtonText: "Yes, delete it",
-                                cancelButtonText: "Cancel",
-                                reverseButtons: true
-                            }).then((result) => {
-                                if (result.isConfirmed && eventId > 0) {
-                                    info.event.remove();
-                                    $.ajax({
-                                        url: deleteUrl,
-                                        type: 'POST',
-                                        data: {
-                                            _token: $('meta[name="csrf-token"]')
-                                                .attr('content'),
-                                            id: eventId,
-                                        },
-                                        success: function(response) {
-                                            Swal.fire('Deleted!', response
-                                                .message, 'success');
-                                        },
-                                        error: function(error) {
-                                            Swal.fire('Error',
-                                                'There was a problem deleting the slot.',
-                                                'error');
-                                            console.log(error);
-                                        }
-                                    });
-                                }
-                            });
-                        });
-                        actionContainer.appendChild(deleteBtn);
-                    }
-                    // ✅ Add the group after title
+                    //         Swal.fire({
+                    //             title: `Delete ${slotType}?`,
+                    //             text: `Are you sure you want to delete this ${slotType}?`,
+                    //             icon: "warning",
+                    //             showCancelButton: true,
+                    //             confirmButtonText: "Yes, delete it",
+                    //             cancelButtonText: "Cancel",
+                    //             reverseButtons: true
+                    //         }).then((result) => {
+                    //             if (result.isConfirmed && eventId > 0) {
+                    //                 info.event.remove();
+                    //                 $.ajax({
+                    //                     url: deleteUrl,
+                    //                     type: 'POST',
+                    //                     data: {
+                    //                         _token: $('meta[name="csrf-token"]')
+                    //                             .attr('content'),
+                    //                         id: eventId,
+                    //                     },
+                    //                     success: function(response) {
+                    //                         Swal.fire('Deleted!', response
+                    //                             .message, 'success');
+                    //                     },
+                    //                     error: function(error) {
+                    //                         Swal.fire('Error',
+                    //                             'There was a problem deleting the slot.',
+                    //                             'error');
+                    //                         console.log(error);
+                    //                     }
+                    //                 });
+                    //             }
+                    //         });
+                    //     });
+                    //     actionContainer.appendChild(deleteBtn);
+                    // }
+                    // // ✅ Add the group after title
                     titleContainer.appendChild(actionContainer);
                 },
                 eventClick: function(info) {
