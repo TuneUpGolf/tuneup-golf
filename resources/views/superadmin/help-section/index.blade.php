@@ -63,7 +63,7 @@
 
                                         {{-- Buttons --}}
                                         <div class="d-flex justify-content-center gap-2 mt-2">
-                                            <a href="{{ $item['url'] }}" target="_blank" class="btn btn-sm btn-primary">
+                                            <a href="{{ $url }}" target="_blank" class="btn btn-sm btn-primary">
                                                 <i class="fa fa-eye"></i> View
                                             </a>
                                             @if (auth()->user()->hasAnyRole(['Admin', 'Super Admin']))

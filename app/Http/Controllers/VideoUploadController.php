@@ -36,7 +36,7 @@ class VideoUploadController extends Controller
     public function finalizeUpload(Request $request)
     {
         $fileId = $request->input('fileId');
-        $fileName = $request->input('fileName');
+        $fileName = time() . '_' . uniqid() . '_' . $request->input('fileName');
 
         $tempDir = "temp/{$fileId}/";
         $finalPath = "videos/{$fileName}";
@@ -68,7 +68,8 @@ class VideoUploadController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Video uploaded successfully',
-            'filePath' => $finalPath
+            'filePath' => $finalPath,
+            'fileName' => $fileName
         ]);
     }
 
