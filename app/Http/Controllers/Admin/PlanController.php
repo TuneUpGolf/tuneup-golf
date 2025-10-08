@@ -132,8 +132,8 @@ class PlanController extends Controller
                 'unit_amount' => round($perIntervalPrice * 100), // Stripe expects cents
                 'currency' => $currency,
                 'recurring' => [
-                    // 'interval' =>  strtolower($request->durationtype), // "month" or "year"
-                    'interval' =>  'month', // "month" or "year"
+                    'interval' =>  strtolower($request->durationtype), // "month" or "year"
+                    // 'interval' =>  'month', // "month" or "year"
                 ],
                 'product' => $product->id,
             ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);

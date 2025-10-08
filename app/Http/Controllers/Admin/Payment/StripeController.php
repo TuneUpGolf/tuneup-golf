@@ -551,11 +551,14 @@ class StripeController extends Controller
                     ]);
 
                     // Auto-cancel logic
-                    $cancelAt = now()->addMonths(
-                        strtolower($plan->durationtype) === 'month'
-                            ? $plan->duration
-                            : $plan->duration * 12
-                    )->timestamp;
+                    if (strtolower($plan->durationtype) === 'month') {
+                        $cancelAt = now()->addMonths($plan->duration)->timestamp;
+                    } elseif (strtolower($plan->durationtype) === 'day') {
+                        $cancelAt = now()->addDays($plan->duration)->timestamp;
+                    } else {
+                        // fallback (optional) - e.g., default to months or handle error
+                        $cancelAt = now()->addMonths($plan->duration)->timestamp;
+                    }
 
                     // \Log::info($cancelAt);
 
