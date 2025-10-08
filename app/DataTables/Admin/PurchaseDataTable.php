@@ -543,7 +543,7 @@ class PurchaseDataTable extends DataTable
 
         return $this->builder()
             ->setTableId('purchases-table')
-            ->addTableClass('display responsive nowrap')
+            ->addTableClass('display responsive')
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->orderBy(1)
