@@ -47,11 +47,11 @@
                                                      </div>
                                                  </div>
                                                  @php
-                                                     $studentSubscription = \App\Models\PurchasePost::where(
+                                                     $studentSubscription = \App\Models\PurchaseAlbum::where(
                                                          'student_id',
                                                          auth()->user()->id,
                                                      )
-                                                         ->where('post_id', $post->id)
+                                                         ->where('album_category_id', $post->id)
                                                          ->where('active_status', 1)
                                                          ->exists();
 
@@ -79,7 +79,7 @@
                                                                  </div>
 
                                                                  {!! Form::open([
-                                                                     'route' => ['album-category.purchase.album.index', ['post_id' => $post->id]],
+                                                                     'route' => ['album.category.purchase.album.index', ['post_id' => $post->id]],
                                                                      'method' => 'Post',
                                                                      'data-validate',
                                                                  ]) !!}
@@ -111,7 +111,7 @@
                                                                  </div>
 
                                                                  {!! Form::open([
-                                                                     'route' => ['album-category.purchase.album.index', ['post_id' => $post->id]],
+                                                                     'route' => ['album.category.purchase.album.index', ['post_id' => $post->id]],
                                                                      'method' => 'Post',
                                                                      'data-validate',
                                                                  ]) !!}

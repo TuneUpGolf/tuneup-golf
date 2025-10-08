@@ -239,7 +239,7 @@ class AlbumCategoryController extends Controller
                     ]],
                     'customer' => Auth::user()?->stripe_cus_id,
                     'mode' => 'payment',
-                    'success_url' => route('purchase-post-success', [
+                    'success_url' => route('purchase-album-success', [
                         'purchase_post_id' => $purchasePost?->id,
                         'student_id' => Auth::user()->id,
                         'redirect' => $request->redirect
