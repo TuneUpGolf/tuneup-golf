@@ -53,146 +53,86 @@
                                                      )
                                                          ->where('post_id', $post->id)
                                                          ->where('active_status', 1)
-                                                         ->first();
+                                                         ->exists();
 
                                                  @endphp
 
 
                                                  @if ($post->file_type == 'image')
-                                                     @if ($post->payment_mode != 'un-paid' && !$studentSubscription)
-                                                         <div class="relative paid-post-wrap">
-                                                             <img class=" w-full post-thumbnail"
-                                                                 src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
-                                                                 alt="Post Image" />
-                                                             <div
-                                                                 class="absolute inset-0 flex justify-center items-center paid-post flex-col">
-                                                                 <div
-                                                                     class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
-                                                                     <i class="ti ti-lock-open"></i>
-                                                                 </div>
-
-                                                                 {!! Form::open([
-                                                                     'route' => ['purchase.post.index', ['post_id' => $post->id]],
-                                                                     'method' => 'Post',
-                                                                     'data-validate',
-                                                                 ]) !!}
-
-                                                                 <div
-                                                                     class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
-                                                                     <i class="ti ti-lock-open text-2xl lh-sm"></i>
-                                                                     {{ Form::button(__('Unlock for - $' . $post->price), ['type' => 'submit', 'class' => 'btn p-0 pl-1 text-white border-0']) }}
-                                                                     {!! Form::close() !!}
-                                                                 </div>
-                                                             </div>
-                                                         </div>
-                                                     @elseif (!$studentSubscription)
-                                                         <div class="relative paid-post-wrap">
-                                                             <img class=" w-full post-thumbnail"
-                                                                 src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
-                                                                 alt="Post Image" />
-                                                             <div
-                                                                 class="absolute inset-0 flex justify-center items-center paid-post flex-col">
-                                                                 <div
-                                                                     class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
-                                                                     <i class="ti ti-lock-open"></i>
-                                                                 </div>
-
-                                                                 {!! Form::open([
-                                                                     'route' => ['purchase.post.index', ['post_id' => $post->id]],
-                                                                     'method' => 'Post',
-                                                                     'data-validate',
-                                                                 ]) !!}
-
-                                                                 <div
-                                                                     class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
-                                                                     <i class="ti ti-lock-open text-2xl lh-sm"></i>
-                                                                     {{ Form::button(__('Unlock for - $' . $post->price), ['type' => 'submit', 'class' => 'btn p-0 pl-1 text-white border-0']) }}
-                                                                     {!! Form::close() !!}
-                                                                 </div>
-                                                             </div>
-                                                         </div>
-                                                     @else
+                                                     @if ($post->payment_mode == 'un-paid' || $studentSubscription)
                                                          <img class=" w-full post-thumbnail open-full-thumbnail"
                                                              src="{{ asset($post->image) }}" alt="Profile" />
                                                          <div id="imageModal" class="modal">
                                                              <span class="close" id="closeBtn">&times;</span>
                                                              <img class="modal-content" id="fullImage">
                                                          </div>
+                                                     @else
+                                                         <div class="relative paid-post-wrap">
+                                                             <img class=" w-full post-thumbnail"
+                                                                 src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
+                                                                 alt="Post Image" />
+                                                             <div
+                                                                 class="absolute inset-0 flex justify-center items-center paid-post flex-col">
+                                                                 <div
+                                                                     class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
+                                                                     <i class="ti ti-lock-open"></i>
+                                                                 </div>
+
+                                                                 {!! Form::open([
+                                                                     'route' => ['purchase.post.index', ['post_id' => $post->id]],
+                                                                     'method' => 'Post',
+                                                                     'data-validate',
+                                                                 ]) !!}
+
+                                                                 <div
+                                                                     class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
+                                                                     <i class="ti ti-lock-open text-2xl lh-sm"></i>
+                                                                     {{ Form::button(__('Unlock for - $' . $post->price), ['type' => 'submit', 'class' => 'btn p-0 pl-1 text-white border-0']) }}
+                                                                     {!! Form::close() !!}
+                                                                 </div>
+                                                             </div>
+                                                         </div>
                                                      @endif
                                                  @else
-                                                     @if ($post->payment_mode != 'un-paid' && !$studentSubscription)
-                                                         <div class="relative paid-post-wrap">
-                                                             <img class=" w-full post-thumbnail"
-                                                                 src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
-                                                                 alt="Post Image" />
-                                                             <div
-                                                                 class="absolute inset-0 flex justify-center items-center paid-post flex-col">
-                                                                 <div
-                                                                     class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
-                                                                     <i class="ti ti-lock-open"></i>
-                                                                 </div>
-
-                                                                 {!! Form::open([
-                                                                     'route' => ['purchase.post.index', ['post_id' => $post->id]],
-                                                                     'method' => 'Post',
-                                                                     'data-validate',
-                                                                 ]) !!}
-
-                                                                 <div
-                                                                     class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
-                                                                     <i class="ti ti-lock-open text-2xl lh-sm"></i>
-                                                                     {{ Form::button(__('Unlock for - $' . $post->price), ['type' => 'submit', 'class' => 'btn p-0 pl-1 text-white border-0']) }}
-                                                                     {!! Form::close() !!}
-                                                                 </div>
-                                                             </div>
-                                                         </div>
-                                                     @elseif ($studentSubscription)
-                                                         <div class="relative paid-post-wrap">
-                                                             <img class=" w-full post-thumbnail"
-                                                                 src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
-                                                                 alt="Post Image" />
-                                                             <div
-                                                                 class="absolute inset-0 flex justify-center items-center paid-post flex-col">
-                                                                 <div
-                                                                     class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
-                                                                     <i class="ti ti-lock-open"></i>
-                                                                 </div>
-
-                                                                 {!! Form::open([
-                                                                     'route' => ['purchase.post.index', ['post_id' => $post->id]],
-                                                                     'method' => 'Post',
-                                                                     'data-validate',
-                                                                 ]) !!}
-
-                                                                 <div
-                                                                     class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
-                                                                     <i class="ti ti-lock-open text-2xl lh-sm"></i>
-                                                                     {{ Form::button(__('Unlock for - $' . $post->price), ['type' => 'submit', 'class' => 'btn p-0 pl-1 text-white border-0']) }}
-                                                                     {!! Form::close() !!}
-                                                                 </div>
-                                                             </div>
-                                                         </div>
-                                                     @else
+                                                     @if ($post->payment_mode == 'un-paid' || $studentSubscription)
                                                          <video controls class="w-full post-thumbnail">
                                                              <source
                                                                  src="{{ Storage::url(tenant('id') . '/' . $post?->file) }}"
                                                                  type="video/mp4">
                                                          </video>
+                                                     @else
+                                                         <div class="relative paid-post-wrap">
+                                                             <img class=" w-full post-thumbnail"
+                                                                 src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
+                                                                 alt="Post Image" />
+                                                             <div
+                                                                 class="absolute inset-0 flex justify-center items-center paid-post flex-col">
+                                                                 <div
+                                                                     class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
+                                                                     <i class="ti ti-lock-open"></i>
+                                                                 </div>
+
+                                                                 {!! Form::open([
+                                                                     'route' => ['purchase.post.index', ['post_id' => $post->id]],
+                                                                     'method' => 'Post',
+                                                                     'data-validate',
+                                                                 ]) !!}
+
+                                                                 <div
+                                                                     class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
+                                                                     <i class="ti ti-lock-open text-2xl lh-sm"></i>
+                                                                     {{ Form::button(__('Unlock for - $' . $post->price), ['type' => 'submit', 'class' => 'btn p-0 pl-1 text-white border-0']) }}
+                                                                     {!! Form::close() !!}
+                                                                 </div>
+                                                             </div>
+                                                         </div>
                                                      @endif
                                                  @endif
                                                  <div class="px-4 py-2">
                                                      <div class="text-md italic text-gray-500">
                                                          {{ \Carbon\Carbon::parse($post->created_at)->format('d M Y') }}
                                                      </div>
-                                                     @if ($post->payment_mode == 'un-paid' && $studentSubscription)
-                                                         <h1 class="text-xl font-bold truncate">
-                                                             {{ $post->title }}
-                                                             <button class="btn btn-sm btn-primary ml-2 view-paid"
-                                                                 data-id="{{ $post->id }}">
-                                                                 View
-                                                             </button>
-                                                         </h1>
-                                                     @elseif ($studentSubscription)
+                                                     @if ($post->payment_mode == 'un-paid' || $studentSubscription)
                                                          <h1 class="text-xl font-bold truncate">
                                                              {{ $post->title }}
                                                              <button class="btn btn-sm btn-primary ml-2 view-paid"
