@@ -58,13 +58,13 @@
             <div class="flex justify-between items-center w-full">
                 <div class="flex items-center gap-3">
                     <!-- @if ($post->isStudentPost)
-                        <img class="w-10 h-10 rounded-full"
+<img class="w-10 h-10 rounded-full"
                                                 src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post?->student?->dp) }}" alt="Profile" />
-                        @else
-                        <img class="w-10 h-10 rounded-full"
+@else
+<img class="w-10 h-10 rounded-full"
                                                 src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post?->instructor?->logo) }}"
                                                 alt="Profile" />
-                        @endif -->
+@endif -->
                     <img class="w-16 h-16 rounded-full"
                         src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
                         alt="Profile" />
@@ -123,8 +123,7 @@
             @else
                 <!-- <img class="rounded-md w-full" src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->file) }}"
                     alt="Post Image" /> -->
-                <img class=" w-full post-thumbnail open-full-thumbnail"
-                    src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->file) }}" alt="Profile" />
+                <img class=" w-full post-thumbnail open-full-thumbnail" src="{{ asset($post->file) }}" alt="Profile" />
                 <div id="imageModal" class="modal">
                     <span class="close" id="closeBtn">&times;</span>
                     <img class="modal-content" id="fullImage">
@@ -143,7 +142,7 @@
                 </div>
             @else
                 <video controls class="w-full post-thumbnail">
-                    <source src="{{ Storage::url(tenant('id') . '/' . $post?->file) }}" type="video/mp4">
+                    <source src="{{ Storage::url($post?->file) }}" type="video/mp4">
                 </video>
             @endif
         @endif
