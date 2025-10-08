@@ -79,7 +79,7 @@
                                                                  </div>
 
                                                                  {!! Form::open([
-                                                                     'route' => ['purchase.post.index', ['post_id' => $post->id]],
+                                                                     'route' => ['album-category.purchase.album.index', ['post_id' => $post->id]],
                                                                      'method' => 'Post',
                                                                      'data-validate',
                                                                  ]) !!}
@@ -111,7 +111,7 @@
                                                                  </div>
 
                                                                  {!! Form::open([
-                                                                     'route' => ['purchase.post.index', ['post_id' => $post->id]],
+                                                                     'route' => ['album-category.purchase.album.index', ['post_id' => $post->id]],
                                                                      'method' => 'Post',
                                                                      'data-validate',
                                                                  ]) !!}
