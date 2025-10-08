@@ -95,15 +95,14 @@
 
                                                     @if ($post->file_type == 'image' || is_null($post->file_type))
                                                         <img class=" w-full post-thumbnail open-full-thumbnail"
-                                                            src="{{ asset('public/' . $post->media) }}" alt="Profile" />
+                                                            src="{{ asset($post->media) }}" alt="Profile" />
                                                         <div id="imageModal" class="modal">
                                                             <span class="close" id="closeBtn">&times;</span>
                                                             <img class="modal-content" id="fullImage">
                                                         </div>
                                                     @else
                                                         <video controls class="w-full post-thumbnail">
-                                                            <source src="{{ asset('public/' . $post?->media) }}"
-                                                                type="video/mp4">
+                                                            <source src="{{ asset($post?->media) }}" type="video/mp4">
                                                         </video>
                                                     @endif
 

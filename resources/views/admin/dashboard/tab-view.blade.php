@@ -340,6 +340,7 @@
 
             if (currentView === 'posts') {
                 url.searchParams.set('category', categoryId);
+                url.searchParams.delete('category_album');
                 window.location.href = url.toString();
             }
         });
