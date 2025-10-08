@@ -23,8 +23,9 @@ class PostsController extends Controller
 {
     public function index(PostDataTable $dataTable)
     {
+
         if (Auth::user()->can('manage-blog')) {
-            $posts = Post::where('status', 'active');
+            $posts = Post::where('instructor_id', Auth::user()->id)->where('status', 'active');
             switch (request()->query('filter')) {
                 case ('free'):
                     $posts = $posts->where('paid', false);
