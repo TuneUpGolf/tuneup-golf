@@ -66,9 +66,9 @@ class StudentPurchaseDataTable extends DataTable
                     ' . $lessonLink . '
                 </div>';
             })
-            ->addColumn('deleted', function ($purchase) {
-                return ! $purchase->lesson->active_status ? ' <span class="text-gray-500 italic"> Deleted</span>' : 'Active';
-            })
+            // ->addColumn('deleted', function ($purchase) {
+            //     return ! $purchase->lesson->active_status ? ' <span class="text-gray-500 italic"> Deleted</span>' : 'Active';
+            // })
 
             // ->addColumn('pill', function ($purchase) {
             //     $s = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
@@ -561,11 +561,11 @@ class StudentPurchaseDataTable extends DataTable
                 ->orderable(false)
                 ->addClass('min-tablet'),
 
-            Column::make('deleted')
-                ->title(__('Status'))
-                ->searchable(false)
-                ->orderable(false)
-                ->addClass('min-tablet'),
+            // Column::make('deleted')
+            //     ->title(__('Status'))
+            //     ->searchable(false)
+            //     ->orderable(false)
+            //     ->addClass('min-tablet'),
 
             Column::make('remaining_slots')
                 ->title(__('Remaining Slots'))
