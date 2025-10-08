@@ -11,8 +11,10 @@ use App\Models\User;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Facades\UtilityFacades;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Models\StripeConnectedAccount;
 use App\Services\StripeWebhookService;
 use App\DataTables\Admin\PlanDataTable;
 
@@ -60,7 +62,7 @@ class PlanController extends Controller
 
     public function createMyPlan()
     {
-        // dd(tenant(), tenant()->domains->first()->domain);
+        // dd(tenant());
         if (Auth::user()->can('create-plan')) {
             if (Auth::user()->is_stripe_connected == 0) {
                 return back()->with('failed', 'Stripe account not connected');
@@ -130,11 +132,31 @@ class PlanController extends Controller
                 'unit_amount' => round($perIntervalPrice * 100), // Stripe expects cents
                 'currency' => $currency,
                 'recurring' => [
-                    // 'interval' =>  strtolower($request->durationtype), // "month" or "year"
-                    'interval' =>  'month', // "month" or "year"
+                    'interval' =>  strtolower($request->durationtype), // "month" or "year"
+                    // 'interval' =>  'month', // "month" or "year"
                 ],
                 'product' => $product->id,
             ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+
+
+            // ---- 4️⃣ Create Webhook (only if teacher connected Stripe) ----
+            // if ($stripeAccountId && isset(tenant()->domains->first()->domain)) {
+            // Use the service you defined earlier
+            // $webhookId = StripeWebhookService::ensureWebhookForConnectedAccount(
+            //     $stripeAccountId,
+            //     tenant()->domains->first()->domain,
+            //     null
+            // );
+            // Log::info($webhookId);
+            // Store webhook ID if new
+            // if ($webhookId && empty($instructor->stripe_webhook_id)) {
+            //     $instructor->update(['stripe_webhook_id' => $webhookId]);
+            // }
+            // }
+            // Everything here runs in the CENTRAL database context
+            $this->saveCentralizedStripeData($stripeAccountId, tenant()->id);
+
+
 
             Plan::create([
                 'name'            => $request->name,
@@ -151,20 +173,7 @@ class PlanController extends Controller
                 'stripe_price_id'   => $price->id,
             ]);
 
-            // // ---- 4️⃣ Create Webhook (only if teacher connected Stripe) ----
-            // if ($stripeAccountId && isset(tenant()->domains->first()->domain)) {
-            //     // Use the service you defined earlier
-            //     $webhookId = StripeWebhookService::ensureWebhookForConnectedAccount(
-            //         $stripeAccountId,
-            //         tenant()->domains->first()->domain,
-            //         $instructor->stripe_webhook_id ?? null
-            //     );
 
-            //     // Store webhook ID if new
-            //     if ($webhookId && empty($instructor->stripe_webhook_id)) {
-            //         $instructor->update(['stripe_webhook_id' => $webhookId]);
-            //     }
-            // }
 
             return redirect()->route('plans.myplan')->with('success', __('Plan created successfully.'));
         } else {
@@ -172,8 +181,26 @@ class PlanController extends Controller
         }
     }
 
+    private function saveCentralizedStripeData($stripeAccountId, $tenant_id)
+    {
+        tenancy()->central(function () use ($stripeAccountId, $tenant_id) {
+            $exists = StripeConnectedAccount::where('stripe_account_id', $stripeAccountId)
+                ->where('tenant_id', $tenant_id)
+                ->exists();
+
+            if (! $exists) {
+                StripeConnectedAccount::create([
+                    'tenant_id' => $tenant_id,
+                    'stripe_account_id' => $stripeAccountId,
+                ]);
+            }
+        });
+    }
+
+
     public function edit($id)
     {
+
         if (Auth::user()->can('edit-plan')) {
             $plan   = Plan::find($id);
             return view('admin.plans.edit', compact('plan'));
@@ -206,6 +233,9 @@ class PlanController extends Controller
                 $intervalCount = 1;
             }
             $perIntervalPrice = $totalPrice / $intervalCount;
+
+           
+
 
             $instructor = $instructorId ? User::find($instructorId) : null;
             $stripeAccountId = $instructor->stripe_account_id ?? null;

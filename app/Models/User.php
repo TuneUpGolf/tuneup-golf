@@ -61,7 +61,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'group_id',
         'avatar',
         'reminder_minutes_before',
-        'stripe_webhook_id'
+        // 'stripe_webhook_id'
     ];
 
     protected $hidden = [

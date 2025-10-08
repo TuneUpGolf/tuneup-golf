@@ -199,7 +199,10 @@
                                     isset($adminPaymentSetting['payfastsetting']) &&
                                     $adminPaymentSetting['payfastsetting'] == 'on')
                                 @php
-                                    $pfHost = $adminPaymentSetting['payfast_mode'] == 'sandbox' ? 'sandbox.payfast.co.za' : 'www.payfast.co.za';
+                                    $pfHost =
+                                        $adminPaymentSetting['payfast_mode'] == 'sandbox'
+                                            ? 'sandbox.payfast.co.za'
+                                            : 'www.payfast.co.za';
                                     $route = 'https://' . $pfHost . '/eng/process';
                                     $id = 'payfast-payment-form';
                                     $button_type = 'submit';
@@ -296,10 +299,7 @@
                                     $button_type = 'submit';
                                     $payment_description = $adminPaymentSetting['mollie_description'];
                                 @endphp
-                            @elseif (
-                                $key == 'skrill' &&
-                                    $adminPaymentSetting['skrillsetting'] == 'on' &&
-                                    !empty($adminPaymentSetting['skrill_email']))
+                            @elseif ($key == 'skrill' && $adminPaymentSetting['skrillsetting'] == 'on' && !empty($adminPaymentSetting['skrill_email']))
                                 @php
                                     $route = route('plan.pay.with.skrill');
                                     $id = 'payment-form';
@@ -596,7 +596,10 @@
                     if (res.error) {
                         show_toastr("Error!", res.error, "danger");
                     }
-                    const stripe = Stripe("{{ $adminPaymentSetting['stripe_key'] }}");
+
+                    const stripe = Stripe("{{ $adminPaymentSetting['stripe_key'] }}", {
+                        stripeAccount: "{{$plan->instructor->stripe_account_id}}" // Use the connected account ID
+                    });
                     createCheckoutSession(res.plan_id, res.order_id, res.coupon, res.total_price).then(
                         function(
                             data) {

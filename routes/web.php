@@ -22,6 +22,7 @@ use App\Http\Controllers\Superadmin\CouponController;
 use App\Http\Controllers\Superadmin\ModuleController;
 use App\Http\Controllers\Admin\PurchasePostController;
 use App\Http\Controllers\Superadmin\ProfileController;
+use App\Http\Controllers\Admin\StripeWebhookController;
 use App\Http\Controllers\Superadmin\LanguageController;
 use App\Http\Controllers\Superadmin\SettingsController;
 use App\Http\Controllers\Superadmin\ConversionsController;
@@ -52,6 +53,7 @@ use App\Http\Controllers\Superadmin\Payment\PayuMoneyController;
 use App\Http\Controllers\Superadmin\Payment\ToyyibpayController;
 use App\Http\Controllers\Superadmin\Payment\FlutterwaveController;
 use App\Http\Controllers\Superadmin\NotificationsSettingController;
+use App\Http\Controllers\Superadmin\SuperAdminInstructorController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
 use App\Http\Controllers\Superadmin\Payment\MolliePaymentController;
 use App\Http\Controllers\Superadmin\Payment\SkrillPaymentController;
@@ -59,7 +61,6 @@ use App\Http\Controllers\Superadmin\Payment\BenefitPaymentController;
 use App\Http\Controllers\Superadmin\Payment\EasebuzzPaymentController;
 use App\Http\Controllers\Superadmin\Payment\RazorpayPaymentController;
 use App\Http\Controllers\Admin\Payment\StripeController as PaymentStripeController;
-use App\Http\Controllers\Superadmin\SuperAdminInstructorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +72,7 @@ use App\Http\Controllers\Superadmin\SuperAdminInstructorController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
 
 require __DIR__ . '/auth.php';
 Route::group(['middleware' => ['Setting', 'xss']], function () {
