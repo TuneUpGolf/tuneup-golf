@@ -234,6 +234,9 @@ class PlanController extends Controller
             }
             $perIntervalPrice = $totalPrice / $intervalCount;
 
+           
+
+
             $instructor = $instructorId ? User::find($instructorId) : null;
             $stripeAccountId = $instructor->stripe_account_id ?? null;
 
