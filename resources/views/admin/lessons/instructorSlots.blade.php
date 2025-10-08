@@ -192,9 +192,10 @@
                         title: "Add Personal Event",
                         html: `
                             <div style="text-align:left;">
-                                <label><strong>Time:</strong></label>
-                                <input type="text" id="selectedTime" class="form-control mb-3" value="${timeRange}" readonly>
-    
+                                <label><strong> Start Time:</strong></label>
+                                <input type="text" id="selectedTime" class="form-control mb-3" value="${startTime}" readonly>
+                                <label><strong> End Time:</strong></label>
+                                <input type="time" id="selectedendTime" class="form-control mb-3" value="" >
                                 <label><strong>Event Description:</strong></label>
                                 <textarea id="reason" class="form-control" placeholder="Enter event description here..." rows="4"></textarea>
                             </div>
@@ -204,14 +205,24 @@
                         cancelButtonText: "Cancel",
                         preConfirm: () => {
                             const reason = document.getElementById('reason').value;
+                            const selectedEndTime = document.getElementById(
+                                'selectedendTime').value;
                             if (!reason) {
                                 Swal.showValidationMessage(
                                     "Please enter a reason before saving.");
                             }
+                            let end = endFormatted;
+                            if (selectedEndTime) {
+                                // Use the selected end time with the same date as info.end
+                                const endDate = new Date(info.end);
+                                const [h, m] = selectedEndTime.split(':');
+                                endDate.setHours(h, m, 0, 0);
+                                end = formatDate(endDate);
+                            }
                             return {
                                 reason,
                                 start: startFormatted,
-                                end: endFormatted
+                                end: end
                             };
                         }
                     }).then((result) => {
@@ -294,63 +305,63 @@
                         actionContainer.appendChild(checkbox);
                     }
 
-                    // if (type == 'Instructor') {
+                    if (type == 'Instructor' && isBlocked) {
 
-                    //     // ✅ Delete button (only for instructors)
-                    //     const deleteBtn = document.createElement('span');
-                    //     deleteBtn.className = '';
-                    //     deleteBtn.innerHTML = `<i class="ti ti-trash text-white"></i>`; // ⬅️ unchanged
-                    //     deleteBtn.title = 'Delete';
-                    //     deleteBtn.style.cursor = 'pointer';
-                    //     deleteBtn.style.marginLeft = "4px";
-                    //     // deleteBtn.style.top = '0px'
-                    //     // deleteBtn.style.right = '2px'
+                        // ✅ Delete button (only for instructors)
+                        const deleteBtn = document.createElement('span');
+                        deleteBtn.className = '';
+                        deleteBtn.innerHTML = `<i class="ti ti-trash text-white"></i>`; // ⬅️ unchanged
+                        deleteBtn.title = 'Delete';
+                        deleteBtn.style.cursor = 'pointer';
+                        deleteBtn.style.marginLeft = "4px";
+                        // deleteBtn.style.top = '0px'
+                        // deleteBtn.style.right = '2px'
 
-                    //     deleteBtn.addEventListener('click', function(e) {
-                    //         e.stopPropagation();
+                        deleteBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
 
-                    //         const eventId = isBlocked ? info?.event?.extendedProps?.id : info
-                    //             ?.event?.extendedProps?.slot_id;
-                    //         const deleteUrl = isBlocked ? "{{ route('slot.block.delete') }}" :
-                    //             "{{ route('slot.delete') }}";
-                    //         const slotType = isBlocked ? "blocked slot" : "slot";
+                            const eventId = isBlocked ? info?.event?.extendedProps?.id : info
+                                ?.event?.extendedProps?.slot_id;
+                            const deleteUrl = isBlocked ? "{{ route('slot.block.delete') }}" :
+                                "{{ route('slot.delete') }}";
+                            const slotType = isBlocked ? "blocked slot" : "slot";
 
-                    //         Swal.fire({
-                    //             title: `Delete ${slotType}?`,
-                    //             text: `Are you sure you want to delete this ${slotType}?`,
-                    //             icon: "warning",
-                    //             showCancelButton: true,
-                    //             confirmButtonText: "Yes, delete it",
-                    //             cancelButtonText: "Cancel",
-                    //             reverseButtons: true
-                    //         }).then((result) => {
-                    //             if (result.isConfirmed && eventId > 0) {
-                    //                 info.event.remove();
-                    //                 $.ajax({
-                    //                     url: deleteUrl,
-                    //                     type: 'POST',
-                    //                     data: {
-                    //                         _token: $('meta[name="csrf-token"]')
-                    //                             .attr('content'),
-                    //                         id: eventId,
-                    //                     },
-                    //                     success: function(response) {
-                    //                         Swal.fire('Deleted!', response
-                    //                             .message, 'success');
-                    //                     },
-                    //                     error: function(error) {
-                    //                         Swal.fire('Error',
-                    //                             'There was a problem deleting the slot.',
-                    //                             'error');
-                    //                         console.log(error);
-                    //                     }
-                    //                 });
-                    //             }
-                    //         });
-                    //     });
-                    //     actionContainer.appendChild(deleteBtn);
-                    // }
-                    // // ✅ Add the group after title
+                            Swal.fire({
+                                title: `Delete ${slotType}?`,
+                                text: `Are you sure you want to delete this ${slotType}?`,
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonText: "Yes, delete it",
+                                cancelButtonText: "Cancel",
+                                reverseButtons: true
+                            }).then((result) => {
+                                if (result.isConfirmed && eventId > 0) {
+                                    info.event.remove();
+                                    $.ajax({
+                                        url: deleteUrl,
+                                        type: 'POST',
+                                        data: {
+                                            _token: $('meta[name="csrf-token"]')
+                                                .attr('content'),
+                                            id: eventId,
+                                        },
+                                        success: function(response) {
+                                            Swal.fire('Deleted!', response
+                                                .message, 'success');
+                                        },
+                                        error: function(error) {
+                                            Swal.fire('Error',
+                                                'There was a problem deleting the slot.',
+                                                'error');
+                                            console.log(error);
+                                        }
+                                    });
+                                }
+                            });
+                        });
+                        actionContainer.appendChild(deleteBtn);
+                    }
+                    // ✅ Add the group after title
                     titleContainer.appendChild(actionContainer);
                 },
                 eventClick: function(info) {
