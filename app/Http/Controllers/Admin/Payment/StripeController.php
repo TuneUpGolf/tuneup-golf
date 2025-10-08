@@ -2,23 +2,24 @@
 
 namespace App\Http\Controllers\Admin\Payment;
 
-use App\Facades\Utility;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Facades\UtilityFacades;
-use App\Models\Coupon;
-use App\Models\Order;
-use App\Models\Plan;
-use App\Models\Student;
-use App\Models\User;
-use App\Models\UserCoupon;
-use Carbon\Carbon;
 use Exception;
+use Carbon\Carbon;
+use Stripe\Stripe;
+use App\Models\Plan;
+use App\Models\User;
+use App\Models\Order;
+use App\Models\Coupon;
+use App\Models\Student;
+use App\Facades\Utility;
+use Stripe\StripeClient;
+use App\Models\UserCoupon;
+use Illuminate\Http\Request;
+use App\Services\ChatService;
+use App\Facades\UtilityFacades;
+use App\Models\StudentSubscription;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
-use Stripe\Stripe;
-use Stripe\StripeClient;
-use App\Services\ChatService;
 
 class StripeController extends Controller
 {
@@ -264,6 +265,7 @@ class StripeController extends Controller
             });
             Stripe::setApiKey($stripe_secret);
         }
+
         if (!empty($request->createCheckoutSession)) {
             if (Auth::user()->type == 'Admin') {
                 $planDetails   = tenancy()->central(function ($tenant) use ($request) {
@@ -308,6 +310,8 @@ class StripeController extends Controller
                 //     ])),
                 // ]);
 
+                // dd(UtilityFacades::getsettings('stripe_secret'), $planDetails->instructor->stripe_account_id, $planDetails->stripe_price_id);
+
                 $checkout_session = \Stripe\Checkout\Session::create([
                     'payment_method_types' => ['card'],
                     'mode' => 'subscription',
@@ -316,22 +320,31 @@ class StripeController extends Controller
                         'quantity' => 1,
                     ]],
                     'customer_email' => Auth::user()->email,
+                    // 'metadata' => [
+                    //     'plan_id' => $planDetails->id,
+                    //     'student_id' => Auth::user()->id,
+                    //     'tenant_id' => tenant()->id,
+                    //     'instructor_id' => $planDetails->instructor_id,
+                    // ],
                     'success_url' => route('stripe.success.pay', Crypt::encrypt([
-                        'coupon'    => $request->coupon,
-                        'plan_id'   => $planDetails->id,
-                        'price'     => $request->amount,
-                        'user_id'   => Auth::user()->id,
-                        'order_id'  => $request->order_id,
-                        'type'      => 'stripe'
+                        'coupon' => $request->coupon,
+                        'plan_id' => $planDetails->id,
+                        'price' => $request->amount,
+                        'user_id' => Auth::user()->id,
+                        'order_id' => $request->order_id,
+                        'type' => 'stripe',
                     ])) . '?session_id={CHECKOUT_SESSION_ID}',
                     'cancel_url' => route('stripe.cancel.pay', Crypt::encrypt([
-                        'coupon'    => $request->coupon,
-                        'plan_id'   => $planDetails->id,
-                        'price'     => $request->amount,
-                        'user_id'   => Auth::user()->id,
-                        'order_id'  => $request->order_id,
-                        'type'      => 'stripe'
+                        'coupon' => $request->coupon,
+                        'plan_id' => $planDetails->id,
+                        'price' => $request->amount,
+                        'user_id' => Auth::user()->id,
+                        'order_id' => $request->order_id,
+                        'type' => 'stripe',
                     ])),
+                ], [
+                    // ✅ options go here (second argument)
+                    'stripe_account' => $planDetails->instructor->stripe_account_id,
                 ]);
             } catch (Exception $e) {
                 $api_error  = $e->getMessage();
@@ -511,25 +524,45 @@ class StripeController extends Controller
          * After successful payment, find the checkout session and
          * update the subscription to auto-cancel after plan duration.
          */
+        // \Log::info($session_id);
         try {
-            $session_id = request('session_id');
             if ($session_id) {
                 \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-                $session = \Stripe\Checkout\Session::retrieve($session_id);
+                // $session = \Stripe\Checkout\Session::retrieve($session_id);
+                $session = \Stripe\Checkout\Session::retrieve($session_id, [
+                    'stripe_account' => $plan->instructor->stripe_account_id // Use the connected account ID
+                ]);
 
                 if (!empty($session->subscription)) {
-                    $subscription_id = $session->subscription;
+                    // \Log::info("2");
 
-                    // Calculate when the subscription should end
+                    $subscription_id = $session->subscription;
+                    $customer_id = $session->customer ?? null;
+
+                    // 🆕 Create Student Subscription record
+                    StudentSubscription::create([
+                        'student_id' => $user->id,
+                        'plan_id' => $plan->id,
+                        'instructor_id' => $plan->instructor_id ?? null,
+                        'tenant_id' => tenant()->id,
+                        'stripe_customer_id' => $customer_id,
+                        'stripe_subscription_id' => $subscription_id,
+                        'status' => 'active',
+                    ]);
+
+                    // Auto-cancel logic
                     $cancelAt = now()->addMonths(
                         strtolower($plan->durationtype) === 'month'
                             ? $plan->duration
                             : $plan->duration * 12
                     )->timestamp;
 
-                    // Update Stripe subscription to auto-cancel
+                    // \Log::info($cancelAt);
+
                     \Stripe\Subscription::update($subscription_id, [
                         'cancel_at' => $cancelAt,
+                    ], [
+                        'stripe_account' => $plan->instructor->stripe_account_id // Use the connected account ID
                     ]);
                 }
             }

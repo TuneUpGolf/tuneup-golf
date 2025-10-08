@@ -102,7 +102,6 @@ Route::middleware([
         return UserImpersonation::makeResponse($token);
     });
 
-Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
 
 
     Route::group(['middleware' => ['Setting', 'xss']], function () {
