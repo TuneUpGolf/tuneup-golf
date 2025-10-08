@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-body table-border-style">
                     <div class="">
-                        {{ $dataTable->table(['width' => '100%']) }}
+                        {{ $dataTable->table() }}
                     </div>
                 </div>
             </div>
@@ -52,6 +52,8 @@
             </div>
         </div>
     </div>
+
+    
 @endsection
 
 @push('css')
@@ -60,6 +62,21 @@
         .dataTables_filter {
             display: none;
         }
+
+        table.dataTable td {
+  white-space: normal !important;
+  word-wrap: break-word;
+}
+
+table.dataTable {
+  table-layout: auto !important;
+  width: 100% !important;
+}
+
+
+        /* th, td{
+            display: inline-block !important;
+        } */
     </style>
 @endpush
 
