@@ -1,11 +1,4 @@
  <div class="row">
-     <div class="col-12 mb-3">
-         <button type="button" class="btn btn-secondary"
-             style="color: black !important; background-color: #ffffff !important;" onclick="window.history.back();">
-             &larr; Back to Album Categories
-         </button>
-     </div>
-
      <div class="col-xl-12">
          <div class="card ctm-post-card">
              <div id="blog" class="sm:p-4 ">
@@ -13,6 +6,7 @@
                      <div class="focus:outline-none mt-3 mb-3 lg:mt-24">
                          <div class="infinity">
                              <div class="flex flex-wrap w-100">
+
                                  @if ($albums->count() > 0)
                                      @foreach ($albums as $post)
                                          <div class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md">
@@ -54,25 +48,82 @@
                                                  </div>
 
 
-                                                 @if ($post->file_type == 'image' || is_null($post->file_type))
-                                                     <img class=" w-full post-thumbnail open-full-thumbnail"
-                                                         src="{{ asset($post->media) }}" alt="Profile" />
-                                                     <div id="imageModal" class="modal">
-                                                         <span class="close" id="closeBtn">&times;</span>
-                                                         <img class="modal-content" id="fullImage">
-                                                     </div>
+
+                                                 @if ($post->file_type == 'image')
+                                                     @if ($post->payment_mode != 'paid')
+                                                         <div class="relative paid-post-wrap">
+                                                             <img class=" w-full post-thumbnail"
+                                                                 src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
+                                                                 alt="Post Image" />
+                                                             <div
+                                                                 class="absolute inset-0 flex justify-center items-center paid-post flex-col">
+                                                                 <div
+                                                                     class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
+                                                                     <i class="ti ti-lock-open"></i>
+                                                                 </div>
+
+                                                                 {!! Form::open([
+                                                                     'route' => ['purchase.post.index', ['post_id' => $post->id]],
+                                                                     'method' => 'Post',
+                                                                     'data-validate',
+                                                                 ]) !!}
+
+                                                                 <div
+                                                                     class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
+                                                                     <i class="ti ti-lock-open text-2xl lh-sm"></i>
+                                                                     {{ Form::button(__('Unlock for - $' . $post->price), ['type' => 'submit', 'class' => 'btn p-0 pl-1 text-white border-0']) }}
+                                                                     {!! Form::close() !!}
+                                                                 </div>
+                                                             </div>
+                                                         </div>
+                                                     @else
+                                                         <!-- <img class="rounded-md w-full" src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->file) }}"
+                    alt="Post Image" /> -->
+                                                         <img class=" w-full post-thumbnail open-full-thumbnail"
+                                                             src="{{ asset($post->image) }}" alt="Profile" />
+                                                         <div id="imageModal" class="modal">
+                                                             <span class="close" id="closeBtn">&times;</span>
+                                                             <img class="modal-content" id="fullImage">
+                                                         </div>
+                                                     @endif
                                                  @else
-                                                     <video controls class="w-full post-thumbnail">
-                                                         <source src="{{ asset($post?->media) }}" type="video/mp4">
-                                                     </video>
+                                                     @if ($post->paid)
+                                                         <div
+                                                             class="relative bg-black h-48 flex justify-center items-center">
+                                                             {!! Form::open([
+                                                                 'route' => ['purchase.post.index', ['post_id' => $post->id]],
+                                                                 'method' => 'Post',
+                                                                 'data-validate',
+                                                             ]) !!}
+                                                             {{ Form::button(__('Purchase Post - $' . $post->price), ['type' => 'submit', 'class' => 'btn btn-primary bg-white text-black px-4 py-2 rounded-lg']) }}
+                                                             {!! Form::close() !!}
+                                                         </div>
+                                                     @else
+                                                         <video controls class="w-full post-thumbnail">
+                                                             <source
+                                                                 src="{{ Storage::url(tenant('id') . '/' . $post?->file) }}"
+                                                                 type="video/mp4">
+                                                         </video>
+                                                     @endif
                                                  @endif
                                                  <div class="px-4 py-2">
                                                      <div class="text-md italic text-gray-500">
                                                          {{ \Carbon\Carbon::parse($post->created_at)->format('d M Y') }}
                                                      </div>
-                                                     <h1 class="text-xl font-bold truncate">
-                                                         {{ $post->title }}
-                                                     </h1>
+                                                     @if ($post->payment_mode == 'paid')
+                                                         <h1 class="text-xl font-bold truncate">
+                                                             {{ $post->title }}
+                                                             <button class="btn btn-sm btn-primary ml-2 view-paid"
+                                                                 data-id="{{ $post->id }}">
+                                                                 View
+                                                             </button>
+                                                         </h1>
+                                                     @else
+                                                         <h1 class="text-xl font-bold truncate  paidpost">
+                                                             {{ $post->title }}
+                                                         </h1>
+                                                     @endif
+
 
                                                      @php
                                                          $description = $post->description;
@@ -133,6 +184,20 @@
      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
      <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
      <script type="text/javascript">
+         document.addEventListener('DOMContentLoaded', function() {
+             document.querySelectorAll('.view-paid').forEach(function(button) {
+                 button.addEventListener('click', function() {
+                     const categoryAlbumId = this.getAttribute('data-id');
+                     const url = new URL(window.location.href);
+                     const currentView = url.searchParams.get('view') || 'in-person';
+
+                     if (currentView === 'posts') {
+                         url.searchParams.set('category_album', categoryAlbumId);
+                         window.location.href = url.toString();
+                     }
+                 });
+             });
+         });
          $('ul.pagination').hide();
          $(function() {
              $('.infinity').jscroll({

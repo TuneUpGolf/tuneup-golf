@@ -33,7 +33,7 @@ class AlbumCategoryDataTable extends DataTable
             ->editColumn("photo", function (AlbumCategory $post) {
                 if ($post->image) {
                     if ($post->file_type == 'image') {
-                        $imageSrc = asset('public/' . $post->image);
+                        $imageSrc = asset($post->image);
                         return "<img src=' " . $imageSrc . " ' width='50'/>";
                     } else {
                         return 'Video';

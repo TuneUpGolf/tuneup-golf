@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use App\Models\Lesson;
 use App\Models\Post;
 use App\Models\Album;
+use App\Models\AlbumCategory;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use LaravelViews\Views\GridView;
 
@@ -29,14 +30,25 @@ class StudentDashboardView extends GridView
 
     public function repository(): Builder
     {
+        if (request()->query('category_album')) {
+            $this->cardComponent = 'admin.posts.album-card-view';
+            if (request()->query('instructor_id')) {
+                return Album::where('instructor_id', request()->query('instructor_id'))
+                    ->where('album_category_id', request()->query('category_album'));
+            } else {
+                return Album::where('album_category_id', request()->query('category_album'));
+            }
+        }
+
         if (request()->query('category')) {
             $this->cardComponent = 'admin.posts.album-view';
             if (request()->query('instructor_id')) {
-                return Album::where('instructor_id', request()->query('instructor_id'));
+                return AlbumCategory::where('instructor_id', request()->query('instructor_id'));
             } else {
-                return Album::query();
+                return AlbumCategory::query();
             }
         }
+
 
         if ($this->currentView == 'posts') {
             $this->cardComponent = 'admin.posts.card-new';
@@ -136,14 +148,20 @@ class StudentDashboardView extends GridView
 
     public function render()
     {
-        if (request()->query('category')) {
+        if (request()->query('category_album')) {
             $albums = $this->repository()->get();
             return view('admin.posts.album-view', compact('albums'));
         }
+        if (request()->query('category')) {
+            $albums = $this->repository()->get();
+            return view('admin.posts.album-category-view', compact('albums'));
+        }
+
         if ($this->currentView === 'posts') {
             $posts = $this->repository()->paginate(6);
             return view('admin.posts.card-new', compact('posts'));
         }
+
 
         return parent::render(); // ✅ let GridView handle posts and lessons
     }
