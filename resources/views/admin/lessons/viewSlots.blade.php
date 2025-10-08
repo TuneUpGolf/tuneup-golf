@@ -673,10 +673,10 @@
                          });
                  }
                  if (type == 'Student' && !isAuthStudentBooked && !isFullyBooked && !isCompleted) {
-                     let studentsHtml = `
-        <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
-        <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
-    `;
+    //                  let studentsHtml = `
+    //     <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
+    //     <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
+    // `;
                      Swal.fire({
                          title: "Slot Details",
                          html: `
@@ -1131,9 +1131,13 @@
 
          // ========== STUDENT: Book ==========
          if (type == 'Student' && !isAuthStudentBooked && !isFullyBooked && !isCompleted) {
-             let friendsHtml = `
-              <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
-              <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
+            //  let friendsHtml = `
+            //   <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
+            //   <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
+            //   <textarea name="notes" id="notes" class="form-control mt-2" placeholder="Enter note here" cols="10" rows="5"></textarea>
+            // `;
+            let friendsHtml = `
+
               <textarea name="notes" id="notes" class="form-control mt-2" placeholder="Enter note here" cols="10" rows="5"></textarea>
             `;
              Swal.fire({
