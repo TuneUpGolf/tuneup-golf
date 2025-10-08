@@ -96,9 +96,7 @@
                                                  @else
                                                      @if ($post->payment_mode == 'un-paid' || $studentSubscription)
                                                          <video controls class="w-full post-thumbnail">
-                                                             <source
-                                                                 src="{{ Storage::url(tenant('id') . '/' . $post?->file) }}"
-                                                                 type="video/mp4">
+                                                             <source src="{{ asset($post->image) }}" type="video/mp4">
                                                          </video>
                                                      @else
                                                          <div class="relative paid-post-wrap">
