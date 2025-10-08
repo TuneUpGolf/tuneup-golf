@@ -399,8 +399,8 @@
                                 <h6 class="mt-2"><strong>Slots Available:</strong></h6>
                                 ${slotDetailsHtml}
                             </div>
-                            <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
-                            <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
+                          <!--  <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
+                            <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas"> -->
                         </div>`,
                     showCancelButton: true,
                     confirmButtonText: "Book Slot",

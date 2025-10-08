@@ -293,16 +293,23 @@
                                         <div class="tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex">
                                             <select id="album-category" class="form-select"
                                                 style="margin-left:auto; max-width: 12.5rem;">
-                                                <option value=""
-                                                    {{ request()->query('category') ? '' : 'selected' }}>
+                                                <option value="" disabled>
                                                     - Select Category -
                                                 </option>
-                                                @foreach ($album_categories as $category)
+                                                <option value=""
+                                                    {{ request()->query('category') === ' ' ? 'selected' : '' }}>
+                                                    Feed
+                                                </option>
+                                                <option value="all_category"
+                                                    {{ request()->query('category') === 'all_category' ? 'selected' : '' }}>
+                                                    All Categories
+                                                </option>
+                                                {{-- @foreach ($album_categories as $category)
                                                     <option value="{{ $category->id }}"
                                                         {{ request()->query('category') == $category->id ? 'selected' : '' }}>
                                                         {{ $category->title }}
                                                     </option>
-                                                @endforeach
+                                                @endforeach --}}
                                             </select>
                                         </div>
                                     </div>

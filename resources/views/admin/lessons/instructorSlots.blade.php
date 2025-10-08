@@ -102,7 +102,8 @@
             content: none !important;
         }
 
-        .fc-event, .fc-event:not([href]) {
+        .fc-event,
+        .fc-event:not([href]) {
             padding: 0 !important;
         }
     </style>
@@ -188,14 +189,14 @@
                     const timeRange = `${startTime} - ${endTime}`;
 
                     Swal.fire({
-                        title: "Add Reason for Empty Slot",
+                        title: "Add Personal Event",
                         html: `
                             <div style="text-align:left;">
                                 <label><strong>Time:</strong></label>
                                 <input type="text" id="selectedTime" class="form-control mb-3" value="${timeRange}" readonly>
     
-                                <label><strong>Reason:</strong></label>
-                                <textarea id="reason" class="form-control" placeholder="Enter reason here..." rows="4"></textarea>
+                                <label><strong>Event Description:</strong></label>
+                                <textarea id="reason" class="form-control" placeholder="Enter event description here..." rows="4"></textarea>
                             </div>
                         `,
                         showCancelButton: true,

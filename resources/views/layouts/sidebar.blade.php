@@ -489,7 +489,7 @@
                             </a>
                         </li>
                     @endif  --}}
-                    @if ($userType == 'Student')
+                    {{-- @if ($userType == 'Student')
                         @canany(['manage-blog', 'manage-category'])
                             <li
                                 class="dash-item dash-hasmenu {{ request()->is('blogs*') || request()->is('category*') ? 'active dash-trigger' : 'collapsed' }}">
@@ -502,17 +502,17 @@
                                     @can('manage-blog')
                                         <li class="dash-item {{ request()->is('blogs') ? 'active' : '' }}">
                                             <a class="dash-link" href="{{ route('blogs.index') }}">{{ __('Feed') }}</a>
-                                        </li>
+                                        </li> --}}
 
-                                        {{-- <li class="dash-item {{ request()->is('album-category/show') ? 'active' : '' }}">
+                    {{-- <li class="dash-item {{ request()->is('album-category/show') ? 'active' : '' }}">
                                             <a class="dash-link"
                                                 href="{{ route('album.category.show') }}">{{ __('Albums') }}</a>
                                         </li> --}}
-                                    @endcan
+                    {{-- @endcan
                                 </ul>
                             </li>
                         @endcanany
-                    @endif
+                    @endif --}}
                     @if ($userType === 'Admin')
                         <li class="dash-item dash-hasmenu {{ request()->is('purchase*') ? 'active' : '' }}">
                             <a class="dash-link" href="{{ route('purchase.index') }}">

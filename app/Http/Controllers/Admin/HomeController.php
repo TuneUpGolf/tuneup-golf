@@ -50,6 +50,7 @@ class HomeController extends Controller
     }
     public function index(Request $request)
     {
+
         $user = Auth::user();
         $userType = $user->type;
         $tenantId = tenant('id');
@@ -109,8 +110,9 @@ class HomeController extends Controller
 
 
             $album_instructors = User::instructors()
-                ->whereHas('albums')
+
                 ->get();
+
 
 
             $album_categories = AlbumCategory::query();
@@ -121,7 +123,7 @@ class HomeController extends Controller
 
             $album_categories = $album_categories->get();
 
-         
+
 
 
             // dd($online_instructors, $inPerson_instructors[0]->lessons);
