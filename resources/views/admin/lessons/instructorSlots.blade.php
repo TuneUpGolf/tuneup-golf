@@ -102,7 +102,8 @@
             content: none !important;
         }
 
-        .fc-event, .fc-event:not([href]) {
+        .fc-event,
+        .fc-event:not([href]) {
             padding: 0 !important;
         }
     </style>
@@ -188,7 +189,7 @@
                     const timeRange = `${startTime} - ${endTime}`;
 
                     Swal.fire({
-                        title: "Add Reason for Empty Slot",
+                        title: "Add Personal Event and take away",
                         html: `
                             <div style="text-align:left;">
                                 <label><strong>Time:</strong></label>
