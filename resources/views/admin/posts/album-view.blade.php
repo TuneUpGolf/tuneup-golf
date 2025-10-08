@@ -6,6 +6,7 @@
                      <div class="focus:outline-none mt-3 mb-3 lg:mt-24">
                          <div class="infinity">
                              <div class="flex flex-wrap w-100">
+
                                  @if ($albums->count() > 0)
                                      @foreach ($albums as $post)
                                          <div class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md">

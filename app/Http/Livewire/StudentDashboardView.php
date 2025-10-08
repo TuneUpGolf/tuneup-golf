@@ -31,12 +31,20 @@ class StudentDashboardView extends GridView
     {
         if (request()->query('category')) {
             $this->cardComponent = 'admin.posts.album-view';
-            return Album::where('album_category_id', request()->query('category'));
+            if (request()->query('instructor_id')) {
+                return Album::where('instructor_id', request()->query('instructor_id'));
+            } else {
+                return Album::query();
+            }
         }
 
         if ($this->currentView == 'posts') {
             $this->cardComponent = 'admin.posts.card-new';
-            return  Post::orderBy('created_at', 'desc');
+            if (request()->query('instructor_id')) {
+                return  Post::where('instructor_id', request()->query('instructor_id'))->orderBy('created_at', 'desc');
+            } else {
+                return  Post::orderBy('created_at', 'desc');
+            }
         }
 
         $query = Lesson::where('active_status', true);
