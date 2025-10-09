@@ -398,11 +398,11 @@
                                                 </option>
                                                 <option value=""
                                                     {{ request()->query('category') === ' ' ? 'selected' : '' }}>
-                                                    Feed
+                                                    View Individual Tips/Drills
                                                 </option>
                                                 <option value="all_category"
                                                     {{ request()->query('category') === 'all_category' ? 'selected' : '' }}>
-                                                    All Categories
+                                                    View Categories
                                                 </option>
                                                 {{-- @foreach ($album_categories as $category)
                                                     <option value="{{ $category->id }}"

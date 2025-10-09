@@ -65,16 +65,16 @@
                                                 src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post?->instructor?->logo) }}"
                                                 alt="Profile" />
 @endif -->
-                    <img class="w-16 h-16 rounded-full"
+                    <img class="w-16 h-16 rounded-full d-none"
                         src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
                         alt="Profile" />
                     <div>
                         <p class="text-xl text-white font-bold mb-0 leading-tight">
                             {{ ucfirst($post->isStudentPost ? $post?->student->name : $post?->instructor?->name) }}
                         </p>
-                        <span class="text-md text-white">
+                        {{-- <span class="text-md text-white">
                             {{ $post->isStudentPost ? 'Student' : 'Instructor' }}
-                        </span>
+                        </span> --}}
                     </div>
                 </div>
 
