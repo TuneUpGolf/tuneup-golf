@@ -295,6 +295,7 @@ Route::middleware([
         Route::get('myplans/{id}/edit', [PlanController::class, 'editMyplan'])->name('requestdomain.editplan');
         Route::post('myplan-status/{id}', [PlanController::class, 'planStatus'])->name('myplan.status');
         Route::get('payment/{code}', [PlanController::class, 'payment'])->name('payment');
+        Route::get('cancel-plan/{plan_id}', [PlanController::class, 'cancelPlan'])->name('plans.cancel');
 
         // offline request
         Route::resource('offline', OfflineRequestController::class);

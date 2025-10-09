@@ -24,6 +24,22 @@
     .title {
         display: none;
     }
+
+    .cancel-btn {
+        background-color: #ff3a6e !important;
+        transition: color 0.2s ease !important;
+    }
+
+    .cancel-btn:hover {
+        background-color: #d9315c !important;
+    }
+
+    .lesson-btn:disabled {
+        background: rgba(0, 113, 206, 0.5);
+        /* faded version */
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
 </style>
 {{--  @section('instructor')  --}}
 
@@ -210,10 +226,7 @@
                                                             <div class="border-t border-gray-300"></div>
                                                             <div class="px-3 py-4">
                                                                 @if ($plan->id != 1)
-                                                                    @if (
-                                                                        $plan->id == $user->plan_id &&
-                                                                            !empty($user->plan_expired_date) &&
-                                                                            Carbon::parse($user->plan_expired_date)->gte(now()))
+                                                                    {{-- @if ($plan->id == $user->plan_id && !empty($user->plan_expired_date) && Carbon::parse($user->plan_expired_date)->gte(now()))
                                                                         <a href="javascript:void(0)"
                                                                             data-id="{{ $plan->id }}"
                                                                             class="lesson-btn text-center font-bold text-lg mt-auto"
@@ -227,6 +240,93 @@
                                                                             @else
                                                                                 {{ __('Buy Plan') }}
                                                                             @endif
+                                                                        </a>
+                                                                    @endif --}}
+                                                                    {{-- 
+                                                                    @if ($user->plan_id != null)
+                                                                        @if ($plan->id == $user->plan_id)
+                                                                            @if (!empty($user->plan_expired_date) && Carbon::parse($user->plan_expired_date)->gte(now()))
+                                                                                <a href="javascript:void(0)"
+                                                                                    data-id="{{ $plan->id }}"
+                                                                                    class="lesson-btn text-center font-bold text-lg mt-auto"
+                                                                                    data-amount="{{ $plan->price }}">{{ __('Expire at') }}
+                                                                                    {{ Carbon::parse($user->plan_expired_date)->format('d/m/Y') }}</a>
+                                                                                <a href="javascript:void(0)"
+                                                                                    data-id="{{ $plan->id }}"
+                                                                                    class="lesson-btn text-center font-bold text-lg mt-2 cancel-btn"
+                                                                                    data-amount="{{ $plan->price }}">Cancel
+                                                                                    Plan</a>
+                                                                            @else
+                                                                                <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
+                                                                                    class="lesson-btn text-center font-bold text-lg mt-auto">
+                                                                                    @if ($plan->id == $user->plan_id)
+                                                                                        {{ __('Renew') }}
+                                                                                    @else
+                                                                                        {{ __('Buy Plan') }}
+                                                                                    @endif
+                                                                                </a>
+                                                                            @endif
+                                                                        @else
+                                                                          
+
+                                                                            <button disabled
+                                                                                class="lesson-btn text-center font-bold text-lg mt-auto">
+                                                                                {{ __('Buy Plan') }}
+                                                                            </button>
+                                                                        @endif
+                                                                    @else
+                                                                        <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
+                                                                            class="lesson-btn text-center font-bold text-lg mt-auto">
+                                                                            @if ($plan->id == $user->plan_id)
+                                                                                {{ __('Renew') }}
+                                                                            @else
+                                                                                {{ __('Buy Plan') }}
+                                                                            @endif
+                                                                        </a>
+                                                                    @endif --}}
+
+                                                                    @php
+                                                                        $hasPlan = !is_null($user->plan_id);
+                                                                        $isCurrentPlan =
+                                                                            $hasPlan && $plan->id == $user->plan_id;
+                                                                        $isActive =
+                                                                            $isCurrentPlan &&
+                                                                            !empty($user->plan_expired_date) &&
+                                                                            Carbon::parse(
+                                                                                $user->plan_expired_date,
+                                                                            )->gte(now());
+                                                                    @endphp
+
+                                                                    @if ($isCurrentPlan)
+                                                                        @if ($isActive)
+                                                                            <a href="javascript:void(0)"
+                                                                                data-id="{{ $plan->id }}"
+                                                                                class="lesson-btn text-center font-bold text-lg mt-auto"
+                                                                                data-amount="{{ $plan->price }}">
+                                                                                {{ __('Expire at') }}
+                                                                                {{ Carbon::parse($user->plan_expired_date)->format('d/m/Y') }}
+                                                                            </a>
+                                                                            <a href="javascript:void(0)"
+                                                                                data-id="{{ $plan->id }}"
+                                                                                class="lesson-btn text-center font-bold text-lg mt-2 cancel-btn"
+                                                                                data-amount="{{ $plan->price }}">
+                                                                                {{ __('Cancel Plan') }}
+                                                                            </a>
+                                                                        @else
+                                                                            <a href="{{ route('payment', Crypt::encrypt($plan->id)) }}"
+                                                                                class="lesson-btn text-center font-bold text-lg mt-auto">
+                                                                                {{ __('Renew') }}
+                                                                            </a>
+                                                                        @endif
+                                                                    @elseif ($hasPlan)
+                                                                        <button disabled
+                                                                            class="lesson-btn text-center font-bold text-lg mt-auto">
+                                                                            {{ __('Buy Plan') }}
+                                                                        </button>
+                                                                    @else
+                                                                        <a href="{{ route('payment', Crypt::encrypt($plan->id)) }}"
+                                                                            class="lesson-btn text-center font-bold text-lg mt-auto">
+                                                                            {{ __('Buy Plan') }}
                                                                         </a>
                                                                     @endif
                                                                 @endif

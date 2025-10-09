@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\StripeConnectedAccount;
 use App\Services\StripeWebhookService;
 use App\DataTables\Admin\PlanDataTable;
+use App\Models\Student;
+use App\Models\StudentSubscription;
+use Stripe\Subscription as StripeSubscription;
 
 class PlanController extends Controller
 {
@@ -234,7 +237,7 @@ class PlanController extends Controller
             }
             $perIntervalPrice = $totalPrice / $intervalCount;
 
-           
+
 
 
             $instructor = $instructorId ? User::find($instructorId) : null;
@@ -361,5 +364,62 @@ class PlanController extends Controller
         } else {
             return redirect()->back()->with('errors', __('Plan deleted successfully.'));
         }
+    }
+
+    public function cancelPlan($encrptedPlanid)
+    {
+        // Plan id
+        $plan_id  = \Illuminate\Support\Facades\Crypt::decrypt($encrptedPlanid);
+
+        // Student can only cancel at the moment
+        if (!(auth('student')->user())) {
+            return redirect()->back()->with('failed', 'Unauthorized');
+        }
+
+        // user id
+        $user_id = auth('student')->user()->id;
+
+        // Student Subscription
+        $student_subscription = StudentSubscription::where('plan_id', $plan_id)->where('student_id', $user_id)->latest()->first();
+
+        // dd($student_subscription);
+        // Subscription Check
+        if (!$student_subscription) {
+            Log::error("Plan id: " . $plan_id . " User id: " . $user_id . " subscription not found");
+            return redirect()->back()->with('failed', 'Something went wrong');
+        }
+
+        // 🔹 Initialize Stripe for the connected account
+        Stripe::setApiKey(config('services.stripe.secret')); // your platform secret key
+
+        // tenant_id likely corresponds to the connected account ID
+        $instructor_id = User::find($student_subscription->instructor_id);
+        // dd($instructor_id, $student_subscription->instructor_id, );
+        $connectedAccountId = $instructor_id->stripe_account_id;
+
+        try {
+            $stripeSubscription = StripeSubscription::retrieve(
+                $student_subscription->stripe_subscription_id,
+                ['stripe_account' => $connectedAccountId]
+            );
+
+            // Cancel immediately (no waiting for end of period)
+            $stripeSubscription->cancel(
+                ['invoice_now' => true, 'prorate' => false],
+                ['stripe_account' => $connectedAccountId]
+            );
+        } catch (\Exception $stripeError) {
+            Log::error("Stripe cancellation failed for connected account {$connectedAccountId}: " . $stripeError->getMessage());
+            return redirect()->back()->with('failed', 'Unable to cancel subscription on Stripe.');
+        }
+
+        // 🔹 Update your local database
+        $student_subscription->update([
+            'status' => 'cancelled',
+        ]);
+
+        Student::find($user_id)->update(['plan_id' => null]);
+
+        return redirect()->back()->with('success', 'Subscription cancelled successfully.');
     }
 }

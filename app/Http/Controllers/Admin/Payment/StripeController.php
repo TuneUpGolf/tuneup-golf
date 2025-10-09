@@ -438,38 +438,55 @@ class StripeController extends Controller
 
     function paymentSuccess($data)
     {
+        // Session id Stripe
         $session_id = request('session_id');
 
-        // ✅ Clean the $data variable (remove query params if accidentally included)
+        // ✅ Remove session id as other data is encrypted
         if (strpos($data, '?') !== false) {
             $data = explode('?', $data)[0];
         }
 
-        // Then decrypt as usual
+        // Then decrypt encrypted data
         $data = Crypt::decrypt($data);
+
+        // Login User
         $user = Auth::user();
+
+        // if admin case
         if ($user->type == 'Admin') {
+            // Get user instance
             $user = User::find($user->id);
+
+            // centralized database  
             $order = tenancy()->central(function ($tenant) use ($data) {
-                $datas                  = Order::find($data['order_id']);
-                $datas->status          = 1;
-                $datas->payment_type    = 'stripe';
+                // Order updated
+                $datas = Order::find($data['order_id']);
+                $datas->status = 1;
+                $datas->payment_type = 'stripe';
                 $datas->update();
-                $coupons    = Coupon::find($data['coupon']);
-                $user       = User::find($tenant->id);
+
+                //  coupon if any
+                $coupons = Coupon::find($data['coupon']);
+
+                // tenant user (if any)
+                $user = User::find($tenant->id);
+
+                // if coupon 
                 if (!empty($coupons)) {
-                    $userCoupon         = new UserCoupon();
-                    $userCoupon->user   = $user->id;
+                    $userCoupon = new UserCoupon();
+                    $userCoupon->user = $user->id;
                     $userCoupon->coupon = $coupons->id;
-                    $userCoupon->order  = $datas->id;
+                    $userCoupon->order = $datas->id;
                     $userCoupon->save();
-                    $usedCoupun         = $coupons->used_coupon();
+                    $usedCoupun = $coupons->used_coupon();
                     if ($coupons->limit <= $usedCoupun) {
                         $coupons->is_active = 0;
                         $coupons->save();
                     }
                 }
-                $plan           = Plan::find($data['plan_id']);
+
+                // fetching plan
+                $plan = Plan::find($data['plan_id']);
                 $user->plan_id  = $plan->id;
                 if ($plan->durationtype == 'Month' && $plan->id != '1') {
                     $user->plan_expired_date = Carbon::now()->addMonths($plan->duration)->isoFormat('YYYY-MM-DD');
@@ -481,12 +498,17 @@ class StripeController extends Controller
                 $user->save();
             });
         } else {
+
+            // Find student
             $user = $user->type == 'Student' ? Student::find($user->id) : User::find($user->id);
-            $datas                  = Order::find($data['order_id']);
-            $datas->status          = 1;
-            $datas->payment_type    = 'stripe';
+
+            // order status update
+            $datas = Order::find($data['order_id']);
+            $datas->status = 1;
+            $datas->payment_type = 'stripe';
             $datas->update();
 
+            // Coupons if any
             $coupons    = Coupon::find($data['coupon']);
             if (!empty($coupons)) {
                 $userCoupon         = new UserCoupon();
@@ -500,8 +522,13 @@ class StripeController extends Controller
                     $coupons->save();
                 }
             }
-            $plan           = Plan::find($data['plan_id']);
-            $user->plan_id  = $plan->id;
+
+            // find plan
+            $plan = Plan::find($data['plan_id']);
+
+            // User plan_id/subscription update
+            $user->plan_id = $plan->id;
+
             if ($plan->durationtype == 'Month' && $plan->id != '1') {
                 $planExpiredDate = Carbon::now()->addMonths($plan->duration)->isoFormat('YYYY-MM-DD');
                 $user->plan_expired_date = $planExpiredDate;
@@ -511,10 +538,14 @@ class StripeController extends Controller
             } else {
                 $user->plan_expired_date = null;
             }
+
+
             if ($plan->is_chat_enabled) {
                 $this->chatService->updateUser($user->chat_user_id, 'plan_expired_date', $planExpiredDate, $user->email);
                 $user->chat_status = true;
             }
+
+            
             $user->save();
         }
 
