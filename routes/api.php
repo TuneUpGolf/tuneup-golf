@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use App\Http\Resources\TenantAPIResource;
 use Illuminate\Validation\ValidationException;
+use App\Http\Controllers\MessageNotifyController;
 use App\Http\Controllers\Superadmin\UserController;
 use App\Http\Controllers\Admin\StripeWebhookController;
 use App\Http\Controllers\Admin\Payment\StripeController;
@@ -24,6 +25,9 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
 */
 
 // Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
+
+Route::post('/notify-message', [MessageNotifyController::class, 'handleNotification']);
+
 
 Route::post('/sanctum/token', function (Request $request) {
     $request->validate([
@@ -59,6 +63,7 @@ Route::group(['middleware' => [
     InitializeTenancyByDomainOrSubdomain::class,
 ]], function () {
     Route::get('/stripe/success', [StripeController::class, 'redirectFromCreate'])->name('stripe-redirect-create');
+    
 });
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
