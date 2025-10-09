@@ -103,7 +103,7 @@ Route::group(['middleware' => [
     Route::get('follow/subscription/success', [FollowController::class, 'subscriptionSuccess'])->name('subscription-success');
     Route::get('follow/subscription/unsuccessful ', [FollowController::class, 'subscriptionUnsuccess'])->name('subscription-unsuccess');
     Route::get('purchase/post/success', [PurchasePostController::class, 'purchasePostSuccess'])->name('purchase-post-success');
-    Route::get('purchase/post/success', [PurchasePostController::class, 'purchaseAllbumsSuccess'])->name('purchase-album-success');
+    Route::get('purchase/album/success', [PurchasePostController::class, 'purchaseAllbumsSuccess'])->name('purchase-album-success');
     Route::get('purchase/post/unsuccessful ', [PurchasePostController::class, 'purchasePostUnsuccess'])->name('purchase-post-unsuccess');
     Route::get('/stripe/success', [PaymentStripeController::class, 'redirectFromCreate'])->name('stripe-redirect-create');
     Route::get('stripe/connect/refresh', [PaymentStripeController::class, 'refreshAccountLink'])->name('stripe.refresh');
