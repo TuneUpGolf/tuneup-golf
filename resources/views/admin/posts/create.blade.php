@@ -31,7 +31,8 @@
                                     ]) !!}
                                 </div>
                                 <div class="form-group">
-                                    {{ Form::label('photo', __('Photo'), ['class' => 'form-label']) }} *
+                                    {{ Form::label('Add Video or Image', __('Add Video or Image'), ['class' => 'form-label']) }}
+                                    *
                                     {!! Form::file('file', ['class' => 'form-control', 'required' => 'required']) !!}
                                 </div>
                                 <div class="form-group">

@@ -177,7 +177,7 @@
                                  </div>
 
                                  <!-- Slot List -->
-                                 <div id="slotListContainer" class="row"></div>
+                                 <div id="slotListContainer" class="row mt-4"></div>
                              </div>
                          </div>
                      </div>
@@ -678,7 +678,7 @@
         <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
     `;
                      Swal.fire({
-                         title: "Slot Details",
+                         title: "Lesson Details",
                          html: `
                     <div style="text-align: left; font-size: 14px;">
                     <span><strong>Lesson Date/Time:</strong> ${formattedTime}</span><br/>
@@ -1137,7 +1137,7 @@
               <textarea name="notes" id="notes" class="form-control mt-2" placeholder="Enter note here" cols="10" rows="5"></textarea>
             `;
              Swal.fire({
-                 title: "Slot Details",
+                 title: "Lesson Details",
                  html: `
                   <div style="text-align: left; font-size: 14px;">
                     <span><strong>Lesson Date/Time:</strong> ${formattedTime}</span><br/>

@@ -1,9 +1,9 @@
 @extends('layouts.main')
-@section('title', __('Create Album'))
+@section('title', __('Add Content'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('blogs.index') }}">{{ __('Posts') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Create Album') }}</li>
+    <li class="breadcrumb-item">{{ __('Add Content') }}</li>
 @endsection
 @section('content')
     <div class="main-content">
@@ -11,7 +11,7 @@
             <div class="col-sm-12 col-md-8 m-auto">
                 <div class="card">
                     <div class="card-header">
-                        <h5>{{ __('Create Album') }}</h5>
+                        <h5>{{ __('Add Content') }}</h5>
                     </div>
                     <div class="card-body">
                         {!! Form::open([
