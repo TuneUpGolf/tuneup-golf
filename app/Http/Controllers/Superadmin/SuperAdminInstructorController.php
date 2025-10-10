@@ -77,8 +77,8 @@ class SuperAdminInstructorController extends Controller
         // Handle new image upload
         if ($request->hasFile('instructor_image')) {
             // Delete old instructor_image if exists
-            if ($instructor->instructor_image && Storage::disk('public')->exists($instructor->instructor_image)) {
-                Storage::disk('public')->delete($instructor->instructor_image);
+            if ($instructor->instructor_image && Storage::disk('local')->exists($instructor->instructor_image)) {
+                Storage::disk('local')->delete($instructor->instructor_image);
             }
             $validated['instructor_image'] = $request->file('instructor_image')->store('instructors', 'public');
         }
@@ -97,8 +97,8 @@ class SuperAdminInstructorController extends Controller
         $instructor = SuperAdminInstructor::findOrFail($id);
 
         // Delete instructor_image if exists
-        if ($instructor->instructor_image && Storage::disk('public')->exists($instructor->instructor_image)) {
-            Storage::disk('public')->delete($instructor->instructor_image);
+        if ($instructor->instructor_image && Storage::disk('local')->exists($instructor->instructor_image)) {
+            Storage::disk('local')->delete($instructor->instructor_image);
         }
 
         $instructor->delete();

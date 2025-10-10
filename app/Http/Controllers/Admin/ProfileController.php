@@ -89,6 +89,7 @@ class ProfileController extends Controller
 
     public function BasicInfoUpdate(Request $request)
     {
+        // dd($request->all());
         $userDetail = Auth::user();
         if (in_array($userDetail->type, [Role::ROLE_INSTRUCTOR, Role::ROLE_ADMIN]))
             $user       = User::find(Auth::id());
@@ -223,7 +224,8 @@ class ProfileController extends Controller
 
     public function updateAvatar(Request $request)
     {
-        $disk = Storage::disk();
+        // dd('test');
+        $disk = Storage::disk('local');
 
         if (auth()->user()->type == 'Instructor') {
             $user     = User::find(auth()->id());
@@ -235,11 +237,13 @@ class ProfileController extends Controller
         request()->validate([
             'avatar'    => 'required',
         ]);
+
         $image          = $request->avatar;
         $image          = str_replace('data:image/png;base64,', '', $image);
         $image          = str_replace(' ', '+', $image);
         $imageName      = time() . '.' . 'png';
-        $imagePath      = "uploads/avatar/" . $imageName;
+        $imagePath      = "/avatar/" . $imageName;
+        // dd($imagePath);
         $disk->put($imagePath, base64_decode($image));
         $user->$column   = $imagePath;
 

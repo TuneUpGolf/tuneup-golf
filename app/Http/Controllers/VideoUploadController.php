@@ -16,7 +16,7 @@ class VideoUploadController extends Controller
             $chunkNumber = $request->input('resumableChunkNumber');
             $tempPath = "temp/{$identifier}/chunk{$chunkNumber}";
 
-            if (Storage::disk('public')->exists($tempPath)) {
+            if (Storage::disk('local')->exists($tempPath)) {
                 return response()->json(['success' => true], 200);
             }
             return response()->json(['success' => false], 404);
@@ -28,7 +28,7 @@ class VideoUploadController extends Controller
         $filename = $request->input('resumableFilename');
 
         $tempPath = "temp/{$identifier}/";
-        Storage::disk('public')->putFileAs($tempPath, $file, "chunk{$chunkNumber}");
+        Storage::disk('local')->putFileAs($tempPath, $file, "chunk{$chunkNumber}");
 
         return response()->json(['success' => true]);
     }
@@ -42,7 +42,7 @@ class VideoUploadController extends Controller
         $finalPath = "videos/{$fileName}";
 
 
-        $chunks = Storage::disk('public')->files($tempDir);
+        $chunks = Storage::disk('local')->files($tempDir);
         if (empty($chunks)) {
             return response()->json(['success' => false, 'message' => 'No chunks found'], 400);
         }
@@ -55,15 +55,15 @@ class VideoUploadController extends Controller
         });
 
 
-        Storage::disk('public')->makeDirectory('videos');
-        $fileResource = fopen(Storage::disk('public')->path($finalPath), 'wb');
+        Storage::disk('local')->makeDirectory('videos');
+        $fileResource = fopen(Storage::disk('local')->path($finalPath), 'wb');
         foreach ($chunks as $chunk) {
-            $chunkContent = Storage::disk('public')->get($chunk);
+            $chunkContent = Storage::disk('local')->get($chunk);
             fwrite($fileResource, $chunkContent);
         }
         fclose($fileResource);
 
-        Storage::disk('public')->deleteDirectory($tempDir);
+        Storage::disk('local')->deleteDirectory($tempDir);
 
         return response()->json([
             'success' => true,

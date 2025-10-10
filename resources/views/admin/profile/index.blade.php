@@ -58,7 +58,7 @@
                 <div class="card-header">
                     <h5>{{ __('Basic info') }}</h5>
                 </div>
-                {{ Form::open(['route' => 'profile.update.basicinfo', 'method' => 'Post', 'class' => 'form-horizontal', 'data-validate']) }}
+                {{ Form::open(['route' => 'profile.update.basicinfo', 'method' => 'Post', 'class' => 'form-horizontal', 'data-validate', 'enctype' => 'multipart/form-data']) }}
                 <div class="card-body">
                     <div class="row form-group">
                         <div class="col-sm-6">
