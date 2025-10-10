@@ -11,6 +11,7 @@ use App\Models\StudentSubscription;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\StripeConnectedAccount;
+use App\Models\StudentSubscriptionDetail;
 
 // use Log;
 
@@ -136,10 +137,36 @@ class StripeWebhookController extends Controller
 
             case 'invoice.payment_succeeded':
                 $subscriptionId = $payload['data']['object']['subscription'];
+                $invoiceId = $payload['data']['object']['id'];
+                $paymentIntentId = $payload['data']['object']['payment_intent'] ?? null;
+
                 tenancy()->initialize($tenant);
 
-                StudentSubscription::where('stripe_subscription_id', $subscriptionId)
+                $student_subscription = StudentSubscription::where('stripe_subscription_id', $subscriptionId)
                     ->update(['status' => 'active']);
+
+                if ($student_subscription) {
+                    $student_subscription->update(['status' => 'active']);
+
+                    // Create a subscription detail record
+                    StudentSubscriptionDetail::create([
+                        'student_subscription_id' => $student_subscription->id,
+                        'invoice_id' => $invoiceId,
+                        'payment_intent_id' => $paymentIntentId,
+                    ]);
+
+                    Log::info('Invoice payment succeeded', [
+                        'subscription_id' => $subscriptionId,
+                        'invoice_id' => $invoiceId,
+                        'payment_intent_id' => $paymentIntentId,
+                        'tenant_id' => $tenant->id,
+                    ]);
+                } else {
+                    Log::warning('Student subscription not found for successful payment', [
+                        'subscription_id' => $subscriptionId,
+                        'invoice_id' => $invoiceId,
+                    ]);
+                }
 
                 tenancy()->end();
                 Log::info('invoice payment');
