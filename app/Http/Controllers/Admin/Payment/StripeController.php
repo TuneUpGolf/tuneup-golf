@@ -545,7 +545,7 @@ class StripeController extends Controller
                 $user->chat_status = true;
             }
 
-            
+
             $user->save();
         }
 
@@ -586,6 +586,8 @@ class StripeController extends Controller
                         $cancelAt = now()->addMonths($plan->duration)->timestamp;
                     } elseif (strtolower($plan->durationtype) === 'day') {
                         $cancelAt = now()->addDays($plan->duration)->timestamp;
+                    } elseif (strtolower($plan->durationtype) === 'year') {
+                        $cancelAt = now()->addYears($plan->duration)->timestamp;
                     } else {
                         // fallback (optional) - e.g., default to months or handle error
                         $cancelAt = now()->addMonths($plan->duration)->timestamp;

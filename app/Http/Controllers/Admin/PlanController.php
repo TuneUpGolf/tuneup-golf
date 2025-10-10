@@ -114,12 +114,12 @@ class PlanController extends Controller
             $instructor = $instructorId ? User::find($instructorId) : null;
 
             $duration = strtolower($request->durationtype) == 'month' ? $request->duration : ($request->duration * 12);
-            $totalPrice = $request->price;
-            $intervalCount = (int) $duration;
-            if ($intervalCount <= 0) {
-                $intervalCount = 1;
-            }
-            $perIntervalPrice = $totalPrice / $intervalCount;
+            // $totalPrice = $request->price;
+            // $intervalCount = (int) $duration;
+            // if ($intervalCount <= 0) {
+            //     $intervalCount = 1;
+            // }
+            // $perIntervalPrice = $totalPrice / $intervalCount;
 
             $stripeAccountId = $instructor->stripe_account_id ?? null;
 
@@ -132,11 +132,11 @@ class PlanController extends Controller
 
             // 2️⃣ Create a Recurring Price
             $price = Price::create([
-                'unit_amount' => round($perIntervalPrice * 100), // Stripe expects cents
+                'unit_amount' => round($request->price * 100), // Stripe expects cents
                 'currency' => $currency,
                 'recurring' => [
-                    'interval' =>  strtolower($request->durationtype), // "month" or "year"
-                    // 'interval' =>  'month', // "month" or "year"
+                    // 'interval' =>  strtolower($request->durationtype), // "month" or "year"
+                    'interval' =>  'month', // "month" or "year"
                 ],
                 'product' => $product->id,
             ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
@@ -229,13 +229,13 @@ class PlanController extends Controller
             $tenantId     = Auth::user()->type === Role::ROLE_INSTRUCTOR ? tenant()->id : null;
 
             // 🔹 Calculate price per interval
-            $duration = strtolower($request->durationtype) == 'month' ? $request->duration : ($request->duration * 12);
-            $totalPrice = $request->price;
-            $intervalCount = (int) $duration;
-            if ($intervalCount <= 0) {
-                $intervalCount = 1;
-            }
-            $perIntervalPrice = $totalPrice / $intervalCount;
+            // $duration = strtolower($request->durationtype) == 'month' ? $request->duration : ($request->duration * 12);
+            // $totalPrice = $request->price;
+            // $intervalCount = (int) $duration;
+            // if ($intervalCount <= 0) {
+            //     $intervalCount = 1;
+            // }
+            // $perIntervalPrice = $totalPrice / $intervalCount;
 
 
 
@@ -272,10 +272,12 @@ class PlanController extends Controller
 
                 $price = Price::create(
                     [
-                        'unit_amount' => round($perIntervalPrice * 100),
+                        'unit_amount' => round($request->price * 100),
                         'currency' => 'usd',
                         'recurring' => [
-                            'interval' => strtolower($request->durationtype),
+                            // 'interval' => strtolower($request->durationtype),
+                            'interval' => 'month',
+
                         ],
                         'product' => $plan->stripe_product_id,
                     ],
@@ -291,7 +293,7 @@ class PlanController extends Controller
              * 3️⃣ Update Local Plan Data
              */
             $plan->name            = $request->name;
-            $plan->price           = $totalPrice;
+            $plan->price           = $request->price;
             $plan->duration        = $request->duration;
             $plan->durationtype    = $request->durationtype;
             $plan->max_users       = $request->max_users;
