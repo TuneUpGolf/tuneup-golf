@@ -294,14 +294,19 @@
                                                 <div class="px-3 pt-4 ">
                                                     <p class="text-2xl font-bold mb-1">
                                                         {{ $plan->name }}
-                                                    <p class="text-gray-600"><strong>Instructor:
-                                                            {{ $plan->instructor->name }}</strong></p>
                                                     </p>
+
+                                                    <span class="text-gray-600"><strong>Instructor:
+                                                            {{ $plan->instructor->name }}</strong></span>
+                                                    <br>
+                                                    <span class="text-gray-600"><strong>Total Duration:
+                                                            {{ $plan->duration . ' ' . $plan->durationtype }}
+                                                        </strong></span>
                                                     <div class="flex gap-1 items-center mt-2 ">
                                                         <p class="text-4xl font-bold">
                                                             {{ '$' . $plan->price }}/</p>
                                                         <p class="text-2xl text-gray-600">
-                                                            {{ $plan->duration . ' ' . $plan->durationtype }}
+                                                            Month
                                                         </p>
                                                     </div>
                                                 </div>

@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers\Superadmin;
 
-use App\Http\Controllers\Controller;
-use App\DataTables\Superadmin\PlanDataTable;
-use App\Facades\UtilityFacades;
-use App\Models\Order;
+use Stripe\Price;
+use Stripe\Stripe;
+use Stripe\Product;
 use App\Models\Plan;
-use App\Models\Setting;
 use App\Models\User;
+use App\Models\Order;
+use App\Models\Setting;
 use Illuminate\Http\Request;
+use App\Facades\UtilityFacades;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\DataTables\Superadmin\PlanDataTable;
 
 class PlanController extends Controller
 {
@@ -51,28 +54,60 @@ class PlanController extends Controller
                 'price'         => 'required',
                 'duration'      => 'required',
                 'durationtype'  => 'required',
-                'max_users'     => 'required',
-                'max_roles'     => 'required',
-                'max_documents' => 'required',
-                'max_blogs'     => 'required',
+                // 'max_users'     => 'required',
+                // 'max_roles'     => 'required',
+                // 'max_documents' => 'required',
+                // 'max_blogs'     => 'required',
                 'description'   => 'max:100',
             ]);
             $paymentTypes = UtilityFacades::getpaymenttypes();
             if (!$paymentTypes) {
                 return redirect()->route('plans.index')->with('errors', __('Please on at list one payment type.'));
             }
+
+            // $currency = UtilityFacades::getsettings('currency') ?? 'usd';
+
+            // $duration = strtolower($request->durationtype) == 'month' ? $request->duration : ($request->duration * 12);
+            // $totalPrice = $request->price;
+            // $intervalCount = (int) $duration;
+            // if ($intervalCount <= 0) {
+            //     $intervalCount = 1;
+            // }
+            // $perIntervalPrice = $totalPrice / $intervalCount;
+
+            Stripe::setApiKey(config('services.stripe.secret'));
+
+            // $product = Product::create([
+            //     'name' => $request->name,
+            //     'description' => $request->description,
+            // ]);
+
+            // // 2️⃣ Create a Recurring Price
+            // $price = Price::create([
+            //     'unit_amount' => round($perIntervalPrice * 100), // Stripe expects cents
+            //     'currency' => $currency,
+            //     'recurring' => [
+            //         'interval' =>  strtolower($request->durationtype), // "month" or "year"
+            //         // 'interval' =>  'month', // "month" or "year"
+            //     ],
+            //     'product' => $product->id,
+            // ]);
+
             Plan::create([
                 'name'              => $request->name,
                 'price'             => $request->price,
                 'duration'          => $request->duration,
                 'durationtype'      => $request->durationtype,
-                'max_users'         => $request->max_users,
-                'max_roles'         => $request->max_roles,
-                'max_documents'     => $request->max_documents,
-                'max_blogs'         => $request->max_blogs,
-                'discount_setting'  => ($request->discount_setting) ? 'on' : 'off',
-                'discount'          => $request->discount_setting == 'on' ? $request->discount : null,
+                // 'max_users'         => $request->max_users,
+                // 'max_roles'         => $request->max_roles,
+                // 'max_documents'     => $request->max_documents,
+                // 'max_blogs'         => $request->max_blogs,
+                // 'discount_setting'  => ($request->discount_setting) ? 'on' : 'off',
+                // 'discount'          => $request->discount_setting == 'on' ? $request->discount : null,
                 'description'       => $request->description,
+
+                // 'stripe_product_id' => $product->id, // store Stripe IDs!
+                // 'stripe_price_id'   => $price->id,
             ]);
             return redirect()->route('plans.index')->with('success', __('Plan created successfully.'));
         } else {

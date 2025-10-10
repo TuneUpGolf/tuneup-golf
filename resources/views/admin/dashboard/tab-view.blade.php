@@ -212,14 +212,19 @@
                                                             <div class="px-3 pt-4 ">
                                                                 <p class="text-2xl font-bold mb-1">
                                                                     {{ $plan->name }}
-                                                                <p class="text-gray-600"><strong>Instructor:
-                                                                        {{ $plan->instructor->name }}</strong></p>
                                                                 </p>
+
+                                                                <span class="text-gray-600"><strong>Instructor:
+                                                                        {{ $plan->instructor->name }}</strong></span>
+                                                                        <br>
+                                                                <span class="text-gray-600"><strong>Total Duration:
+                                                                        {{ $plan->duration . ' ' . $plan->durationtype }}
+                                                                    </strong></span>
                                                                 <div class="flex gap-1 items-center mt-2 ">
                                                                     <p class="text-4xl font-bold">
                                                                         {{ $currency_symbol . $plan->price }}/</p>
                                                                     <p class="text-2xl text-gray-600">
-                                                                        {{ $plan->duration . ' ' . $plan->durationtype }}
+                                                                        Month
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -306,10 +311,9 @@
                                                                                 {{ __('Expire at') }}
                                                                                 {{ Carbon::parse($user->plan_expired_date)->format('d/m/Y') }}
                                                                             </a>
-                                                                            <a href="javascript:void(0)"
-                                                                                data-id="{{ $plan->id }}"
-                                                                                class="lesson-btn text-center font-bold text-lg mt-2 cancel-btn"
-                                                                                data-amount="{{ $plan->price }}">
+                                                                                <a href="{{ route('plans.cancel', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
+                                                                              
+                                                                                class="lesson-btn text-center font-bold text-lg mt-2 cancel-btn">
                                                                                 {{ __('Cancel Plan') }}
                                                                             </a>
                                                                         @else
