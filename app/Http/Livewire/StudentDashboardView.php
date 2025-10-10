@@ -2,12 +2,13 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\Lesson;
 use App\Models\Post;
 use App\Models\Album;
+use App\Models\Lesson;
 use App\Models\AlbumCategory;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use LaravelViews\Views\GridView;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class StudentDashboardView extends GridView
 {
@@ -129,8 +130,11 @@ class StudentDashboardView extends GridView
         }
 
         return [
+            // 'image' => isset($model->user->avatar)
+            //     ? asset('/storage/' . tenant('id') . '/' . $model->user->avatar)
+            //     : asset('assets/img/logo/logo.png'),
             'image' => isset($model->user->avatar)
-                ? asset('/storage/' . tenant('id') . '/' . $model->user->avatar)
+                ? Storage::disk('tenants')->url($model->user->avatar)
                 : asset('assets/img/logo/logo.png'),
             'title' => $model->lesson_name,
             'subtitle' => $subtitle,
