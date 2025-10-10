@@ -41,7 +41,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     {{ Form::label('duration', __('Duration'), ['class' => 'form-label']) }}
-                                    {!! Form::select('durationtype', ['Month' => 'Month', 'Day' => 'Day'], 'Month', [
+                                    {!! Form::select('durationtype', ['Month' => 'Month'], 'Month', [
                                         'class' => 'form-control',
                                         'required',
                                         'data-trigger',
