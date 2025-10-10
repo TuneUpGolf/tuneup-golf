@@ -140,6 +140,8 @@ class LessonController extends Controller
             ->get()
             ->pluck('pushToken.token')
             ->toArray();
+
+            
         if ($request->is_package_lesson == 1 && !empty($request->package_lesson)) {
             foreach ($request->package_lesson as $packages) {
                 PackageLesson::create([
