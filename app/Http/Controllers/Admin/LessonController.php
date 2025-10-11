@@ -182,6 +182,7 @@ class LessonController extends Controller
 
     public function update(Request $request, $lessonId)
     {
+        // dd($request->all());
         $lesson = Lesson::findOrFail($lessonId);
         $validatedData = $request->validate([
             'lesson_name'          => 'required|string|max:255',
