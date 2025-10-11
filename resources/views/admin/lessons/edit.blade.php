@@ -14,10 +14,12 @@
                         <h5>{{ __('Edit Lesson') }}</h5>
                     </div>
                     <div class="card-body">
+                        {{-- <form action="" enctype="multipart/form-data"></form> --}}
                         {!! Form::model($user, [
                             'route' => ['lesson.update', $user->id],
                             'method' => 'Put',
                             'data-validate',
+                            'enctype' => "multipart/form-data"
                         ]) !!}
 
                         <!-- Package Lesson Checkbox (Disabled if it's a package lesson) -->
@@ -39,7 +41,11 @@
                             {!! Form::text('lesson_name', null, ['class' => 'form-control', 'required', 'placeholder' => __('Enter name')]) !!}
                         </div>
 
-                        {!! Form::file('logo', ['class' => 'form-control']) !!}
+                        <div class="form-group">
+                                {{ Form::label('logo', __('Logo'), ['class' => 'form-label']) }}
+                                {!! Form::file('logo', ['class' => 'form-control']) !!}
+
+                            </div>
 
                         @if ($user->type == 'package')
                             <div class="form-group">
