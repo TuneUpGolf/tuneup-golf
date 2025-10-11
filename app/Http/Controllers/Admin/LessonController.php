@@ -30,6 +30,7 @@ use App\Actions\SendPushNotification;
 use App\Mail\Admin\SlotCancelledMail;
 use App\Mail\Admin\StudentPaymentLink;
 use App\Http\Resources\SlotAPIResource;
+use Illuminate\Support\Facades\Storage;
 use App\DataTables\Admin\LessonDataTable;
 use App\Http\Resources\LessonAPIResource;
 use Stancl\Tenancy\Database\Models\Domain;
@@ -141,7 +142,25 @@ class LessonController extends Controller
             ->pluck('pushToken.token')
             ->toArray();
 
-            
+        if ($request->hasFile('logo')) {
+            $tenant_id = Auth::user()->tenant_id;
+            $lesson_id = $lesson->id;
+
+            $path = "lessons/$lesson_id";
+            $file = $request->file('logo');
+
+            // Generate unique filename
+            $originalName = $file->getClientOriginalName();
+            $fileName = uniqid() . '_' . time() . '_' . $originalName;
+
+            // Store file in storage/app/{tenant_id}/{lesson_id}/
+            $filePath = $file->storeAs($path, $fileName, 'local');
+
+            // Save file path in database
+            $lesson->logo = $filePath;
+            $lesson->save();
+        }
+
         if ($request->is_package_lesson == 1 && !empty($request->package_lesson)) {
             foreach ($request->package_lesson as $packages) {
                 PackageLesson::create([
@@ -201,6 +220,26 @@ class LessonController extends Controller
         }
 
         $lesson->update($validatedData);
+
+         if ($request->hasFile('logo')) {
+            $tenant_id = Auth::user()->tenant_id;
+            $lesson_id = $lesson->id;
+
+            $path = "lessons/$lesson_id";
+            $file = $request->file('logo');
+
+            // Generate unique filename
+            $originalName = $file->getClientOriginalName();
+            $fileName = uniqid() . '_' . time() . '_' . $originalName;
+
+            // Store file in storage/app/{tenant_id}/{lesson_id}/
+            $filePath = $file->storeAs($path, $fileName, 'local');
+
+            // Save file path in database
+            $lesson->logo = $filePath;
+            $lesson->save();
+        }
+
         if ($lesson->is_package_lesson == 1) {
             if (!empty($request->exist_package_lesson)) {
                 foreach ($request->exist_package_lesson as $packages) {

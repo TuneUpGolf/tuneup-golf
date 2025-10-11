@@ -48,7 +48,17 @@
                             <!-- Name -->
                             <div class="form-group">
                                 {{ Form::label('name', __('Lesson Title'), ['class' => 'form-label']) }}
-                                {!! Form::text('lesson_name', null, ['class' => 'form-control', 'required', 'placeholder' => __('Enter lesson title')]) !!}
+                                {!! Form::text('lesson_name', null, [
+                                    'class' => 'form-control',
+                                    'required',
+                                    'placeholder' => __('Enter lesson title'),
+                                ]) !!}
+                            </div>
+
+                            <div class="form-group">
+                                {{ Form::label('logo', __('Logo'), ['class' => 'form-label']) }}
+                                {!! Form::file('logo', ['class' => 'form-control']) !!}
+
                             </div>
 
                             <div class="flex gap-1 itmes-center mb-2 cursor-pointer add-more-package">
@@ -99,9 +109,9 @@
                                 {!! Form::select(
                                     'lesson_duration',
                                     [
+                                        '0.25' => '15 Minutes',
                                         '0.5' => '30 Minutes',
                                         '0.75' => '45 Minutes',
-                                        '0.83' => '50 Minutes',
                                         '1' => '1 Hour',
                                         '1.25' => '1 Hour 15 Minutes',
                                         '1.5' => '1 Hour 30 Minutes',
@@ -113,6 +123,24 @@
                                         '3' => '3 Hours',
                                         '3.25' => '3 Hours 15 Minutes',
                                         '3.5' => '3 Hours 30 Minutes',
+                                        '3.75' => '3 Hours 45 Minutes',
+                                        '4' => '4 Hours',
+                                        '4.25' => '4 Hours 15 Minutes',
+                                        '4.5' => '4 Hours 30 Minutes',
+                                        '4.75' => '4 Hours 45 Minutes',
+                                        '5' => '5 Hours',
+                                        '5.25' => '5 Hours 15 Minutes',
+                                        '5.5' => '5 Hours 30 Minutes',
+                                        '5.75' => '5 Hours 45 Minutes',
+                                        '6' => '6 Hours',
+                                        '6.25' => '6 Hours 15 Minutes',
+                                        '6.5' => '6 Hours 30 Minutes',
+                                        '6.75' => '6 Hours 45 Minutes',
+                                        '7' => '7 Hours',   
+                                        '7.25' => '7 Hours 15 Minutes',
+                                        '7.5' => '7 Hours 30 Minutes',
+                                        '7.75' => '7 Hours 45 Minutes',
+                                        '8' => '8 Hours',
                                     ],
                                     null,
                                     [
