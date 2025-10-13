@@ -149,7 +149,7 @@
                     Description</a>
             @endif  --}}
 
-            @if (!empty($long_description))
+            {{-- @if (!empty($long_description)) --}}
                 <div class="hidden long-text text-gray-600"
                     style="font-size: 15px; max-height: 100px; overflow-y: auto;">
                     {!! $long_description !!}
@@ -158,7 +158,7 @@
                     class="text-blue-600 font-medium mt-1 inline-block viewDescription" tabindex="0">
                     View Description
                 </a>
-            @endif
+            {{-- @endif --}}
 
         </div>
         @if ($model->type == 'package')
