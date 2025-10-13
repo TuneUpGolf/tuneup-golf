@@ -114,8 +114,14 @@
             $shortDescription = \Illuminate\Support\Str::limit($cleanShortDescription, 80, '...');
         @endphp
 
-        <div class="text-gray-500 text-md description font-medium ctm-min-h">
-            <div title="{{ strip_tags($description) }}" class="short-text text-gray-600"
+
+        {{-- <div class="text-gray-500 text-md description font-medium ctm-min-h"> --}}
+            @if (!empty($short_description))
+                <div class="hidden short-text text-gray-600">
+                    {!! $short_description !!}
+                </div>
+            @endif
+            {{-- <div title="{{ strip_tags($description) }}" class="short-text text-gray-600"
                 style="
                                                 font-size: 15px;
                                                 display: -webkit-box;
@@ -124,7 +130,7 @@
                                                 overflow: hidden;
                                                 text-overflow: ellipsis; ">
                 {!! $description !!}
-            </div>
+            </div> --}}
             {{--  @if (!empty($description) && strlen(strip_tags($description)) >= 40)
                 <div class="hidden full-text text-gray-600"
                     style="font-size: 15px; max-height: auto; overflow-y: auto;">
@@ -134,7 +140,7 @@
                     class="text-blue-600 toggle-read-more font-semibold" onclick="toggleDescription(this, event)">View
                     Lesson Description</a>
             @endif  --}}
-        </div>
+        {{-- </div> --}}
         <div class="description-wrapper relative expanded mb-2">
             {{--  @if (!is_null($long_description))
                 <a href="javascript:void(0)"
