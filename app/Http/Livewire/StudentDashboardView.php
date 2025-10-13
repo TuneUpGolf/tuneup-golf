@@ -123,9 +123,9 @@ class StudentDashboardView extends GridView
             : null;
 
         if ($model->type == Lesson::LESSON_TYPE_PACKAGE) {
-            $subtitle = str_replace(['(', ')'], '', $symbol) . ' ' . $model->packages[0]->price . ' (' . strtoupper($currency) . ')';
+            $subtitle = str_replace(['(', ')'], '', $symbol) . '' . $model->packages[0]->price . ' (' . strtoupper($currency) . ')';
         } else {
-            $subtitle = str_replace(['(', ')'], '', $symbol) . ' ' . $model->lesson_price . ' (' . strtoupper($currency) . ')';
+            $subtitle = str_replace(['(', ')'], '', $symbol) . '' . $model->lesson_price . ' (' . strtoupper($currency) . ')';
         }
 
         return [
@@ -143,7 +143,8 @@ class StudentDashboardView extends GridView
             'bookedCount' => $studentCount,
             'availableSlots' => $availableSlots,
             'isFullyBooked' => $isFullyBooked,
-            'allSlots' => $allSlots
+            'allSlots' => $allSlots,
+            'type' => $model->type
         ];
     }
 
