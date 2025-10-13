@@ -126,16 +126,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.356.29",
+            "version": "3.356.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "3e413221956aa969f379ff6fa67a303ce76aad13"
+                "reference": "855bcaaa4c486fc67447bf17cfbff9ff75341ad7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/3e413221956aa969f379ff6fa67a303ce76aad13",
-                "reference": "3e413221956aa969f379ff6fa67a303ce76aad13",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/855bcaaa4c486fc67447bf17cfbff9ff75341ad7",
+                "reference": "855bcaaa4c486fc67447bf17cfbff9ff75341ad7",
                 "shasum": ""
             },
             "require": {
@@ -217,9 +217,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.356.29"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.356.37"
             },
-            "time": "2025-09-30T18:12:45+00:00"
+            "time": "2025-10-10T18:50:12+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -1007,6 +1007,7 @@
                 "issues": "https://github.com/doctrine/annotations/issues",
                 "source": "https://github.com/doctrine/annotations/tree/1.14.4"
             },
+            "abandoned": true,
             "time": "2024-09-05T10:15:52+00:00"
         },
         {
@@ -2121,16 +2122,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.414.0",
+            "version": "v0.416.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "5bd542b6d9639b89b95270ae85ed3062b4ca9b8e"
+                "reference": "a7b96415b22d85cee12ab730089f1d1b66bc191f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/5bd542b6d9639b89b95270ae85ed3062b4ca9b8e",
-                "reference": "5bd542b6d9639b89b95270ae85ed3062b4ca9b8e",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/a7b96415b22d85cee12ab730089f1d1b66bc191f",
+                "reference": "a7b96415b22d85cee12ab730089f1d1b66bc191f",
                 "shasum": ""
             },
             "require": {
@@ -2159,9 +2160,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.414.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.416.0"
             },
-            "time": "2025-09-28T01:08:30+00:00"
+            "time": "2025-10-13T01:08:26+00:00"
         },
         {
             "name": "google/auth",
@@ -2855,16 +2856,16 @@
         },
         {
             "name": "kkomelin/laravel-translatable-string-exporter",
-            "version": "1.24.0",
+            "version": "1.25.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kkomelin/laravel-translatable-string-exporter.git",
-                "reference": "c5662e0a42c9e884d76a9a3f48c6c9ab0bd46b4f"
+                "reference": "e0feda8878a8b2a3dd5f4f66f14e5d808421346e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kkomelin/laravel-translatable-string-exporter/zipball/c5662e0a42c9e884d76a9a3f48c6c9ab0bd46b4f",
-                "reference": "c5662e0a42c9e884d76a9a3f48c6c9ab0bd46b4f",
+                "url": "https://api.github.com/repos/kkomelin/laravel-translatable-string-exporter/zipball/e0feda8878a8b2a3dd5f4f66f14e5d808421346e",
+                "reference": "e0feda8878a8b2a3dd5f4f66f14e5d808421346e",
                 "shasum": ""
             },
             "require": {
@@ -2875,7 +2876,7 @@
                 "symfony/finder": "^5|^6|^7.0"
             },
             "require-dev": {
-                "nunomaduro/larastan": "^1.0|^2.0|^3.0",
+                "larastan/larastan": "^1.0|^2.0|^3.0",
                 "orchestra/testbench": "^6.0|^7.0|^8.0|^9.0|^10.0",
                 "phpunit/phpunit": "^9.0|^10.5|^11.5|^12.0"
             },
@@ -2914,9 +2915,9 @@
             ],
             "support": {
                 "issues": "https://github.com/kkomelin/laravel-translatable-string-exporter/issues",
-                "source": "https://github.com/kkomelin/laravel-translatable-string-exporter/tree/1.24.0"
+                "source": "https://github.com/kkomelin/laravel-translatable-string-exporter/tree/1.25.0"
             },
-            "time": "2025-09-22T10:21:15+00:00"
+            "time": "2025-10-03T09:34:30+00:00"
         },
         {
             "name": "knplabs/knp-snappy",
@@ -5888,16 +5889,16 @@
         },
         {
             "name": "paragonie/sodium_compat",
-            "version": "v2.3.1",
+            "version": "v2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/sodium_compat.git",
-                "reference": "4a2ab4341bc5802e1db1f761a9eab15fbb34f967"
+                "reference": "547e2dc4d45107440e76c17ab5a46e4252460158"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/sodium_compat/zipball/4a2ab4341bc5802e1db1f761a9eab15fbb34f967",
-                "reference": "4a2ab4341bc5802e1db1f761a9eab15fbb34f967",
+                "url": "https://api.github.com/repos/paragonie/sodium_compat/zipball/547e2dc4d45107440e76c17ab5a46e4252460158",
+                "reference": "547e2dc4d45107440e76c17ab5a46e4252460158",
                 "shasum": ""
             },
             "require": {
@@ -5978,9 +5979,9 @@
             ],
             "support": {
                 "issues": "https://github.com/paragonie/sodium_compat/issues",
-                "source": "https://github.com/paragonie/sodium_compat/tree/v2.3.1"
+                "source": "https://github.com/paragonie/sodium_compat/tree/v2.4.0"
             },
-            "time": "2025-09-30T15:08:52+00:00"
+            "time": "2025-10-06T08:47:40+00:00"
         },
         {
             "name": "paytabscom/laravel_paytabs",
@@ -6349,16 +6350,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "3.0.46",
+            "version": "3.0.47",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "56483a7de62a6c2a6635e42e93b8a9e25d4f0ec6"
+                "reference": "9d6ca36a6c2dd434765b1071b2644a1c683b385d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/56483a7de62a6c2a6635e42e93b8a9e25d4f0ec6",
-                "reference": "56483a7de62a6c2a6635e42e93b8a9e25d4f0ec6",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/9d6ca36a6c2dd434765b1071b2644a1c683b385d",
+                "reference": "9d6ca36a6c2dd434765b1071b2644a1c683b385d",
                 "shasum": ""
             },
             "require": {
@@ -6439,7 +6440,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.46"
+                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.47"
             },
             "funding": [
                 {
@@ -6455,7 +6456,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-06-26T16:29:55+00:00"
+            "time": "2025-10-06T01:07:24+00:00"
         },
         {
             "name": "pragmarx/google2fa",

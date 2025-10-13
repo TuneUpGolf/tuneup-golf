@@ -102,7 +102,7 @@
 
     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
 
-        <span class="text-xl font-semibold text-dark">{!! $title !!}</span>
+        <span class="text-xl font-semibold text-dark mb-2">{!! $title !!}</span>
         {{--  <div class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis ck-content">
             {!! $short_description !!}
         </div>  --}}
@@ -114,9 +114,15 @@
             $shortDescription = \Illuminate\Support\Str::limit($cleanShortDescription, 80, '...');
         @endphp
 
-        <div class="text-gray-500 text-md description font-medium ctm-min-h p-2">
-            <div class="short-text text-gray-600"
-                style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
+        <div class="text-gray-500 text-md description font-medium ctm-min-h">
+            <div title="{{ strip_tags($description) }}" class="short-text text-gray-600"
+                style="
+                                                font-size: 15px;
+                                                display: -webkit-box;
+                                                -webkit-line-clamp: 2;
+                                                -webkit-box-orient: vertical;
+                                                overflow: hidden;
+                                                text-overflow: ellipsis; ">
                 {!! $description !!}
             </div>
             {{--  @if (!empty($description) && strlen(strip_tags($description)) >= 40)
@@ -150,7 +156,7 @@
 
         </div>
         @if ($model->type == 'package')
-            <div class="mb-3 p-3 border rounded-lg shadow-sm bg-white">
+            <div class="p-3 border rounded-lg shadow-sm bg-white">
                 <h2 class="text-lg font-semibold flex items-center mb-2">
                     <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-width="2"
@@ -158,7 +164,7 @@
                     </svg>
                     Package Options Available
                 </h2>
-                <p class="text-sm text-gray-500 mb-3">Save more with multi-lesson packages</p>
+                {{-- <p class="text-sm text-gray-500 mb-3">Save more with multi-lesson packages</p> --}}
                 <form class="space-y-3">
                     <select class="form-select" name="package_slot" id="package_slot_{{ $model->id }}">
                         <option value="0">Select Package</option>
@@ -185,79 +191,79 @@
                 </div>
             </div>
         @endif
-        <div class="w-100 mt-3">
-            @if ($model->type === 'online')
-                {!! Form::open([
-                    'route' => ['purchase.store', ['lesson_id' => $model->id]],
-                    'method' => 'Post',
-                    'enctype' => 'multipart/form-data',
-                    'class' => 'form-horizontal',
-                    'data-validate',
-                ]) !!}
-                {{ Form::button(__('Purchase'), ['type' => 'submit', 'class' => 'lesson-btn']) }}
-                {!! Form::close() !!}
-            @endif
+    </div>
+    <div class="w-100 px-3">
+        @if ($model->type === 'online')
+            {!! Form::open([
+                'route' => ['purchase.store', ['lesson_id' => $model->id]],
+                'method' => 'Post',
+                'enctype' => 'multipart/form-data',
+                'class' => 'form-horizontal',
+                'data-validate',
+            ]) !!}
+            {{ Form::button(__('Purchase'), ['type' => 'submit', 'class' => 'lesson-btn']) }}
+            {!! Form::close() !!}
+        @endif
 
-            @if ($model->type === 'inPerson' || $model->type == 'package')
-                {{-- @if ($model->is_package_lesson) --}}
-                @if ($firstSlot)
-                    {{-- @if ($firstSlot && !$firstSlot->isFullyBooked()) --}}
-                    {{-- @php
-                            $isAlreadyBooked = false;
-                            if ($model->type === 'inPerson') {
-                                $isAlreadyBooked = $model->slots->contains(function ($slot) {
-                                    return $slot->student->contains(Auth::id());
-                                });
-                            }
-                            if ($model->type == 'package') {
-                                $isAlreadyBooked = $model->purchases->contains(function ($purchase) {
-                                    return $purchase->student_id == Auth::id();
-                                });
-                            }
-                        @endphp
-                        
-                        @if ($isAlreadyBooked)
-                            <button class="lesson-btn opacity-50 cursor-not-allowed" disabled>
-                                Already Enrolled
-                            </button>
-                        @else
-                            <button class="lesson-btn"
-                                onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}' ,'{{ $model->lesson_price }}', {{ $model->id}})">
-                                Purchase
-                            </button>
-                        @endif --}}
-                    {{-- @if ($isFullyBooked)
-                            <a href="{{ route('slot.view', ['lesson_id' => $model->id]) }}">
-                                <button class="lesson-btn">Purchase</button>
-                            </a>
-                        @else --}}
-                    @php
-                        $button_text = 'Purchase';
-                        if ($model->type == 'inPerson') {
-                            $button_text = 'Schedule Lesson';
-                        } elseif ($model->type == 'package') {
-                            $button_text = 'Sign Up';
+        @if ($model->type === 'inPerson' || $model->type == 'package')
+            {{-- @if ($model->is_package_lesson) --}}
+            @if ($firstSlot)
+                {{-- @if ($firstSlot && !$firstSlot->isFullyBooked()) --}}
+                {{-- @php
+                        $isAlreadyBooked = false;
+                        if ($model->type === 'inPerson') {
+                            $isAlreadyBooked = $model->slots->contains(function ($slot) {
+                                return $slot->student->contains(Auth::id());
+                            });
+                        }
+                        if ($model->type == 'package') {
+                            $isAlreadyBooked = $model->purchases->contains(function ($purchase) {
+                                return $purchase->student_id == Auth::id();
+                            });
                         }
                     @endphp
-                    <button class="lesson-btn"
-                        onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}', {{ $model->is_package_lesson }} ,'{{ $model->lesson_price }}', {{ $model->id }})">
-                        {{ $button_text }}
-                    </button>
-                    {{-- @endif --}}
-                @else
-                    <button class="lesson-btn opacity-50 cursor-not-allowed" disabled>
-                        No Slots Available
-                    </button>
-                @endif
-                {{-- @else
-                    <div>
+                    
+                    @if ($isAlreadyBooked)
+                        <button class="lesson-btn opacity-50 cursor-not-allowed" disabled>
+                            Already Enrolled
+                        </button>
+                    @else
+                        <button class="lesson-btn"
+                            onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}' ,'{{ $model->lesson_price }}', {{ $model->id}})">
+                            Purchase
+                        </button>
+                    @endif --}}
+                {{-- @if ($isFullyBooked)
                         <a href="{{ route('slot.view', ['lesson_id' => $model->id]) }}">
                             <button class="lesson-btn">Purchase</button>
                         </a>
-                    </div>
-                @endif --}}
+                    @else --}}
+                @php
+                    $button_text = 'Purchase';
+                    if ($model->type == 'inPerson') {
+                        $button_text = 'Schedule Lesson';
+                    } elseif ($model->type == 'package') {
+                        $button_text = 'Sign Up';
+                    }
+                @endphp
+                <button class="lesson-btn"
+                    onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}', {{ $model->is_package_lesson }} ,'{{ $model->lesson_price }}', {{ $model->id }})">
+                    {{ $button_text }}
+                </button>
+                {{-- @endif --}}
+            @else
+                <button class="lesson-btn opacity-50 cursor-not-allowed" disabled>
+                    No Slots Available
+                </button>
             @endif
-        </div>
+            {{-- @else
+                <div>
+                    <a href="{{ route('slot.view', ['lesson_id' => $model->id]) }}">
+                        <button class="lesson-btn">Purchase</button>
+                    </a>
+                </div>
+            @endif --}}
+        @endif
     </div>
     <form id="bookingForm" method="POST" action="{{ route('slot.book', ['redirect' => 1]) }}">
         @csrf
@@ -291,11 +297,42 @@
 @push('javascript')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        $(document).on('click', '.viewDescription', function() {
-            const desc = $(this).siblings('.long-text').html();
+      $(document).on('click', '.viewDescription', function() {
+            const parent = $(this).closest('.description-wrapper');
+            const shortDesc = parent.closest('.w-full').find('.short-text').html() || '';
+            const longDesc = parent.find('.long-text').html() || '';
+
+            let modalHtml = '';
+
+            if (shortDesc) {
+                modalHtml += `
+                    <div class="shortDescSection border-b mb-4">
+                        <h3 class="text-lg font-medium mb-2 text-gray-900 ">
+                            Short Description:
+                        </h3>
+                        <div class="shortDesc text-gray-700" style="font-size:15px; line-height:1.6;">
+                            ${shortDesc}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (longDesc) {
+                modalHtml += `
+                    <div class="longDescSection mt-4">
+                        <h3 class="text-lg font-medium mb-2 text-gray-900 ">
+                            Long Description:
+                        </h3>
+                        <div class="longDesc text-gray-800" style="font-size:15px; line-height:1.6;">
+                            ${longDesc}
+                        </div>
+                    </div>
+                `;
+            }
+
             $('#longDescModal').modal('show');
-            $('.longDescContent').html(desc);
-        })
+            $('.longDescContent').html(modalHtml);
+        });
 
         function closeLongDescModal() {
             $('#longDescModal').modal('hide');

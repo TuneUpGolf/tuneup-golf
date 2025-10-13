@@ -33,6 +33,9 @@
             cursor: not-allowed;
             opacity: 0.6;
         }
+        #longDescModal {
+            z-index: 1082 !important;
+        }
     </style>
 
     <header>
@@ -72,8 +75,8 @@
                     <h3 style="font-size:22px;font-weight:bold;text-align:center">{{ $instructor_heading ?? '' }}</h3>
                     @forelse($instructors[0]->lessons as $lesson)
                         @if ($lesson->is_package_lesson == 0)
-                            <div class="col-md-4 mb-4">
-                                <div class="bg-gray rounded-lg shadow flex flex-col">
+                            <div class="col-md-4">
+                                <div class="bg-gray rounded-lg shadow flex flex-col h-full w-full">
                                     <div class="relative text-center p-3 flex gap-3">
                                         {{-- @dd(\Schema::getColumnListing('lessons')); --}}
                                         {{-- @dd($lesson, $instructors[0]) --}}
@@ -86,7 +89,7 @@
                                                 {{ $instructors[0]->name }}
                                             </a>
                                             <div class="text-lg font-bold tracking-tight text-primary">
-                                                $   {{ $lesson?->lesson_price }}
+                                                ${{ $lesson?->lesson_price }}
                                             </div>
                                         </div>
                                     </div>
@@ -104,15 +107,20 @@
                                             '...',
                                         );
                                     @endphp
-                                    <div class="text-gray-500 text-md px-2">
+                                    <div class="text-gray-500 text-md px-2 mb-2">
                                         <h3 style="font-size:18px;font-weight:bold;margin-left:10px;"
                                             class="font-weight-bolder">
                                             {{ $lesson->lesson_name }}
                                         </h3>
                                     </div>
-                                    <div class="text-gray-500 text-md description font-medium ctm-min-h p-2">
-                                        <div class="short-text text-gray-600"
-                                            style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
+                                    <div class="text-gray-500 text-md description font-medium ctm-min-h px-3 mb-2">
+                                        <div title="{{ strip_tags($description) }}"  class="short-text text-gray-600" style="
+                                                font-size: 15px;
+                                                display: -webkit-box;
+                                                -webkit-line-clamp: 2;
+                                                -webkit-box-orient: vertical;
+                                                overflow: hidden;
+                                                text-overflow: ellipsis; ">
                                             {!! $description !!}
                                         </div>
                                         {{--  @if (!empty($description) && strlen(strip_tags($description)) >= 20)
@@ -125,21 +133,21 @@
                                                 onclick="toggleDescription(this, event)">View Lesson Description</a>
                                         @endif  --}}
                                     </div>
-                                    <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                                        <div class="description-wrapper relative">
+                                    <div class="px-3 mt-1 flex flex-col flex-grow">
+                                        <div class="description-wrapper relative mb-[10px]">
                                             @if (!empty($lesson?->long_description) || !is_null($lesson?->long_description))
                                                 <div class="hidden long-text text-gray-600"
                                                     style="font-size: 15px; max-height: 100px; overflow-y: auto;">
                                                     {!! $lesson->long_description !!}
                                                 </div>
-                                                <a href="javascript:void(0)" style="font-size: 15px"
+                                                <a href="javascript:void(0)"  style="font-size: 15px;margin-bottom:10px"
                                                     data-long_description="{{ e($lesson->long_description) }}"
                                                     class="text-blue-600 font-medium mt-1 inline-block viewDescription"
                                                     tabindex="0">View Description </a>
                                             @endif
                                         </div>
                                         @if ($lesson?->type == 'online')
-                                            <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3">
+                                            <div class="p-3 h-full bg-gray-200 gap-2 rounded-lg flex justify-center items-center">
                                                 <div class="text-center">
                                                     <span class="text-xl font-bold">{{ $lesson?->required_time }}
                                                         Days</span>
@@ -147,20 +155,20 @@
                                                 </div>
                                             </div>
                                         @endif
-                                        <div class="w-100 mt-3">
-                                            @php
-                                                $button_text = 'Purchase';
-                                                if ($lesson->type == 'inPerson') {
-                                                    $button_text = 'Schedule Lesson';
-                                                } elseif ($lesson->type == 'package') {
-                                                    $button_text = 'Sign Up';
-                                                }
-                                            @endphp
-                                            <a href="{{ route('login') }}" tabindex="0">
-                                                <button type="submit" class="lesson-btn py-2"
-                                                    tabindex="0">{{ $button_text }}</button>
-                                            </a>
-                                        </div>
+                                    </div>
+                                    <div class="w-100 my-3 px-3">
+                                        @php
+                                            $button_text = 'Purchase';
+                                            if ($lesson->type == 'package') {
+                                                $button_text = 'Schedule Lesson';
+                                            } elseif ($lesson->type == 'inPerson') {
+                                                $button_text = 'Sign Up';
+                                            }
+                                        @endphp
+                                        <a href="{{ route('login') }}" tabindex="0">
+                                            <button type="submit" class="lesson-btn"
+                                                tabindex="0">{{ $button_text }}</button>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -197,7 +205,7 @@
                                             </a>
                                             <div class="text-lg font-bold tracking-tight text-primary">
                                                 @if ($lesson?->packages->min('price'))
-                                                    {{ $currency }} {{ $lesson?->packages->min('price') }}
+                                                    {{ $currency }}{{ $lesson?->packages->min('price') }}
                                                 @endif
                                             </div>
                                         </div>
@@ -212,14 +220,20 @@
                                             '...',
                                         );
                                     @endphp
-                                    <div class="text-gray-500 text-md px-2">
+                                    <div class="text-gray-500 text-md px-2 mb-2">
                                         <h3 style="font-size:18px;font-weight:bold;margin-left:10px"
                                             class="font-weight-bolder">
                                             {{ $lesson->lesson_name }}</h3>
                                     </div>
-                                    <div class="text-gray-500 text-md description font-medium ctm-min-h p-2">
-                                        <div class="short-text text-gray-600"
-                                            style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
+                                    <div class="text-gray-500 text-md description font-medium ctm-min-h px-3 mb-2">
+                                        <div title="{{ strip_tags($description) }}"  class="short-text text-gray-600"
+                                             style="
+                                                font-size: 15px;
+                                                display: -webkit-box;
+                                                -webkit-line-clamp: 2;
+                                                -webkit-box-orient: vertical;
+                                                overflow: hidden;
+                                                text-overflow: ellipsis; ">
                                             {!! $description !!}
                                         </div>
                                         {{--  @if (!empty($description) && strlen($description) >= 20)
@@ -233,7 +247,7 @@
                                         @endif  --}}
                                     </div>
 
-                                    <div class="px-3 pb-4 flex flex-col flex-grow">
+                                    <div class="px-3 flex flex-col flex-grow">
 
                                         @if (!empty($lesson?->long_description) || $lesson?->long_description != '' || $lesson?->long_description != null)
                                             <div class="hidden long-text text-gray-600"
@@ -247,7 +261,7 @@
                                                 Description</a>
                                         @endif
 
-                                        <div class="mb-2 p-3 border rounded-lg shadow-sm bg-white">
+                                        <div class="p-3 border rounded-lg shadow-sm bg-white">
                                             <h2 class="text-lg font-semibold flex items-center mb-2">
                                                 <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
@@ -257,7 +271,7 @@
                                                 </svg>
                                                 Package Options Available
                                             </h2>
-                                            <p class="text-sm text-gray-500 mb-2">Save more with multi-lesson packages</p>
+                                            {{-- <p class="text-sm text-gray-500 mb-2">Save more with multi-lesson packages</p> --}}
                                             <select name="package_slot"
                                                 class="no-nice-select w-full border rounded-lg p-2 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                                 <option value="--">Select Option</option>
@@ -266,11 +280,19 @@
                                                 @endforeach
                                             </select>
                                         </div>
-                                        <div class="w-100 mt-3">
-                                            <a class="lesson-btn text-center" href="{{ route('login') }}">
-                                                Purchase
-                                            </a>
-                                        </div>
+                                    </div>
+                                    <div class="w-100 my-3 px-3">
+                                          @php
+                                        $button_text = 'Purchase';
+                                        if ($lesson->type == 'package') {
+                                            $button_text = 'Schedule Lesson';
+                                        } elseif ($lesson->type == 'inPerson') {
+                                            $button_text = 'Sign Up';
+                                        }
+                                    @endphp
+                                        <a class="lesson-btn text-center" href="{{ route('login') }}">
+                                            {{ $button_text }}
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -570,7 +592,7 @@
         </div>
     </div>
 
-    <div class="modal" id="longDescModal" tabindex="-1" role="dialog">
+    <div class="modal " id="longDescModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -756,12 +778,52 @@
                 button.innerText = "Show Less";
             }
         }
-        $(document).on('click', '.viewDescription', function() {
-            const desc = $(this).siblings('.long-text').html();
-            console.log('desc =>', desc);;
+      $(document).on('click', '.viewDescription', function () {
+            const parent = $(this).closest('.bg-gray, .w-full, .shadow');
+            const title = parent.find('h3').first().text() || 'Description';
+            const shortDesc = parent.find('.short-text').html() || '';
+            const longDesc = $(this).siblings('.long-text').html() || '';
+
+            $('#longDescModal').find('.lesson-title').text(title);
+
+            let modalContent = '';
+
+            if (shortDesc) {
+                modalContent += `
+                    <div class="shortDescSection border-b pb-4">
+                        <h3 class="text-lg font-medium mb-2 text-gray-900">
+                            Short Description:
+                        </h3>
+                        <div class="shortDesc" style="font-size:15px; color:#555; line-height:1.6;">
+                            ${shortDesc}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (longDesc) {
+                modalContent += `
+                    <div class="longDescSection mt-4">
+                        <h3 class="text-lg font-medium mb-2 text-gray-900">
+                            Long Description:
+                        </h3>
+                        <div class="longDesc" style="font-size:15px; color:#333; line-height:1.6;">
+                            ${longDesc}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // If both are empty, show fallback text
+            if (!shortDesc && !longDesc) {
+                modalContent = `
+                    <p class="text-gray-600 italic">No description available for this lesson.</p>
+                `;
+            }
+
             $('#longDescModal').modal('show');
-            $('.longDescContent').html(desc);
-        })
+            $('.longDescContent').html(modalContent);
+        });
 
         function closeLongDescModal() {
             $('#longDescModal').modal('hide');
