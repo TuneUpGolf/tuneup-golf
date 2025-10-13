@@ -49,7 +49,7 @@ class LandingController extends Controller
             $instructors = User::with(['lessons' => function ($q) {
                 $q->with('packages')
                 ->where('active_status', 1)
-                    ->select('lessons.id as id', 'lesson_name','type', 'lesson_price', 'created_by', 'required_time', 'long_description', 'lesson_description', 'is_package_lesson');
+                    ->select('lessons.id as id', 'lesson_name','type', 'lesson_price', 'created_by', 'required_time', 'long_description', 'lesson_description', 'is_package_lesson', 'logo');
             }])
                 ->where('type', Role::ROLE_INSTRUCTOR)
                 ->where('tenant_id',tenant()->id)

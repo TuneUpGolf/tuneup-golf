@@ -75,7 +75,9 @@
                             <div class="col-md-4 mb-4">
                                 <div class="bg-gray rounded-lg shadow flex flex-col">
                                     <div class="relative text-center p-3 flex gap-3">
-                                        <img src="{{ isset($lesson->logo) ? asset('storage/' . tenant()->id . '/' . $lesson->logo) : asset('/storage/' . tenant('id') . '/' . $lesson->user->avatar) }}"
+                                        {{-- @dd(\Schema::getColumnListing('lessons')); --}}
+                                        {{-- @dd($lesson, $instructors[0]) --}}
+                                        <img src="{{ $lesson->logo != null ? asset('storage/' . tenant()->id . '/' . $lesson->logo) : asset('/storage/' . tenant('id') . '/' . $lesson->user->avatar) }}"
                                             alt="{{ $instructors[0]->name }}"
                                             class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
                                         <div class="text-left">

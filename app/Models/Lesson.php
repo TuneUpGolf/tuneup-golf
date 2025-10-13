@@ -58,7 +58,8 @@ class Lesson extends Model
         'is_package_lesson',
         'package_lesson_type',
         'number_of_slots',
-        'long_description'
+        'long_description',
+        'logo'
     ];
 
     protected $casts = [
