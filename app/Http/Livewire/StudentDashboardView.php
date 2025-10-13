@@ -129,7 +129,7 @@ class StudentDashboardView extends GridView
         }
 
         return [
-            'image' => isset($model->logo)
+            'image' => $model->logo != null
                 ? asset('/storage/' . tenant('id') . '/' . $model->logo)
                 : (asset('/storage/' . tenant('id') . '/' . $model->user->avatar) ??
                     asset('assets/img/logo/logo.png')),
