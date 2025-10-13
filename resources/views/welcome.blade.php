@@ -86,7 +86,7 @@
                                                 {{ $instructors[0]->name }}
                                             </a>
                                             <div class="text-lg font-bold tracking-tight text-primary">
-                                                $ {{ $lesson?->lesson_price }}
+                                                $   {{ $lesson?->lesson_price }}
                                             </div>
                                         </div>
                                     </div>
@@ -148,9 +148,17 @@
                                             </div>
                                         @endif
                                         <div class="w-100 mt-3">
+                                            @php
+                                                $button_text = 'Purchase';
+                                                if ($lesson->type == 'inPerson') {
+                                                    $button_text = 'Schedule Lesson';
+                                                } elseif ($lesson->type == 'package') {
+                                                    $button_text = 'Sign Up';
+                                                }
+                                            @endphp
                                             <a href="{{ route('login') }}" tabindex="0">
                                                 <button type="submit" class="lesson-btn py-2"
-                                                    tabindex="0">Purchase</button>
+                                                    tabindex="0">{{ $button_text }}</button>
                                             </a>
                                         </div>
                                     </div>

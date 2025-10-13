@@ -28,6 +28,10 @@
                                 </form>
                             </div>
                             <div class="flex justify-center my-2 gap-2">
+                                <div class="flex justify-center my-3 gap-2 items    -baseline">
+                                    <label for="calendar-date" class="font-semibold">Select Date:</label>
+                                    <input type="date" id="calendar-date" class="form-control w-auto" />
+                                </div>
                                 <div class="flex gap-1 items-center">
                                     <div class="completed-key"></div>
                                     <span>Completed</span>
@@ -649,6 +653,17 @@
                 },
             });
             calendar.render();
+
+
+            // 🔹 Date picker: Jump to selected week's date
+            const dateInput = document.getElementById("calendar-date");
+            dateInput.addEventListener("change", function() {
+                const selectedDate = this.value;
+                if (selectedDate) {
+                    calendar.gotoDate(selectedDate); // Go to that date
+                    calendar.changeView('timeGridWeek'); // Ensure week view
+                }
+            });
         });
 
         function openManageSlotPopup(slot_id, student, formattedTime, lesson, instructor, slot, availableSeats) {

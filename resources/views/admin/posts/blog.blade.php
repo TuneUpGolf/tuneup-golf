@@ -164,13 +164,39 @@
                 <span class="short-text">{{ $shortDescription }}</span>
                 @if (strlen($description) > 20)
                     <span class="hidden full-text">{{ $description }}</span>
-                    <a href="javascript:void(0);" class="text-blue-600 toggle-read-more font-semibold underline"
-                        onclick="toggleDescription(this)">Read More</a>
+                    {{-- <a href="javascript:void(0);" class="text-blue-600 toggle-read-more font-semibold underline"
+                        onclick="toggleDescription(this)">View Description</a> --}}
+                        <a href="javascript:void(0);" 
+   class="text-blue-600 font-semibold underline"
+   data-bs-toggle="modal"
+   data-bs-target="#descriptionModal{{ $post->id }}">
+   View Description
+</a>
                 @endif
             </p>
         </div>
     </div>
 </div>
+
+
+<!-- Bootstrap Modal -->
+<div class="modal fade" id="descriptionModal{{ $post->id }}" tabindex="-1" aria-labelledby="descriptionModalLabel{{ $post->id }}" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="descriptionModalLabel{{ $post->id }}">{{ $post->title }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {!! nl2br(e($post->description)) !!}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 @push('javascript')
     <script>
         function toggleDescription(button) {

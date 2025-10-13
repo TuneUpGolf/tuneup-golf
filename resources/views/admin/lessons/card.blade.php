@@ -231,9 +231,17 @@
                                 <button class="lesson-btn">Purchase</button>
                             </a>
                         @else --}}
+                    @php
+                        $button_text = 'Purchase';
+                        if ($model->type == 'inPerson') {
+                            $button_text = 'Schedule Lesson';
+                        } elseif ($model->type == 'package') {
+                            $button_text = 'Sign Up';
+                        }
+                    @endphp
                     <button class="lesson-btn"
                         onclick="openBookingPopup({{ json_encode($allSlots) }}, '{{ $model->type }}', {{ $model->is_package_lesson }} ,'{{ $model->lesson_price }}', {{ $model->id }})">
-                        Schedule Lesson
+                        {{ $button_text }}
                     </button>
                     {{-- @endif --}}
                 @else
