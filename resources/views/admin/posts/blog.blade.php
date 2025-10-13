@@ -1,49 +1,6 @@
 @push('css')
     <style>
-        /* Modal styling */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-
-        .modal-content {
-            margin: 5% auto;
-            display: block;
-            max-width: 90%;
-            max-height: 80%;
-            width: auto;
-            height: auto;
-
-        }
-
-        .close {
-            position: absolute;
-            top: 20px;
-            right: 40px;
-            color: white;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: #0071ce;
-        }
-
-        body.modal-open {
-            overflow-y: hidden;
-        }
-
-        body.modal-open .dash-container {
-            z-index: 99999;
-        }
+  
     </style>
 @endpush
 
@@ -161,9 +118,9 @@
             @endphp
 
             <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h">
-                <span class="short-text">{{ $shortDescription }}</span>
-                @if (strlen($description) > 20)
-                    <span class="hidden full-text">{{ $description }}</span>
+                {{-- <span class="short-text">{{ $shortDescription }}</span> --}}
+                {{-- @if (strlen($description) > 20) --}}
+                    {{-- <span class="hidden full-text">{{ $description }}</span> --}}
                     {{-- <a href="javascript:void(0);" class="text-blue-600 toggle-read-more font-semibold underline"
                         onclick="toggleDescription(this)">View Description</a> --}}
                         <a href="javascript:void(0);" 
@@ -172,7 +129,7 @@
    data-bs-target="#descriptionModal{{ $post->id }}">
    View Description
 </a>
-                @endif
+                {{-- @endif --}}
             </p>
         </div>
     </div>
@@ -180,18 +137,28 @@
 
 
 <!-- Bootstrap Modal -->
-<div class="modal fade" id="descriptionModal{{ $post->id }}" tabindex="-1" aria-labelledby="descriptionModalLabel{{ $post->id }}" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+<div class="modal fade" id="descriptionModal{{ $post->id }}" tabindex="-1" role="dialog" aria-labelledby="descriptionModalLabel{{ $post->id }}" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered custom-modal-width" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="descriptionModalLabel{{ $post->id }}">{{ $post->title }}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header flex justify-between items-center">
+        <h1 class="modal-title font-bold text-lg" id="descriptionModalLabel{{ $post->id }}">
+          {{ $post->title }}
+        </h1>
+        <button type="button"
+          class="bg-gray-900 flex font-bold h-8 items-center justify-center m-2 right-2 rounded-full shadow-md text-2xl top-2 w-8 z-10"
+          data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
+
       <div class="modal-body">
-        {!! nl2br(e($post->description)) !!}
+        <div class="longDescContent">
+          {!! nl2br(e($post->description)) !!}
+        </div>
       </div>
+
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="lesson-btn" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>

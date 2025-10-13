@@ -113,8 +113,13 @@
                                             {{ $lesson->lesson_name }}
                                         </h3>
                                     </div>
-                                    <div class="text-gray-500 text-md description font-medium ctm-min-h px-3 mb-2">
-                                        <div title="{{ strip_tags($description) }}"  class="short-text text-gray-600" style="
+                                    {{-- <div class="text-gray-500 text-md description font-medium ctm-min-h px-3 mb-2"> --}}
+                                        @if (!empty($description))
+                                                <div class="hidden short-text text-gray-600">
+                                                    {!! $description !!}
+                                                </div>
+                                            @endif
+                                        {{-- <div title="{{ strip_tags($description) }}"  class="short-text text-gray-600" style="
                                                 font-size: 15px;
                                                 display: -webkit-box;
                                                 -webkit-line-clamp: 2;
@@ -122,7 +127,7 @@
                                                 overflow: hidden;
                                                 text-overflow: ellipsis; ">
                                             {!! $description !!}
-                                        </div>
+                                        </div> --}}
                                         {{--  @if (!empty($description) && strlen(strip_tags($description)) >= 20)
                                             <div class="hidden full-text text-gray-600"
                                                 style="font-size: 15px; max-height: auto; overflow-y: auto;">
@@ -132,7 +137,7 @@
                                                 class="text-blue-600 toggle-read-more font-semibold"
                                                 onclick="toggleDescription(this, event)">View Lesson Description</a>
                                         @endif  --}}
-                                    </div>
+                                    {{-- </div> --}}
                                     <div class="px-3 mt-1 flex flex-col flex-grow">
                                         <div class="description-wrapper relative mb-[10px]">
                                             @if (!empty($lesson?->long_description) || !is_null($lesson?->long_description))
@@ -225,8 +230,13 @@
                                             class="font-weight-bolder">
                                             {{ $lesson->lesson_name }}</h3>
                                     </div>
-                                    <div class="text-gray-500 text-md description font-medium ctm-min-h px-3 mb-2">
-                                        <div title="{{ strip_tags($description) }}"  class="short-text text-gray-600"
+                                    {{-- <div class="text-gray-500 text-md description font-medium ctm-min-h px-3 mb-2"> --}}
+                                          @if (!empty($description))
+                                                <div class="hidden short-text text-gray-600">
+                                                    {!! $description !!}
+                                                </div>
+                                            @endif
+                                        {{-- <div title="{{ strip_tags($description) }}"  class="short-text text-gray-600"
                                              style="
                                                 font-size: 15px;
                                                 display: -webkit-box;
@@ -235,7 +245,7 @@
                                                 overflow: hidden;
                                                 text-overflow: ellipsis; ">
                                             {!! $description !!}
-                                        </div>
+                                        </div> --}}
                                         {{--  @if (!empty($description) && strlen($description) >= 20)
                                             <div class="hidden full-text text-gray-600"
                                                 style="font-size: 15px; max-height: auto; overflow-y: auto;">
@@ -245,7 +255,7 @@
                                                 class="text-blue-600 toggle-read-more font-semibold"
                                                 onclick="toggleDescription(this, event)">View Lesson Description</a>
                                         @endif  --}}
-                                    </div>
+                                    {{-- </div> --}}
 
                                     <div class="px-3 flex flex-col flex-grow">
 
