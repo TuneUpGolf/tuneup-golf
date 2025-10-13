@@ -140,7 +140,7 @@
                                     {{-- </div> --}}
                                     <div class="px-3 mt-1 flex flex-col flex-grow">
                                         <div class="description-wrapper relative mb-[10px]">
-                                            @if (!empty($lesson?->long_description) || !is_null($lesson?->long_description))
+                                            {{-- @if (!empty($lesson?->long_description) || !is_null($lesson?->long_description)) --}}
                                                 <div class="hidden long-text text-gray-600"
                                                     style="font-size: 15px; max-height: 100px; overflow-y: auto;">
                                                     {!! $lesson->long_description !!}
@@ -149,7 +149,7 @@
                                                     data-long_description="{{ e($lesson->long_description) }}"
                                                     class="text-blue-600 font-medium mt-1 inline-block viewDescription"
                                                     tabindex="0">View Description </a>
-                                            @endif
+                                            {{-- @endif --}}
                                         </div>
                                         @if ($lesson?->type == 'online')
                                             <div class="p-3 h-full bg-gray-200 gap-2 rounded-lg flex justify-center items-center">
