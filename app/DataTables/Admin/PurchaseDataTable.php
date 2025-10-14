@@ -642,7 +642,7 @@ class PurchaseDataTable extends DataTable
                 'responsive' => [
                     'scrollX' => false,
                     'details' => [
-                        'display' => '$.fn.dataTable.Responsive.display.childRow',
+                        // 'display' => '$.fn.dataTable.Responsive.display.childRow',
                         'renderer' => <<<'JS'
                     function (api, rowIdx, columns) {
                         var data = $('<table/>').addClass('vertical-table');
