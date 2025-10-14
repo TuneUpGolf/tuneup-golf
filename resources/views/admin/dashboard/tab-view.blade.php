@@ -216,9 +216,13 @@
 
                                                                 <span class="text-gray-600"><strong>Instructor:
                                                                         {{ $plan->instructor->name }}</strong></span>
-                                                                        <br>
+                                                                <br>
                                                                 <span class="text-gray-600"><strong>Total Duration:
                                                                         {{ $plan->duration . ' ' . $plan->durationtype }}
+                                                                    </strong></span>
+                                                                <br>
+                                                                <span class="text-gray-600"><strong>Online Lesson Limit:
+                                                                        {{ $plan->lesson_limit_label }}
                                                                     </strong></span>
                                                                 <div class="flex gap-1 items-center mt-2 ">
                                                                     <p class="text-4xl font-bold">
@@ -311,8 +315,7 @@
                                                                                 {{ __('Expire at') }}
                                                                                 {{ Carbon::parse($user->plan_expired_date)->format('d/m/Y') }}
                                                                             </a>
-                                                                                <a href="{{ route('plans.cancel', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
-                                                                              
+                                                                            <a href="{{ route('plans.cancel', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
                                                                                 class="lesson-btn text-center font-bold text-lg mt-2 cancel-btn">
                                                                                 {{ __('Cancel Plan') }}
                                                                             </a>

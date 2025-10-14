@@ -1,6 +1,6 @@
 @push('css')
     <style>
-  
+
     </style>
 @endpush
 
@@ -16,11 +16,11 @@
                 <div class="flex items-center gap-3">
                     <!-- @if ($post->isStudentPost)
 <img class="w-10 h-10 rounded-full"
-                                                src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post?->student?->dp) }}" alt="Profile" />
+                                                                            src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post?->student?->dp) }}" alt="Profile" />
 @else
 <img class="w-10 h-10 rounded-full"
-                                                src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post?->instructor?->logo) }}"
-                                                alt="Profile" />
+                                                                            src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post?->instructor?->logo) }}"
+                                                                            alt="Profile" />
 @endif -->
                     <img class="w-16 h-16 rounded-full d-none"
                         src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
@@ -52,7 +52,21 @@
         </div>
 
         @if ($post->file_type == 'image')
-            @if ($post->paid && !isset($purchasePost))
+
+            @php
+                $user = auth('student')->user();
+                // dd($user);
+
+                $student_subscription_exists = false;
+                // dd($user->type);
+                if ($user && $user->type == 'Student') {
+                    $student_subscription_exists = \App\Models\StudentSubscription::where('student_id', $user->id)
+                        ->where('status', 'active')
+                        ->exists();
+                }
+            @endphp
+
+            @if ($post->paid && !isset($purchasePost) && !$student_subscription_exists)
                 <div class="relative paid-post-wrap">
                     <img class=" w-full post-thumbnail"
                         src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
@@ -80,14 +94,26 @@
             @else
                 <!-- <img class="rounded-md w-full" src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->file) }}"
                     alt="Post Image" /> -->
-                <img class=" w-full post-thumbnail open-full-thumbnail" src="{{ asset($post->file) }}" alt="Profile" />
+                <img class=" w-full post-thumbnail open-full-thumbnail"
+                    src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->file) }}" alt="Profile" />
                 <div id="imageModal" class="modal">
                     <span class="close" id="closeBtn">&times;</span>
                     <img class="modal-content" id="fullImage">
                 </div>
             @endif
         @else
-            @if ($post->paid && !isset($purchasePost))
+            @php
+                $user = auth('student')->user();
+                $student_subscription_exists = false;
+                // dd($user->type);
+                if ($user && $user->type == 'Student') {
+                    $student_subscription_exists = \App\Models\StudentSubscription::where('student_id', $user->id)
+                        ->where('status', 'active')
+                        ->exists();
+                }
+            @endphp
+
+            @if ($post->paid && !isset($purchasePost) && !$student_subscription_exists)
                 <div class="relative bg-black h-48 flex justify-center items-center">
                     {!! Form::open([
                         'route' => ['purchase.post.index', ['post_id' => $post->id]],
@@ -120,15 +146,13 @@
             <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h">
                 {{-- <span class="short-text">{{ $shortDescription }}</span> --}}
                 {{-- @if (strlen($description) > 20) --}}
-                    {{-- <span class="hidden full-text">{{ $description }}</span> --}}
-                    {{-- <a href="javascript:void(0);" class="text-blue-600 toggle-read-more font-semibold underline"
+                {{-- <span class="hidden full-text">{{ $description }}</span> --}}
+                {{-- <a href="javascript:void(0);" class="text-blue-600 toggle-read-more font-semibold underline"
                         onclick="toggleDescription(this)">View Description</a> --}}
-                        <a href="javascript:void(0);" 
-   class="text-blue-600 font-semibold underline"
-   data-bs-toggle="modal"
-   data-bs-target="#descriptionModal{{ $post->id }}">
-   View Description
-</a>
+                <a href="javascript:void(0);" class="text-blue-600 font-semibold underline" data-bs-toggle="modal"
+                    data-bs-target="#descriptionModal{{ $post->id }}">
+                    View Description
+                </a>
                 {{-- @endif --}}
             </p>
         </div>
@@ -137,31 +161,32 @@
 
 
 <!-- Bootstrap Modal -->
-<div class="modal fade" id="descriptionModal{{ $post->id }}" tabindex="-1" role="dialog" aria-labelledby="descriptionModalLabel{{ $post->id }}" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered custom-modal-width" role="document">
-    <div class="modal-content">
-      <div class="modal-header flex justify-between items-center">
-        <h1 class="modal-title font-bold text-lg" id="descriptionModalLabel{{ $post->id }}">
-          {{ $post->title }}
-        </h1>
-        <button type="button"
-          class="bg-gray-900 flex font-bold h-8 items-center justify-center m-2 right-2 rounded-full shadow-md text-2xl top-2 w-8 z-10"
-          data-bs-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
+<div class="modal fade" id="descriptionModal{{ $post->id }}" tabindex="-1" role="dialog"
+    aria-labelledby="descriptionModalLabel{{ $post->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered custom-modal-width" role="document">
+        <div class="modal-content">
+            <div class="modal-header flex justify-between items-center">
+                <h1 class="modal-title font-bold text-lg" id="descriptionModalLabel{{ $post->id }}">
+                    {{ $post->title }}
+                </h1>
+                <button type="button"
+                    class="bg-gray-900 flex font-bold h-8 items-center justify-center m-2 right-2 rounded-full shadow-md text-2xl top-2 w-8 z-10"
+                    data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
 
-      <div class="modal-body">
-        <div class="longDescContent">
-          {!! nl2br(e($post->description)) !!}
+            <div class="modal-body">
+                <div class="longDescContentTipandDrills">
+                    {!! nl2br(e($post->description)) !!}
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="lesson-btn" data-bs-dismiss="modal">Close</button>
+            </div>
         </div>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="lesson-btn" data-bs-dismiss="modal">Close</button>
-      </div>
     </div>
-  </div>
 </div>
 
 @push('javascript')

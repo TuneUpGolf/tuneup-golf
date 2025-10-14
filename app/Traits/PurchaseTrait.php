@@ -168,6 +168,13 @@ trait PurchaseTrait
             // dd($instructor?->active_status, !empty($account->id), $account->charges_enabled, !empty($account->capabilities['card_payments']),$account->capabilities['card_payments'] === 'active');
 
             // Want to test on local comment next if and uncomment session below
+            // if (
+            //     $instructor?->active_status &&
+            //     !empty($account->id) &&
+            //     // $account->charges_enabled &&
+            //     !empty($account->capabilities['card_payments']) 
+            //     // $account->capabilities['card_payments'] === 'active'
+            // ) {
             if (
                 $instructor?->active_status &&
                 !empty($account->id) &&

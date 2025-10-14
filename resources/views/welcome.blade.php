@@ -344,6 +344,10 @@
                                                         <span class="text-gray-600"><strong>Total Duration:
                                                                 {{ $plan->duration . ' ' . $plan->durationtype }}
                                                             </strong></span>
+                                                            <br>
+                                                             <span class="text-gray-600"><strong>Online Lesson Limit:
+                                                                {{ $plan->lesson_limit_label  }}
+                                                            </strong></span>
                                                         <div class="flex gap-1 items-center mt-2 ">
                                                             <p class="text-4xl font-bold">
                                                                 {{ '$' . $plan->price }}/</p>
@@ -351,6 +355,7 @@
                                                                 Month
                                                             </p>
                                                         </div>
+                                                        
                                                     </div>
                                                     <div class="border-t border-gray-300"></div>
                                                     <div class="px-3 py-4">

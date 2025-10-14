@@ -57,9 +57,23 @@
 
                                                  @endphp
 
+                                                 @php
+                                                     $user = auth()->user();
+                                                     $student_subscription_exists = false;
+                                                     // dd($user->type);
+                                                     if ($user && $user->type == 'Student') {
+                                                         $student_subscription_exists = \App\Models\StudentSubscription::where(
+                                                             'student_id',
+                                                             $user->id,
+                                                         )
+                                                             ->where('status', 'active')
+                                                             ->exists();
+                                                     }
+                                                 @endphp
+
 
                                                  @if ($post->file_type == 'image')
-                                                     @if ($post->payment_mode == 'un-paid' || $studentSubscription)
+                                                     @if ($post->payment_mode == 'un-paid' || $studentSubscription || $student_subscription_exists)
                                                          <img class=" w-full post-thumbnail open-full-thumbnail"
                                                              src="{{ asset($post->image) }}" alt="Profile" />
                                                          <div id="imageModal" class="modal">
@@ -94,7 +108,7 @@
                                                          </div>
                                                      @endif
                                                  @else
-                                                     @if ($post->payment_mode == 'un-paid' || $studentSubscription)
+                                                     @if ($post->payment_mode == 'un-paid' || $studentSubscription || $student_subscription_exists)
                                                          <video controls class="w-full post-thumbnail">
                                                              <source src="{{ asset($post->image) }}" type="video/mp4">
                                                          </video>

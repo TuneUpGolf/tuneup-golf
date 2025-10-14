@@ -85,7 +85,8 @@ class PlanController extends Controller
                 'price'         => 'required',
                 'duration'      => 'required',
                 'durationtype'  => 'required',
-                'max_users'     => 'required'
+                'max_users'     => 'required',
+                'lesson_limit' => 'required|integer',
             ]);
 
             // dd($request->all());
@@ -174,6 +175,7 @@ class PlanController extends Controller
                 'instructor_id'   => $instructorId,
                 'stripe_product_id' => $product->id, // store Stripe IDs!
                 'stripe_price_id'   => $price->id,
+                'lesson_limit' => $request->lesson_limit,
             ]);
 
 
@@ -221,6 +223,7 @@ class PlanController extends Controller
                 'duration'      => 'required',
                 'durationtype'  => 'required',
                 'max_users'     => 'required',
+                'lesson_limit' => 'required|integer',
             ]);
 
             $plan = Plan::findOrFail($id);
@@ -302,6 +305,8 @@ class PlanController extends Controller
             $plan->is_feed_enabled = $request->feed == '1' ? 1 : 0;
             $plan->tenant_id       = $tenantId;
             $plan->instructor_id   = $instructorId;
+            $plan->lesson_limit    = $request->lesson_limit;
+
             $plan->save();
 
             return redirect()->route('plans.myplan')->with('success', __('Plan updated successfully.'));

@@ -545,7 +545,8 @@ class StripeController extends Controller
                 $user->chat_status = true;
             }
 
-
+             $user->chat_status = 1;
+            $user->chat_enabled_by = Auth::id();
             $user->save();
         }
 

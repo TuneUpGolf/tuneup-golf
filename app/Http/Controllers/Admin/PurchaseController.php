@@ -2,42 +2,44 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Actions\SendEmail;
-use App\Actions\SendPushNotification;
-use App\DataTables\Admin\PurchaseDataTable;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\PurchaseAPIResource;
-use App\Http\Resources\PurchaseVideoAPIResource;
-use App\Mail\Admin\PurchaseCompleted;
-use App\Mail\Admin\PurchaseFeedback;
-use App\Mail\Admin\VideoAdded;
-use App\Models\Coupon;
-use App\Models\FeedbackContent;
-use App\Models\Purchase;
-use App\Models\Lesson;
-use App\Models\Student;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\PurchaseVideos;
-use App\DataTables\Admin\PurchaseLessonDataTable;
-use App\DataTables\Admin\PurchaseLessonVideoDataTable;
-use App\Mail\Admin\SlotBookedByStudentMail;
-use App\Models\Plan;
-use App\Models\Role;
-use App\Models\Slots;
-use App\Traits\ConvertVideos;
-use App\Traits\PurchaseTrait;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Str;
-use Stripe\Checkout\Session;
-use Stripe\Stripe;
 use Error;
 use Exception;
+use Carbon\Carbon;
+use Stripe\Stripe;
+use App\Models\Plan;
+use App\Models\Role;
+use App\Models\User;
+use App\Models\Slots;
+use App\Models\Coupon;
+use App\Models\Lesson;
+use App\Models\Student;
+use App\Models\Purchase;
+use App\Actions\SendEmail;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Stripe\Checkout\Session;
 use App\Services\ChatService;
-
+use App\Traits\ConvertVideos;
+use App\Traits\PurchaseTrait;
+use App\Mail\Admin\VideoAdded;
+use App\Models\PurchaseVideos;
+use App\Models\FeedbackContent;
+use App\Models\StudentSubscription;
+use App\Http\Controllers\Controller;
+use App\Mail\Admin\PurchaseFeedback;
+use Illuminate\Support\Facades\Auth;
+use App\Actions\SendPushNotification;
+use App\Mail\Admin\PurchaseCompleted;
 use function PHPUnit\Framework\isEmpty;
+use Illuminate\Support\Facades\Storage;
+use App\DataTables\Admin\PurchaseDataTable;
+use App\Http\Resources\PurchaseAPIResource;
+use App\Mail\Admin\SlotBookedByStudentMail;
+use Illuminate\Validation\ValidationException;
+use App\Http\Resources\PurchaseVideoAPIResource;
+
+use App\DataTables\Admin\PurchaseLessonDataTable;
+use App\DataTables\Admin\PurchaseLessonVideoDataTable;
 
 class PurchaseController extends Controller
 {
@@ -369,11 +371,11 @@ class PurchaseController extends Controller
                             $randomFileName = Str::random(25) . '.' . $extension;
                             //$filePath = Auth::user()->tenant_id.'/purchaseVideos/'.$randomFileName;
                             $filePath = $currentDomain . '/' . $purchase->lesson_id . '/' . $purchase->student_id . '/' . $randomFileName;
-                            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
-                            $path = Storage::disk('spaces')->url($filePath);
+                            // Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                            // $path = Storage::disk('spaces')->url($filePath);
                         }
 
-                        $purchase_video->video_url = $path;
+                        // $purchase_video->video_url = $path;
                         $purchase_video->save();
                     }
 
@@ -413,23 +415,64 @@ class PurchaseController extends Controller
                     if ($request->checkout == 1) {
                         $request->merge(['purchase_id' => $purchase->id]);
                         $request->setMethod('POST');
+
+                        // Check if subscriptiom
+                        // Get login user
+                        $student_user = Auth::user();
+
+                        // if any active subscription
+                        $student_subscription = StudentSubscription::where('student_id', $student_user->id)
+                            ->where('status', 'active')
+                            ->latest()
+                            ->first();
+
+                        // Subscription exists
+                        if ($student_subscription) {
+
+                            // Current monthly online lesson count
+                            $student_monthly_purchase_count = Purchase::where('student_id', $student_user->id)
+                                ->where('status', 'complete')
+                                ->where('type', 'online')
+                                ->whereMonth('created_at', Carbon::now()->month)
+                                ->whereYear('created_at', Carbon::now()->year)
+                                ->count();
+
+                            // get subscription plan
+                            $plan = $student_subscription->plan;
+
+                            // Check whats the lesson limit
+                            if ($plan && ($plan->lesson_limit == -1 || $student_monthly_purchase_count < $plan->lesson_limit)) {
+                                $purchase->status = Purchase::STATUS_COMPLETE;
+                                $purchase->save();
+                                return redirect()->route('home')->with('success', 'Video Successfully Added');
+                            }
+                        }
+
+
                         return $this->confirmPurchaseWithRedirect($request);
                     } else if ($request->redirect == 1) {
                         return redirect()->route('home')->with('success', 'Video Successfully Added');
                     }
                 } catch (\Exception $e) {
+                    // dd($e);
                     report($e);
                     return redirect()->back()->with('errors', $e->getMessage());
                 } catch (Error $e) {
+                    // dd($e);
+
                     report($e);
                     return response($e, 419);
                 };
             } else {
+                // dd("e");
+
                 throw ValidationException::withMessages([
                     'purchase_id' => 'You don\'t have enough lessons remaining',
                 ]);
             }
         } else {
+            // dd("e");
+
             throw ValidationException::withMessages([
                 'purchase_id' => 'No purchase found for this ID',
             ]);
