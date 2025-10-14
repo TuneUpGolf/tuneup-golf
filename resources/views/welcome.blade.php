@@ -146,7 +146,7 @@
                                                     {!! $lesson->long_description !!}
                                                 </div>
                                                 <a href="javascript:void(0)"  style="font-size: 15px;margin-bottom:10px"
-                                                    data-long_description="{{ e($lesson->long_description) }}"
+                                                    data-long_description="{!! nl2br($lesson->long_description) !!}"
                                                     class="text-blue-600 font-medium mt-1 inline-block viewDescription"
                                                     tabindex="0">View Description </a>
                                             {{-- @endif --}}

@@ -75,7 +75,7 @@
                                                  @if ($post->file_type == 'image')
                                                      @if ($post->payment_mode == 'un-paid' || $studentSubscription || $student_subscription_exists)
                                                          <img class=" w-full post-thumbnail open-full-thumbnail"
-                                                             src="{{ asset($post->image) }}" alt="Profile" />
+                                                             src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->image) }}" alt="Profile" />
                                                          <div id="imageModal" class="modal">
                                                              <span class="close" id="closeBtn">&times;</span>
                                                              <img class="modal-content" id="fullImage">
@@ -110,7 +110,7 @@
                                                  @else
                                                      @if ($post->payment_mode == 'un-paid' || $studentSubscription || $student_subscription_exists)
                                                          <video controls class="w-full post-thumbnail">
-                                                             <source src="{{ asset($post->image) }}" type="video/mp4">
+                                                             <source src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->image) }}" type="video/mp4">
                                                          </video>
                                                      @else
                                                          <div class="relative paid-post-wrap">
