@@ -62,6 +62,34 @@
                                 ]) !!}
                             </div>
                         @endif
+
+                        <div class="form-group mt-3">
+                            {{ Form::label('lesson_limit', __('Lesson Limit'), ['class' => 'form-label d-block']) }}
+
+                            @php
+                                $lessonLimits = [
+                                    3 => '3 lessons/month',
+                                    5 => '5 lessons/month',
+                                    10 => '10 lessons/month',
+                                    -1 => 'Unlimited lessons/month',
+                                ];
+
+                                // get old value (for validation) or model value (for edit)
+                                $selectedLessonLimit = old('lesson_limit', $model->lesson_limit ?? 3);
+                            @endphp
+
+                            @foreach ($lessonLimits as $value => $label)
+                                <div class="form-check form-check-inline">
+                                    {!! Form::radio('lesson_limit', $value, $selectedLessonLimit == $value, [
+                                        'class' => 'form-check-input',
+                                        'id' => 'lesson_limit_' . $value,
+                                    ]) !!}
+                                    {{ Form::label('lesson_limit_' . $value, __($label), ['class' => 'form-check-label']) }}
+                                </div>
+                            @endforeach
+                        </div>
+
+
                         <div class="form-group">
                             {{ Form::label('description', __('Description'), ['class' => 'form-label']) }}
                             {!! Form::textarea('description', null, [

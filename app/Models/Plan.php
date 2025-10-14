@@ -31,7 +31,8 @@ class Plan extends Model
         'instructor_id',
         'stripe_product_id',
         'stripe_price_id',
-        'stripe_webhook_id'
+        'stripe_webhook_id',
+        'lesson_limit'
     ];
 
     public function instructor()
@@ -47,5 +48,13 @@ class Plan extends Model
     public function getEncryptedIdAttribute()
     {
         return Crypt::encrypt($this->id);
+    }
+
+    public function getLessonLimitLabelAttribute()
+    {
+        return match ($this->lesson_limit) {
+            -1 => 'Unlimited lessons/month',
+            default => "{$this->lesson_limit} lessons/month",
+        };
     }
 }
