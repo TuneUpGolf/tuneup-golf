@@ -178,7 +178,7 @@
 
             <div class="modal-body">
                 <div class="longDescContentTipandDrills">
-                    {!! nl2br(e($post->description)) !!}
+                    {!! nl2br($post->description) !!}
                 </div>
             </div>
 
