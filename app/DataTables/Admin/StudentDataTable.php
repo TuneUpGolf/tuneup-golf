@@ -133,25 +133,67 @@ class StudentDataTable extends DataTable
             })
             ->addColumn('chat_enabled', function (Student $user) use ($loggedInUserId) {
 
+                // if (isset($user->plan->is_chat_enabled) && $user->plan->is_chat_enabled == 1) {
+                //     $msg = $user->plan->instructor_id != $loggedInUserId
+                //         ? "The student has an active subscription to chat with another instructor."
+                //         : "The student has an active subscription to chat.";
+                // } elseif ($user->chat_enabled_by != $loggedInUserId && !empty($user->chat_enabled_by)) {
+                //     $msg = "Another instructor is already chatting with this student.";
+                // }
+
+                // if (isset($msg)) {
+                //     return sprintf(
+                //         '<span title="%s"><i class="ti ti-alert-triangle" style="font-size: 25px; color:#FFC107;"></i></span>',
+                //         e($msg) // escape message for safety
+                //     );
+                // }
+
+                // $checked = ($user->chat_status == 1) ? 'checked' : '';
+                // return '<label class="form-switch">
+                //              <input class="form-check-input chnageStatus" ' . $checked . ' class="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('user.chatstatus', $user->id) . '" type="checkbox">
+                //         </label>';
                 if (isset($user->plan->is_chat_enabled) && $user->plan->is_chat_enabled == 1) {
-                    $msg = $user->plan->instructor_id != $loggedInUserId
-                        ? "The student has an active subscription to chat with another instructor."
-                        : "The student has an active subscription to chat.";
-                } elseif ($user->chat_enabled_by != $loggedInUserId && !empty($user->chat_enabled_by)) {
+
+                    // If another instructor owns this student's plan
+                    if ($user->plan->instructor_id != $loggedInUserId) {
+                        $msg = "The student has an active subscription to chat with another instructor.";
+                    }
+
+                    // If the same instructor owns the plan — allow toggle
+                    else {
+                        $checked = ($user->chat_status == 1) ? 'checked' : '';
+                        return '<label class="form-switch">
+                        <input class="form-check-input chnageStatus"
+                            ' . $checked . '
+                            data-id="' . $user->id . '"
+                            data-url="' . route('user.chatstatus', $user->id) . '"
+                            type="checkbox">
+                    </label>';
+                    }
+                }
+
+                // If another instructor has manually enabled chat
+                elseif ($user->chat_enabled_by != $loggedInUserId && !empty($user->chat_enabled_by)) {
                     $msg = "Another instructor is already chatting with this student.";
                 }
 
+                // If a message was set (e.g., another instructor owns plan or chat)
                 if (isset($msg)) {
                     return sprintf(
-                        '<span title="%s"><i class="ti ti-alert-triangle" style="font-size: 25px; color:#FFC107;"></i></span>',
-                        e($msg) // escape message for safety
+                        '<span title="%s"><i class="ti ti-alert-triangle" style="font-size:25px; color:#FFC107;"></i></span>',
+                        e($msg)
                     );
                 }
 
+                // Default: show toggle normally
                 $checked = ($user->chat_status == 1) ? 'checked' : '';
                 return '<label class="form-switch">
-                             <input class="form-check-input chnageStatus" ' . $checked . ' class="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('user.chatstatus', $user->id) . '" type="checkbox">
-                        </label>';
+                <input class="form-check-input chnageStatus"
+                    ' . $checked . '
+                    data-id="' . $user->id . '"
+                    data-url="' . route('user.chatstatus', $user->id) . '"
+                    type="checkbox">
+            </label>';
             })
             ->editColumn('active_status', function (Student $user) {
                 $checked = ($user->active_status == 1) ? 'checked' : '';
