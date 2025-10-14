@@ -64,23 +64,23 @@
                             {{ Form::label('lesson_limit', __('Lesson Limit'), ['class' => 'form-label d-block']) }}
 
                             @php
-                                $lessonLimits = [
-                                    3 => '3 lessons/month',
-                                    5 => '5 lessons/month',
-                                    10 => '10 lessons/month',
-                                    -1 => 'Unlimited lessons/month',
-                                ];
+                                // Generate lesson limits: 1 to 10, plus "Unlimited"
+                                $lessonLimits = collect(range(1, 10))
+                                    ->mapWithKeys(fn($num) => [$num => "{$num} lessons/month"])
+                                    ->toArray();
+
+                                // Add "Unlimited" option (-1)
+                                $lessonLimits[-1] = 'Unlimited lessons/month';
                             @endphp
 
-                            @foreach ($lessonLimits as $value => $label)
-                                <div class="form-check form-check-inline">
-                                    {!! Form::radio('lesson_limit', $value, old('lesson_limit') == $value, [
-                                        'class' => 'form-check-input',
-                                        'id' => 'lesson_limit_' . $value,
-                                    ]) !!}
-                                    {{ Form::label('lesson_limit_' . $value, __($label), ['class' => 'form-check-label']) }}
-                                </div>
-                            @endforeach
+                        
+                                {!! Form::select('lesson_limit', $lessonLimits, old('lesson_limit'), [
+                                    'class' => 'form-select',
+                                    'placeholder' => 'Select lesson limit',
+                                    'id' => 'lesson_limit',
+                                ]) !!}
+                           
+
                         </div>
 
                         <div class="form-group">

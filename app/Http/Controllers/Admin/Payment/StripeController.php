@@ -543,11 +543,10 @@ class StripeController extends Controller
             if ($plan->is_chat_enabled) {
                 $this->chatService->updateUser($user->chat_user_id, 'plan_expired_date', $planExpiredDate, $user->email);
                 $user->chat_status = true;
+                // $user->chat_status = 1;
+                $user->chat_enabled_by = $plan->instructor_id;
+                $user->save();
             }
-
-             $user->chat_status = 1;
-            $user->chat_enabled_by = Auth::id();
-            $user->save();
         }
 
         /**

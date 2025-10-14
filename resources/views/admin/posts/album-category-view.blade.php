@@ -46,7 +46,7 @@
 
                                                      </div>
                                                  </div>
-                                                 @php
+                                                 {{-- @php
                                                      $studentSubscription = \App\Models\PurchaseAlbum::where(
                                                          'student_id',
                                                          auth()->user()->id,
@@ -69,13 +69,57 @@
                                                              ->where('status', 'active')
                                                              ->exists();
                                                      }
+                                                 @endphp --}}
+
+                                                 @php
+                                                     // Check if student has purchased this specific album
+                                                     $studentAlbumPurchased = \App\Models\PurchaseAlbum::where(
+                                                         'student_id',
+                                                         auth()->user()->id,
+                                                     )
+                                                         ->where('album_category_id', $post->id)
+                                                         ->where('active_status', 1)
+                                                         ->exists();
+
+                                                     // Get the logged-in user
+                                                     $user = auth()->user();
+                                                     $student_subscription_exists = false;
+                                                     $student_subscription_instructor_id = null;
+
+                                                     // Check if user is a Student and has an active subscription
+                                                     if ($user && $user->type == 'Student') {
+                                                         $student_subscription = \App\Models\StudentSubscription::where(
+                                                             'student_id',
+                                                             $user->id,
+                                                         )
+                                                             ->whereHas('plan', function ($query) {
+                                                                 $query->where('is_feed_enabled', 1);
+                                                             })
+                                                             ->where('status', 'active')
+                                                             ->first();
+
+                                                         if ($student_subscription) {
+                                                             $student_subscription_exists = true;
+                                                             $student_subscription_instructor_id =
+                                                                 $student_subscription->instructor_id;
+                                                         }
+                                                     }
+
+                                                     // Determine if post should be shown
+                                                     $can_view_post =
+                                                         $post->payment_mode == 'un-paid' ||
+                                                         $studentAlbumPurchased ||
+                                                         ($student_subscription_exists &&
+                                                             $student_subscription_instructor_id ==
+                                                                 $post->instructor_id);
                                                  @endphp
 
 
                                                  @if ($post->file_type == 'image')
-                                                     @if ($post->payment_mode == 'un-paid' || $studentSubscription || $student_subscription_exists)
+                                                     @if ($can_view_post)
                                                          <img class=" w-full post-thumbnail open-full-thumbnail"
-                                                             src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->image) }}" alt="Profile" />
+                                                             src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->image) }}"
+                                                             alt="Profile" />
                                                          <div id="imageModal" class="modal">
                                                              <span class="close" id="closeBtn">&times;</span>
                                                              <img class="modal-content" id="fullImage">
@@ -108,9 +152,11 @@
                                                          </div>
                                                      @endif
                                                  @else
-                                                     @if ($post->payment_mode == 'un-paid' || $studentSubscription || $student_subscription_exists)
+                                                     @if ($can_view_post)
                                                          <video controls class="w-full post-thumbnail">
-                                                             <source src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->image) }}" type="video/mp4">
+                                                             <source
+                                                                 src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->image) }}"
+                                                                 type="video/mp4">
                                                          </video>
                                                      @else
                                                          <div class="relative paid-post-wrap">
@@ -144,7 +190,7 @@
                                                      <div class="text-md italic text-gray-500">
                                                          {{ \Carbon\Carbon::parse($post->created_at)->format('d M Y') }}
                                                      </div>
-                                                     @if ($post->payment_mode == 'un-paid' || $studentSubscription)
+                                                     @if ($can_view_post)
                                                          <h1 class="text-xl font-bold truncate">
                                                              {{ $post->title }}
                                                              <button class="btn btn-sm btn-primary ml-2 view-paid"

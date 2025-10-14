@@ -55,18 +55,31 @@
 
             @php
                 $user = auth('student')->user();
-                // dd($user);
-
                 $student_subscription_exists = false;
-                // dd($user->type);
+                $student_subscription_instructor_id = null;
+
                 if ($user && $user->type == 'Student') {
-                    $student_subscription_exists = \App\Models\StudentSubscription::where('student_id', $user->id)
+                    $student_subscription = \App\Models\StudentSubscription::where('student_id', $user->id)
                         ->where('status', 'active')
-                        ->exists();
+                        ->whereHas('plan', function ($query) {
+                            $query->where('is_feed_enabled', 1);
+                        })
+                        ->first();
+
+                    if ($student_subscription) {
+                        $student_subscription_exists = true;
+                        $student_subscription_instructor_id = $student_subscription->instructor_id;
+                    }
                 }
+
+                // Determine if this post should be locked
+                $should_lock_post =
+                    $post->paid &&
+                    !isset($purchasePost) &&
+                    (!$student_subscription_exists || $student_subscription_instructor_id != $post->instructor_id);
             @endphp
 
-            @if ($post->paid && !isset($purchasePost) && !$student_subscription_exists)
+            @if ($should_lock_post)
                 <div class="relative paid-post-wrap">
                     <img class=" w-full post-thumbnail"
                         src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
@@ -105,15 +118,26 @@
             @php
                 $user = auth('student')->user();
                 $student_subscription_exists = false;
-                // dd($user->type);
-                if ($user && $user->type == 'Student') {
-                    $student_subscription_exists = \App\Models\StudentSubscription::where('student_id', $user->id)
-                        ->where('status', 'active')
-                        ->exists();
-                }
-            @endphp
+                $student_subscription_instructor_id = null;
 
-            @if ($post->paid && !isset($purchasePost) && !$student_subscription_exists)
+                if ($user && $user->type == 'Student') {
+                    $student_subscription = \App\Models\StudentSubscription::where('student_id', $user->id)
+                        ->where('status', 'active')
+                        ->first();
+
+                    if ($student_subscription) {
+                        $student_subscription_exists = true;
+                        $student_subscription_instructor_id = $student_subscription->instructor_id;
+                    }
+                }
+
+                // Determine if this post should be locked
+                $should_lock_post =
+                    $post->paid &&
+                    !isset($purchasePost) &&
+                    (!$student_subscription_exists || $student_subscription_instructor_id != $post->instructor_id);
+            @endphp
+            @if ($should_lock_post)
                 <div class="relative bg-black h-48 flex justify-center items-center">
                     {!! Form::open([
                         'route' => ['purchase.post.index', ['post_id' => $post->id]],

@@ -246,9 +246,9 @@
                     @else --}}
                 @php
                     $button_text = 'Purchase';
-                    if ($model->type == 'inPerson') {
+                    if ($model->type == 'package') {
                         $button_text = 'Schedule Lesson';
-                    } elseif ($model->type == 'package') {
+                    } elseif ($model->type == 'inPerson') {
                         $button_text = 'Sign Up';
                     }
                 @endphp
