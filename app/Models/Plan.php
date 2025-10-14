@@ -27,6 +27,7 @@ class Plan extends Model
         'tenant_id',
         'active_status',
         'is_chat_enabled',
+        'is_feed_enabled',
         'discount_setting',
         'instructor_id',
         'stripe_product_id',

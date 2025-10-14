@@ -67,27 +67,24 @@
                             {{ Form::label('lesson_limit', __('Lesson Limit'), ['class' => 'form-label d-block']) }}
 
                             @php
-                                $lessonLimits = [
-                                    3 => '3 lessons/month',
-                                    5 => '5 lessons/month',
-                                    10 => '10 lessons/month',
-                                    -1 => 'Unlimited lessons/month',
-                                ];
+                                // Build lesson limit options: 1–10 + Unlimited
+                                $lessonLimits = collect(range(1, 10))
+                                    ->mapWithKeys(fn($num) => [$num => "{$num} lessons/month"])
+                                    ->toArray();
 
-                                // get old value (for validation) or model value (for edit)
+                                $lessonLimits[-1] = 'Unlimited lessons/month';
+
+                                // Preserve old value or model value (default to 3)
                                 $selectedLessonLimit = old('lesson_limit', $model->lesson_limit ?? 3);
                             @endphp
 
-                            @foreach ($lessonLimits as $value => $label)
-                                <div class="form-check form-check-inline">
-                                    {!! Form::radio('lesson_limit', $value, $selectedLessonLimit == $value, [
-                                        'class' => 'form-check-input',
-                                        'id' => 'lesson_limit_' . $value,
-                                    ]) !!}
-                                    {{ Form::label('lesson_limit_' . $value, __($label), ['class' => 'form-check-label']) }}
-                                </div>
-                            @endforeach
+                            {!! Form::select('lesson_limit', $lessonLimits, $selectedLessonLimit, [
+                                'class' => 'form-select',
+                                'id' => 'lesson_limit',
+                                'placeholder' => 'Select lesson limit',
+                            ]) !!}
                         </div>
+
 
 
                         <div class="form-group">
