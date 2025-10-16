@@ -71,5 +71,6 @@ class Kernel extends HttpKernel
         'Setting' => \App\Http\Middleware\Setting::class,
         'xss' => \App\Http\Middleware\XSS::class,
         'verified_phone' => \App\Http\Middleware\EnsurePhoneIsVerified::class,
+        'restrict_instructor' => \App\Http\Middleware\Tenant\RestrictInstructor::class,
     ];
 }

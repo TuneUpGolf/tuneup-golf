@@ -2,26 +2,27 @@
 
 namespace App\Http\Controllers\Superadmin;
 
-use App\Actions\SendEmail;
-use App\Actions\SendSMS;
-use App\DataTables\Superadmin\UsersDataTable;
-use App\Facades\UtilityFacades;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\TenantAPIResource;
-use App\Mail\Superadmin\WelcomeMail;
-use App\Models\Plan;
-use App\Models\RequestDomain;
-use App\Models\User;
 use Carbon\Carbon;
+use App\Models\Plan;
 use App\Models\Role;
-use App\Models\Setting;
+use App\Models\User;
 use App\Models\Tenant;
-use Illuminate\Support\Facades\Auth;
-use Stancl\Tenancy\Database\Models\Domain;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Setting;
+use App\Actions\SendSMS;
+use App\Actions\SendEmail;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\RequestDomain;
+use App\Facades\UtilityFacades;
 use Illuminate\Validation\Rule;
+use App\Http\Controllers\Controller;
+use App\Mail\Superadmin\WelcomeMail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Http\Resources\TenantAPIResource;
+use Stancl\Tenancy\Database\Models\Domain;
+use App\DataTables\Superadmin\InstructorDataTable;
+use App\DataTables\Superadmin\UsersDataTable;
 
 class UserController extends Controller
 {
@@ -326,5 +327,68 @@ class UserController extends Controller
             'is_success'    => true,
             'message'       => __('User status changed successfully.')
         ]);
+    }
+
+    public function instructors($id, InstructorDataTable $dataTable)
+    {
+        $tenant = Tenant::find($id);
+        tenancy()->initialize($tenant);
+        // $instructors = User::where('type', 'Instructor')->paginate(20);
+        return $dataTable->render('superadmin.users.instructors');
+
+        tenancy()->end();
+
+        // return view('superadmin.users.instructors', compact('instructors'));
+    }
+
+    public function edit_instructors($tenant_id, $instructor_id)
+    {
+        $tenant = Tenant::find($tenant_id);
+        $path = storage_path() . "/json/country.json";
+        $subscriptions = Plan::whereNotNull('stripe_product_id')->get();
+        tenancy()->initialize($tenant);
+        $user   = User::find($instructor_id);
+        if (Auth::user()->type == 'Admin') {
+            $roles      = Role::where('name', '!=', 'Super Admin')->where('name', '!=', 'Admin')->pluck('name', 'name');
+            $domains    = Domain::pluck('domain', 'domain')->all();
+        } else {
+            $roles      = Role::where('name', '!=', 'Admin')->where('name', Auth::user()->type)->pluck('name', 'name');
+            $domains    = Domain::pluck('domain', 'domain')->all();
+        }
+        $countries = json_decode(file_get_contents($path), true);
+        return view('superadmin.instructors.edit', compact('user', 'roles', 'domains', 'countries', 'subscriptions'));
+        tenancy()->end();
+    }
+
+    public function update_instructors($tenant_id, $instructor_id, Request $request)
+    {
+        $tenant = Tenant::find($tenant_id);
+
+        tenancy()->initialize($tenant);
+        request()->validate([
+            'name'          => 'required|max:50',
+            'country_code'  => 'required',
+            'dial_code'     => 'required',
+            'phone'         => 'required',
+            'password'      => 'same:password_confirmation',
+            'country'       => 'required',
+        ]);
+        $input          = $request->all();
+        $user           = User::find($instructor_id);
+        $user->country_code = $request->country_code;
+        $user->dial_code    = $request->dial_code;
+        $user->phone        = str_replace(' ', '', $request->phone);
+
+        $user->subscription_plan_id = $request->subscription_plan_id != '' ? $request->subscription_plan_id : null;
+
+
+        $user->update($input);
+        if (!empty($request->password)) {
+            $user->password = bcrypt($request->password);
+            $user->save();
+        }
+        tenancy()->end();
+
+        return redirect()->route('users.instructors', $tenant_id)->with('success', 'Instructor Updated Successfully');
     }
 }

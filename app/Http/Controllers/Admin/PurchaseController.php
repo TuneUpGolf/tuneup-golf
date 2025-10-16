@@ -431,6 +431,7 @@ class PurchaseController extends Controller
                             if ($student_subscription->instructor_id == $purchase->instructor_id) {
                                 // Current monthly online lesson count
                                 $student_monthly_purchase_count = Purchase::where('student_id', $student_user->id)
+                                    ->where('instructor_id', $purchase->instructor_id)
                                     ->where('status', 'complete')
                                     ->where('type', 'online')
                                     ->whereMonth('created_at', Carbon::now()->month)
