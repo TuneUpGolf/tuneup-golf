@@ -161,16 +161,7 @@ class StripeWebhookController extends Controller
                             'payment_intent_id' => $paymentIntentId,
                         ]);
 
-                        $paymentIntent = \Stripe\PaymentIntent::create([
-                            'amount' => $request->amount * 100, // in cents
-                            'currency' => 'usd',
-                            'application_fee_amount' =>  5.0,
-                            'transfer_data' => [
-                                'destination' => 'acct_1LvMFVJuUlZDbpdk',
-                            ],
-                        ], [
-                            'stripe_account' => $accountId,
-                        ]);
+                       
 
                         Log::info('Invoice payment succeeded', [
                             'subscription_id' => $subscriptionId,

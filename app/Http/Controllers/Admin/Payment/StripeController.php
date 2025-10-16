@@ -311,44 +311,49 @@ class StripeController extends Controller
                 // ]);
 
                 // dd(UtilityFacades::getsettings('stripe_secret'), $planDetails->instructor->stripe_account_id, $planDetails->stripe_price_id);
+                $platform_fee = UtilityFacades::getsettings('application_fee_percentage') ?? 0;
+                $checkout_session = \Stripe\Checkout\Session::create(
+                    [
+                        'payment_method_types' => ['card'],
+                        'mode' => 'subscription',
+                        'line_items' => [[
+                            'price' => $planDetails->stripe_price_id,
+                            'quantity' => 1,
+                        ]],
+                        'customer_email' => Auth::user()->email,
+                        // 'metadata' => [
+                        //     'plan_id' => $planDetails->id,
+                        //     'student_id' => Auth::user()->id,
+                        //     'tenant_id' => tenant()->id,
+                        //     'instructor_id' => $planDetails->instructor_id,
+                        // ],
+                        'subscription_data' => [
+                            'application_fee_percent' => $platform_fee, // Use the platform fee from settings
+                        ],
+                        'success_url' => route('stripe.success.pay', Crypt::encrypt([
+                            'coupon' => $request->coupon,
+                            'plan_id' => $planDetails->id,
+                            'price' => $request->amount,
+                            'user_id' => Auth::user()->id,
+                            'order_id' => $request->order_id,
+                            'type' => 'stripe',
+                        ])) . '?session_id={CHECKOUT_SESSION_ID}',
+                        'cancel_url' => route('stripe.cancel.pay', Crypt::encrypt([
+                            'coupon' => $request->coupon,
+                            'plan_id' => $planDetails->id,
+                            'price' => $request->amount,
+                            'user_id' => Auth::user()->id,
+                            'order_id' => $request->order_id,
+                            'type' => 'stripe',
+                        ])),
+                    ],
 
-                $checkout_session = \Stripe\Checkout\Session::create([
-                    'payment_method_types' => ['card'],
-                    'mode' => 'subscription',
-                    'line_items' => [[
-                        'price' => $planDetails->stripe_price_id,
-                        'quantity' => 1,
-                    ]],
-                    'customer_email' => Auth::user()->email,
-                    // 'metadata' => [
-                    //     'plan_id' => $planDetails->id,
-                    //     'student_id' => Auth::user()->id,
-                    //     'tenant_id' => tenant()->id,
-                    //     'instructor_id' => $planDetails->instructor_id,
-                    // ],
-                    'success_url' => route('stripe.success.pay', Crypt::encrypt([
-                        'coupon' => $request->coupon,
-                        'plan_id' => $planDetails->id,
-                        'price' => $request->amount,
-                        'user_id' => Auth::user()->id,
-                        'order_id' => $request->order_id,
-                        'type' => 'stripe',
-                    ])) . '?session_id={CHECKOUT_SESSION_ID}',
-                    'cancel_url' => route('stripe.cancel.pay', Crypt::encrypt([
-                        'coupon' => $request->coupon,
-                        'plan_id' => $planDetails->id,
-                        'price' => $request->amount,
-                        'user_id' => Auth::user()->id,
-                        'order_id' => $request->order_id,
-                        'type' => 'stripe',
-                    ])),
-                ], 
-                [
-                    // ✅ options go here (second argument)
-                    'stripe_account' => $planDetails->instructor->stripe_account_id,
-                    // 'application_fee_percent' => 5.0,
-                ]
-            );
+                    [
+                        // ✅ options go here (second argument)
+                        'stripe_account' => $planDetails->instructor->stripe_account_id,
+                        // 'application_fee_percent' => 5.0,
+                    ]
+                );
             } catch (Exception $e) {
                 $api_error  = $e->getMessage();
             }
