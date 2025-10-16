@@ -74,6 +74,7 @@ use App\Http\Controllers\Admin\Payment\MolliePaymentController;
 use App\Http\Controllers\Admin\Payment\SkrillPaymentController;
 use App\Http\Controllers\Admin\Payment\BenefitPaymentController;
 use App\Http\Controllers\Admin\Payment\EasebuzzPaymentController;
+use App\Http\Controllers\Admin\RestrictInstructorController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
 
 /*
@@ -101,6 +102,13 @@ Route::middleware([
     Route::get('/tenant-impersonate/{token}', function ($token) {
         return UserImpersonation::makeResponse($token);
     });
+
+    Route::get('subscription-inactive', [RestrictInstructorController::class, 'subscription_inactive'])->name('subscription.inactive');
+    Route::get('subscription-inactive-purchase', [RestrictInstructorController::class, 'subscription_inactive_purchase'])->name('subscription.inactive.purchase');
+
+    Route::get('instructor-stripe-success-pay/{data}', [RestrictInstructorController::class, 'instructor_stripe_success_pay'])->name('instructor.stripe.success.pay');
+    Route::get('instructor-stripe-cancel-pay', [RestrictInstructorController::class, 'instructor_stripe_cancel_pay'])->name('instructor.stripe.cancel.pay');
+
 
 
 
@@ -134,7 +142,7 @@ Route::middleware([
         Route::resource('help-section', HelpSectionController::class);
     });
 
-    Route::group(['middleware' => ['auth:web,student', 'Setting', 'xss', '2fa', 'verified', 'verified_phone']], function () {
+    Route::group(['middleware' => ['auth:web,student', 'Setting', 'xss', '2fa', 'verified', 'verified_phone', 'restrict_instructor']], function () {
 
         Route::impersonate();
 

@@ -24,7 +24,7 @@
                             {!! Form::text('name', null, ['placeholder' => __('Enter name'), 'class' => 'form-control', 'required']) !!}
                         </div>
                         <div class="form-group">
-                            {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
+                            {{ Form::label('price', __('Price (Per Month)'), ['class' => 'form-label']) }}
                             {!! Form::text('price', null, ['placeholder' => __('Enter price'), 'class' => 'form-control', 'required']) !!}
                         </div>
                         <div class="row">
@@ -41,7 +41,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     {{ Form::label('durationtype', __('Duration Type'), ['class' => 'form-label']) }}
-                                    {!! Form::select('durationtype', ['Month' => 'Month'], 'Month', [
+                                    {!! Form::select('durationtype', ['Month' => 'Month', 'Year' => 'Year'], 'Month', [
                                         'class' => 'form-control',
                                         'data-trigger',
                                     ]) !!}

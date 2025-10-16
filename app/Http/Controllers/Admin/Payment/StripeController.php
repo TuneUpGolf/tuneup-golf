@@ -342,10 +342,13 @@ class StripeController extends Controller
                         'order_id' => $request->order_id,
                         'type' => 'stripe',
                     ])),
-                ], [
+                ], 
+                [
                     // ✅ options go here (second argument)
                     'stripe_account' => $planDetails->instructor->stripe_account_id,
-                ]);
+                    // 'application_fee_percent' => 5.0,
+                ]
+            );
             } catch (Exception $e) {
                 $api_error  = $e->getMessage();
             }
