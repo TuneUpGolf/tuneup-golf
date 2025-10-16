@@ -86,9 +86,10 @@ class PurchaseController extends Controller
                         'coupon_id' => $coupon,
                         'tenenat_id' => Auth::user()->tenant_id,
                         'purchased_slot' => 0,
+                        'session_id' => $request->session_id
                     ]);
                     $newPurchase->total_amount = $total_amount;
-                    $newPurchase->status = Purchase::STATUS_INCOMPLETE;
+                    $newPurchase->status = Purchase::STATUS_COMPLETE;
                     $newPurchase->lessons_used = 0;
                     $newPurchase->save();
 
@@ -450,8 +451,10 @@ class PurchaseController extends Controller
                             }
                         }
 
-
-                        return $this->confirmPurchaseWithRedirect($request);
+                        return redirect()
+                            ->route('home')
+                            ->with('success', 'Online Lesson purchased successfully and Video successfully added.');
+                        // return $this->confirmPurchaseWithRedirect($request);
                     } else if ($request->redirect == 1) {
                         return redirect()->route('home')->with('success', 'Video Successfully Added');
                     }
@@ -1017,5 +1020,30 @@ class PurchaseController extends Controller
             });
 
         return response()->json($purchases);
+    }
+
+    public function purchasePayment(Request $request)
+    {
+        try {
+            // ✅ Validate that lesson_id is provided
+            $request->validate([
+                'lesson_id' => 'required|exists:lessons,id',
+            ]);
+
+            // ✅ Create a Stripe Checkout Session
+            $session = $this->createSessionForPaymentNew($request->lesson_id);
+
+            // ✅ Check if session was successfully created
+            if (empty($session) || empty($session->url)) {
+                return redirect()->back()->withErrors('Failed to generate payment link. Please try again.');
+            }
+
+            // ✅ Redirect user to Stripe Checkout
+            return redirect($session->url);
+        } catch (\Exception $e) {
+            // ✅ Handle exceptions gracefully
+            \Log::error('Stripe payment session creation failed: ' . $e->getMessage());
+            return redirect()->back()->withErrors($e->getMessage());
+        }
     }
 }

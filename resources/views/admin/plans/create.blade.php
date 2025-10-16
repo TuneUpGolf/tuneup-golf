@@ -61,7 +61,7 @@
                         @endif
 
                         <div class="form-group mt-3">
-                            {{ Form::label('lesson_limit', __('Lesson Limit'), ['class' => 'form-label d-block']) }}
+                            {{ Form::label('lesson_limit', __('Online Lesson Limit'), ['class' => 'form-label d-block']) }}
 
                             @php
                                 // Generate lesson limits: 1 to 10, plus "Unlimited"
@@ -70,16 +70,16 @@
                                     ->toArray();
 
                                 // Add "Unlimited" option (-1)
-                                $lessonLimits[-1] = 'Unlimited lessons/month';
+                                $lessonLimits[-1] = 'Unlimited Online Lessons Per Month';
                             @endphp
 
-                        
-                                {!! Form::select('lesson_limit', $lessonLimits, old('lesson_limit'), [
-                                    'class' => 'form-select',
-                                    'placeholder' => 'Select lesson limit',
-                                    'id' => 'lesson_limit',
-                                ]) !!}
-                           
+
+                            {!! Form::select('lesson_limit', $lessonLimits, old('lesson_limit'), [
+                                'class' => 'form-select',
+                                'placeholder' => 'Select lesson limit',
+                                'id' => 'lesson_limit',
+                            ]) !!}
+
 
                         </div>
 

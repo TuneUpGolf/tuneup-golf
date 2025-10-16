@@ -116,12 +116,12 @@
 
 
         {{-- <div class="text-gray-500 text-md description font-medium ctm-min-h"> --}}
-            @if (!empty($short_description))
-                <div class="hidden short-text text-gray-600">
-                    {!! $short_description !!}
-                </div>
-            @endif
-            {{-- <div title="{{ strip_tags($description) }}" class="short-text text-gray-600"
+        @if (!empty($short_description))
+            <div class="hidden short-text text-gray-600">
+                {!! $short_description !!}
+            </div>
+        @endif
+        {{-- <div title="{{ strip_tags($description) }}" class="short-text text-gray-600"
                 style="
                                                 font-size: 15px;
                                                 display: -webkit-box;
@@ -131,7 +131,7 @@
                                                 text-overflow: ellipsis; ">
                 {!! $description !!}
             </div> --}}
-            {{--  @if (!empty($description) && strlen(strip_tags($description)) >= 40)
+        {{--  @if (!empty($description) && strlen(strip_tags($description)) >= 40)
                 <div class="hidden full-text text-gray-600"
                     style="font-size: 15px; max-height: auto; overflow-y: auto;">
                     {!! $cleanDescription !!}
@@ -150,14 +150,13 @@
             @endif  --}}
 
             {{-- @if (!empty($long_description)) --}}
-                <div class="hidden long-text text-gray-600"
-                    style="font-size: 15px; max-height: 100px; overflow-y: auto;">
-                    {!! $long_description !!}
-                </div>
-                <a href="javascript:void(0)" data-long_description="{{ e($long_description) }}"
-                    class="text-blue-600 font-medium mt-1 inline-block viewDescription" tabindex="0">
-                    View Description
-                </a>
+            <div class="hidden long-text text-gray-600" style="font-size: 15px; max-height: 100px; overflow-y: auto;">
+                {!! $long_description !!}
+            </div>
+            <a href="javascript:void(0)" data-long_description="{{ e($long_description) }}"
+                class="text-blue-600 font-medium mt-1 inline-block viewDescription" tabindex="0">
+                View Description
+            </a>
             {{-- @endif --}}
 
         </div>
@@ -201,7 +200,7 @@
     <div class="w-100 px-3">
         @if ($model->type === 'online')
             {!! Form::open([
-                'route' => ['purchase.store', ['lesson_id' => $model->id]],
+                'route' => ['purchase.payment', ['lesson_id' => $model->id]],
                 'method' => 'Post',
                 'enctype' => 'multipart/form-data',
                 'class' => 'form-horizontal',
@@ -303,7 +302,7 @@
 @push('javascript')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-      $(document).on('click', '.viewDescription', function() {
+        $(document).on('click', '.viewDescription', function() {
             const parent = $(this).closest('.description-wrapper');
             const shortDesc = parent.closest('.w-full').find('.short-text').html() || '';
             const longDesc = parent.find('.long-text').html() || '';
