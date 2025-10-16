@@ -64,7 +64,7 @@
                         @endif
 
                         <div class="form-group mt-3">
-                            {{ Form::label('lesson_limit', __('Lesson Limit'), ['class' => 'form-label d-block']) }}
+                            {{ Form::label('lesson_limit', __('Online Lesson Limit'), ['class' => 'form-label d-block']) }}
 
                             @php
                                 // Build lesson limit options: 1–10 + Unlimited
@@ -72,7 +72,7 @@
                                     ->mapWithKeys(fn($num) => [$num => "{$num} lessons/month"])
                                     ->toArray();
 
-                                $lessonLimits[-1] = 'Unlimited lessons/month';
+                                $lessonLimits[-1] = 'Unlimited Online Lessons Per Month';
 
                                 // Preserve old value or model value (default to 3)
                                 $selectedLessonLimit = old('lesson_limit', $model->lesson_limit ?? 3);
