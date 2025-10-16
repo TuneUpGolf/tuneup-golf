@@ -92,20 +92,27 @@ class HomeController extends Controller
             //     ->instructors()
             //     ->get()
             //     ->filter(fn($instructor) => $instructor->lessons->isNotEmpty());
-            $inPerson_instructors = User::with('lessons')
+            $inPerson_instructors = User::with(['lessons' => function ($q) {
+                $q->whereIn('type', ['inPerson', 'package'])
+                    ->orderBy('column_order', 'asc');
+            }])
                 ->instructors()
                 ->whereHas('lessons', function ($q) {
-                    $q->where('type', 'inPerson')
-                        ->orWhere('type', 'package');
+                    $q->whereIn('type', ['inPerson', 'package']);
                 })
                 ->get();
 
-            $online_instructors = User::with('lessons')
+            $online_instructors = User::with(['lessons' => function ($q) {
+                $q->where('type', 'online')
+                    ->orderBy('column_order', 'asc');
+            }])
                 ->instructors()
                 ->whereHas('lessons', function ($q) {
                     $q->where('type', 'online');
                 })
                 ->get();
+
+
 
 
 

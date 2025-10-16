@@ -26,7 +26,7 @@ class LessonDataTable extends DataTable
             ->editColumn('type', function (Lesson $lesson) {
                 $s = Lesson::TYPE_MAPPING[$lesson->type] ?? ucfirst($lesson->type);
 
-                if ($lesson->type == Lesson::LESSON_TYPE_INPERSON )
+                if ($lesson->type == Lesson::LESSON_TYPE_INPERSON)
                     // $s .= ' - PL';
                     return '<label class="badge rounded-pill bg-cyan-600 p-2 px-3">' . 'Pre-sets Date Lesson' . '</label>';
 
@@ -60,9 +60,9 @@ class LessonDataTable extends DataTable
     public function html()
     {
         $buttons = [
-        //     ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
-        //         window.location = '" . route('lesson.create', ["type" => 'online']) . "';
-        //    }"],
+            //     ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
+            //         window.location = '" . route('lesson.create', ["type" => 'online']) . "';
+            //    }"],
             ['extend' => 'create', 'text' => '<i class="fa fa-calendar"  aria-hidden="true"></i>&nbsp;Set Availability', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
                 window.location = '" . route('slot.create') . "';
            }"],

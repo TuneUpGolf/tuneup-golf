@@ -10,7 +10,21 @@
             <div class="card">
                 <div class="card-body table-border-style">
                     <div class="table-responsive">
-                        {{ $dataTable->table(['width' => '100%']) }}
+                        <table class="table table-bordered data-table w-100">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Created At</th>
+                                    <th>Type</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -19,23 +33,183 @@
 @endsection
 @push('css')
     @include('layouts.includes.datatable_css')
+    <link rel="stylesheet" href="https://cdn.datatables.net/rowreorder/1.4.1/css/rowReorder.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
     <style>
         @media (max-width: 768px) {
             .card-body {
                 max-height: 100%;
             }
         }
+
+        .drag-handle {
+            cursor: grab;
+            font-size: 18px;
+            color: #6c757d;
+            user-select: none;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+            color: #000;
+            transform: scale(1.2);
+        }
+
+        tbody tr {
+            transition: transform 0.25s ease, background-color 0.25s ease;
+        }
+
+        tbody tr.dt-rowReorder-moving {
+            background-color: #f1f3f5 !important;
+        }
     </style>
 @endpush
 @push('javascript')
     @include('layouts.includes.datatable_js')
-    {{ $dataTable->scripts() }}
+    <!-- ✅ DataTables Extensions (latest compatible versions) -->
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+
+    <!-- ✅ Export dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+    <script src="https://cdn.datatables.net/rowreorder/1.4.1/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             var html =
                 $('.dataTable-title').html(
                     "<div class='flex justify-start items-center'><div class='custom-table-header'></div><span class='font-medium text-2xl pl-4'>All Lessons</span></div>"
                 );
+        });
+
+        $(function() {
+            let createUrl = "{{ route('slot.create') }}";
+            let table = $('.data-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('lesson.index') }}",
+                columns: [{
+                        data: null,
+                        className: 'reorder-handle',
+                        orderable: false,
+                        searchable: false,
+                        render: () => '<span class="drag-handle">⋮⋮</span>'
+                    },
+                    {
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'lesson_name',
+                        name: 'lesson_name'
+                    },
+                    {
+                        data: 'lesson_price',
+                        name: 'lesson_price'
+                    },
+                    {
+                        data: 'lesson_quantity',
+                        name: 'lesson_quantity'
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at',
+                        orderable: false
+                    },
+                    {
+                        data: 'type',
+                        name: 'type'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
+                ],
+                rowReorder: {
+                    selector: 'td.reorder-handle',
+                    update: false // disable automatic reordering on the client
+                },
+                responsive: true,
+                order: [
+                    [1, 'asc']
+                ],
+                dom: "<'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>" +
+                    "<'dataTable-botton table-btn col-lg-6 col-sm-12'B>" +
+                    "<'dataTable-search tb-search col-lg-3 col-sm-12'f>>" +
+                    "<'dataTable-container'<'col-sm-12'tr>>" +
+                    "<'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l><'col-sm-7'p>>",
+                buttons: [{
+                    text: '<i class="fa fa-calendar" aria-hidden="true"></i> Set Availability',
+                    className: 'btn btn-light-primary no-corner me-1 add_module',
+                    action: function() {
+                        window.location.href = createUrl;
+                    }
+                }],
+                initComplete: function() {
+                    var table = this;
+                    var tableContainer = $(table.api().table().container());
+
+                    // Customize search input
+                    var searchInput = $('#' + table.api().table().container().id +
+                        ' label input[type="search"]');
+                    searchInput.removeClass('form-control form-control-sm').addClass('dataTable-input');
+
+                    // Customize length selector
+                    $(table.api().table().container()).find(".dataTables_length select")
+                        .removeClass('custom-select custom-select-sm form-control form-control-sm')
+                        .addClass('dataTable-selector');
+
+                    // Custom table title
+                    tableContainer.find(".dataTable-title").html(
+                        $("<div>").addClass("flex justify-start items-center").append(
+                            $("<div>").addClass("custom-table-header"),
+                            $("<span>").addClass("font-medium text-2xl pl-4").text("All Lessons")
+                        )
+                    );
+                }
+            });
+            // Smooth reorder handler
+            $(".dt-buttons").removeClass("btn-group flex-wrap");
+            table.on('row-reorder', function(e, diff, edit) {
+                if (diff.length === 0) return;
+
+                let order = [];
+                diff.forEach(function(move) {
+                    let rowData = table.row(move.node).data();
+                    order.push({
+                        id: rowData.id,
+                        position: move.newPosition + 1
+                    });
+                });
+
+                $.ajax({
+                    url: "{{ route('lesson.reorder') }}",
+                    method: "POST",
+                    data: {
+                        order: order,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function() {
+                        table.ajax.reload(null, false);
+                    },
+                    error: function(err) {
+                        console.error('Reorder failed:', err);
+                    }
+                });
+            });
         });
     </script>
 @endpush

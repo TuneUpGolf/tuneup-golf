@@ -265,7 +265,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     public function lessons()
     {
-        return $this->hasMany(Lesson::class, 'created_by');
+        return $this->hasMany(Lesson::class, 'created_by')->orderBy('column_order', 'asc');
     }
 
     public function post(): HasMany
@@ -306,10 +306,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function scopeInstructors($query)
     {
         return $query->where('type', 'Instructor')
-                    ->where('tenant_id', auth()->user()->tenant_id);
+            ->where('tenant_id', auth()->user()->tenant_id);
     }
 
-    public function plans(){
+    public function plans()
+    {
         return $this->hasMany(Plan::class, 'instructor_id', 'id');
     }
 }
