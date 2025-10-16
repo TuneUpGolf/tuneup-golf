@@ -21,3 +21,4 @@ yarn-error.log
 nohup.out
 storage
 /storage/logs/laravel.log
+/public/3

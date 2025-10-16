@@ -41,15 +41,85 @@ class LessonController extends Controller
 {
     use PurchaseTrait;
 
-    public function index(LessonDataTable $dataTable)
+
+    public function index(Request $request)
     {
 
         if (Auth::user()->can('manage-lessons')) {
-            return $dataTable->render('admin.lessons.index');
+            if ($request->ajax()) {
+                $model = new Lesson();
+                if (tenant('id') == null) {
+                    $lessons = $model->newQuery()
+                        ->select(['lessons.*', 'domains.domain'])
+                        ->join('domains', 'domains.tenant_id', '=', 'users.tenant_id')
+                        ->where('type', 'Admin')
+                        ->orderBy('column_order', 'asc')
+                        ->get();
+                } elseif (Auth::user()->type == Role::ROLE_ADMIN || Auth::user()->type == Role::ROLE_STUDENT) {
+                    $lessons = $model->newQuery()
+                        ->where('lessons.tenant_id', tenant('id'))
+                        ->where('lessons.active_status', true)
+                        ->orderBy('column_order', 'asc')
+                        ->get();
+                } else {
+                    $lessons = $model->newQuery()
+                        ->where('lessons.active_status', true)
+                        ->where('lessons.created_by', Auth::user()->id)
+                        ->orderBy('column_order', 'asc')
+                        ->get();
+                }
+                return datatables()
+                    ->of($lessons)
+                    ->addIndexColumn()
+                    ->editColumn('created_at', fn($lesson) => UtilityFacades::date_time_format($lesson->created_at))
+                    ->editColumn('lesson_price', fn($lesson) => UtilityFacades::amount_format($lesson->lesson_price))
+                    ->editColumn('created_by', function ($lesson) {
+                        $imageSrc = $lesson?->user?->dp
+                            ? asset('/storage/' . tenant('id') . '/' . $lesson?->user?->dp)
+                            : asset('assets/img/logo/logo.png');
+
+                        return '
+                    <div class="flex justify-start items-center">
+                        <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
+                        <span class="px-2">' . e($lesson->user->name ?? 'Unknown') . '</span>
+                    </div>';
+                    })
+                    ->editColumn('type', function ($lesson) {
+                        $s = Lesson::TYPE_MAPPING[$lesson->type] ?? ucfirst($lesson->type);
+
+                        if ($lesson->type == Lesson::LESSON_TYPE_INPERSON)
+                            // $s .= ' - PL';
+                            return '<label class="badge rounded-pill bg-cyan-600 p-2 px-3">' . 'Pre-sets Date Lesson' . '</label>';
+
+                        if ($lesson->type == Lesson::LESSON_TYPE_ONLINE) {
+                            return '<label class="badge rounded-pill bg-green-600 p-2 px-3">' . $s . '</label>';
+                        }
+                        if ($lesson->type == Lesson::LESSON_TYPE_PACKAGE) {
+                            return '<label class="badge rounded-pill bg-yellow-600 p-2 px-3">' . $s . '</label>';
+                        }
+                        return '<label class="badge rounded-pill bg-yellow-600 p-2 px-3">' . $s . '</label>';
+                    })
+                    ->addColumn('action', fn($lesson) => view('admin.lessons.action', compact('lesson'))->render())
+                    ->rawColumns(['action', 'created_by', 'type'])
+                    ->make(true);
+            }
+            return view('admin.lessons.index');
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
     }
+
+    public function reorder(Request $request)
+    {
+
+        foreach ($request->order as $item) {
+            Lesson::where('id', $item['id'])
+                ->update(['column_order' => $item['position']]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
 
 
 
@@ -222,7 +292,7 @@ class LessonController extends Controller
 
         $lesson->update($validatedData);
 
-         if ($request->hasFile('logo')) {
+        if ($request->hasFile('logo')) {
             $tenant_id = Auth::user()->tenant_id;
             $lesson_id = $lesson->id;
 

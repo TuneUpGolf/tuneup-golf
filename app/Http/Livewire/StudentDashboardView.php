@@ -79,11 +79,11 @@ class StudentDashboardView extends GridView
                         ->orWhereHas('user', function ($q) {
                             $q->where('is_stripe_connected', true);
                         });
-                }),
+                })->orderBy('column_order', 'asc'),
 
             'online' => $query->with(['slots.student', 'slots.lesson', 'user'])
                 ->where('type', Lesson::LESSON_TYPE_ONLINE)
-                ->whereHas('user', fn($q) => $q->where('is_stripe_connected', true)),
+                ->whereHas('user', fn($q) => $q->where('is_stripe_connected', true))->orderBy('column_order', 'asc'),
 
             default => $query->with(['slots.student', 'slots.lesson', 'user']),
         };

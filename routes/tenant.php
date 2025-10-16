@@ -205,6 +205,8 @@ Route::middleware([
         Route::post('/import_students', [StudentController::class, 'importfun'])->name('student.import_students');
 
         Route::resource('lesson', LessonController::class);
+        Route::post('/lesson/reorder', [LessonController::class, 'reorder'])
+            ->name('lesson.reorder');
         Route::get('lesson/manage/slot', [LessonController::class, 'manageSlots'])->name('slot.manage');
         Route::post('lesson/block/slot', [LessonController::class, 'blockSlots'])->name('slot.block.reason');
         Route::post('lesson/block/slot/delete', [LessonController::class, 'deleteBlockSlots'])->name('slot.block.delete');
@@ -723,5 +725,4 @@ Route::group(['middleware' => [
     PreventAccessFromCentralDomains::class,
 ]], function () {
     Route::post('/student/signup', [StudentController::class, 'signup']);
-
 });
