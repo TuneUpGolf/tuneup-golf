@@ -232,7 +232,10 @@ trait PurchaseTrait
             }
 
             $applicationFeeAmount = round(($application_fee_percentage / 100) * $convertedAmount);
-
+            $success_url = route('purchase.checkout', [
+                'lesson_id' => $lesson_id,
+                'user_id' => Auth::id(),
+            ]) . '&session_id={CHECKOUT_SESSION_ID}';
             // Create session first (without success/cancel URL)
             $session = \Stripe\Checkout\Session::create([
                 'line_items' => [[
@@ -251,11 +254,7 @@ trait PurchaseTrait
                 ],
                 'mode' => 'payment',
                 'customer' => Auth::user()?->stripe_cus_id ?? null,
-                'success_url' => route('purchase.store', [
-                    'lesson_id' => $lesson_id,
-                    'user_id' => Auth::id(),
-                    'session_id' => '{CHECKOUT_SESSION_ID}', // ✅ Added here
-                ]),
+                'success_url' => $success_url,
                 'cancel_url' => route('purchase-cancel', [
                     'lesson_id' => $lesson_id,
                     'user_id' => Auth::id(),

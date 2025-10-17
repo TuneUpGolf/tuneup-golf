@@ -1033,6 +1033,7 @@ class PurchaseController extends Controller
             // ✅ Create a Stripe Checkout Session
             $session = $this->createSessionForPaymentNew($request->lesson_id);
 
+
             // ✅ Check if session was successfully created
             if (empty($session) || empty($session->url)) {
                 return redirect()->back()->withErrors('Failed to generate payment link. Please try again.');
