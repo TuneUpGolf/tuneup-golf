@@ -236,7 +236,7 @@
             });
 
             function handleResponsiveColumn(table) {
-                if (window.innerWidth <= 1300) {
+                if (window.innerWidth <= 1352) {
                     // Show responsive icon column
                     $('#icon12').show();
                     table.column(0).visible(true);
