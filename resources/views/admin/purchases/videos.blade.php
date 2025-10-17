@@ -1,103 +1,103 @@
 @extends('layouts.main')
 @section('title', __('Purchase User Details'))
 @section('content')
-    <div class="flex items-start justify-content-between border-b border-gray-400 pb-4 mb-5">
-        {{-- <a href="#"
-        class="rounded-pill px-3 py-2 w-auto bg-primary text-white text-lg font-bold flex itmes-center gap-1 ">
-        <i class="ti ti-brand-hipchat text-2xl"></i>
-        Chat
-    </a> --}}
+    <div class="flex flex-col md:flex-row md:items-start justify-between border-b border-gray-400 pb-4 mb-5">
     </div>
+
     @php
         $purchaseVideo = $purchase->videos->first();
         $purchaseVideo2Url = $purchaseVideo->video_url_2 ?? '';
     @endphp
-    <div class="flex justify-content-between items-start bg-white p-4 rounded-lg">
-        <div class="video-section-col flex gap-4">
-            <div class="video-wrap border-r border-gray-400 pr-4">
-                <video width='320' height='240' controls autoplay="autoplay" loop muted
-                    src="{{ $purchase->videos->first()->video_url }}" class="w-80 h-60 rounded-lg"></video>
-                @if ($purchaseVideo2Url)
-                    <video width='320' height='240' controls autoplay="autoplay" loop muted
-                        src="{{ $purchaseVideo2Url }}" class="w-80 h-60 rounded-lg mt-5"></video>
-                @endif
-                @if (auth()->user()->type == 'Influencer')
-                    <div class="flex gap-1 mt-3">
 
+    <div class="flex flex-col xl:flex-row gap-6 bg-white p-4 rounded-lg">
+        <!-- Video Section -->
+        <div class="flex flex-col lg:flex-row gap-4 w-full xl:w-2/3">
+            <div class="video-wrap lg:pr-4 lg:border-r border-gray-300 flex flex-col items-center lg:items-start">
+                <video controls autoplay loop muted src="{{ $purchase->videos->first()->video_url }}"
+                    class="w-full sm:w-80 md:w-96 lg:w-[28rem] h-auto rounded-lg shadow"></video>
+
+                @if ($purchaseVideo2Url)
+                    <video controls autoplay loop muted src="{{ $purchaseVideo2Url }}"
+                        class="w-full sm:w-80 md:w-96 lg:w-[28rem] h-auto rounded-lg mt-4 shadow"></video>
+                @endif
+
+                @if (auth()->user()->type == 'Influencer')
+                    <div class="flex flex-wrap justify-center lg:justify-start gap-2 mt-4">
                         <a href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}"
-                            class="rounded-pill px-4 py-2 w-auto text-white font-bold flex itmes-center gap-1  btn btn-warning">
-                            <i class="ti ti-notebook text-2xl"></i>
-                            Feedback
+                            class="rounded-full px-4 py-2 text-white font-bold flex items-center gap-1 btn btn-warning text-sm md:text-base">
+                            <i class="ti ti-notebook text-xl"></i> Feedback
                         </a>
+
                         <a href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid . '&videourl=' . $purchase->videos->first()->video_url }}"
-                            class="rounded-pill px-4 py-2 w-auto text-white font-bold flex itmes-center gap-1 btn btn-danger ">
-                            <i class="ti ti-search text-2xl"></i>
-                            Analyze
+                            class="rounded-full px-4 py-2 text-white font-bold flex items-center gap-1 btn btn-danger text-sm md:text-base">
+                            <i class="ti ti-search text-xl"></i> Analyze
                         </a>
                     </div>
                 @endif
             </div>
-            <div>
+
+            <!-- Details Section -->
+            <div class="mt-6 lg:mt-0 w-full lg:w-auto">
                 <ul>
-                    <li class="mb-4">
-                        <p class="text-gray-500">Lesson Name:</p>
-                        <p class="text-xl font-semibold">{{ $purchase->lesson->lesson_name }}</p>
+                    <li class="mb-3">
+                        <p class="text-gray-500 text-sm">Lesson Name:</p>
+                        <p class="text-lg font-semibold break-words">{{ $purchase->lesson->lesson_name }}</p>
                     </li>
-                    <li class="mb-4">
-                        <p class="text-gray-500">Date Submitted</p>
-                        <p class="text-xl font-semibold">{{ $purchase->lesson->created_at }}</p>
+                    <li class="mb-3">
+                        <p class="text-gray-500 text-sm">Date Submitted:</p>
+                        <p class="text-lg font-semibold">{{ $purchase->lesson->created_at }}</p>
                     </li>
-                    <li class="mb-4">
-                        <p class="text-gray-500">Lesson Number:</p>
-                        <p class="text-xl font-semibold">{{ $purchase->lesson->id }}</p>
+                    <li class="mb-3">
+                        <p class="text-gray-500 text-sm">Lesson Number:</p>
+                        <p class="text-lg font-semibold">{{ $purchase->lesson->id }}</p>
                     </li>
-                    <li class="mb-4">
-                        <p class="text-gray-500">Student Name:</p>
-                        <p class="text-xl font-semibold">{{ $purchase->student->name }}</p>
+                    <li class="mb-3">
+                        <p class="text-gray-500 text-sm">Student Name:</p>
+                        <p class="text-lg font-semibold">{{ $purchase->student->name }}</p>
                     </li>
-                    <li class="mb-4">
-                        <p class="text-gray-500">Payment</p>
-                        <p class="text-xl font-semibold">${{ $purchase->lesson->lesson_price }}</p>
+                    <li class="mb-3">
+                        <p class="text-gray-500 text-sm">Payment:</p>
+                        <p class="text-lg font-semibold">${{ $purchase->lesson->lesson_price }}</p>
                     </li>
                     <li>
-                        <p class="text-gray-500">Payment Status</p>
+                        <p class="text-gray-500 text-sm">Payment Status:</p>
                         <div
-                            class="rounded-pill px-4 py-2 w-auto text-white text-md font-bold inline-flex items-center gap-1 btn btn-success ">
-                            <i class="ti ti-check text-2xl"></i>
+                            class="rounded-full px-4 py-1 inline-flex items-center gap-1 bg-green-600 text-white font-semibold text-sm">
+                            <i class="ti ti-check text-lg"></i>
                             <span>{{ $purchase->lesson->payment_method }}</span>
                         </div>
                     </li>
                 </ul>
             </div>
-
         </div>
-        <div class="feedback-sec border border-gray rounded-lg p-3 w-full">
-            <h2 class="font-bold text-3xl mb-3 border-b border-gray-500 mb-3 pb-2">Feedback
-                Provided</h2>
-            <div class="">
-                <p class="text-2xl text-gray-700 font-bold">{{ $purchase->lesson->created_at->format('F j, Y') }}</p>
+
+        <!-- Feedback Section -->
+        <div class="feedback-sec border border-gray-300 rounded-lg p-3 w-full xl:w-1/3 mt-6 xl:mt-0">
+            <h2 class="font-bold text-2xl md:text-3xl mb-3 border-b border-gray-400 pb-2">Feedback Provided</h2>
+            <div>
+                <p class="text-lg text-gray-700 font-bold">{{ $purchase->lesson->created_at->format('F j, Y') }}</p>
                 <p class="text-gray-500">
                     {{ auth()->user()->name == $purchase->student->name ? 'Your Note' : 'Note by ' . $purchase->student->name }}:
                 </p>
-                <p class="text-xl font-semibold">{{ $purchaseVideo->note }}</p>
+                <p class="text-base md:text-lg font-semibold break-words">{{ $purchaseVideo->note }}</p>
 
                 @if ($purchaseVideo->feedback)
                     <br>
-                    <p class="text-gray-500">{{ auth()->user()->type == 'Influencer' ? 'Your feedback' : 'Feedback' }}</p>
-                    <p class="text-xl font-semibold">{{ $purchaseVideo->feedback }}</p>
+                    <p class="text-gray-500">{{ auth()->user()->type == 'Influencer' ? 'Your Feedback' : 'Feedback' }}</p>
+                    <p class="text-base md:text-lg font-semibold break-words">{{ $purchaseVideo->feedback }}</p>
                 @endif
 
-                <div class="flex items-start gap-3 mt-4">
+                <div class="flex flex-wrap items-start gap-3 mt-4">
                     @if ($purVid = $purchase->videos->first())
                         @if ($vid = $purVid->feedbackContent->first())
-                            <img class="w-15 h-10" src="{{ asset('assets/images/video-thumbanail.jpeg') }}" alt="Thumbnail"
+                            <img class="w-32 h-20 object-cover rounded cursor-pointer border border-gray-300"
+                                src="{{ asset('assets/images/video-thumbanail.jpeg') }}" alt="Thumbnail"
                                 id="videoThumbnail">
 
                             <!-- Modal -->
                             <div id="videoModal" class="modal">
                                 <span class="close">&times;</span>
                                 <div class="modal-content">
-
                                     <video id="videoPlayer" controls>
                                         <source src="{{ $vid->url }}" type="video/mp4">
                                         Your browser does not support HTML5 video.
@@ -106,14 +106,15 @@
                             </div>
                         @endif
                     @endif
+
                     @if (auth()->user()->type == 'Influencer')
-                        <div class="flex gap-2">
+                        <div class="flex flex-col sm:flex-row gap-2">
                             <a href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}"
-                                class="btn btn-outline-secondary rounded-pill px-4 py-2 d-flex align-items-center gap-1">
+                                class="btn btn-outline-secondary rounded-full px-4 py-2 flex items-center gap-1 text-sm md:text-base">
                                 @if (trim($purchaseVideo->feedback))
-                                    <i class="ti ti-pencil text-2xl"></i> Edit Feedback
+                                    <i class="ti ti-pencil text-xl"></i> Edit Feedback
                                 @else
-                                    <i class="ti ti-plus text-2xl"></i> Provide Feedback
+                                    <i class="ti ti-plus text-xl"></i> Provide Feedback
                                 @endif
                             </a>
                             @if (trim($purchaseVideo->feedback))
@@ -122,8 +123,8 @@
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit"
-                                        class="btn btn-outline-secondary rounded-pill px-4 py-2 d-flex align-items-center gap-1">
-                                        <i class="ti ti-trash text-2xl"></i> Delete
+                                        class="btn btn-outline-secondary rounded-full px-4 py-2 flex items-center gap-1 text-sm md:text-base">
+                                        <i class="ti ti-trash text-xl"></i> Delete
                                     </button>
                                 </form>
                             @endif
@@ -133,16 +134,11 @@
             </div>
         </div>
     </div>
-
 @endsection
 
 @push('css')
     <style>
-        #videoThumbnail {
-            cursor: pointer;
-
-        }
-
+        /* Mobile modal optimization */
         .modal {
             display: none;
             position: fixed;
@@ -160,18 +156,16 @@
             position: relative;
             margin: auto;
             padding: 0;
-            width: 90%;
-            max-width: 100%;
+            width: 95%;
+            max-width: 700px;
             background-color: #fff;
             border-radius: 10px;
-            max-height: calc(100vh - 200px);
-            overflow: hidden;
         }
 
         .modal-content video {
             width: 100%;
             height: auto;
-            max-height: calc(100vh - 200px);
+            border-radius: 10px;
         }
 
         .close {
@@ -179,19 +173,21 @@
             top: 10px;
             right: 20px;
             color: #fff;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
             cursor: pointer;
             height: 30px;
             width: 30px;
-            border-radius: 100px;
+            border-radius: 50%;
             background-color: #0071ce;
             text-align: center;
-            line-height: 30px;
+            line-height: 28px;
         }
 
-        .close:hover {
-            color: #000;
+        @media (max-width: 768px) {
+            .feedback-sec {
+                margin-top: 2rem;
+            }
         }
     </style>
 @endpush
@@ -203,15 +199,19 @@
         const closeBtn = document.querySelector(".close");
         const video = document.getElementById("videoPlayer");
 
-        thumbnail.onclick = function() {
-            modal.style.display = "block";
-            video.play();
+        if (thumbnail) {
+            thumbnail.onclick = function() {
+                modal.style.display = "block";
+                video.play();
+            }
         }
 
-        closeBtn.onclick = function() {
-            modal.style.display = "none";
-            video.pause();
-            video.currentTime = 0;
+        if (closeBtn) {
+            closeBtn.onclick = function() {
+                modal.style.display = "none";
+                video.pause();
+                video.currentTime = 0;
+            }
         }
 
         window.onclick = function(event) {
