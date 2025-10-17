@@ -4,8 +4,8 @@
     @if (
         $purchase->status !== 'complete' &&
             $purchase->lesson->payment_method != 'cash' &&
-            $user->type == 'Student'
-            && $purchase->lesson->active_status == true &&
+            $user->type == 'Student' &&
+            $purchase->lesson->active_status == true &&
             $purchase->type != 'package')
         @can('create-purchases')
             {!! Form::open([
@@ -15,15 +15,15 @@
                 'id' => 'confirm-form-' . $purchase->id,
             ]) !!}
             {{ Form::button(__('Make Payment'), ['type' => 'submit', 'class' => 'btn btn-sm small btn btn-info action-btn-fix']) }}
-             <i class="ti ti-eye text-white"></i> 
+            <i class="ti ti-eye text-white"></i>
             {{-- </a> --}}
             {!! Form::close() !!}
         @endcan
     @endif
     @if (in_array($user->type, ['Student', 'Instructor']) &&
             ($purchase->status == 'complete' || $purchase->lesson->payment_method == 'cash' || $hasBooking) &&
-            $purchase->lesson->type != 'online'
-            && $purchase->lesson->active_status == true &&
+            $purchase->lesson->type != 'online' &&
+            $purchase->lesson->active_status == true &&
             $purchase->lesson->type != 'inPerson')
         {{--  @if ($purchase->status == 'complete' && ($purchase->type == 'inPerson' || $purchase->type == 'package'))
                  <a href="{{ route('slot.view', ['lesson_id' => $purchase?->lesson_id]) }}" class="btn btn-primary btn-sm">
@@ -109,6 +109,13 @@
         @endcan
     @endif
 
+    @if ($purchase->status == 'complete' && auth()->user()->type == 'Student')
+        <a class="btn btn-sm small btn btn-warning "
+            href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
+            data-bs-placement="bottom" data-bs-original-title="{{ __('View Feedback') }}">
+            <i class="ti ti-eye text-white"></i>
+        </a>
+    @endif
 
 
 
@@ -135,44 +142,46 @@
 </div>
 <script>
     function cancelLesson(lessonId, rowIdx, buttonElement) {
-    // Capture textarea value immediately before opening confirmation (DOM still exists)
-    var textareaSelector = '#lessonNotes-' + rowIdx;
-    var notes = $(textareaSelector).val() || ''; // Capture value now, fallback to empty string
-    
-    console.log('Captured notes before confirmation:', notes); // Debug log
-    
-    Swal.fire({
-        title: 'Are you sure?',
-        text: 'Do you want to cancel this lesson?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, cancel it!',
-        cancelButtonText: 'No, keep it'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Use the pre-captured notes (no DOM query needed)
-            $.ajax({
-                url: "{{ route('slot.update') }}",
-                type: 'POST',
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content'),
-                    unbook: 1,
-                    lessonId: lessonId, // Use lesson_id as slot_id
-                    student_ids: ["{{ auth()->user()->id }}"], // Adjust if you have specific student IDs
-                    redirect: 1,
-                    notes: notes
-                },
-                success: function(response) {
-                    Swal.fire('Success', 'Students unbooked successfully!', 'success');
-                    showPageLoader();
-                    window.location.reload();
-                },
-                error: function(error) {
-                    Swal.fire('Error', 'There was a problem processing the request.', 'error');
-                    console.log('AJAX error:', error);
-                }
-            });
-        }
-    });
-}
+        // Capture textarea value immediately before opening confirmation (DOM still exists)
+        var textareaSelector = '#lessonNotes-' + rowIdx;
+        var notes = $(textareaSelector).val() || ''; // Capture value now, fallback to empty string
+
+        console.log('Captured notes before confirmation:', notes); // Debug log
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to cancel this lesson?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, cancel it!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Use the pre-captured notes (no DOM query needed)
+                $.ajax({
+                    url: "{{ route('slot.update') }}",
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        unbook: 1,
+                        lessonId: lessonId, // Use lesson_id as slot_id
+                        student_ids: [
+                            "{{ auth()->user()->id }}"
+                        ], // Adjust if you have specific student IDs
+                        redirect: 1,
+                        notes: notes
+                    },
+                    success: function(response) {
+                        Swal.fire('Success', 'Students unbooked successfully!', 'success');
+                        showPageLoader();
+                        window.location.reload();
+                    },
+                    error: function(error) {
+                        Swal.fire('Error', 'There was a problem processing the request.', 'error');
+                        console.log('AJAX error:', error);
+                    }
+                });
+            }
+        });
+    }
 </script>

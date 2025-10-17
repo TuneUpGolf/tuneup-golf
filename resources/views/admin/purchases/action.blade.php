@@ -69,7 +69,9 @@
             </a>
         @endcan
     @endif
-    @if (in_array($user->type, ['Student', 'Instructor']) && $purchase->purchase_type !='inPerson' && ($purchaseVideo = $purchase->videos->first()))
+    @if (in_array($user->type, ['Student', 'Instructor']) &&
+            $purchase->purchase_type != 'inPerson' &&
+            ($purchaseVideo = $purchase->videos->first()))
         @can('manage-purchases')
             <a class="btn btn-sm small btn btn-warning action-btn-fix"
                 href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
@@ -78,6 +80,7 @@
             </a>
         @endcan
     @endif
+
     {{-- @if ($purchase->status == 'incomplete' && $user->type == 'Instructor')
     @can('manage-purchases')
         <svg
