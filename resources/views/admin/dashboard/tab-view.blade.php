@@ -306,7 +306,6 @@
                                                                                 $user->plan_expired_date,
                                                                             )->gte(now());
 
-                                                                            dd($hasPlan, $plan->id == $user->plan_id,  $isActive, $user)
                                                                     @endphp
 
                                                                     @if ($isCurrentPlan)
