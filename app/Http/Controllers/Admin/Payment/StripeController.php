@@ -260,10 +260,10 @@ class StripeController extends Controller
             $currency       = tenancy()->central(function ($tenant) {
                 return UtilityFacades::getsettings('currency');
             });
-            $stripe_secret  = tenancy()->central(function ($tenant) {
-                return UtilityFacades::getsettings('stripe_secret');
-            });
-            Stripe::setApiKey($stripe_secret);
+            // $stripe_secret  = tenancy()->central(function ($tenant) {
+
+            // });
+            Stripe::setApiKey(config('services.stripe.secret'));
         }
 
         if (!empty($request->createCheckoutSession)) {
@@ -536,6 +536,7 @@ class StripeController extends Controller
 
             // User plan_id/subscription update
             $user->plan_id = $plan->id;
+            $user->save();
 
             if ($plan->durationtype == 'Month' && $plan->id != '1') {
                 $planExpiredDate = Carbon::now()->addMonths($plan->duration)->isoFormat('YYYY-MM-DD');

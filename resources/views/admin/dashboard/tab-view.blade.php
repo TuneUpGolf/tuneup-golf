@@ -295,6 +295,7 @@
                                                                     @endif --}}
 
                                                                     @php
+                                                                    
                                                                         $hasPlan = !is_null($user->plan_id);
                                                                         $isCurrentPlan =
                                                                             $hasPlan && $plan->id == $user->plan_id;
@@ -304,6 +305,8 @@
                                                                             Carbon::parse(
                                                                                 $user->plan_expired_date,
                                                                             )->gte(now());
+
+                                                                            dd($hasPlan, $plan->id == $user->plan_id,  $isActive, $user)
                                                                     @endphp
 
                                                                     @if ($isCurrentPlan)
