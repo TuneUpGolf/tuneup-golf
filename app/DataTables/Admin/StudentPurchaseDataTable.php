@@ -47,8 +47,8 @@ class StudentPurchaseDataTable extends DataTable
             })
             ->editColumn('lesson_name', function ($purchase) {
                 $lessonName           = e($purchase->lesson_name);
-                $truncatedLessonName  = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
-
+                // $truncatedLessonName  = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
+                $truncatedLessonName = $lessonName;
                 $lesson_type = $purchase->lesson->type ?? null;
 
                 $url = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? route('purchase.feedback.index', ['purchase_id' => $purchase->id]) :
