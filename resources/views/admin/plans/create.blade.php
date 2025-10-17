@@ -64,8 +64,9 @@
                             {{ Form::label('lesson_limit', __('Online Lesson Limit'), ['class' => 'form-label d-block']) }}
 
                             @php
+                                $lessonLimits[0] = 'Select lesson limit';
                                 // Generate lesson limits: 1 to 10, plus "Unlimited"
-                                $lessonLimits = collect(range(0, 10))
+                                $lessonLimits = collect(range(1, 10))
                                     ->mapWithKeys(fn($num) => [$num => "{$num} lessons/month"])
                                     ->toArray();
 
