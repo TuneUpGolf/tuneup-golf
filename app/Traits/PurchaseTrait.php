@@ -219,7 +219,7 @@ trait PurchaseTrait
 
             Stripe::setApiKey(config('services.stripe.secret'));
 
-            $accountId = 'acct_1SDNwrBNeIabNzZq';
+            $accountId = $instructor?->stripe_account_id;
             $account = Account::retrieve($accountId);
             $instructorCurrency = $account?->default_currency ?? 'usd';
             $convertedAmount = $lesson?->lesson_price * 100;
