@@ -536,7 +536,7 @@ class StripeController extends Controller
 
             // User plan_id/subscription update
             $user->plan_id = $plan->id;
-            $user->save();
+            // $user->save();
 
             if ($plan->durationtype == 'Month' && $plan->id != '1') {
                 $planExpiredDate = Carbon::now()->addMonths($plan->duration)->isoFormat('YYYY-MM-DD');
@@ -548,6 +548,7 @@ class StripeController extends Controller
                 $user->plan_expired_date = null;
             }
 
+            $user->save();
 
             if ($plan->is_chat_enabled) {
                 $this->chatService->updateUser($user->chat_user_id, 'plan_expired_date', $planExpiredDate, $user->email);
