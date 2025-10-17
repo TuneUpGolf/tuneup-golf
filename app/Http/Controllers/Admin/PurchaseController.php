@@ -365,17 +365,23 @@ class PurchaseController extends Controller
                         $file = $request->file('video');
 
                         if (Str::endsWith($file->getClientOriginalName(), '.mov')) {
-                            $localPath = $request->file('video')->store('purchaseVideos');
+                            $localPath = $file->store('purchaseVideos');
                             $path = $this->convertSingleVideo($localPath);
                         } else {
-                            // Digital Ocean space storage
-                            $file           = $request->file('video');
-
-                            $extension      = $file->getClientOriginalExtension();
+                            $extension = $file->getClientOriginalExtension();
                             $randomFileName = Str::random(25) . '.' . $extension;
-                            $filePath       = $currentDomain . '/' . $purchase->lesson_id . '/' . $purchase->follower_id . '/' . $randomFileName;
-                            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
 
+                            // 🧠 Safely build non-empty path parts
+                            $pathParts = array_filter([
+                                $currentDomain,
+                                $purchase->lesson_id,
+                                $purchase->follower_id,
+                                $randomFileName,
+                            ]);
+
+                            $filePath = implode('/', $pathParts);
+
+                            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
                             $path = Storage::disk('spaces')->url($filePath);
                         }
 
@@ -383,23 +389,34 @@ class PurchaseController extends Controller
                         $purchase_video->save();
                     }
 
+
                     if ($request?->hasFile('video_2')) {
                         $file2 = $request->file('video_2');
+
                         if (Str::endsWith($file2->getClientOriginalName(), '.mov')) {
-                            $localPath = $request->file('video_2')->store('purchaseVideos');
+                            $localPath = $file2->store('purchaseVideos');
                             $path = $this->convertSingleVideo($localPath);
                         } else {
-                            // Digital Ocean space storage
                             $extension = $file2->getClientOriginalExtension();
                             $randomFileName = Str::random(25) . '.' . $extension;
-                            // $filePath = Auth::user()->tenant_id . '/purchaseVideos/' . $randomFileName;
-                            $filePath = $currentDomain . '/' . $purchase->lesson_id . '/' . $purchase->student_id . '/' . $randomFileName;
+
+                            $pathParts = array_filter([
+                                $currentDomain,
+                                $purchase->lesson_id,
+                                $purchase->student_id,
+                                $randomFileName,
+                            ]);
+
+                            $filePath = implode('/', $pathParts);
+
                             Storage::disk('spaces')->put($filePath, file_get_contents($file2), 'public');
                             $path = Storage::disk('spaces')->url($filePath);
                         }
+
                         $purchase_video->video_url_2 = $path;
                         $purchase_video->save();
                     }
+
 
                     $purchase->lessons_used = $purchase->lessons_used + 1;
                     if ($purchase->lesson_used == $purchase?->lesson->lesson_quantity) {
