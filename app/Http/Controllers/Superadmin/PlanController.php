@@ -60,6 +60,7 @@ class PlanController extends Controller
                 // 'max_blogs'     => 'required',
                 'description'   => 'max:100',
             ]);
+            
             $paymentTypes = UtilityFacades::getpaymenttypes();
             if (!$paymentTypes) {
                 return redirect()->route('plans.index')->with('errors', __('Please on at list one payment type.'));

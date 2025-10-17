@@ -187,7 +187,7 @@ class StripeWebhookController extends Controller
                     if ($instructorSub) {
 
                         InstructorSubscriptionDetail::create([
-                            'Instructor_subscription_id' => $instructorSub->id,
+                            'instructor_subscription_id' => $instructorSub->id,
                             'invoice_id' => $invoiceId,
                             'payment_intent_id' => $paymentIntentId,
                         ]);
