@@ -459,3 +459,4 @@ Route::post('/request/submit', function () {
 Route::resource('super-admin-instructors', SuperAdminInstructorController::class);
 Route::get('/our-instructors', [SuperAdminInstructorController::class, 'frontendIndex'])
     ->name('frontend.instructors.index');
+Route::get('purchase/checkout', [PurchaseController::class, 'store'])->name('purchase.checkout');
