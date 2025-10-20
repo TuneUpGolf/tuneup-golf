@@ -101,16 +101,16 @@ class PlanController extends Controller
             $instructorId = Auth::user()->type === Role::ROLE_INSTRUCTOR ? Auth::user()->id : null;
             $tenantId     = Auth::user()->type === Role::ROLE_INSTRUCTOR ? tenant()->id : null;
 
-            if ($instructorId) {
-                $exists = Plan::where('instructor_id', $instructorId)
-                    ->where('is_chat_enabled', $request->chat == '1' ? 1 : 0)
-                    ->where('is_feed_enabled', $request->feed == '1' ? 1 : 0)
-                    ->exists();
+            // if ($instructorId) {
+            //     $exists = Plan::where('instructor_id', $instructorId)
+            //         ->where('is_chat_enabled', $request->chat == '1' ? 1 : 0)
+            //         ->where('is_feed_enabled', $request->feed == '1' ? 1 : 0)
+            //         ->exists();
 
-                if ($exists) {
-                    return redirect()->route('plans.myplan')->with('failed', __('You already have a plan with the same chat and feed settings.'));
-                }
-            }
+            //     if ($exists) {
+            //         return redirect()->route('plans.myplan')->with('failed', __('You already have a plan with the same chat and feed settings.'));
+            //     }
+            // }
 
             $instructor = $instructorId ? User::find($instructorId) : null;
 
