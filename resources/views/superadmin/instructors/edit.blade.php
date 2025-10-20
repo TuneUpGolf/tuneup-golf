@@ -92,7 +92,7 @@
 
 
                         <div class="form-group">
-                            {{ Form::label('subscription_plan_id', __('Subscriptons'), ['class' => 'form-label']) }}
+                            {{ Form::label('subscription_plan_id', __('Subscriptions'), ['class' => 'form-label']) }}
                             <select class="form-control form-control-inline-block" data-trigger name="subscription_plan_id"
                                 id="subscription_plan_id">
                                 <option value="">{{ __('Select Plan') }}</option>
