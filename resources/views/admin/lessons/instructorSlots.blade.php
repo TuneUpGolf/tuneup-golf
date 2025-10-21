@@ -114,6 +114,30 @@
         .fc-event:not([href]) {
             padding: 0 !important;
         }
+
+         .fc-event.event-free {
+            background-color: #007BFF !important;
+            border-color: #007BFF !important;
+            color: #fff !important;
+        }
+        /* Booked slots (yellow) */
+        .fc-event.event-booked {
+            background-color: #C5B706 !important;
+            border-color: #C5B706 !important;
+            color: #000 !important;
+        }
+        /* Completed slots (green) */
+        .fc-event.event-completed {
+            background-color: #28A745 !important;
+            border-color: #28A745 !important;
+            color: #fff !important;
+        }
+        /* Blocked slots (red) */
+        .fc-event.event-blocked {
+            background-color: #FF3D41 !important;
+            border-color: #FF3D41 !important;
+            color: #fff !important;
+        }
     </style>
     <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.min.css">
@@ -142,7 +166,13 @@
                 slotMinTime: '00:00:00',
                 slotMaxTime: '23:59:00',
                 events: [
-                    ...@json($events), // ✅ your normal events
+                    ...@json($events).map(event => ({
+                        ...event,
+                        className: event.is_completed ?
+                            'event-completed' : (event.is_student_assigned ?
+                                'event-booked' :
+                                'event-free')
+                    })), // :white_check_mark: your normal event
                     ...(blockSlots || []).map(slot => ({
                         title: "Blocked", // only label as Blocked
                         start: slot.start_time,
@@ -156,125 +186,81 @@
                     }))
                 ],
 
-                select: function(info) {
+            select: function(info) {
                     // info.startStr and info.endStr give ISO time range
 
-                    let isBlocked = (blockSlots || []).some(slot => {
-                        let blockStart = new Date(slot.start_time);
-                        let blockEnd = new Date(slot.end_time);
-                        return (
-                            (info.start >= blockStart && info.start < blockEnd) ||
-                            (info.end > blockStart && info.end <= blockEnd)
-                        );
-                    });
+                let isBlocked = (blockSlots || []).some(slot => {
+                    let blockStart = new Date(slot.start_time);
+                    let blockEnd = new Date(slot.end_time);
+                    return (
+                        (info.start >= blockStart && info.start < blockEnd) ||
+                        (info.end > blockStart && info.end <= blockEnd)
+                    );
+                });
 
-                    if (isBlocked) {
-                        Swal.fire("Blocked", "This time is blocked and cannot be booked.", "warning");
-                        return;
-                    }
+                if (isBlocked) {
+                    Swal.fire("Blocked", "This time is blocked and cannot be booked.", "warning");
+                    return;
+                }
 
-                    function formatDate(d) {
-                        return d.getFullYear() + "-" +
-                            String(d.getMonth() + 1).padStart(2, "0") + "-" +
-                            String(d.getDate()).padStart(2, "0") + " " +
-                            String(d.getHours()).padStart(2, "0") + ":" +
-                            String(d.getMinutes()).padStart(2, "0") + ":" +
-                            String(d.getSeconds()).padStart(2, "0");
-                    }
+                function formatDate(d) {
+                    return d.getFullYear() + "-" +
+                        String(d.getMonth() + 1).padStart(2, "0") + "-" +
+                        String(d.getDate()).padStart(2, "0") + " " +
+                        String(d.getHours()).padStart(2, "0") + ":" +
+                        String(d.getMinutes()).padStart(2, "0") + ":" +
+                        String(d.getSeconds()).padStart(2, "0");
+                }
 
-                    const startFormatted = formatDate(info.start);
-                    const endFormatted = formatDate(info.end);
+                const startFormatted = formatDate(info.start);
+                const endFormatted = formatDate(info.end);
 
-                    // Use startFormatted & endFormatted instead of info.startStr/info.endStr
-                    const startTime = new Date(info.start).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                    const endTime = new Date(info.end).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                    const timeRange = `${startTime} - ${endTime}`;
+                // Use startFormatted & endFormatted instead of info.startStr/info.endStr
+                const startTime = new Date(info.start).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const endTime = new Date(info.end).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const timeRange = `${startTime} - ${endTime}`;
 
-                    Swal.fire({
-                        title: "Add Personal Event",
-                        html: `
-                            <div style="text-align:left;">
-                                <label><strong> Start Time:</strong></label>
-                                <input type="text" id="selectedTime" class="form-control mb-3" value="${startTime}" readonly>
-                                <label><strong> End Time:</strong></label>
-                                <input type="time" id="selectedendTime" class="form-control mb-3" value="" >
-                                <label><strong>Event Description:</strong></label>
-                                <textarea id="reason" class="form-control" placeholder="Enter event description here..." rows="4"></textarea>
+                // First show the options popup
+                Swal.fire({
+                    title: "Select Action",
+                    html: `
+                        <div style="text-align:center;">
+                            <p><strong>Selected Time:</strong> ${startTime} - ${endTime}</p>
+                            <div class="d-flex flex-column gap-2 mt-3">
+                                <button id="scheduleLesson" class="btn btn-primary btn-block">Schedule Lesson</button>
+                                <button id="setAvailability" class="btn btn-success btn-block">Set Availability</button>
+                                <button id="addPersonalEvent" class="btn btn-info btn-block">Add Personal Event</button>
                             </div>
-                        `,
-                        showCancelButton: true,
-                        confirmButtonText: "Save",
-                        cancelButtonText: "Cancel",
-                        preConfirm: () => {
-                            const reason = document.getElementById('reason').value;
-                            const selectedEndTime = document.getElementById(
-                                'selectedendTime').value;
-                            if (!reason) {
-                                Swal.showValidationMessage(
-                                    "Please enter a reason before saving.");
-                            }
-                            let end = endFormatted;
-                            if (selectedEndTime) {
-                                // Use the selected end time with the same date as info.end
-                                const endDate = new Date(info.end);
-                                const [h, m] = selectedEndTime.split(':');
-                                endDate.setHours(h, m, 0, 0);
-                                end = formatDate(endDate);
-                            }
-                            return {
-                                reason,
-                                start: startFormatted,
-                                end: end
-                            };
-                        }
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $.ajax({
-                                url: "{{ route('slot.block.reason') }}",
-                                type: "POST",
-                                data: {
-                                    _token: $('meta[name="csrf-token"]').attr(
-                                        'content'),
-                                    reason: result.value.reason,
-                                    start_time: result.value.start,
-                                    end_time: result.value.end
-                                },
-                                success: function(response) {
-                                    Swal.fire("Success",
-                                        "Reason saved successfully!", "success");
-                                    blockSlots.push({
-                                        id: response.id,
-                                        start_time: result.value.start,
-                                        end_time: result.value.end,
-                                        description: result.value.reason
-                                    });
-                                    calendar.addEvent({
-                                        id: response.id,
-                                        title: "Blocked",
-                                        start: result.value.start,
-                                        end: result.value.end,
-                                        color: '#ff3d41',
-                                        extendedProps: {
-                                            isBlocked: true,
-                                            description: result.value.reason
-                                        }
-                                    });
-                                },
-                                error: function() {
-                                    Swal.fire("Error",
-                                        "Something went wrong while saving.",
-                                        "error");
-                                }
-                            });
-                        }
-                    });
-                },
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    showCancelButton: true,
+                    cancelButtonText: "Cancel",
+                    didOpen: () => {
+                        // Add event listeners to the buttons
+                        document.getElementById('scheduleLesson').addEventListener('click', function() {
+                            Swal.close();
+                            scheduleLesson(startFormatted, endFormatted, startTime, endTime);
+                        });
+
+                        document.getElementById('setAvailability').addEventListener('click', function() {
+                            Swal.close();
+                            setAvailability(startFormatted, endFormatted, startTime, endTime);
+                        });
+
+                        document.getElementById('addPersonalEvent').addEventListener('click', function() {
+                            Swal.close();
+                            addPersonalEvent(startFormatted, endFormatted, startTime, endTime, info);
+                        });
+                    }
+                });
+            },
                 eventDidMount: function(info) {
                     const isBlocked = info.event.extendedProps?.isBlocked;
                     const titleContainer = info.el.querySelector(".fc-event-time");
@@ -432,9 +418,9 @@
                     //             Swal.fire({
                     //                 title: "Confirm Slot Completion",
                     //                 html: `
-                //     <p style="text-align: left;">Are you sure you want to complete this lesson slot?</p>
-                //     ${bookedStudentsHtml}
-                // `,
+                    //     <p style="text-align: left;">Are you sure you want to complete this lesson slot?</p>
+                    //     ${bookedStudentsHtml}
+                    // `,
                     //                 icon: "warning",
                     //                 showCancelButton: true,
                     //                 confirmButtonText: "Confirm",
@@ -668,7 +654,466 @@
                     calendar.changeView('timeGridWeek'); // Ensure week view
                 }
             });
+
+            function addPersonalEvent(startFormatted, endFormatted, startTime, endTime, info) {
+                Swal.fire({
+                    title: "Add Personal Event",
+                    html: `
+                        <div style="text-align:left;">
+                            <label><strong>Start Time:</strong></label>
+                            <input type="text" id="selectedTime" class="form-control mb-3" value="${startTime}" readonly>
+                            <label><strong>End Time:</strong></label>
+                            <input type="time" id="selectedendTime" class="form-control mb-3" value="">
+                            <label><strong>Event Description:</strong></label>
+                            <textarea id="reason" class="form-control" placeholder="Enter event description here..." rows="4"></textarea>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: "Save",
+                    cancelButtonText: "Cancel",
+                    preConfirm: () => {
+                        const reason = document.getElementById('reason').value;
+                        const selectedEndTime = document.getElementById('selectedendTime').value;
+                        if (!reason) {
+                            Swal.showValidationMessage("Please enter a reason before saving.");
+                            return false;
+                        }
+                        let end = endFormatted;
+                        if (selectedEndTime) {
+                            const endDate = new Date(info.end);
+                            const [h, m] = selectedEndTime.split(':');
+                            endDate.setHours(h, m, 0, 0);
+                            end = formatDate(endDate);
+                        }
+                        return {
+                            reason,
+                            start: startFormatted,
+                            end: end
+                        };
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // JUST CLOSE THE DIALOG AND SAVE - NO LOADING INDICATOR
+                        Swal.close();
+                        
+                        $.ajax({
+                            url: "{{ route('slot.block.reason') }}",
+                            type: "POST",
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content'),
+                                reason: result.value.reason,
+                                start_time: result.value.start,
+                                end_time: result.value.end
+                            },
+                            success: function(response) {
+                                // Add to calendar silently
+                                Swal.fire("Success", "Reason saved successfully", 'success');
+                                blockSlots.push({
+                                    id: response.id,
+                                    start_time: result.value.start,
+                                    end_time: result.value.end,
+                                    description: result.value.reason
+                                });
+                                calendar.addEvent({
+                                    id: response.id,
+                                    title: "Blocked",
+                                    start: result.value.start,
+                                    end: result.value.end,
+                                    color: '#ff3d41',
+                                    extendedProps: {
+                                        isBlocked: true,
+                                        description: result.value.reason
+                                    }
+                                });
+                                
+                                // Optional: Show quick success message
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'success',
+                                    title: 'Event saved!',
+                                    showConfirmButton: false,
+                                    timer: 1000
+                                });
+                            },
+                            error: function(xhr, status, error) {
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Error",
+                                    text: "Save failed. Please try again.",
+                                    confirmButtonText: "OK"
+                                });
+                            }
+                        });
+                    }
+                });
+            }
         });
+
+        // Function to handle Schedule Lesson
+// Function to handle Schedule Lesson
+function scheduleLesson(startFormatted, endFormatted, startTime, endTime) {
+    console.log("Opening Schedule Lesson Modal");
+    
+    // Show loading first
+    // Swal.fire({
+    //     title: 'Loading...',
+    //     text: 'Opening lesson scheduling',
+    //     allowOutsideClick: false,
+    //     showConfirmButton: false,
+    //     didOpen: () => {
+    //         Swal.showLoading();
+    //     }
+    // });
+
+    // Load the modal content via AJAX
+    $.ajax({
+        url: "{{ route('lesson.schedule.modal') }}", // You'll need to create this route
+        type: "GET",
+        data: {
+            start_time: startFormatted,
+            end_time: endFormatted,
+            start_time_display: startTime,
+            end_time_display: endTime
+        },
+        success: function(response) {
+            // Close loading and open modal
+            Swal.close();
+            
+            Swal.fire({
+                title: 'Schedule Lesson',
+                html: response,
+                width: '700px',
+                showCancelButton: true,
+                confirmButtonText: 'Book Lesson',
+                cancelButtonText: 'Cancel',
+                showLoaderOnConfirm: true,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    // Initialize any dynamic functionality
+                    initializeScheduleLessonModal();
+                },
+                preConfirm: () => {
+                    return new Promise((resolve, reject) => {
+                        const form = document.getElementById('scheduleLessonForm');
+                        if (!form) {
+                            reject('Form not found');
+                            return;
+                        }
+                        
+                        const formData = new FormData(form);
+                        
+                        // Add CSRF token
+                        formData.append('_token', '{{ csrf_token() }}');
+                        
+                        // Submit via AJAX
+                        $.ajax({
+                            url: "{{ route('lesson.schedule') }}", // You'll need to create this route
+                            type: "POST",
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                resolve(response);
+                            },
+                            error: function(xhr) {
+                                let errorMessage = 'Something went wrong while scheduling the lesson!';
+                                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                                    errorMessage = Object.values(xhr.responseJSON.errors).join('<br>');
+                                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                }
+                                reject(errorMessage);
+                            }
+                        });
+                    });
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Lesson scheduled successfully!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Refresh the calendar
+                        showPageLoader();
+                        window.location.reload();
+                    });
+                }
+            });
+        },
+        error: function(xhr, status, error) {
+            Swal.close();
+            console.error('Error loading modal:', error);
+            Swal.fire('Error', 'Could not load schedule lesson form', 'error');
+        }
+    });
+}
+
+// Function to initialize the schedule lesson modal functionality
+function initializeScheduleLessonModal() {
+    // Initialize student multi-select
+    const studentSelect = document.getElementById('student_id');
+    if (studentSelect) {
+        new Choices(studentSelect, {
+            removeItemButton: true,
+            searchEnabled: true,
+            placeholder: true,
+            placeholderValue: 'Select students',
+            shouldSort: false
+        });
+    }
+
+    // Initialize lesson dropdown
+    const lessonSelect = document.getElementById('lesson_id');
+    if (lessonSelect) {
+        new Choices(lessonSelect, {
+            searchEnabled: true,
+            shouldSort: false
+        });
+    }
+
+    // Handle lesson type change for multi-student functionality
+    const lessonTypeSelect = document.getElementById('lesson_type');
+    if (lessonTypeSelect) {
+        lessonTypeSelect.addEventListener('change', function() {
+            toggleMultiStudentField(this.value);
+        });
+    }
+
+    // Add student functionality
+    const addStudentBtn = document.getElementById('add-student');
+    if (addStudentBtn) {
+        addStudentBtn.addEventListener('click', addStudentField);
+    }
+
+    // Remove student functionality
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-student')) {
+            e.target.closest('.student-field').remove();
+        }
+    });
+}
+
+// Function to toggle multi-student field based on lesson type
+function toggleMultiStudentField(lessonType) {
+    const multiStudentContainer = document.getElementById('multi-student-container');
+    const studentFields = document.getElementById('student-fields');
+    
+    if (!multiStudentContainer || !studentFields) return;
+
+    // Check if lesson type allows multiple students (you'll need to define this logic)
+    const allowsMultipleStudents = checkIfLessonAllowsMultipleStudents(lessonType);
+    
+    if (allowsMultipleStudents) {
+        multiStudentContainer.style.display = 'block';
+        // Ensure at least one student field exists
+        if (studentFields.children.length === 0) {
+            addStudentField();
+        }
+    } else {
+        multiStudentContainer.style.display = 'none';
+        // Clear all student fields
+        studentFields.innerHTML = '';
+    }
+}
+
+// Function to check if a lesson type allows multiple students
+function checkIfLessonAllowsMultipleStudents(lessonId) {
+    // You'll need to implement this based on your lesson data structure
+    // This could be done by storing lesson data in a JavaScript variable
+    // or making an AJAX call to check the lesson type
+    const multiStudentLessons = []; // Array of lesson IDs that allow multiple students
+    
+    return multiStudentLessons.includes(parseInt(lessonId));
+}
+
+// Function to add a new student field
+function addStudentField() {
+    const studentFields = document.getElementById('student-fields');
+    if (!studentFields) return;
+
+    const studentCount = studentFields.children.length;
+    const newField = document.createElement('div');
+    newField.className = 'student-field row g-2 mb-2';
+    newField.innerHTML = `
+        <div class="col-md-10">
+            <label class="form-label">Student</label>
+            <select name="student_ids[]" class="form-select student-select" required>
+                <option value="">Select Student</option>
+                @foreach ($students as $student)
+                    <option value="{{ $student->id }}">{{ $student->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="button" class="btn btn-danger remove-student" ${studentCount === 0 ? 'disabled' : ''}>
+                Remove
+            </button>
+        </div>
+    `;
+    
+    studentFields.appendChild(newField);
+    
+    // Initialize Choices for the new select
+    const newSelect = newField.querySelector('.student-select');
+    if (newSelect) {
+        new Choices(newSelect, {
+            removeItemButton: true,
+            searchEnabled: true,
+            placeholder: true,
+            placeholderValue: 'Select student',
+            shouldSort: false
+        });
+    }
+    
+    // Enable remove buttons if there's more than one field
+    if (studentFields.children.length > 1) {
+        const removeButtons = studentFields.querySelectorAll('.remove-student');
+        removeButtons.forEach(btn => btn.disabled = false);
+    }
+}
+
+
+///////
+
+    // Function to handle Set Availability in modal
+    function setAvailability(startFormatted, endFormatted, startTime, endTime) {
+        console.log("Opening Set Availability Modal");
+        
+        // Show loading first
+        // Swal.fire({
+        //     title: 'Loading...',
+        //     text: 'Opening availability settings',
+        //     allowOutsideClick: false,
+        //     showConfirmButton: false,
+        //     didOpen: () => {
+        //         Swal.showLoading();
+        //     }
+        // });
+
+        // Load the modal content via AJAX
+        $.ajax({
+            url: "{{ route('slot.availability.modal') }}",
+            type: "GET",
+            success: function(response) {
+                // Close loading and open modal
+                Swal.close();
+                
+                Swal.fire({
+                    title: 'Set Availability',
+                    html: response,
+                    width: '700px',
+                    showCancelButton: true,
+                    confirmButtonText: 'Save Availability',
+                    cancelButtonText: 'Cancel',
+                    showLoaderOnConfirm: true,
+                    didOpen: () => {
+                        // The JavaScript in the modal content will automatically run
+                        console.log('Modal opened successfully');
+                    },
+                    preConfirm: () => {
+                        // Handle form submission
+                        return new Promise((resolve, reject) => {
+                            const form = document.getElementById('availabilityModalForm');
+                            const formData = new FormData(form);
+                            
+                            // Add CSRF token
+                            formData.append('_token', '{{ csrf_token() }}');
+                            
+                            // Submit via AJAX
+                            $.ajax({
+                                url: "{{ route('slot.availability') }}",
+                                type: "POST",
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                success: function(response) {
+                                    resolve();
+                                    // Show success message
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Success!',
+                                        text: 'Availability set successfully!',
+                                        timer: 2000,
+                                        showConfirmButton: false
+                                    });
+                                },
+                                error: function(xhr) {
+                                    let errorMessage = 'Something went wrong while saving!';
+                                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                                        errorMessage = Object.values(xhr.responseJSON.errors).join('<br>');
+                                    }
+                                    reject(errorMessage);
+                                }
+                            });
+                        });
+                    }
+                });
+            },
+            error: function(xhr, status, error) {
+                Swal.close();
+                console.error('Error loading modal:', error);
+                Swal.fire('Error', 'Could not load availability form', 'error');
+            }
+        });
+    }
+
+// Simple loading functions to avoid SweetAlert loading issues
+    function showSimpleLoading() {
+        // Create a simple overlay instead of using SweetAlert
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.id = 'simple-loading-overlay';
+        loadingOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        `;
+        
+        const loadingContent = document.createElement('div');
+        loadingContent.style.cssText = `
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        `;
+        loadingContent.innerHTML = `
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Saving event...</p>
+        `;
+        
+        loadingOverlay.appendChild(loadingContent);
+        document.body.appendChild(loadingOverlay);
+    }
+
+    function hideSimpleLoading() {
+        const loadingOverlay = document.getElementById('simple-loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.remove();
+        }
+    }
+
+// Helper function for date formatting (if not already in global scope)
+function formatDate(d) {
+    return d.getFullYear() + "-" +
+        String(d.getMonth() + 1).padStart(2, "0") + "-" +
+        String(d.getDate()).padStart(2, "0") + " " +
+        String(d.getHours()).padStart(2, "0") + ":" +
+        String(d.getMinutes()).padStart(2, "0") + ":" +
+        String(d.getSeconds()).padStart(2, "0");
+}
+//////////NEW CODE
 
         function openManageSlotPopup(slot_id, student, formattedTime, lesson, instructor, slot, availableSeats) {
             const notes = document.querySelector("#notes")?.value;

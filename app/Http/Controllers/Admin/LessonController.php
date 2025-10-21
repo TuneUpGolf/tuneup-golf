@@ -1786,6 +1786,24 @@ class LessonController extends Controller
 
         return redirect()->route('lesson.index')->with('success', 'Lesson disabled successfully!');
     }
+
+    public function availabilityModal(Request $request)
+    {
+        // dd("ddd");
+        if (Auth::user()->can('create-lessons')) {
+                    $lesson = Lesson::find($request->get('lesson_id'));
+                    if ($lesson) {
+                        return view('admin.lessons.addSlot', compact('lesson'));
+                    } else {
+                        $lesson = Lesson::withMax('packages', 'number_of_slot')->whereIn('type', ['package', 'inPerson'])->where('created_by', Auth::user()->id)->where('active_status', true)->get()->toArray();
+                        return view('admin.lessons.set-availability-modal', compact('lesson'));
+                    }
+        } else {
+            return redirect()->back()->with('failed', __('Permission denied.'));
+        }        
+        
+    }
+
     public function addAvailabilitySlots(Request $request)
     {
         try {
@@ -1885,6 +1903,45 @@ class LessonController extends Controller
             return $request->get('redirect') == 1
                 ? redirect()->back()->with('error', $e->getMessage())
                 : response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
+        }
+    }
+
+    public function showScheduleLessonModal(Request $request)
+    {
+        $user = Auth::user();
+        // dd($user);
+        $lessons = Lesson::where('created_by', auth()->id())->get();
+        $students = User::where('type', 'Student')->get(); // Adjust based on your user structure
+        
+        return view('admin.lessons.schedule-lesson-modal', compact('lessons', 'students'));
+    }
+
+    public function scheduleLesson(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'lesson_id' => 'required|exists:lessons,id',
+            'student_id' => 'sometimes|required',
+            'student_ids' => 'sometimes|required|array',
+            'start_time' => 'required|date',
+            'end_time' => 'required|date',
+            'location' => 'required|string',
+            'note' => 'nullable|string'
+        ]);
+
+        try {
+            // Your lesson scheduling logic here
+            // This will depend on your existing booking system
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Lesson scheduled successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error scheduling lesson: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

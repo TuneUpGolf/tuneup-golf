@@ -228,10 +228,12 @@ Route::middleware([
         Route::post('lesson/slot/add/availability', [LessonController::class, 'addAvailabilitySlots'])->name('slot.availability');
         Route::get('lesson/slot/view', [LessonController::class, 'viewSlots'])->name('slot.view');
         Route::post('lesson/slot/done', [LessonController::class, 'completeSlot'])->name('slot.complete');
-
+        Route::get('/availability/modal', [LessonController::class, 'availabilityModal'])->name('slot.availability.modal');
         Route::post('lesson/slot/booking', [LessonController::class, 'bookSlotApi'])->name('slot.book');
 
-
+        // Schedule Lesson Routes
+        Route::get('/schedule-lesson-modal', [LessonController::class, 'showScheduleLessonModal'])->name('lesson.schedule.modal');
+        Route::post('/schedule-lesson', [LessonController::class, 'scheduleLesson'])->name('lesson.schedule');
         Route::post('lesson/slot/admin', [LessonController::class, 'bookAdminSlot'])->name('slot.admin');
 
 
