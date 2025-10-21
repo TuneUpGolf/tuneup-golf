@@ -354,14 +354,14 @@ class ProfileController extends Controller
                     return redirect()->back()->with('warning', __('Stripe account found but not fully verified. Please complete the verification process on Stripe.'));
                 }
             } else {
-                return redirect()->back()->with('errors', __('Invalid Stripe account ID.'));
+                return redirect()->back()->with('failed', __('Invalid Stripe account ID.'));
             }
         } catch (\Stripe\Exception\AuthenticationException $e) {
-            return redirect()->back()->with('errors', __('Stripe API authentication failed. Please check your API credentials.'));
+            return redirect()->back()->with('failed', __('Stripe API authentication failed. Please check your API credentials.'));
         } catch (\Stripe\Exception\InvalidRequestException $e) {
-            return redirect()->back()->with('errors', __('Invalid Stripe account ID or account not found.'));
+            return redirect()->back()->with('failed', __('Invalid Stripe account ID or account not found.'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('errors', __('Failed to verify Stripe account: ') . $e->getMessage());
+            return redirect()->back()->with('failed', __('Failed to verify Stripe account: ') . $e->getMessage());
         }
     }
 
