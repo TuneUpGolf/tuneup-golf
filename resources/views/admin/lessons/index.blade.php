@@ -5,6 +5,11 @@
     <li class="breadcrumb-item">{{ __('Lessons') }}</li>
 @endsection
 @section('content')
+<style>
+    .action-btn-fix-wraper{
+        justify-content: start !important;
+    }
+</style>
     <div class="row">
         <div class="col-xl-12">
             <div class="card">
@@ -15,13 +20,14 @@
                                 <tr>
                                     <th id="icon12"></th> <!-- ✅ Responsive control column -->
                                     <th></th> <!-- ✅ Reorder handle column -->
-                                    <th>#</th>
+                                    {{-- <th>#</th> --}}
+                                    <th>Action</th>
                                     <th>Name</th>
                                     <th>Price</th>
                                     <th>Quantity</th>
                                     <th>Created At</th>
                                     <th>Type</th>
-                                    <th>Action</th>
+                                    {{-- <th>Action</th> --}}
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -109,12 +115,18 @@
                         searchable: false,
                         render: () => '<span class="drag-handle" style="cursor: grab;">⋮⋮</span>'
                     },
-                    {
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false
-                    },
+                    // {
+                    //     data: 'DT_RowIndex',
+                    //     name: 'DT_RowIndex',
+                    //     orderable: false,
+                    //     searchable: false
+                    // },
+                     {
+        data: 'action',
+        name: 'action',
+        orderable: false,
+        searchable: false
+    },
                     {
                         data: 'lesson_name',
                         name: 'lesson_name'
@@ -136,12 +148,12 @@
                         data: 'type',
                         name: 'type'
                     },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    },
+                    // {
+                    //     data: 'action',
+                    //     name: 'action',
+                    //     orderable: false,
+                    //     searchable: false
+                    // },
                 ],
                 rowReorder: {
                     selector: 'td.reorder-handle',
@@ -153,8 +165,9 @@
                         display: $.fn.dataTable.Responsive.display.childRow,
                         renderer: function(api, rowIdx, columns) {
                             let data = $('<table/>').addClass('vertical-table');
+                            console.log(columns);
                             $.each(columns, function(i, col) {
-                                if (i === 0 || i === 1) return; // skip first two columns
+                                if (i === 0 || i === 1 || i === 2) return; // skip first two columns
                                 data.append(
                                     '<tr>' +
                                     '<td><strong>' + col.title + '</strong></td>' +
