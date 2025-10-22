@@ -818,6 +818,12 @@ File: style.css
   width: 20px;
   border-radius: 100%;
 }
+.blocked-key {
+  background-color: #f0380a;
+  height: 20px;
+  width: 20px;
+  border-radius: 100%;
+}
 
 .bg-primary-color {
   background-color: #0071ce;

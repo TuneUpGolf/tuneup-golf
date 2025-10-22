@@ -121,8 +121,6 @@
                         </div>
                     </div>
                 </div>  --}}
-
-
             @endif
 
             <!-- [ breadcrumb ] end -->
@@ -202,6 +200,48 @@
             gtag('config', '{{ Utility::getsettings('gtag') }}');
         </script>
     @endif
+
+    <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
+    <script>
+        Pusher.logToConsole = true;
+
+        @php
+            $tenantId = tenant('id');
+            $userId = null;
+            $userType = null;
+
+            if (auth('student')->check()) {
+                $userId = auth('student')->id();
+                $userType = 'student';
+            } elseif (auth('instructors')->check()) {
+                $userId = auth('instructors')->id();
+                $userType = 'instructor';
+            }
+        @endphp
+
+        @if ($userId && $userType)
+            const pusher = new Pusher("{{ config('broadcasting.connections.pusher.key') }}", {
+                cluster: "{{ config('broadcasting.connections.pusher.options.cluster') }}",
+                forceTLS: true
+            });
+
+            // Directly inject the PHP values into the string
+            const channelName = "tenant.{{ $tenantId }}.{{ $userType }}.user.{{ $userId }}";
+            console.log("Subscribing to channel:", channelName);
+
+            const channel = pusher.subscribe(channelName);
+
+            channel.bind('tenant.notification', function(data) {
+                console.log("📨 New Notification:", data);
+                alert(`New message from ${data.sender}: ${data.message}`);
+            });
+        @else
+            console.error("No authenticated user found.");
+        @endif
+    </script>
+
+
+
 
     <script>
         $(document).on("click", "#kt_activities_toggle", function() {
