@@ -3,10 +3,11 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Queue\SerializesModels;
+// use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
-class TenantNotificationEvent implements ShouldBroadcast
+class TenantNotificationEvent implements ShouldBroadcastNow
 {
     use SerializesModels;
 
