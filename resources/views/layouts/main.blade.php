@@ -213,8 +213,8 @@
             if (auth('student')->check()) {
                 $userId = auth('student')->id();
                 $userType = 'student';
-            } elseif (auth('instructor')->check()) {
-                $userId = auth('instructor')->id();
+            } elseif (auth('instructors')->check()) {
+                $userId = auth('instructors')->id();
                 $userType = 'instructor';
             }
         @endphp
