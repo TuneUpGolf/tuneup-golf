@@ -70,6 +70,7 @@
     <!-- [ Header ] start -->
     @include('layouts.header')
 
+    {{-- @dd(auth('web')->check()) --}}
 
     <div class="dash-container">
         <div class="dash-content">
@@ -203,7 +204,26 @@
 
     <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
     <script>
-        Pusher.logToConsole = true;
+        let originalTitle = document.title;
+        let flashInterval;
+
+        function flashTitle(newTitle) {
+            let showingNew = false;
+            clearInterval(flashInterval);
+            flashInterval = setInterval(() => {
+                document.title = showingNew ? originalTitle : newTitle;
+                showingNew = !showingNew;
+            }, 1000);
+
+            // Stop flashing once user focuses the tab again
+            window.addEventListener('focus', () => {
+                clearInterval(flashInterval);
+                document.title = originalTitle;
+            }, {
+                once: true
+            });
+        }
+        // Pusher.logToConsole = true;
 
         @php
             $tenantId = tenant('id');
@@ -213,8 +233,8 @@
             if (auth('student')->check()) {
                 $userId = auth('student')->id();
                 $userType = 'student';
-            } elseif (auth('instructors')->check()) {
-                $userId = auth('instructors')->id();
+            } elseif (auth('web')->check()) {
+                $userId = auth('web')->id();
                 $userType = 'instructor';
             }
         @endphp
@@ -233,7 +253,9 @@
 
             channel.bind('tenant.notification', function(data) {
                 console.log("📨 New Notification:", data);
-                alert(`New message from ${data.sender}: ${data.message}`);
+                // alert(`New message from ${data.sender}: ${data.message}`);
+                toastr.success(`New message from ${data.sender}: ${data.message}`)
+                flashTitle('🔔 New Message!');
             });
         @else
             console.error("No authenticated user found.");
