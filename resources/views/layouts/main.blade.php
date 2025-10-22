@@ -254,7 +254,7 @@
             channel.bind('tenant.notification', function(data) {
                 console.log("📨 New Notification:", data);
                 // alert(`New message from ${data.sender}: ${data.message}`);
-                show_toastr('Success!', '{{ session('success') }}', 'success');(`New message from ${data.sender}: ${data.message}`)
+                show_toastr('Success!', `New message from ${data.sender}: ${data.message}`, 'success');
                 flashTitle('🔔 New Message!');
             });
         @else
