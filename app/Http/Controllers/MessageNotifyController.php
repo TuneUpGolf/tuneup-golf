@@ -79,7 +79,8 @@ class MessageNotifyController extends Controller
                 $data['tenant_id'],
                 $receiver->id,
                 $data['message'],
-                $receiver->role ?? 'student' // role included for channel name
+                $receiver->role ?? 'student', // role included for channel name
+                $sender->name,
             ));
             // For online users, you might push a WebSocket or real-time alert
             Log::info('💬 Online user notification handled (no email)', [

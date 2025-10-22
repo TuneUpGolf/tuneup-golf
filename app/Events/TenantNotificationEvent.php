@@ -15,6 +15,7 @@ class TenantNotificationEvent implements ShouldBroadcastNow
     public $receiverId;
     public $message;
     public $type; // 🔹 Add type property
+    public $sender; // 🔹 Add type property
 
     /**
      * Create a new event instance.
@@ -24,12 +25,13 @@ class TenantNotificationEvent implements ShouldBroadcastNow
      * @param mixed $message
      * @param string $type
      */
-    public function __construct($tenantId, $receiverId, $message, $type)
+    public function __construct($tenantId, $receiverId, $message, $type, $sender)
     {
         $this->tenantId   = $tenantId;
         $this->receiverId = $receiverId;
         $this->message    = $message;
         $this->type       = $type; // 🔹 Initialize type
+        $this->sender     = $sender;
     }
 
     /**
