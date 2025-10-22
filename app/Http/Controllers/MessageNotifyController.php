@@ -18,18 +18,18 @@ class MessageNotifyController extends Controller
 
         // 🔹 Validate input
         $data = $request->validate([
-            'tenant_id'       => 'required|string',
-            'sender_id'       => 'required|string',
-            'sender_email'    => 'required|email',
-            'receiver_id'     => 'required|string',
-            'receiver_email'  => 'required|email',
-            'message'         => 'required|string',
+            'tenant_id'       => 'nullable|string',
+            'sender_id'       => 'nullable|string',
+            'sender_email'    => 'nullable|email',
+            'receiver_id'     => 'nullable|string',
+            'receiver_email'  => 'nullable|email',
+            'message'         => 'nullable|string',
             'group_id'        => 'nullable|string',
             'type'            => 'nullable|string',
-            'status'          => 'nullable|string|in:online,offline',
+            'status'          => 'nullable|string',
             'sent_at'         => 'nullable|date',
         ]);
-
+        Log::info("Validation Passed");
         // 🔹 Initialize tenant context if using multi-tenancy
         if (function_exists('tenancy')) {
             tenancy()->initialize($data['tenant_id']);
