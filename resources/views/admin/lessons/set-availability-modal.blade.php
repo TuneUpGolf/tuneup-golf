@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,34 +16,55 @@
             background-color: #fff;
             border-radius: 12px;
         }
-        .modal-header h5 { font-weight: 600; }
-        .form-label { font-size: 0.95rem; }
-        .form-check-label span { font-size: 0.85rem; color: #6c757d; }
-        .btn-primary { background-color: #0d6efd; border: none; }
-        .btn-secondary { background-color: #6c757d; border: none; }
-        .btn:focus { box-shadow: none !important; }
+
+        .modal-header h5 {
+            font-weight: 600;
+        }
+
+        .form-label {
+            font-size: 0.95rem;
+        }
+
+        .form-check-label span {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .btn-primary {
+            background-color: #0d6efd;
+            border: none;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+        }
+
+        .btn:focus {
+            box-shadow: none !important;
+        }
     </style>
 </head>
 
 <body>
     <div class="modal-content border-0 shadow-sm rounded" style="max-width: 600px; margin: auto;">
         <div class="modal-header border-bottom-0 pt-4 pb-2 px-4">
-            <h5 class="modal-title fw-semibold">{{ __('Set Availability - 110') }}</h5>
+            <h5 class="modal-title fw-semibold">{{ __('Set Availability') }}</h5>
             <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
         </div>
 
         <div class="modal-body px-4">
             {!! Form::open([
-                'route' => ['slot.availability', ['redirect' => 1]],
-                'method' => 'POST',
-                'data-validate',
-                'files' => true,
-                'enctype' => 'multipart/form-data',
-                'id' => 'availabilityModalForm'
+            'route' => ['slot.availability', ['redirect' => 1]],
+            'method' => 'POST',
+            'data-validate',
+            'files' => true,
+            'enctype' => 'multipart/form-data',
+            'id' => 'availabilityModalForm'
             ]) !!}
 
             {{-- ✅ Select Dates --}}
-            <div class="mb-3">
+            <!-- <div class="mb-3">
                 {{ Form::label('start_date', 'Select Dates', ['class' => 'form-label fw-semibold']) }}
                 {{ Form::text('start_date', null, [
                     'class' => 'form-control date',
@@ -51,6 +73,17 @@
                     'autocomplete' => 'off',
                     'placeholder' => 'YYYY-MM-DD',
                 ]) }}
+            </div> -->
+
+            <div class="mb-3">
+                <label for="lesson_date" class="form-label fw-semibold">Select Date</label>
+                <input
+                    type="date"
+                    id="start_date"
+                    name="start_date"
+                    class="form-control"
+                    value="{{ request('start_date') }}"
+                    required>
             </div>
 
             {{-- Time Range --}}
@@ -68,7 +101,7 @@
             </div>
 
             <div class="mb-3">
-                <button type="button" id="add-range" class="btn btn-primary">+ Add</button>
+                <!-- <button type="button" id="add-range-btn"  class="btn btn-primary">+ Add</button> -->
             </div>
 
             {{-- Location --}}
@@ -84,60 +117,80 @@
             {{-- Applies to --}}
             <div class="form-group">
                 @if (!empty($lesson))
-                    {{ Form::label('package_lesson', __('This Availability Applies To'), ['class' => 'form-label']) }}
-                    <br>
-                    @foreach ($lesson as $le)
-                        <input type="checkbox" name="lesson_id[]" class="form-check-input" value="{{ $le['id'] }}">
-                        {{ $le['lesson_name'] }}
-                        <span style="color:gray">
-                            @if (isset($le['lesson_duration']))
-                                {{ __('Lesson Duration : ' . $le['lesson_duration'] . 'hour(s)') }}
-                            @endif
-                        </span>
-                        <br>
-                    @endforeach
+                {{ Form::label('package_lesson', __('This Availability Applies To'), ['class' => 'form-label']) }}
+                <br>
+                @foreach ($lesson as $le)
+                <input type="checkbox" name="lesson_id[]" class="form-check-input" value="{{ $le['id'] }}">
+                {{ $le['lesson_name'] }}
+                <span style="color:gray">
+                    @if (isset($le['lesson_duration']))
+                    {{ __('Lesson Duration : ' . $le['lesson_duration'] . 'hour(s)') }}
+                    @endif
+                </span>
+                <br>
+                @endforeach
                 @else
-                    {{ Form::label('package_lesson', __('No Lesson available'), ['class' => 'form-label']) }}
+                {{ Form::label('package_lesson', __('No Lesson available'), ['class' => 'form-label']) }}
                 @endif
             </div>
 
-        
+
 
             {!! Form::close() !!}
         </div>
     </div>
+<script>
+$(document).ready(function() {
 
-    <script>
-        // ✅ Initialize datepicker AFTER modal content is loaded
-        $(document).ready(function () {
-            $('#start_date').datepicker({
-                startDate: new Date(),
-                multidate: true,
-                format: 'yyyy-mm-dd',
-                todayHighlight: true,
-                autoclose: false
-            });
-        });
+    // ✅ Initialize Datepicker
+    $('.date').datepicker({
+        startDate: new Date(),
+        multidate: true,
+        format: 'yyyy-mm-dd'
+    });
 
-        // Add/remove time ranges
-        let container = $('#time-ranges');
-        let addBtn = $('#add-range');
-        addBtn.on('click', function() {
-            let newRange = container.find('.time-range:first').clone();
-            newRange.find('input').val('');
-            if (newRange.find('.remove-range').length === 0) {
-                newRange.append(`
-                    <div class="col-md-1 d-flex align-items-end">
-                        <button type="button" class="btn btn-danger remove-range">X</button>
-                    </div>
-                `);
-            }
-            container.append(newRange);
-        });
+    // ✅ Time range management
+    const container = $('#time-ranges');
+    const addBtn = $('#add-range-btn');
 
-        container.on('click', '.remove-range', function() {
+    // Add new range
+    addBtn.on('click', function() {
+        console.log('Add button clicked');
+
+        const newRange = $(`
+            <div class="time-range row g-2 mb-2">
+                <div class="col-md-5">
+                    <label class="form-label">Start Time</label>
+                    <input type="time" name="start_time[]" class="form-control" required>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label">End Time</label>
+                    <input type="time" name="end_time[]" class="form-control" required>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" class="btn btn-danger btn-sm remove-range">Remove</button>
+                </div>
+            </div>
+        `);
+
+        container.append(newRange);
+    });
+
+    // Remove a time range
+    container.on('click', '.remove-range', function() {
+        if (container.find('.time-range').length > 1) {
             $(this).closest('.time-range').remove();
-        });
-    </script>
+        } else {
+            alert('You need at least one time slot');
+        }
+    });
+
+});
+</script>
+
+
+
+
 </body>
+
 </html>

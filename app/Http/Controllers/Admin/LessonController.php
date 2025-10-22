@@ -415,18 +415,39 @@ class LessonController extends Controller
     {
         $type = Auth::user()->type;
         if ($type === Role::ROLE_ADMIN) {
-            $payment_method = Lesson::find(request()->get('lesson_id'))?->payment_method;
+            // Handle both single lesson_id and multiple lesson_ids
+            $lessonIds = request()->input('lesson_ids', []);
+            $singleLessonId = request()->input('lesson_id');
+            
+            // If no multiple lessons selected, check for single lesson selection
+            if (empty($lessonIds) && $singleLessonId && $singleLessonId !== "-1") {
+                $lessonIds = [$singleLessonId];
+            }
+            
+            // Get payment method from first selected lesson (or null if none selected)
+            $payment_method = !empty($lessonIds) ? Lesson::find($lessonIds[0])?->payment_method : null;
+            
             $events = [];
             $resources = [];
             $instructorId = request()->get('instructor_id');
 
+            $slotsQuery = Slots::with(['lesson.user', 'student'])->where('is_active', true);
+
+            // Filter by instructor if selected
             if (!!$instructorId && $instructorId !== "-1") {
-                $slots = Slots::with(['lesson.user', 'student'])->whereHas('lesson', function ($query) use ($instructorId) {
+                $slotsQuery->whereHas('lesson', function ($query) use ($instructorId) {
                     $query->where('created_by', $instructorId);
-                })->where('is_active', true)->get();
-            } else {
-                $slots = Slots::with(['lesson.user', 'student'])->where('is_active', true)->get();
+                });
             }
+
+            // Filter by lessons if any are selected
+            if (!empty($lessonIds)) {
+                $slotsQuery->whereHas('lesson', function ($query) use ($lessonIds) {
+                    $query->whereIn('id', $lessonIds);
+                });
+            }
+
+            $slots = $slotsQuery->get();
 
             $bookedSlots = $slots->filter(function ($slot) {
                 return $slot->student->isNotEmpty();
@@ -532,27 +553,44 @@ class LessonController extends Controller
             }
             $events = array_values($uniqueEvents);
             $resources = array_values($resources);
-            $lesson_id = request()->get('lesson_id');
+            // $lesson_id = request()->get('lesson_id');
+            $lesson_id = request()->input('lesson_ids', request()->get('lesson_id', []));
+
             $instructors = User::where('type', Role::ROLE_INSTRUCTOR)->get();
             $students = Student::where('active_status', true)->where('isGuest', false)->get();
             // Block Slots
             // $blockSlots = InstructorBlockSlot::all();
             return view('admin.lessons.manageSlots', compact('events', 'resources', 'lesson_id', 'type', 'payment_method', 'instructors', 'students'));
         }
-        if ($type === Role::ROLE_INSTRUCTOR) {
-            $payment_method = Lesson::find(request()->get('lesson_id'))?->payment_method;
-            $events = [];
-            $lessonId = request()->get('lesson_id');
-
-            if (!!$lessonId && $lessonId !== "-1") {
-                $slots = Slots::with(['lesson.user', 'student'])->whereHas('lesson', function ($query) use ($lessonId) {
-                    $query->where('id', $lessonId);
-                })->where('is_active', true)->get();
-            } else {
-                $slots = Slots::with(['lesson.user', 'student'])->whereHas('lesson', function ($query) {
-                    $query->where('created_by', Auth::user()->id);
-                })->where('is_active', true)->get();
+       if ($type === Role::ROLE_INSTRUCTOR) {
+            // Handle both single lesson_id and multiple lesson_ids
+            $lessonIds = request()->input('lesson_ids', []);
+            $singleLessonId = request()->input('lesson_id');
+            
+            // If no multiple lessons selected, check for single lesson selection
+            if (empty($lessonIds) && $singleLessonId && $singleLessonId !== "-1") {
+                $lessonIds = [$singleLessonId];
             }
+            
+            // Get payment method from first selected lesson (or null if none selected)
+            $payment_method = !empty($lessonIds) ? Lesson::find($lessonIds[0])?->payment_method : null;
+            
+            $events = [];
+
+            $slotsQuery = Slots::with(['lesson.user', 'student'])
+                ->whereHas('lesson', function ($query) {
+                    $query->where('created_by', Auth::user()->id);
+                })
+                ->where('is_active', true);
+
+            // Filter by lessons if any are selected
+            if (!empty($lessonIds)) {
+                $slotsQuery->whereHas('lesson', function ($query) use ($lessonIds) {
+                    $query->whereIn('id', $lessonIds);
+                });
+            }
+
+            $slots = $slotsQuery->get();
 
             $bookedSlots = $slots->filter(function ($slot) {
                 return $slot->student->isNotEmpty();
@@ -650,7 +688,8 @@ class LessonController extends Controller
                 ];
             }
             $events = array_values($uniqueEvents);
-            $lesson_id = request()->get('lesson_id');
+            // $lesson_id = request()->get('lesson_id');
+            $lesson_id = request()->input('lesson_ids', request()->get('lesson_id', []));
             $lessons = Lesson::where('created_by', Auth::user()->id)->where('active_status', 1)->where('type', '!=', Lesson::LESSON_TYPE_ONLINE)->get();
             $students = Student::where('active_status', true)->where('isGuest', false)->get();
             // Block Instructor Slots
@@ -1006,7 +1045,7 @@ class LessonController extends Controller
     public function bookAdminSlot(Request $request)
     {
         try {
-
+            // dd($request->all());
             $request->validate([
                 'isGuest' => 'required',
                 'slot_id' => 'required',
@@ -1807,11 +1846,10 @@ class LessonController extends Controller
     public function addAvailabilitySlots(Request $request)
     {
         try {
+            // dd($request->all());
             $validatedData = $request->validate([
                 'lesson_id' => 'required|array',
                 'start_date' => 'required',
-                // 'start_time' => 'required|date_format:H:i',
-                // 'end_time' => 'required|date_format:H:i',
                 'start_time' => 'required|array',
                 'start_time.*' => 'required|date_format:H:i',
                 'end_time' => 'required|array',
@@ -1911,23 +1949,26 @@ class LessonController extends Controller
         $user = Auth::user();
         // dd($user);
         $lessons = Lesson::where('created_by', auth()->id())->get();
-        $students = User::where('type', 'Student')->get(); // Adjust based on your user structure
+        $students = Student::get(); // Adjust based on your user structure
         
         return view('admin.lessons.schedule-lesson-modal', compact('lessons', 'students'));
     }
 
-    public function scheduleLesson(Request $request)
+    public function scheduleLesson1(Request $request)
     {
+        // dd($request->all());
         // Validate the request
         $request->validate([
             'lesson_id' => 'required|exists:lessons,id',
             'student_id' => 'sometimes|required',
             'student_ids' => 'sometimes|required|array',
+            'lesson_date' => 'required|date',
             'start_time' => 'required|date',
             'end_time' => 'required|date',
             'location' => 'required|string',
             'note' => 'nullable|string'
         ]);
+
 
         try {
             // Your lesson scheduling logic here
@@ -1938,6 +1979,144 @@ class LessonController extends Controller
                 'message' => 'Lesson scheduled successfully'
             ]);
         } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error scheduling lesson: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function scheduleLesson(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'lesson_id' => 'required|exists:lessons,id',
+            'student_id' => 'sometimes|required|array',
+            'lesson_date' => 'required|date',
+            'start_time' => 'required',
+            'end_time' => 'required',
+            'location' => 'required|string',
+            'note' => 'nullable|string'
+        ]);
+
+        try {
+            // DB::beginTransaction();
+
+            // STEP 1: Create availability slot using logic from addAvailabilitySlots
+            $lesson = Lesson::find($request->lesson_id);
+            
+            // Prepare data for availability slot creation
+            $availabilityData = [
+                'lesson_id' => [$request->lesson_id], // Wrap in array for compatibility
+                'start_date' => $request->lesson_date,
+                'start_time' => [$request->start_time],
+                'end_time' => [$request->end_time],
+                'location' => $request->location
+            ];
+
+            // Check for slot conflicts
+            $slotStart = Carbon::createFromFormat('Y-m-d H:i', $request->lesson_date . ' ' . $request->start_time);
+            $slotEnd = Carbon::createFromFormat('Y-m-d H:i', $request->lesson_date . ' ' . $request->end_time);
+            
+            $conflict = Slots::where('lesson_id', $request->lesson_id)
+                ->whereBetween('date_time', [$slotStart, $slotEnd])
+                ->exists();
+
+            if ($conflict) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Slot conflict: There is already a slot scheduled for this time period.'
+                ], 409);
+            }
+
+            // Create the slot
+            $slot = Slots::create([
+                'lesson_id' => $request->lesson_id,
+                'date_time' => $slotStart,
+                'location' => $request->location,
+                'is_active' => true
+            ]);
+
+            // STEP 2: Book the slot for students using logic from bookAdminSlot
+            $studentIds = $request->student_id ?? [];
+            
+            if (empty($studentIds)) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No students selected for booking.'
+                ], 400);
+            }
+
+            $alreadyBookedStudents = $slot->student()->pluck('students.id')->toArray();
+            $newStudentIds = array_diff($studentIds, $alreadyBookedStudents);
+
+            if (!empty($newStudentIds)) {
+                // Attach students to the slot
+                $slot->student()->attach($newStudentIds);
+
+                // Create purchase records for each student
+                foreach ($newStudentIds as $studentId) {
+                    Purchase::create([
+                        'student_id'    => $studentId,
+                        'instructor_id' => $lesson->created_by,
+                        'lesson_id'     => $lesson->id,
+                        'slot_id'       => $slot->id,
+                        'coupon_id'     => null,
+                        'tenenat_id'    => Auth::user()->tenant_id,
+                        'total_amount'  => $lesson->lesson_price,
+                        'status'        => Purchase::STATUS_INCOMPLETE,
+                        'lessons_used'  => 0,
+                        'purchased_slot' => 1
+                    ]);
+
+                    // Send notification for each new student
+                    $this->sendSlotNotification(
+                        $slot,
+                        'Slot Booked',
+                        'A slot has been booked for :date with :instructor for the in-person lesson :lesson.',
+                        'A slot has been booked for :date with student ID ' . $studentId . ' for the in-person lesson :lesson.'
+                    );
+                }
+
+                // Send emails to students
+                $studentEmails = Student::select('email')
+                    ->whereIn('id', $studentIds)
+                    ->pluck('email');
+
+                if (!$studentEmails->isEmpty()) {
+                    SendEmail::dispatch($studentEmails->toArray(), new SlotBookedByStudentMail(
+                        Auth::user()->name,
+                        date('Y-m-d', strtotime($slot->date_time)),
+                        date('h:i A', strtotime($slot->date_time)),
+                        $request->note ?? '',
+                    ));
+                }
+            }
+
+            // Send push notifications for new lesson availability
+            $studentsWithTokens = Student::whereHas('pushToken')
+                ->with('pushToken')
+                ->get()
+                ->pluck('pushToken.token')
+                ->toArray();
+
+            if (!empty($studentsWithTokens)) {
+                $title = "New Lesson Scheduled!";
+                $body  = "{$lesson->user->name} has scheduled a new lesson: {$lesson->lesson_name}. Check now!";
+                SendPushNotification::dispatch($studentsWithTokens, $title, $body);
+            }
+
+            // DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lesson scheduled and booked successfully',
+                'slot_id' => $slot->id
+            ]);
+
+        } catch (\Exception $e) {
+            // DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'Error scheduling lesson: ' . $e->getMessage()
