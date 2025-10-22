@@ -1140,71 +1140,181 @@
 
               <textarea name="notes" id="notes" class="form-control mt-2" placeholder="Enter note here" cols="10" rows="5"></textarea>
             `;
-             Swal.fire({
-                 title: "Lesson Details",
-                 html: `
-                  <div style="text-align: left; font-size: 14px;">
-                    <span><strong>Lesson Date/Time:</strong> ${formattedTime}</span><br/>
-                    <span><strong>Location:</strong> ${slot.location}</span><br/>
-                    <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
-                    <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
-                    <span><strong>Available Spots:</strong> ${availableSeats}</span><br/>
+            //  Swal.fire({
+            //      title: "Lesson Details",
+            //      html: `
+            //       <div style="text-align: left; font-size: 14px;">
+            //         <span><strong>Lesson Date/Time:</strong> ${formattedTime}</span><br/>
+            //         <span><strong>Location:</strong> ${slot.location}</span><br/>
+            //         <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
+            //         <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
+            //         <span><strong>Available Spots:</strong> ${availableSeats}</span><br/>
                     
-                    ${friendsHtml}
-                  </div>
-                `,
-                 showCancelButton: true,
-                 confirmButtonText: "Book Slot",
-                 cancelButtonText: "Cancel",
-                 preConfirm: () => {
-                     const v = document.getElementById('studentFriends')?.value.trim();
-                     const arr = v ? v.split(',').map(x => x.trim()).filter(Boolean) : [];
+            //         ${friendsHtml}
+            //       </div>
+            //     `,
+            //      showCancelButton: true,
+            //      confirmButtonText: "Book Slot",
+            //      cancelButtonText: "Cancel",
+            //      preConfirm: () => {
+            //          const v = document.getElementById('studentFriends')?.value.trim();
+            //          const arr = v ? v.split(',').map(x => x.trim()).filter(Boolean) : [];
 
-                     const notes = document.getElementById('notes')?.value.trim() || "";
+            //          const notes = document.getElementById('notes')?.value.trim() || "";
 
-                     return {
-                         friendNames: arr,
-                         note: notes
-                     };
-                 }
-             }).then((r) => {
-                 if (!r.isConfirmed) return;
-                 $.ajax({
-                     url: "{{ route('slot.book') }}",
-                     type: "POST",
-                     data: {
-                         _token: $('meta[name="csrf-token"]').attr('content'),
-                         slot_id: slot_id,
-                         friend_names: r.value.friendNames || "",
-                         note: r.value.note || "",
-                         redirect: 0,
-                     },
-                     success: function(response) {
-                         if (response.payment_url) {
-                             window.location.href = response.payment_url;
-                         } else {
-                             Swal.fire({
-                                     icon: 'success',
-                                     title: 'Booking Successful',
-                                     text: response.message ||
-                                         'You have successfully booked the slot.'
-                                 })
-                                 .then(() => {
-                                     showPageLoader();
-                                     location.reload();
-                                 });
-                         }
-                     },
-                     error: function(xhr) {
-                         Swal.fire({
-                             icon: 'error',
-                             title: 'Booking Failed',
-                             text: xhr.responseJSON?.message ||
-                                 'An error occurred while booking the slot.'
-                         });
-                     }
-                 });
-             });
+            //          return {
+            //              friendNames: arr,
+            //              note: notes
+            //          };
+            //      }
+            //  }).then((r) => {
+            //      if (!r.isConfirmed) return;
+            //      $.ajax({
+            //          url: "{{ route('slot.book') }}",
+            //          type: "POST",
+            //          data: {
+            //              _token: $('meta[name="csrf-token"]').attr('content'),
+            //              slot_id: slot_id,
+            //              friend_names: r.value.friendNames || "",
+            //              note: r.value.note || "",
+            //              redirect: 0,
+            //          },
+            //          success: function(response) {
+            //              if (response.payment_url) {
+            //                  window.location.href = response.payment_url;
+            //              } else {
+            //                  Swal.fire({
+            //                          icon: 'success',
+            //                          title: 'Booking Successful',
+            //                          text: response.message ||
+            //                              'You have successfully booked the slot.'
+            //                      })
+            //                      .then(() => {
+            //                          showPageLoader();
+            //                          location.reload();
+            //                      });
+            //              }
+            //          },
+            //          error: function(xhr) {
+            //              Swal.fire({
+            //                  icon: 'error',
+            //                  title: 'Booking Failed',
+            //                  text: xhr.responseJSON?.message ||
+            //                      'An error occurred while booking the slot.'
+            //              });
+            //          }
+            //      });
+            //  });
+
+            Swal.fire({
+    title: "Lesson Details",
+    html: `
+      <div style="text-align: left; font-size: 14px;">
+        <span><strong>Lesson Date/Time:</strong> ${formattedTime}</span><br/>
+        <span><strong>Location:</strong> ${slot.location}</span><br/>
+        <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
+        <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
+        <span><strong>Available Spots:</strong> ${availableSeats}</span><br/><br/>
+
+        <!-- 👇 NEW RADIO SELECTION -->
+        <div class="form-group mb-2">
+          <label><strong>Booking Type:</strong></label><br>
+          <label><input type="radio" name="isGuest" value="false" checked> For Myself</label>
+          <label class="ml-3"><input type="radio" name="isGuest" value="true"> As Guest</label>
+        </div>
+
+        <!-- Guest Fields -->
+        <div id="guest-form" class="hidden">
+          <div class="form-group mb-2">
+            <label>Guest Name</label>
+            <input type="text" id="guestName" class="form-control" placeholder="Enter guest name">
+          </div>
+          <div class="form-group mb-2">
+            <label>Guest Email</label>
+            <input type="email" id="guestEmail" class="form-control" placeholder="Enter guest email">
+          </div>
+          <div class="form-group mb-2">
+            <label>Guest Phone</label>
+            <input type="text" id="guestPhone" class="form-control" placeholder="Enter guest phone">
+          </div>
+        </div>
+
+        <div class="form-group mt-3">
+          <textarea name="notes" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="4"></textarea>
+        </div>
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: "Book Slot",
+    cancelButtonText: "Cancel",
+    didOpen: () => {
+        // Toggle Guest Form
+        $('input[name="isGuest"]').on('change', function () {
+            const isGuest = $(this).val() === 'true';
+            if (isGuest) {
+                $('#guest-form').removeClass('hidden').show();
+            } else {
+                $('#guest-form').hide();
+            }
+        });
+    },
+    preConfirm: () => {
+        const isGuest = $('input[name="isGuest"]:checked').val() === 'true';
+        const notes = document.getElementById('notes')?.value.trim() || "";
+
+        if (isGuest) {
+            const guestName = $('#guestName').val().trim();
+            const guestEmail = $('#guestEmail').val().trim();
+            const guestPhone = $('#guestPhone').val().trim();
+            if (!guestName || !guestEmail) {
+                Swal.showValidationMessage("Please fill in guest name and email.");
+                return false;
+            }
+            return { isGuest: true, guestName, guestEmail, guestPhone, note: notes };
+        } else {
+            return { isGuest: false, note: notes };
+        }
+    }
+}).then((r) => {
+    if (!r.isConfirmed) return;
+    $.ajax({
+        url: "{{ route('slot.book') }}",
+        type: "POST",
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+            slot_id: slot_id,
+            isGuest: r.value.isGuest,
+            guest_name: r.value.guestName || "",
+            guest_email: r.value.guestEmail || "",
+            guest_phone: r.value.guestPhone || "",
+            note: r.value.note || "",
+            redirect: 0,
+        },
+        success: function(response) {
+            if (response.payment_url) {
+                window.location.href = response.payment_url;
+            } else {
+                Swal.fire({
+                        icon: 'success',
+                        title: 'Booking Successful',
+                        text: response.message || 'You have successfully booked the slot.'
+                    })
+                    .then(() => {
+                        showPageLoader();
+                        location.reload();
+                    });
+            }
+        },
+        error: function(xhr) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Booking Failed',
+                text: xhr.responseJSON?.message || 'An error occurred while booking the slot.'
+            });
+        }
+    });
+});
+
              return;
          }
 
