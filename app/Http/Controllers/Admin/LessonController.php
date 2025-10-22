@@ -1948,42 +1948,10 @@ class LessonController extends Controller
     {
         $user = Auth::user();
         // dd($user);
-        $lessons = Lesson::where('created_by', auth()->id())->get();
+        $lessons = Lesson::where('created_by', auth()->id())->where('type','package')->get();
         $students = Student::get(); // Adjust based on your user structure
         
         return view('admin.lessons.schedule-lesson-modal', compact('lessons', 'students'));
-    }
-
-    public function scheduleLesson1(Request $request)
-    {
-        // dd($request->all());
-        // Validate the request
-        $request->validate([
-            'lesson_id' => 'required|exists:lessons,id',
-            'student_id' => 'sometimes|required',
-            'student_ids' => 'sometimes|required|array',
-            'lesson_date' => 'required|date',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date',
-            'location' => 'required|string',
-            'note' => 'nullable|string'
-        ]);
-
-
-        try {
-            // Your lesson scheduling logic here
-            // This will depend on your existing booking system
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Lesson scheduled successfully'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error scheduling lesson: ' . $e->getMessage()
-            ], 500);
-        }
     }
 
     public function scheduleLesson(Request $request)

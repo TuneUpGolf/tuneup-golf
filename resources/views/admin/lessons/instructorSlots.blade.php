@@ -213,32 +213,32 @@
         });
 
           // Add auto-submit for lesson checkboxes
-    document.querySelectorAll('.lesson-checkboxes input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            filterForm.submit();
+        document.querySelectorAll('.lesson-checkboxes input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                filterForm.submit();
+            });
         });
-    });
 
          // Lesson checkboxes expand/collapse functionality
-    const selectLessonsLabel = document.querySelector('.form-label strong');
-    const lessonCheckboxesContainer = document.querySelector('.lesson-checkboxes');
+        const selectLessonsLabel = document.querySelector('.form-label strong');
+        const lessonCheckboxesContainer = document.querySelector('.lesson-checkboxes');
 
-    if (selectLessonsLabel && lessonCheckboxesContainer) {
-        selectLessonsLabel.style.cursor = 'pointer';
-        selectLessonsLabel.addEventListener('click', function() {
-            if (lessonCheckboxesContainer.style.maxHeight === '0px' || !lessonCheckboxesContainer.style.maxHeight) {
+        if (selectLessonsLabel && lessonCheckboxesContainer) {
+            selectLessonsLabel.style.cursor = 'pointer';
+            selectLessonsLabel.addEventListener('click', function() {
+                if (lessonCheckboxesContainer.style.maxHeight === '0px' || !lessonCheckboxesContainer.style.maxHeight) {
+                    lessonCheckboxesContainer.style.maxHeight = '200px';
+                } else {
+                    lessonCheckboxesContainer.style.maxHeight = '0px';
+                }
+            });
+            
+            // Auto-expand if any lessons are already selected
+            const hasSelectedLessons = document.querySelectorAll('.lesson-checkboxes input[type="checkbox"]:checked').length > 0;
+            if (hasSelectedLessons) {
                 lessonCheckboxesContainer.style.maxHeight = '200px';
-            } else {
-                lessonCheckboxesContainer.style.maxHeight = '0px';
             }
-        });
-        
-        // Auto-expand if any lessons are already selected
-        const hasSelectedLessons = document.querySelectorAll('.lesson-checkboxes input[type="checkbox"]:checked').length > 0;
-        if (hasSelectedLessons) {
-            lessonCheckboxesContainer.style.maxHeight = '200px';
         }
-    }
 
         var calendarEl = document.getElementById('calendar');
 
@@ -267,10 +267,7 @@
             events: [
                 ...filteredEvents.map(event => ({
                     ...event,
-                    className: event.is_completed ?
-                        'event-completed' : (event.is_student_assigned ?
-                            'event-booked' :
-                            'event-free')
+                    className: getEventClassName(event)
                 })),
                 ...(viewScheduled ? [] : (blockSlots || [])).map(slot => ({
                     title: "Blocked",
@@ -283,9 +280,7 @@
                         id: slot.id
                     }
                 }))
-            ],
-            
-               
+            ],       
 
             select: function(info) {
                 // info.startStr and info.endStr give ISO time range
@@ -756,15 +751,27 @@
             }
         });
 
+          function getEventClassName(event) {
+            if (event.is_completed) {
+                return 'event-completed'; // Green for completed
+            } else if (event.is_student_assigned) {
+                return 'event-booked'; // Yellow for booked but not completed
+            } else {
+                return 'event-free'; // Blue for available
+            }
+        }
+
          // Function to filter events based on user selection
         function filterEvents(events, showScheduled, hideAvailable) {
             return events.filter(event => {
-                const isScheduled = event.is_student_assigned || event.is_completed;
+                // const isScheduled = event.is_student_assigned || event.is_completed;
                 const isAvailable = !event.is_student_assigned && !event.is_completed;
                 
                 // If "View Scheduled Lessons" is checked, only show scheduled lessons
-                if (showScheduled && !isScheduled) {
-                    return false;
+                if (showScheduled) {
+                    if (!event.is_student_assigned || event.is_completed) {
+                        return false;
+                    }
                 }
                 
                 // If "Hide Available Lessons" is checked, hide available lessons
@@ -791,10 +798,7 @@
             filteredEvents.forEach(event => {
                 calendar.addEvent({
                     ...event,
-                    className: event.is_completed ?
-                        'event-completed' : (event.is_student_assigned ?
-                            'event-booked' :
-                            'event-free')
+                     className: getEventClassName(event)
                 });
             });
             
