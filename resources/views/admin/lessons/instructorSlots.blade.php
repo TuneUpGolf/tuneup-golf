@@ -1088,106 +1088,123 @@ function updateCalendarWithCurrentFilters() {
     });
 
     // Function to handle Schedule Lesson
-    // Function to handle Schedule Lesson
-    function scheduleLesson(startFormatted, endFormatted, startTime, endTime) {
-        console.log("Opening Schedule Lesson Modal");
+ function scheduleLesson(startFormatted, endFormatted, startTime, endTime) {
+    console.log("Opening Schedule Lesson Modal");
 
-        // Show loading first
-        // Swal.fire({
-        //     title: 'Loading...',
-        //     text: 'Opening lesson scheduling',
-        //     allowOutsideClick: false,
-        //     showConfirmButton: false,
-        //     didOpen: () => {
-        //         Swal.showLoading();
-        //     }
-        // });
+    $.ajax({
+        url: "{{ route('lesson.schedule.modal') }}",
+        type: "GET",
+        data: {
+            start_time: startFormatted,
+            end_time: endFormatted,
+            start_time_display: startTime,
+            end_time_display: endTime
+        },
+        success: function(response) {
+            Swal.close();
 
-        // Load the modal content via AJAX
-        $.ajax({
-            url: "{{ route('lesson.schedule.modal') }}", // You'll need to create this route
-            type: "GET",
-            data: {
-                start_time: startFormatted,
-                end_time: endFormatted,
-                start_time_display: startTime,
-                end_time_display: endTime
-            },
-            success: function(response) {
-                // Close loading and open modal
-                Swal.close();
+            Swal.fire({
+                title: 'Schedule Lesson',
+                html: response,
+                width: '700px',
+                showCancelButton: true,
+                confirmButtonText: 'Book Lesson',
+                cancelButtonText: 'Cancel',
+                showLoaderOnConfirm: true,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    initializeScheduleLessonModal();
+                },
+                preConfirm: () => {
+                    return new Promise((resolve, reject) => {
+                        const form = document.getElementById('scheduleLessonForm');
+                        if (!form) {
+                            reject('Form not found');
+                            return;
+                        }
 
-                Swal.fire({
-                    title: 'Schedule Lesson',
-                    html: response,
-                    width: '700px',
-                    showCancelButton: true,
-                    confirmButtonText: 'Book Lesson',
-                    cancelButtonText: 'Cancel',
-                    showLoaderOnConfirm: true,
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        // Initialize any dynamic functionality
-                        initializeScheduleLessonModal();
-                    },
-                    preConfirm: () => {
-                        return new Promise((resolve, reject) => {
-                            const form = document.getElementById('scheduleLessonForm');
-                            if (!form) {
-                                reject('Form not found');
-                                return;
-                            }
+                        const formData = new FormData(form);
+                        formData.append('_token', '{{ csrf_token() }}');
 
-                            const formData = new FormData(form);
-
-                            // Add CSRF token
-                            formData.append('_token', '{{ csrf_token() }}');
-
-                            // Submit via AJAX
-                            $.ajax({
-                                url: "{{ route('lesson.schedule') }}", // You'll need to create this route
-                                type: "POST",
-                                data: formData,
-                                processData: false,
-                                contentType: false,
-                                success: function(response) {
+                        $.ajax({
+                            url: "{{ route('lesson.schedule') }}",
+                            type: "POST",
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                if (response.success) {
                                     resolve(response);
-                                },
-                                error: function(xhr) {
-                                    let errorMessage = 'Something went wrong while scheduling the lesson!';
-                                    if (xhr.responseJSON && xhr.responseJSON.errors) {
-                                        errorMessage = Object.values(xhr.responseJSON.errors).join('<br>');
-                                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
-                                        errorMessage = xhr.responseJSON.message;
-                                    } 
-                                    reject(errorMessage);
+                                } else {
+                                    // ✅ ERROR CASE: Close modal and show SweetAlert
+                                    Swal.close();
+                                    setTimeout(() => {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.message || 'Booking failed',
+                                            confirmButtonText: 'OK'
+                                        });
+                                    }, 300);
+                                    return;
                                 }
-                            });
+                            },
+                            error: function(xhr) {
+                                // ✅ CONFLICT CASE: Close modal and show SweetAlert
+                                if (xhr.status === 409) {
+                                    const message = xhr.responseJSON?.message || 'Time slot conflict!';
+                                    Swal.close();
+                                    setTimeout(() => {
+                                        Swal.fire({
+                                            icon: 'warning',
+                                            title: 'Slot Not Available',
+                                            text: message,
+                                            confirmButtonText: 'OK'
+                                        });
+                                    }, 300);
+                                    return;
+                                }
+                                
+                                // ✅ OTHER ERRORS: Close modal and show SweetAlert
+                                let errorMessage = 'Something went wrong while scheduling the lesson!';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                }
+                                
+                                Swal.close();
+                                setTimeout(() => {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: errorMessage,
+                                        confirmButtonText: 'OK'
+                                    });
+                                }, 300);
+                            }
                         });
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Lesson scheduled successfully!',
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            // Refresh the calendar
-                            showPageLoader();
-                            window.location.reload();
-                        });
-                    }
-                });
-            },
-            error: function(xhr, status, error) {
-                Swal.close();
-                console.error('Error loading modal:', error);
-                Swal.fire('Error', 'Could not load schedule lesson form', 'error');
-            }
-        });
-    }
+                    });
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // ✅ SUCCESS CASE: Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Lesson scheduled successfully!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    // ❌ NO window.location.reload() here
+                }
+            });
+        },
+        error: function(xhr, status, error) {
+            // ✅ MODAL LOADING ERROR: Close modal and show SweetAlert
+            Swal.close();
+            Swal.fire('Error', 'Could not load schedule lesson form', 'error');
+        }
+    });
+}
 
     // Function to initialize the schedule lesson modal functionality
     function initializeScheduleLessonModal() {
