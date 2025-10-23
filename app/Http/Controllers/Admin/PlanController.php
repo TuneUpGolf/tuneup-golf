@@ -216,6 +216,9 @@ class PlanController extends Controller
 
     public function update(Request $request, $id)
     {
+        // echo $_POST['description'] ;
+        // dd($_POST['description'] );
+        // die;
         if (Auth::user()->can('edit-plan')) {
             request()->validate([
                 'name'          => 'required|max:50|unique:plans,name,' . $id,
@@ -300,7 +303,7 @@ class PlanController extends Controller
             $plan->duration        = $request->duration;
             $plan->durationtype    = $request->durationtype;
             $plan->max_users       = $request->max_users;
-            $plan->description     = $request->description;
+            $plan->description     = $_POST['description'];
             $plan->is_chat_enabled = $request->chat == '1' ? 1 : 0;
             $plan->is_feed_enabled = $request->feed == '1' ? 1 : 0;
             $plan->tenant_id       = $tenantId;
