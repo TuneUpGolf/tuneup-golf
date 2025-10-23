@@ -1957,7 +1957,7 @@ class LessonController extends Controller
     }
 
     public function scheduleLesson(Request $request)
-    {
+{
         // Validate the request
         $request->validate([
             'lesson_id' => 'required|exists:lessons,id',
