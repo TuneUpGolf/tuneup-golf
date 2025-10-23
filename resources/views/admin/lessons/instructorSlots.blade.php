@@ -18,27 +18,28 @@
                                 <div class="mb-3">
                                     <div class="form-label">
                                         <strong>Select Lessons</strong>
-                                        <small class="text-muted">(Click to expand)</small>
                                     </div>
+
                                     <div class="lesson-checkboxes-container">
-                                        <div class="lesson-checkboxes" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease; border: 1px solid #dee2e6; border-radius: 0.375rem;">
-                                            <div style="padding: 10px;">
+                                        <div class="lesson-checkboxes">
+                                            <div class="lesson-list">
                                                 @foreach ($lessons as $lesson)
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" 
-                                                        name="lesson_ids[]" 
-                                                        value="{{ $lesson->id }}" 
-                                                        id="lesson_{{ $lesson->id }}"
-                                                        {{ in_array($lesson->id, (array) request()->input('lesson_ids', [])) ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="lesson_{{ $lesson->id }}">
-                                                        {{ ucfirst($lesson->lesson_name) }}
-                                                    </label>
-                                                </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" 
+                                                            name="lesson_ids[]" 
+                                                            value="{{ $lesson->id }}" 
+                                                            id="lesson_{{ $lesson->id }}"
+                                                            {{ in_array($lesson->id, (array) request()->input('lesson_ids', [])) ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="lesson_{{ $lesson->id }}">
+                                                            {{ ucfirst($lesson->lesson_name) }}
+                                                        </label>
+                                                    </div>
                                                 @endforeach
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
                                 
                                 <div class="mb-3">
                                     <!-- <label class="form-label"><strong>View Filters</strong></label> -->
@@ -183,6 +184,27 @@
         border-color: #FF3D41 !important;
         color: #fff !important;
     }
+
+    .lesson-checkboxes {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 10px;
+    max-height: 250px; /* fixed visible height */
+    overflow-y: auto;  /* scroll when too many lessons */
+    }
+
+    /* Optional — makes scrollbar look cleaner */
+    .lesson-checkboxes::-webkit-scrollbar {
+        width: 6px;
+    }
+    .lesson-checkboxes::-webkit-scrollbar-thumb {
+        background: #adb5bd;
+        border-radius: 4px;
+    }
+    .lesson-checkboxes::-webkit-scrollbar-thumb:hover {
+        background: #868e96;
+    }
+
 </style>
 <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.min.css">
@@ -349,6 +371,7 @@
                             Swal.close();
                             setAvailability(startFormatted, endFormatted, startTime, endTime);
                         });
+                        
 
                         document.getElementById('addPersonalEvent').addEventListener('click', function() {
                             Swal.close();
@@ -1193,6 +1216,7 @@
             success: function(response) {
                 // Close loading and open modal
                 Swal.close();
+                // resolve();
 
                 Swal.fire({
                     title: 'Set Availability',
@@ -1233,6 +1257,9 @@
                                         timer: 2000,
                                         showConfirmButton: false
                                     });
+
+                                    location.reload();
+
                                 },
                                 error: function(xhr) {
                                     let errorMessage = 'Something went wrong while saving!';

@@ -1,6 +1,6 @@
 <div class="modal-content border-0 shadow-sm rounded">
     <div class="modal-header border-bottom-0 pt-4 pb-2 px-4">
-        <h5 class="modal-title fw-semibold">Schedule Lesson</h5>
+        <!-- <h5 class="modal-title fw-semibold">Schedule Lesson</h5> -->
     </div>
 
     <div class="modal-body px-4">
