@@ -120,8 +120,18 @@ class StudentPurchaseDataTable extends DataTable
                 return '<span style="' . $statusStyle . '">' . e($s) . '</span>';
             })
             ->editColumn('due_date', function ($purchase) {
-                return Carbon::parse($purchase->created_at)->format('M d, Y h:i A');
+                return Carbon::parse($purchase->created_at)->format('M d, Y');
             })
+            ->editColumn('lesson_datetime', function ($purchase) {
+                // 🕒 Date + time
+                if($purchase->lesson->type == 'online'){
+                    return Carbon::parse($purchase->created_at)->format('M d, Y h:i A');
+                }else{
+                return $purchase->slots?->first()?->date_time ?  Carbon::parse($purchase->slots->first()->date_time)->format('M d, Y h:i A') : '';
+
+                }
+            })
+
             ->addColumn('remaining_slots', function ($purchase) {
                 $lesson = $purchase->lesson;
                 if (!$lesson) return '0';
@@ -292,7 +302,7 @@ class StudentPurchaseDataTable extends DataTable
                                 console.log('rowData:', rowData); 
                                 console.log('lesson_type:', rowData.lesson_type);
 
-                                var lessonDateTime = rowData.lesson_datetime ?? rowData.due_date ?? '-';
+                                var lessonDateTime = rowData.lesson_datetime ?? '-';
                                 var lessonDateHtml = '<tr><td style=\"font-weight: bold; padding: 5px;\">Lesson Date/Time:</td><td style=\"padding: 5px;\">' + lessonDateTime + '</td></tr>';
 
                                 var remainingSlotsHtml = '';
@@ -592,6 +602,7 @@ class StudentPurchaseDataTable extends DataTable
                 ->orderable(false)
                 ->searchable(false)
                 ->addClass('all'), // always visible even on mobile
+
 
             Column::make('total_amount')
                 ->title(__('Total ($)'))

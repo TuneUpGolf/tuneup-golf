@@ -169,7 +169,7 @@ class PlanController extends Controller
                 'durationtype'    => $request->durationtype,
                 'tenant_id'       => $tenantId,
                 'max_users'       => $request->max_users,
-                'description'     => $request->description,
+                'description'     =>  $_POST['description'],
                 'is_chat_enabled' => $request->chat == '1' ? 1 : 0,
                 'is_feed_enabled' => $request->feed == '1' ? 1 : 0,
                 'instructor_id'   => $instructorId,

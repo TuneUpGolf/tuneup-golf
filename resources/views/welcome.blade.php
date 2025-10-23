@@ -75,7 +75,6 @@
                 <div class="row g-4 py-4">
                     <h3 style="font-size:22px;font-weight:bold;text-align:center">{{ $instructor_heading ?? '' }}</h3>
                     @forelse($instructors[0]->lessons as $lesson)
-                    
                         @if ($lesson->is_package_lesson == 0)
                             <div class="col-md-4">
                                 <div class="bg-gray rounded-lg shadow flex flex-col h-full w-full">
@@ -363,7 +362,7 @@
 
                                                     </div>
                                                     <div class="border-t border-gray-300"></div>
-                                                    <div class="px-3 py-4">
+                                                    <div class="px-3 py-4" id="sub">
                                                         @if ($plan->id != 1)
                                                             {{-- @if ($plan->id == $user->plan_id && !empty($user->plan_expired_date) && Carbon::parse($user->plan_expired_date)->gte(now()))
                                                                         <a href="javascript:void(0)"
@@ -504,8 +503,17 @@
                                                         @endif
                                                         <p class="font-semibold text-xl mb-2 mt-2">Includes:</p>
                                                         <p class="text-gray-600">
+
                                                             {!! $plan->description !!}
                                                         </p>
+                                                        <style>
+                                                            #sub ul, ol{
+                                                                margin-left: 27px !important;
+                                                            }
+                                                            #sub ol{
+                                                                list-style: auto;
+                                                            }
+                                                        </style>
                                                     </div>
                                                 </div>
                                             </div>
@@ -821,7 +829,7 @@
                 `;
             }
 
-            if (longDesc && longDesc.trim() !== ''){
+            if (longDesc && longDesc.trim() !== '') {
                 modalContent += `
                     <div class="longDescSection mt-4">
                         <h3 class="text-lg font-medium mb-2 text-gray-900">
