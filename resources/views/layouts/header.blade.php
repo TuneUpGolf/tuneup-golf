@@ -329,18 +329,18 @@
 </header>
 @push('javascript')
     <script>
-        $(document).on("click", "#kt_activities_toggle", function() {
-            $.ajax({
-                url: '{{ route('read.notification') }}',
-                data: {
-                    _token: $("meta[name='csrf-token']").attr('content')
-                },
-                method: 'post',
-            }).done(function(data) {
-                if (data.is_success) {
-                    $("#kt_activities_toggle").find(".animation-blink").remove();
-                }
-            });
-        });
+        // $(document).on("click", "#kt_activities_toggle", function() {
+        //     $.ajax({
+        //         url: '{{ route('read.notification') }}',
+        //         data: {
+        //             _token: $("meta[name='csrf-token']").attr('content')
+        //         },
+        //         method: 'post',
+        //     }).done(function(data) {
+        //         if (data.is_success) {
+        //             $("#kt_activities_toggle").find(".animation-blink").remove();
+        //         }
+        //     });
+        // });
     </script>
 @endpush

@@ -322,7 +322,7 @@
                 `;
             }
 
-            if (longDesc && longDesc.trim() !== ''){
+            if (longDesc && longDesc.trim() !== ''){    
                 modalHtml += `
                     <div class="longDescSection mt-4">
                         <h3 class="text-lg font-medium mb-2 text-gray-900 ">

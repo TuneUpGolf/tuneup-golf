@@ -120,7 +120,7 @@ class StudentPurchaseDataTable extends DataTable
                 return '<span style="' . $statusStyle . '">' . e($s) . '</span>';
             })
             ->editColumn('due_date', function ($purchase) {
-                return Carbon::parse($purchase->created_at)->toFormattedDateString();
+                return Carbon::parse($purchase->created_at)->format('M d, Y h:i A');
             })
             ->addColumn('remaining_slots', function ($purchase) {
                 $lesson = $purchase->lesson;
