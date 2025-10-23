@@ -1951,14 +1951,14 @@ class LessonController extends Controller
     {
         $user = Auth::user();
         // dd($user);
-        $lessons = Lesson::where('created_by', $user->id)->whereIn('type',['package','inPerson'])->get();
+        $lessons = Lesson::where('created_by', $user->id)->whereIn('type',['package','inPerson'])->where('active_status', true)->get();
         $students = Student::get(); // Adjust based on your user structure
         
         return view('admin.lessons.schedule-lesson-modal', compact('lessons', 'students'));
     }
 
     public function scheduleLesson(Request $request)
-{
+    {
         // Validate the request
         $request->validate([
             'lesson_id' => 'required|exists:lessons,id',
