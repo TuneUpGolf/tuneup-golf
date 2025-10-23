@@ -214,10 +214,12 @@
 <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/core/main.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid/main.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid/main.css" rel="stylesheet" />
- <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
 
 <script>
+    //now need to work on relaoding of page///
     document.addEventListener('DOMContentLoaded', function() {
          // Filter form handling
         const filterForm = document.getElementById('filterForm');
@@ -225,20 +227,31 @@
         const viewScheduledCheckbox = document.getElementById('viewScheduled');
         const hideAvailableCheckbox = document.getElementById('hideAvailable');
         
-        // Auto-submit form when any filter changes
-        [lessonSelect, viewScheduledCheckbox, hideAvailableCheckbox].forEach(element => {
-            if (element) {
-                element.addEventListener('change', function() {
-                    filterForm.submit();
-                });
-            }
+        // Remove auto-submit and replace with AJAX calls
+        document.querySelectorAll('.lesson-checkboxes input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function(e) {
+                e.preventDefault();
+                updateCalendarWithCurrentFilters();
+            });
         });
 
-          // Add auto-submit for lesson checkboxes
-        document.querySelectorAll('.lesson-checkboxes input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                filterForm.submit();
+          if (viewScheduledCheckbox) {
+            viewScheduledCheckbox.addEventListener('change', function(e) {
+                e.preventDefault();
+                updateCalendarWithCurrentFilters();
             });
+        }
+
+        if (hideAvailableCheckbox) {
+            hideAvailableCheckbox.addEventListener('change', function(e) {
+                e.preventDefault();
+                updateCalendarWithCurrentFilters();
+            });
+        }
+
+          filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            updateCalendarWithCurrentFilters();
         });
 
          // Lesson checkboxes expand/collapse functionality
@@ -774,7 +787,7 @@
             }
         });
 
-          function getEventClassName(event) {
+        function getEventClassName(event) {
             if (event.is_completed) {
                 return 'event-completed'; // Green for completed
             } else if (event.is_student_assigned) {
@@ -805,6 +818,156 @@
                 return true;
             });
         }
+
+          // NEW: Function to update calendar with current filters WITHOUT page reload
+        // function updateCalendarWithCurrentFilters() {
+        //     // Get current filter states
+        //     const viewScheduled = document.getElementById('viewScheduled')?.checked || false;
+        //     const hideAvailable = document.getElementById('hideAvailable')?.checked || false;
+            
+        //     // Get selected lesson IDs
+        //     const selectedLessonIds = Array.from(document.querySelectorAll('.lesson-checkboxes input[type="checkbox"]:checked'))
+        //         .map(checkbox => checkbox.value);
+            
+        //     console.log('Applying filters:', {
+        //         viewScheduled,
+        //         hideAvailable,
+        //         selectedLessonIds
+        //     });
+            
+        //     // Filter events based on current selections
+        //       let filteredEvents = [...allEvents];
+            
+        //     // Apply lesson filter if any lessons are selected
+        //     if (selectedLessonIds.length > 0) {
+        //         filteredEvents = filteredEvents.filter(event => 
+        //             selectedLessonIds.includes(event.lesson.id.toString())
+        //         );
+        //     }
+            
+        //     // Apply view filters
+        //     filteredEvents = filterEvents(filteredEvents, viewScheduled, hideAvailable);
+            
+        //     // Remove all existing events except blocked slots
+        //     calendar.getEvents().forEach(event => {
+        //         if (!event.extendedProps.isBlocked) {
+        //             event.remove();
+        //         }
+        //     });
+            
+        //     // Add filtered events
+        //     filteredEvents.forEach(event => {
+        //         calendar.addEvent({
+        //             ...event,
+        //             className: getEventClassName(event)
+        //         });
+        //     });
+            
+        //     // Add blocked slots (if not viewing scheduled)
+        //     if (!viewScheduled) {
+        //         (blockSlots || []).forEach(slot => {
+        //             calendar.addEvent({
+        //                 title: "Blocked",
+        //                 start: slot.start_time,
+        //                 end: slot.end_time,
+        //                 color: "#ff3d41",
+        //                 extendedProps: {
+        //                     isBlocked: true,
+        //                     description: slot.description,
+        //                     id: slot.id
+        //                 }
+        //             });
+        //         });
+        //     }
+            
+        //     calendar.render();
+        // }
+
+        // DEBUGGING VERSION - Let's find where the issue is
+function updateCalendarWithCurrentFilters() {
+    // Get current filter states
+    const viewScheduled = document.getElementById('viewScheduled')?.checked || false;
+    const hideAvailable = document.getElementById('hideAvailable')?.checked || false;
+    
+    // Get selected lesson IDs
+    const selectedLessonIds = Array.from(document.querySelectorAll('.lesson-checkboxes input[type="checkbox"]:checked'))
+        .map(checkbox => checkbox.value);
+    
+    console.log('🔍 DEBUG FILTERS:', {
+        viewScheduled,
+        hideAvailable,
+        selectedLessonIds,
+        totalBlockSlots: blockSlots?.length || 0,
+        blockSlots: blockSlots // Let's see what's in blockSlots
+    });
+    
+    // Start with all events
+    let filteredEvents = [...allEvents];
+    
+    // Apply lesson filter ONLY if any lessons are selected
+    if (selectedLessonIds.length > 0) {
+        filteredEvents = filteredEvents.filter(event => {
+            return event.lesson && selectedLessonIds.includes(event.lesson.id.toString());
+        });
+    }
+    
+    // Apply view filters
+    filteredEvents = filterEvents(filteredEvents, viewScheduled, hideAvailable);
+    
+    console.log('📊 After filtering:', {
+        filteredEventsCount: filteredEvents.length,
+        shouldShowBlocked: !viewScheduled
+    });
+    
+    // Remove all existing events
+    calendar.getEvents().forEach(event => {
+        event.remove();
+    });
+    
+    // Add filtered events
+    filteredEvents.forEach(event => {
+        calendar.addEvent({
+            ...event,
+            className: getEventClassName(event)
+        });
+    });
+    
+    // ✅ FIXED: Add blocked slots ONLY if NOT viewing scheduled lessons
+    if (!viewScheduled && blockSlots && blockSlots.length > 0) {
+        console.log('🟥 Adding blocked slots:', blockSlots.length);
+        
+        blockSlots.forEach(slot => {
+            console.log('🟥 Block Slot:', {
+                start: slot.start_time,
+                end: slot.end_time,
+                description: slot.description
+            });
+            
+            calendar.addEvent({
+                id: `blocked-${slot.id}`, // Unique ID for blocked slots
+                title: "Blocked",
+                start: slot.start_time,
+                end: slot.end_time,
+                color: "#ff3d41",
+                extendedProps: {
+                    isBlocked: true,
+                    description: slot.description,
+                    id: slot.id
+                }
+            });
+        });
+    } else {
+        console.log('❌ NOT showing blocked slots because:', {
+            viewScheduled,
+            hasBlockSlots: blockSlots && blockSlots.length > 0
+        });
+    }
+    
+    calendar.render();
+}
+        // Make calendar globally accessible for other functions
+        window.calendar = calendar;
+
 
          // Function to apply filters and refresh calendar
         function applyFilters() {
@@ -996,7 +1159,7 @@
                                         errorMessage = Object.values(xhr.responseJSON.errors).join('<br>');
                                     } else if (xhr.responseJSON && xhr.responseJSON.message) {
                                         errorMessage = xhr.responseJSON.message;
-                                    }
+                                    } 
                                     reject(errorMessage);
                                 }
                             });

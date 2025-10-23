@@ -44,7 +44,7 @@ class LessonController extends Controller
 
     public function index(Request $request)
     {
-
+        // dd("Sd");
         if (Auth::user()->can('manage-lessons')) {
             if ($request->ajax()) {
                 $model = new Lesson();
@@ -413,6 +413,7 @@ class LessonController extends Controller
 
     public function manageSlots()
     {
+        // dd("sd");
         $type = Auth::user()->type;
         if ($type === Role::ROLE_ADMIN) {
             // Handle both single lesson_id and multiple lesson_ids
@@ -1775,6 +1776,7 @@ class LessonController extends Controller
 
     public function getAll()
     {
+        // dd("dd");
         try {
             if (Auth::user()->can('manage-lessons')) {
                 $lessons = Lesson::where('active_status', true)->orderBy(request()->get('sortKey', 'updated_at'), request()->get('sortOrder', 'desc'));
