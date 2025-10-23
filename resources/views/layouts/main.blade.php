@@ -263,6 +263,44 @@
     </script>
 
 
+    @if (auth()->check())
+        <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                // Only create socket once globally
+                if (!window.globalSocket || window.globalSocket.disconnected) {
+                    const socket = io("{{ config('services.chat.base_url') }}", {
+                        query: {
+                            senderid: "{{ auth()->user()->chat_user_id }}"
+                        },
+                        transports: ["polling", "websocket"],
+                        forceNew: false, // don't force a new one if reconnecting
+                        transportOptions: {
+                            polling: {
+                                extraHeaders: {
+                                    Authorization: "Bearer {{ $token ?? '' }}",
+                                }
+                            }
+                        }
+                    });
+
+                    socket.on("connect", () => {
+                        console.log("✅ Global socket connected:", socket.id);
+                    });
+
+                    socket.on("disconnect", () => {
+                        console.log("❌ Global socket disconnected");
+                    });
+
+                    // store it globally
+                    window.globalSocket = socket;
+                } else {
+                    console.log("⚠️ Socket already connected:", window.globalSocket.id);
+                }
+            });
+        </script>
+    @endif
+
 
 
     <script>
