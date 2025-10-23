@@ -75,6 +75,7 @@
                 <div class="row g-4 py-4">
                     <h3 style="font-size:22px;font-weight:bold;text-align:center">{{ $instructor_heading ?? '' }}</h3>
                     @forelse($instructors[0]->lessons as $lesson)
+                    
                         @if ($lesson->is_package_lesson == 0)
                             <div class="col-md-4">
                                 <div class="bg-gray rounded-lg shadow flex flex-col h-full w-full">
@@ -261,11 +262,11 @@
 
                                     <div class="px-3 flex flex-col flex-grow">
 
-                                        @if (!empty($lesson?->long_description) || $lesson?->long_description != '' || $lesson?->long_description != null)
-                                            <div class="hidden long-text text-gray-600"
+                                        @if (!empty($lesson?->long_description) || !empty($lesson?->lesson_description))
+                                            {{-- <div class="hidden long-text text-gray-600"
                                                 style="font-size: 15px; max-height: 100px; overflow-y: auto;">
                                                 {!! $lesson->long_description !!}
-                                            </div>
+                                            </div> --}}
                                             <a href="javascript:void(0)" style="font-size: 15px;margin-bottom:10px"
                                                 data-long_description="{!! $lesson?->long_description !!}"
                                                 class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
