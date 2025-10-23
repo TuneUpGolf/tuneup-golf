@@ -1088,123 +1088,123 @@ function updateCalendarWithCurrentFilters() {
     });
 
     // Function to handle Schedule Lesson
- function scheduleLesson(startFormatted, endFormatted, startTime, endTime) {
-    console.log("Opening Schedule Lesson Modal");
+    function scheduleLesson(startFormatted, endFormatted, startTime, endTime) {
+        console.log("Opening Schedule Lesson Modal");
 
-    $.ajax({
-        url: "{{ route('lesson.schedule.modal') }}",
-        type: "GET",
-        data: {
-            start_time: startFormatted,
-            end_time: endFormatted,
-            start_time_display: startTime,
-            end_time_display: endTime
-        },
-        success: function(response) {
-            Swal.close();
+        $.ajax({
+            url: "{{ route('lesson.schedule.modal') }}",
+            type: "GET",
+            data: {
+                start_time: startFormatted,
+                end_time: endFormatted,
+                start_time_display: startTime,
+                end_time_display: endTime
+            },
+            success: function(response) {
+                Swal.close();
 
-            Swal.fire({
-                title: 'Schedule Lesson',
-                html: response,
-                width: '700px',
-                showCancelButton: true,
-                confirmButtonText: 'Book Lesson',
-                cancelButtonText: 'Cancel',
-                showLoaderOnConfirm: true,
-                allowOutsideClick: false,
-                didOpen: () => {
-                    initializeScheduleLessonModal();
-                },
-                preConfirm: () => {
-                    return new Promise((resolve, reject) => {
-                        const form = document.getElementById('scheduleLessonForm');
-                        if (!form) {
-                            reject('Form not found');
-                            return;
-                        }
+                Swal.fire({
+                    title: 'Schedule Lesson',
+                    html: response,
+                    width: '700px',
+                    showCancelButton: true,
+                    confirmButtonText: 'Book Lesson',
+                    cancelButtonText: 'Cancel',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        initializeScheduleLessonModal();
+                    },
+                    preConfirm: () => {
+                        return new Promise((resolve, reject) => {
+                            const form = document.getElementById('scheduleLessonForm');
+                            if (!form) {
+                                reject('Form not found');
+                                return;
+                            }
 
-                        const formData = new FormData(form);
-                        formData.append('_token', '{{ csrf_token() }}');
+                            const formData = new FormData(form);
+                            formData.append('_token', '{{ csrf_token() }}');
 
-                        $.ajax({
-                            url: "{{ route('lesson.schedule') }}",
-                            type: "POST",
-                            data: formData,
-                            processData: false,
-                            contentType: false,
-                            success: function(response) {
-                                if (response.success) {
-                                    resolve(response);
-                                } else {
-                                    // ✅ ERROR CASE: Close modal and show SweetAlert
+                            $.ajax({
+                                url: "{{ route('lesson.schedule') }}",
+                                type: "POST",
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                success: function(response) {
+                                    if (response.success) {
+                                        resolve(response);
+                                    } else {
+                                        // ✅ ERROR CASE: Close modal and show SweetAlert
+                                        Swal.close();
+                                        setTimeout(() => {
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Error',
+                                                text: response.message || 'Booking failed',
+                                                confirmButtonText: 'OK'
+                                            });
+                                        }, 300);
+                                        return;
+                                    }
+                                },
+                                error: function(xhr) {
+                                    // ✅ CONFLICT CASE: Close modal and show SweetAlert
+                                    if (xhr.status === 409) {
+                                        const message = xhr.responseJSON?.message || 'Time slot conflict!';
+                                        Swal.close();
+                                        setTimeout(() => {
+                                            Swal.fire({
+                                                icon: 'warning',
+                                                title: 'Slot Not Available',
+                                                text: message,
+                                                confirmButtonText: 'OK'
+                                            });
+                                        }, 300);
+                                        return;
+                                    }
+                                    
+                                    // ✅ OTHER ERRORS: Close modal and show SweetAlert
+                                    let errorMessage = 'Something went wrong while scheduling the lesson!';
+                                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                                        errorMessage = xhr.responseJSON.message;
+                                    }
+                                    
                                     Swal.close();
                                     setTimeout(() => {
                                         Swal.fire({
                                             icon: 'error',
                                             title: 'Error',
-                                            text: response.message || 'Booking failed',
+                                            text: errorMessage,
                                             confirmButtonText: 'OK'
                                         });
                                     }, 300);
-                                    return;
                                 }
-                            },
-                            error: function(xhr) {
-                                // ✅ CONFLICT CASE: Close modal and show SweetAlert
-                                if (xhr.status === 409) {
-                                    const message = xhr.responseJSON?.message || 'Time slot conflict!';
-                                    Swal.close();
-                                    setTimeout(() => {
-                                        Swal.fire({
-                                            icon: 'warning',
-                                            title: 'Slot Not Available',
-                                            text: message,
-                                            confirmButtonText: 'OK'
-                                        });
-                                    }, 300);
-                                    return;
-                                }
-                                
-                                // ✅ OTHER ERRORS: Close modal and show SweetAlert
-                                let errorMessage = 'Something went wrong while scheduling the lesson!';
-                                if (xhr.responseJSON && xhr.responseJSON.message) {
-                                    errorMessage = xhr.responseJSON.message;
-                                }
-                                
-                                Swal.close();
-                                setTimeout(() => {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: errorMessage,
-                                        confirmButtonText: 'OK'
-                                    });
-                                }, 300);
-                            }
+                            });
                         });
-                    });
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // ✅ SUCCESS CASE: Show success message
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: 'Lesson scheduled successfully!',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                    // ❌ NO window.location.reload() here
-                }
-            });
-        },
-        error: function(xhr, status, error) {
-            // ✅ MODAL LOADING ERROR: Close modal and show SweetAlert
-            Swal.close();
-            Swal.fire('Error', 'Could not load schedule lesson form', 'error');
-        }
-    });
-}
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // ✅ SUCCESS CASE: Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Lesson scheduled successfully!',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        // ❌ NO window.location.reload() here
+                    }
+                });
+            },
+            error: function(xhr, status, error) {
+                // ✅ MODAL LOADING ERROR: Close modal and show SweetAlert
+                Swal.close();
+                Swal.fire('Error', 'Could not load schedule lesson form', 'error');
+            }
+        });
+    }
 
     // Function to initialize the schedule lesson modal functionality
     function initializeScheduleLessonModal() {
@@ -1375,91 +1375,106 @@ function updateCalendarWithCurrentFilters() {
     ///////
 
     // Function to handle Set Availability in modal
-    function setAvailability(startFormatted, endFormatted, startTime, endTime) {
-        console.log("Opening Set Availability Modal");
+function setAvailability(startFormatted, endFormatted, startTime, endTime) {
+    console.log("Opening Set Availability Modal");
 
-        // Show loading first
-        // Swal.fire({
-        //     title: 'Loading...',
-        //     text: 'Opening availability settings',
-        //     allowOutsideClick: false,
-        //     showConfirmButton: false,
-        //     didOpen: () => {
-        //         Swal.showLoading();
-        //     }
-        // });
+    $.ajax({
+        url: "{{ route('slot.availability.modal') }}",
+        type: "GET",
+        success: function(response) {
+            Swal.close();
 
-        // Load the modal content via AJAX
-        $.ajax({
-            url: "{{ route('slot.availability.modal') }}",
-            type: "GET",
-            success: function(response) {
-                // Close loading and open modal
-                Swal.close();
-                // resolve();
+            Swal.fire({
+                title: 'Set Availability',
+                html: response,
+                width: '700px',
+                showCancelButton: true,
+                confirmButtonText: 'Save Availability',
+                cancelButtonText: 'Cancel',
+                showLoaderOnConfirm: true,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    initAvailabilityModal();
+                },
+                preConfirm: () => {
+                    return new Promise((resolve, reject) => {
+                        const form = document.getElementById('availabilityModalForm');
+                        const formData = new FormData(form);
+                        formData.append('_token', '{{ csrf_token() }}');
 
-                Swal.fire({
-                    title: 'Set Availability',
-                    html: response,
-                    width: '700px',
-                    showCancelButton: true,
-                    confirmButtonText: 'Save Availability',
-                    cancelButtonText: 'Cancel',
-                    showLoaderOnConfirm: true,
-                    didOpen: () => {
-                        // The JavaScript in the modal content will automatically run
-                        console.log('Modal opened successfully');
-                        initAvailabilityModal();
-                    },
-                    preConfirm: () => {
-                        // Handle form submission
-                        return new Promise((resolve, reject) => {
-                            const form = document.getElementById('availabilityModalForm');
-                            const formData = new FormData(form);
-
-                            // Add CSRF token
-                            formData.append('_token', '{{ csrf_token() }}');
-
-                            // Submit via AJAX
-                            $.ajax({
-                                url: "{{ route('slot.availability') }}",
-                                type: "POST",
-                                data: formData,
-                                processData: false,
-                                contentType: false,
-                                success: function(response) {
-                                    resolve();
-                                    // Show success message
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Success!',
-                                        text: 'Availability set successfully!',
-                                        timer: 2000,
-                                        showConfirmButton: false
-                                    });
-
-                                    location.reload();
-
-                                },
-                                error: function(xhr) {
-                                    let errorMessage = 'Something went wrong while saving!';
-                                    if (xhr.responseJSON && xhr.responseJSON.errors) {
-                                        errorMessage = Object.values(xhr.responseJSON.errors).join('<br>');
+                        $.ajax({
+                            url: "{{ route('slot.availability') }}",
+                            type: "POST",
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(response, status, xhr) {
+                                // ✅ Check if this is a real success or conflict disguised as success
+                                if (typeof response === 'string') {
+                                    // HTML response means redirect (conflict)
+                                    if (response.includes('conflict') || response.includes('Conflict')) {
+                                        // CONFLICT - Show error and DON'T resolve
+                                        Swal.close();
+                                        setTimeout(() => {
+                                            Swal.fire({
+                                                icon: 'warning',
+                                                title: 'Slot Conflicts',
+                                                text: 'Some time slots are already booked. Please choose different times.',
+                                                confirmButtonText: 'OK'
+                                            });
+                                        }, 300);
+                                        return; // ❌ Don't call resolve or reject
                                     }
-                                    reject(errorMessage);
                                 }
-                            });
+                                
+                                // ✅ REAL SUCCESS
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!', 
+                                    text: 'Availability set successfully!',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                resolve(); // ✅ This allows the modal to close properly
+                                 location.reload();
+                            },
+                            error: function(xhr, status, error) {
+                                // ✅ OTHER ERRORS
+                                let errorMessage = 'Something went wrong while saving availability!';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                }
+                                
+                                Swal.close();
+                                setTimeout(() => {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: errorMessage,
+                                        confirmButtonText: 'OK'
+                                    });
+                                }, 300);
+                                reject(errorMessage); // ✅ This tells SweetAlert there was an error
+                            }
                         });
-                    }
-                });
-            },
-            error: function(xhr, status, error) {
-                Swal.close();
-                console.error('Error loading modal:', error);
-                Swal.fire('Error', 'Could not load availability form', 'error');
-            }
-        });
-    }
+                    });
+                }
+            }).then((result) => {
+                // This executes only on successful resolve()
+                if (result.isConfirmed) {
+                    console.log('✅ Slot added successfully without page reload');
+                }
+            }).catch((error) => {
+                // This executes only on reject()
+                console.log('Error in setAvailability:', error);
+            });
+        },
+        error: function(xhr, status, error) {
+            Swal.close();
+            Swal.fire('Error', 'Could not load availability form', 'error');
+        }
+    });
+}
 
     // Simple loading functions to avoid SweetAlert loading issues
     function showSimpleLoading() {

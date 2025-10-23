@@ -1891,6 +1891,7 @@ class LessonController extends Controller
                                 ->exists();
 
                             if ($conflict) {
+                            
                                 $conflictErrors[] = "Slot conflict for lesson '{$lesson->lesson_name}' on {$date} at {$currentSlotStart->format('H:i')}.";
                             } else {
                                 $slotsToCreate[] = [
@@ -1950,7 +1951,7 @@ class LessonController extends Controller
     {
         $user = Auth::user();
         // dd($user);
-        $lessons = Lesson::where('created_by', auth()->id())->where('type','package')->get();
+        $lessons = Lesson::where('created_by', $user->id)->whereIn('type',['package','inPerson'])->get();
         $students = Student::get(); // Adjust based on your user structure
         
         return view('admin.lessons.schedule-lesson-modal', compact('lessons', 'students'));
