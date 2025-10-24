@@ -2040,10 +2040,10 @@ class LessonController extends Controller
                 : response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
         }
     }
-
     public function addAvailabilitySlots(Request $request)
 {
     try {
+        // dd($request->all());
         $validatedData = $request->validate([
             'lesson_id' => 'required|array',
             'start_date' => 'required',
@@ -2056,6 +2056,7 @@ class LessonController extends Controller
 
         $conflictErrors = [];
         $slotsToCreate = [];
+        $slots = [];
 
         $lessons = Lesson::whereIn('id', $validatedData['lesson_id'])->get();
         $selectedDates = explode(",", $request->start_date);
@@ -2067,6 +2068,7 @@ class LessonController extends Controller
         
         foreach ($lessons as $lesson) {
             foreach ($selectedDates as $date) {
+
                 foreach ($startTime as $key => $startTimeVal) {
 
                     $slotStart = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $startTimeVal);
@@ -2081,26 +2083,26 @@ class LessonController extends Controller
 
                     // Check if any slot overlaps with this time range
                     for ($i = 0; $i < $maxSlots; $i++) {
-                        $currentSlotEnd = $currentSlotStart->copy()->addMinutes($lessonMinutes)->subMinute();
+                        $currentSlotEnd = $currentSlotStart->copy()->addMinutes($lessonMinutes)->subMinute(); // to allow adjacent slots
 
-                        // DEBUG: Get the actual conflicting slots
-                        $conflictingSlots = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
+                        $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
                             ->where('slots.tenant_id', $tenantId)
-                            ->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()])
-                            ->select('slots.*', 'lessons.lesson_name')
-                            ->get();
+                            ->where(function($query) use ($currentSlotStart, $currentSlotEnd) {
+                                $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
+                            })
+                            ->exists();
 
-                        if ($conflictingSlots->count() > 0) {
-                            foreach ($conflictingSlots as $conflictingSlot) {
-                                $conflictErrors[] = "Slot conflict for lesson '{$lesson->lesson_name}' on {$date} at {$currentSlotStart->format('H:i')}. Conflicts with: {$conflictingSlot->lesson_name} at {$conflictingSlot->date_time->format('H:i')}";
-                            }
+                            dd($conflict);
+
+                        if ($conflict) {
+                            $conflictErrors[] = "Slot conflict for lesson '{$lesson->lesson_name}' on {$date} at {$currentSlotStart->format('H:i')}.";
                         } else {
                             $slotsToCreate[] = [
                                 'lesson_id' => $lesson->id,
                                 'date_time' => $currentSlotStart->copy(),
                                 'location'  => $request->location,
-                                'tenant_id' => $tenantId,
-                                'is_active' => true
+                                'tenant_id' => $tenantId, // ADD THIS LINE - FIXED!
+                                'is_active' => true // Also add this if needed
                             ];
                         }
 
@@ -2111,8 +2113,6 @@ class LessonController extends Controller
         }
 
         if (!empty($conflictErrors)) {
-            // Debug: Log the conflicts to see what's happening
-            \Log::info('Slot Conflicts Detected:', $conflictErrors);
             return back()->withErrors(['conflicts' => $conflictErrors])->withInput();
         }
 
@@ -2123,8 +2123,28 @@ class LessonController extends Controller
             }
         });
 
-        // ... rest of your code
+        // Send push notifications for new lessons
+        $students = Student::whereHas('pushToken')
+            ->with('pushToken')
+            ->get()
+            ->pluck('PushToken.token')
+            ->toArray();
 
+        if (!empty($students)) {
+            foreach ($lessons as $lesson) {
+                $title = "New Lessons Available!";
+                $body  = "{$lesson->user->name} has created new lesson opportunities: {$lesson->lesson_name}. Check now!";
+                SendPushNotification::dispatch($students, $title, $body);
+            }
+        }
+
+        // Return based on redirect parameter
+        return $request->get('redirect') == 1
+            ? redirect()->route('lesson.index')->with('success', 'Slots Successfully Added')
+            : response()->json([
+                'message' => 'Consecutive Slots for the given range are successfully created',
+                'slots' => $slotsToCreate
+            ]);
     } catch (\Exception $e) {
         return $request->get('redirect') == 1
             ? redirect()->back()->with('error', $e->getMessage())
