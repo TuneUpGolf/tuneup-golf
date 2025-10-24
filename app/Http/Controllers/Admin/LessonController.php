@@ -1946,6 +1946,10 @@ class LessonController extends Controller
             $selectedDates = explode(",", $request->start_date);
             $startTime = $validatedData['start_time'];
             $endTime = $validatedData['end_time'];
+
+            // Get current tenant ID
+            $tenantId = Auth::user()->tenant_id;
+            // dd($tenantId);
             foreach ($lessons as $lesson) {
                 foreach ($selectedDates as $date) {
 
@@ -1970,6 +1974,7 @@ class LessonController extends Controller
                             //     ->exists();
 
                             $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
+                            ->where('slots.tenant_id', $tenantId)
                             ->where(function($query) use ($currentSlotStart, $currentSlotEnd) {
                                 $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
                                     // ->orWhere(function($q) use ($currentSlotStart) {
@@ -2062,7 +2067,8 @@ class LessonController extends Controller
         try {
             // STEP 1: Create multiple availability slots
             $lesson = Lesson::find($request->lesson_id);
-            
+            // Get current tenant ID
+            $tenantId = Auth::user()->tenant_id;
             // Calculate time frames
             $slotStart = Carbon::createFromFormat('Y-m-d H:i', $request->lesson_date . ' ' . $request->start_time);
             $slotEnd = Carbon::createFromFormat('Y-m-d H:i', $request->lesson_date . ' ' . $request->end_time);
@@ -2086,6 +2092,7 @@ class LessonController extends Controller
                 //     ->whereBetween('date_time', [$currentSlotStart, $currentSlotEnd])
                 //     ->exists();
                 $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
+                ->where('slots.tenant_id', $tenantId)
                 ->where(function($query) use ($currentSlotStart, $currentSlotEnd) {
                     $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
                         // ->orWhere(function($q) use ($currentSlotStart) {
