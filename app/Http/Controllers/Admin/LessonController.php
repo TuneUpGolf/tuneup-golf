@@ -2354,6 +2354,7 @@ class LessonController extends Controller
 
             $currentSlotStart = $slotStart->copy();
             $createdSlots = [];
+            $tenantId = Auth::user()->tenant_id;
 
             // Create multiple slots within the time range
             for ($i = 0; $i < $maxSlots; $i++) {
@@ -2363,15 +2364,23 @@ class LessonController extends Controller
                 // $conflict = Slots::where('lesson_id', $request->lesson_id)
                 //     ->whereBetween('date_time', [$currentSlotStart, $currentSlotEnd])
                 //     ->exists();
+                // $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
+                // ->where(function($query) use ($currentSlotStart, $currentSlotEnd) {
+                //     $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
+                //         // ->orWhere(function($q) use ($currentSlotStart) {
+                //         //     $q->where('slots.date_time', '<', $currentSlotStart)
+                //         //         ->whereRaw('DATE_ADD(slots.date_time, INTERVAL (lessons.lesson_duration * 60) MINUTE) > ?', [$currentSlotStart]);
+                //         // });
+                // })
+                // ->exists();
+
                 $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
-                ->where(function($query) use ($currentSlotStart, $currentSlotEnd) {
-                    $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
-                        // ->orWhere(function($q) use ($currentSlotStart) {
-                        //     $q->where('slots.date_time', '<', $currentSlotStart)
-                        //         ->whereRaw('DATE_ADD(slots.date_time, INTERVAL (lessons.lesson_duration * 60) MINUTE) > ?', [$currentSlotStart]);
-                        // });
-                })
-                ->exists();
+                        ->where('slots.tenant_id', $tenantId)
+                        ->where('slots.is_active', 0)
+                        ->where(function($query) use ($currentSlotStart, $currentSlotEnd) {
+                            $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
+                        })
+                        ->exists();
 
                 if (!$conflict) {
                     // Create the slot
