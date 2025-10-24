@@ -311,6 +311,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function plans()
     {
-        return $this->hasMany(Plan::class, 'instructor_id', 'id');
+        return $this->hasMany(Plan::class, 'instructor_id', 'id')->orderBy('column_order', 'asc');
     }
 }

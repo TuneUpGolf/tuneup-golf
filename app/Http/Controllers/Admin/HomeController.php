@@ -81,7 +81,7 @@ class HomeController extends Controller
             }
 
             $chatEnabled = $this->utility->chatEnabled($user);
-            $plans = Plan::with('instructor')->whereHas('instructor')->get();
+            $plans = Plan::with('instructor')->whereHas('instructor')->orderBy('column_order', 'asc')->get();
 
             $tab = !empty($tab) ? $tab : 'in-person';
 
