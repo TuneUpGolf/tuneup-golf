@@ -1045,6 +1045,8 @@ class PurchaseController extends Controller
             'purchases.id',
             'purchases.status',
             'lessons.lesson_name',
+            'lessons.type as lesson_type',
+            'lessons.created_at',
             'students.name as student_name',
             'slots.date_time',
             'slots.location',

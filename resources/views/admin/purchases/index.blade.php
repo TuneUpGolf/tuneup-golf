@@ -22,7 +22,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title font-bold text-lg">Pre Set Lesson Students</h1>
+                    <h1 class="modal-title font-bold text-lg">Lesson Students</h1>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"
                         onclick="closeInstructorPopup()">
                         <span aria-hidden="true">&times;</span>
@@ -53,7 +53,7 @@
         </div>
     </div>
 
-    
+
 @endsection
 
 @push('css')
@@ -64,19 +64,19 @@
         }
 
         table.dataTable td {
-  white-space: normal !important;
-  word-wrap: break-word;
-}
+            white-space: normal !important;
+            word-wrap: break-word;
+        }
 
-table.dataTable {
-  table-layout: auto !important;
-  width: 100% !important;
-}
+        table.dataTable {
+            table-layout: auto !important;
+            width: 100% !important;
+        }
 
 
         /* th, td{
-            display: inline-block !important;
-        } */
+                    display: inline-block !important;
+                } */
     </style>
 @endpush
 
@@ -109,7 +109,8 @@ table.dataTable {
 
                         let manageSlotsBtn = '';
                         if (row.status === 'complete') {
-                            manageSlotsBtn = `
+                            if (row.lesson_type != 'online') {
+                                manageSlotsBtn = `
                         <a class="btn btn-sm small btn-info action-btn-fix"
                         href="{{ route('slot.view', ['lesson_id' => '__LESSON__']) }}"
                         data-bs-toggle="tooltip"
@@ -128,6 +129,9 @@ table.dataTable {
                                     fill="#FFFFFF" />
                             </svg>
                         </a>`.replace('__LESSON__', row.lesson_id);
+                            } else {
+                                manageSlotsBtn = ``;
+                            }
                         }
 
                         const feedbackBtn = `
@@ -156,8 +160,8 @@ table.dataTable {
                     <tr>
                         <td>${row.student_name ?? ''}</td>
                         <td>${row.name ?? ''}</td>
-                        <td>${row.date_time ?? ''}</td>
-                        <td>${row.location ?? ''}</td>
+                        <td>${row.lesson_type == 'online' ? row.created_at.split('T')[0] : row.date_time ?? ''}</td>
+                        <td>${row.lesson_type == 'online' ? 'Online' : row.location ?? ''}</td>
                         <td>${badge}</td>
                         <td>${manageSlotsBtn} ${feedbackBtn} ${viewFeedbackBtn}</td>
                     </tr>
