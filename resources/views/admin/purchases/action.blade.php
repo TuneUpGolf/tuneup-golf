@@ -1,6 +1,8 @@
 <div class="action-btn-fix-wraper">
     @php $user = Auth::user(); @endphp
-    @if (
+
+
+    {{-- @if (
         $purchase->status !== 'complete' &&
             $purchase->lesson->payment_method != 'cash' &&
             $user->type == 'Student' &&
@@ -17,8 +19,11 @@
             </a>
             {!! Form::close() !!}
         @endcan
-    @endif
-    @if ($purchase->purchase_type == 'inPerson' && $user->type == 'Instructor')
+    @endif --}}
+
+
+    @if (($purchase->purchase_type == 'inPerson' || $purchase->lesson->type == 'online' || $purchase->lesson->type == 'package' || $purchase->lesson->type == 'inPerson') && $user->type == 'Instructor')
+    {{-- {{ $purchase->purchase_type }} --}}
         <button class="btn btn-sm small btn btn-dark" data-lesson_id="{{ $purchase->lesson_id }}"
             data-tenant_id="{{ $purchase->tenant_id }}" id="preSetActionButton" type="button" data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-original-title="{{ __('View Students') }}">
@@ -29,7 +34,8 @@
             </svg>
         </button>
     @endif
-    @if (in_array($user->type, ['Student', 'Instructor']) &&
+    
+    {{-- @if (in_array($user->type, ['Student', 'Instructor']) &&
             ($purchase->status == 'complete' || $purchase->lesson->payment_method == 'cash' || $hasBooking) &&
             $purchase->lesson->type != 'online' &&
             $purchase->lesson->type != 'inPerson')
@@ -49,18 +55,10 @@
                     fill="#FFFFFF" />
             </svg>
         </a>
-    @endif
+    @endif --}}
 
-    {{-- @if ($purchase->status == 'complete' && $purchase->lesson->lesson_quantity !== $purchase->lessons_used && $user->type == 'Student' && $purchase->lesson->type === 'online')
-    @can('manage-purchases')
-        <a class="btn btn-sm small btn btn-warning "
-            href="{{ route('purchase.video.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
-            data-bs-placement="bottom" data-bs-original-title="{{ __('Add Video') }}">
-            <i class="ti ti-plus text-white"></i>
-        </a>
-    @endcan
-@endif --}}
-    @if ($user->type == 'Instructor' && $purchase->purchase_type != 'inPerson')
+   
+    {{-- @if ($user->type == 'Instructor' && $purchase->purchase_type != 'inPerson' && $purchase->lesson->type != 'online')
         @can('manage-purchases')
             <a class="btn btn-sm small btn btn-warning action-btn-fix"
                 href="{{ route('purchase.feedback.create', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
@@ -69,8 +67,11 @@
             </a>
         @endcan
     @endif
+
+
     @if (in_array($user->type, ['Student', 'Instructor']) &&
             $purchase->purchase_type != 'inPerson' &&
+            $purchase->lesson->type != 'online' &&
             ($purchaseVideo = $purchase->videos->first()))
         @can('manage-purchases')
             <a class="btn btn-sm small btn btn-warning action-btn-fix"
@@ -81,7 +82,43 @@
         @endcan
     @endif
 
-    {{-- @if ($purchase->status == 'incomplete' && $user->type == 'Instructor')
+   
+
+    @can('edit-purchase')
+        <a class="btn btn-sm small btn btn-warning action-btn-fix" href="{{ route('purchase.edit', $purchase->id) }}"
+            data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Edit') }}">
+            <i class="ti ti-edit text-white"></i>
+        </a>
+    @endcan
+    @can('delete-purchase')
+        {!! Form::open([
+            'method' => 'DELETE',
+            'class' => 'd-flex',
+            'route' => ['purchase.destroy', $purchase->id],
+            'id' => 'delete-form-' . $purchase->id,
+        ]) !!}
+        <a href="javascript:void(0);" class="btn btn-sm small btn btn-danger show_confirm action-btn-fix"
+            data-bs-toggle="tooltip" data-bs-placement="bottom" id="delete-form-1"
+            data-bs-original-title="{{ __('Delete') }}">
+            <i class="ti ti-trash text-white"></i>
+        </a>
+        {!! Form::close() !!}
+    @endcan --}}
+</div>
+
+
+
+ {{-- @if ($purchase->status == 'complete' && $purchase->lesson->lesson_quantity !== $purchase->lessons_used && $user->type == 'Student' && $purchase->lesson->type === 'online')
+    @can('manage-purchases')
+        <a class="btn btn-sm small btn btn-warning "
+            href="{{ route('purchase.video.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
+            data-bs-placement="bottom" data-bs-original-title="{{ __('Add Video') }}">
+            <i class="ti ti-plus text-white"></i>
+        </a>
+    @endcan
+@endif --}}
+
+ {{-- @if ($purchase->status == 'incomplete' && $user->type == 'Instructor')
     @can('manage-purchases')
         <svg
         data-bs-toggle="tooltip"
@@ -160,25 +197,3 @@
         </svg>
     @endcan
 @endif --}}
-
-    @can('edit-purchase')
-        <a class="btn btn-sm small btn btn-warning action-btn-fix" href="{{ route('purchase.edit', $purchase->id) }}"
-            data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Edit') }}">
-            <i class="ti ti-edit text-white"></i>
-        </a>
-    @endcan
-    @can('delete-purchase')
-        {!! Form::open([
-            'method' => 'DELETE',
-            'class' => 'd-flex',
-            'route' => ['purchase.destroy', $purchase->id],
-            'id' => 'delete-form-' . $purchase->id,
-        ]) !!}
-        <a href="javascript:void(0);" class="btn btn-sm small btn btn-danger show_confirm action-btn-fix"
-            data-bs-toggle="tooltip" data-bs-placement="bottom" id="delete-form-1"
-            data-bs-original-title="{{ __('Delete') }}">
-            <i class="ti ti-trash text-white"></i>
-        </a>
-        {!! Form::close() !!}
-    @endcan
-</div>
