@@ -992,99 +992,114 @@ function updateCalendarWithCurrentFilters() {
         }
 
 
-        function addPersonalEvent(startFormatted, endFormatted, startTime, endTime, info) {
-            Swal.fire({
-                title: "Add Personal Event",
-                html: `
-                        <div style="text-align:left;">
-                            <label><strong>Start Time:</strong></label>
-                            <input type="text" id="selectedTime" class="form-control mb-3" value="${startTime}" readonly>
-                            <label><strong>End Time:</strong></label>
-                            <input type="time" id="selectedendTime" class="form-control mb-3" value="">
-                            <label><strong>Event Description:</strong></label>
-                            <textarea id="reason" class="form-control" placeholder="Enter event description here..." rows="4"></textarea>
-                        </div>
-                    `,
-                showCancelButton: true,
-                confirmButtonText: "Save",
-                cancelButtonText: "Cancel",
-                preConfirm: () => {
-                    const reason = document.getElementById('reason').value;
-                    const selectedEndTime = document.getElementById('selectedendTime').value;
-                    if (!reason) {
-                        Swal.showValidationMessage("Please enter a reason before saving.");
-                        return false;
-                    }
-                    let end = endFormatted;
-                    if (selectedEndTime) {
-                        const endDate = new Date(info.end);
-                        const [h, m] = selectedEndTime.split(':');
-                        endDate.setHours(h, m, 0, 0);
-                        end = formatDate(endDate);
-                    }
-                    return {
-                        reason,
-                        start: startFormatted,
-                        end: end
-                    };
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // JUST CLOSE THE DIALOG AND SAVE - NO LOADING INDICATOR
+function addPersonalEvent(startFormatted, endFormatted, startTime, endTime, info) {
+    Swal.fire({
+        title: "Add Personal Event",
+        html: `
+                <div style="text-align:left;">
+                    <label><strong>Start Time:</strong></label>
+                    <input type="text" id="selectedTime" class="form-control mb-3" value="${startTime}" readonly>
+                    <label><strong>End Time:</strong></label>
+                    <input type="time" id="selectedendTime" class="form-control mb-3" value="">
+                    <label><strong>Event Description:</strong></label>
+                    <textarea id="reason" class="form-control" placeholder="Enter event description here..." rows="4"></textarea>
+                </div>
+            `,
+        showCancelButton: true,
+        confirmButtonText: "Save",
+        cancelButtonText: "Cancel",
+        preConfirm: () => {
+            const reason = document.getElementById('reason').value;
+            const selectedEndTime = document.getElementById('selectedendTime').value;
+            if (!reason) {
+                Swal.showValidationMessage("Please enter a reason before saving.");
+                return false;
+            }
+            let end = endFormatted;
+            if (selectedEndTime) {
+                const endDate = new Date(info.end);
+                const [h, m] = selectedEndTime.split(':');
+                endDate.setHours(h, m, 0, 0);
+                end = formatDate(endDate);
+            }
+            return {
+                reason,
+                start: startFormatted,
+                end: end
+            };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Show loading state
+        
+            $.ajax({
+                url: "{{ route('slot.block.reason') }}",
+                type: "POST",
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    reason: result.value.reason,
+                    start_time: result.value.start,
+                    end_time: result.value.end
+                },
+                success: function(response) {
                     Swal.close();
-
-                    $.ajax({
-                        url: "{{ route('slot.block.reason') }}",
-                        type: "POST",
-                        data: {
-                            _token: $('meta[name="csrf-token"]').attr('content'),
-                            reason: result.value.reason,
-                            start_time: result.value.start,
-                            end_time: result.value.end
-                        },
-                        success: function(response) {
-                            // Add to calendar silently
-                            Swal.fire("Success", "Reason saved successfully", 'success');
-                            blockSlots.push({
-                                id: response.id,
-                                start_time: result.value.start,
-                                end_time: result.value.end,
-                                description: result.value.reason
-                            });
-                            calendar.addEvent({
-                                id: response.id,
-                                title: "Blocked",
-                                start: result.value.start,
-                                end: result.value.end,
-                                color: '#ff3d41',
-                                extendedProps: {
-                                    isBlocked: true,
-                                    description: result.value.reason
-                                }
-                            });
-
-                            // Optional: Show quick success message
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'success',
-                                title: 'Event saved!',
-                                showConfirmButton: false,
-                                timer: 1000
-                            });
-                        },
-                        error: function(xhr, status, error) {
-                            Swal.fire({
-                                icon: "error",
-                                title: "Error",
-                                text: "Save failed. Please try again.",
-                                confirmButtonText: "OK"
-                            });
+                    
+                    // Add to calendar silently
+                    blockSlots.push({
+                        id: response.data.id,
+                        start_time: result.value.start,
+                        end_time: result.value.end,
+                        description: result.value.reason
+                    });
+                    calendar.addEvent({
+                        id: response.data.id,
+                        title: "Blocked",
+                        start: result.value.start,
+                        end: result.value.end,
+                        color: '#ff3d41',
+                        extendedProps: {
+                            isBlocked: true,
+                            description: result.value.reason
                         }
+                    });
+
+                    // Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: response.message || 'Event saved successfully!',
+                        confirmButtonText: 'OK'
+                    });
+                },
+                error: function(xhr, status, error) {
+                    Swal.close();
+                    
+                    let errorMessage = "Save failed. Please try again.";
+                    
+                    // Check if we have a response with a specific message
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    } else if (xhr.status === 409) {
+                        errorMessage = "There's a scheduling conflict. Please choose a different time.";
+                    } else if (xhr.status === 400) {
+                        errorMessage = "Invalid request. Please check your input.";
+                    }
+                    
+                    Swal.fire({
+                        icon: "error",
+                        title: "Slots Conflict",
+                        html: `
+                            <div style="text-align:left;">
+                                <p><strong>${errorMessage}</strong></p>
+                            </div>
+                        `,
+                        confirmButtonText: "OK"
                     });
                 }
             });
         }
+    });
+}
     });
 
     // Function to handle Schedule Lesson
@@ -1136,7 +1151,7 @@ function updateCalendarWithCurrentFilters() {
                                     if (response.success) {
                                         resolve(response);
                                     } else {
-                                        // ✅ ERROR CASE: Close modal and show SweetAlert
+                                        // ERROR CASE: Close modal and show SweetAlert
                                         Swal.close();
                                         setTimeout(() => {
                                             Swal.fire({
@@ -1150,7 +1165,7 @@ function updateCalendarWithCurrentFilters() {
                                     }
                                 },
                                 error: function(xhr) {
-                                    // ✅ CONFLICT CASE: Close modal and show SweetAlert
+                                    //  CONFLICT CASE: Close modal and show SweetAlert
                                     if (xhr.status === 409) {
                                         const message = xhr.responseJSON?.message || 'Time slot conflict!';
                                         Swal.close();
@@ -1186,7 +1201,7 @@ function updateCalendarWithCurrentFilters() {
                     }
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // ✅ SUCCESS CASE: Show success message
+                        //  SUCCESS CASE: Show success message
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
@@ -1194,12 +1209,11 @@ function updateCalendarWithCurrentFilters() {
                             timer: 2000,
                             showConfirmButton: false
                         });
-                        // ❌ NO window.location.reload() here
+                        location.reload();
                     }
                 });
             },
             error: function(xhr, status, error) {
-                // ✅ MODAL LOADING ERROR: Close modal and show SweetAlert
                 Swal.close();
                 Swal.fire('Error', 'Could not load schedule lesson form', 'error');
             }
@@ -1419,7 +1433,7 @@ function setAvailability(startFormatted, endFormatted, startTime, endTime) {
                                             Swal.fire({
                                                 icon: 'warning',
                                                 title: 'Slot Conflicts',
-                                                text: 'Some time slots are already booked. Please choose different times.',
+                                                text: 'Same time slots are already booked. Please choose different times.',
                                                 confirmButtonText: 'OK'
                                             });
                                         }, 300);
