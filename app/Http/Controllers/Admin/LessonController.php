@@ -2093,7 +2093,7 @@ class LessonController extends Controller
                             })
                             ->exists();
 
-                            dd($conflict);
+                            // dd($conflict);
 
                         if ($conflict) {
                             $conflictErrors[] = "Slot conflict for lesson '{$lesson->lesson_name}' on {$date} at {$currentSlotStart->format('H:i')}.";
