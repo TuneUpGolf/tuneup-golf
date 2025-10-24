@@ -86,10 +86,9 @@ class PurchaseController extends Controller
                         'coupon_id' => $coupon,
                         'tenenat_id' => Auth::user()->tenant_id,
                         'purchased_slot' => 0,
-                        'session_id' => $request->session_id
                     ]);
                     $newPurchase->total_amount = $total_amount;
-                    $newPurchase->status = Purchase::STATUS_COMPLETE;
+                    $newPurchase->status = Purchase::STATUS_INCOMPLETE;
                     $newPurchase->lessons_used = 0;
                     $newPurchase->save();
 
@@ -471,10 +470,10 @@ class PurchaseController extends Controller
                             }
                         }
 
-                        return redirect()
-                            ->route('home')
-                            ->with('success', 'Online Lesson purchased successfully and Video successfully added.');
-                        // return $this->confirmPurchaseWithRedirect($request);
+                        // return redirect()
+                        //     ->route('home')
+                        //     ->with('success', 'Online Lesson purchased successfully and Video successfully added.');
+                        return $this->confirmPurchaseWithRedirect($request);
                     } else if ($request->redirect == 1) {
                         return redirect()->route('home')->with('success', 'Video Successfully Added');
                     }
