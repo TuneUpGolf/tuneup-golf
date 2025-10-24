@@ -79,8 +79,8 @@ class PlanController extends Controller
                 ->of($plans)
                 ->addIndexColumn()
                 ->editColumn('name', function ($plan) {
-                    $url = route('plans.buyers', $plan->id);
-                    return '<a href="#" class="js-plan-buyers" data-plan-id="' . $plan->id . '" data-url="' . $url . '">' . e($plan->name) . '</a>';
+
+                    return $plan->name;
                 })
                 ->editColumn('created_at', function ($plan) {
                     return UtilityFacades::date_time_format($plan->created_at);
