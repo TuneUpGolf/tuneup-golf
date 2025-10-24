@@ -245,6 +245,7 @@ Route::middleware([
         Route::get('/purchases/data', [PurchaseController::class, 'data'])->name('purchase.data');
 
         Route::get('purchase/checkout', [PurchaseController::class, 'store'])->name('purchase.checkout');
+        Route::post('purchase/store', [PurchaseController::class, 'store'])->name('purchase.store');
         Route::post('purchase/payment', [PurchaseController::class, 'purchasePayment'])->name('purchase.payment');
         Route::post('purchase/confirm/redirect', [PurchaseController::class, 'confirmPurchaseWithRedirect'])->name('purchase-confirm-redirect');
         Route::post('purchase/video', [PurchaseController::class, 'addVideo'])->name('purchase.video.add');
