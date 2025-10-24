@@ -2046,7 +2046,7 @@ class LessonController extends Controller
         return view('admin.lessons.schedule-lesson-modal', compact('lessons', 'students'));
     }
 
-    public function scheduleLesson(Request $request) //for local
+    public function scheduleLesson1(Request $request) //for local
     {
         // Validate the request
         $request->validate([
@@ -2205,7 +2205,7 @@ class LessonController extends Controller
         }
     }
 
-    public function scheduleLesson1(Request $request) //for live
+    public function scheduleLesson(Request $request) //for live
     {
         // Validate the request
         $request->validate([
@@ -2246,11 +2246,11 @@ class LessonController extends Controller
                 //     ->exists();
                 $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
                 ->where(function($query) use ($currentSlotStart, $currentSlotEnd) {
-                    $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()])
-                        ->orWhere(function($q) use ($currentSlotStart) {
-                            $q->where('slots.date_time', '<', $currentSlotStart)
-                                ->whereRaw('DATE_ADD(slots.date_time, INTERVAL (lessons.lesson_duration * 60) MINUTE) > ?', [$currentSlotStart]);
-                        });
+                    $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
+                        // ->orWhere(function($q) use ($currentSlotStart) {
+                        //     $q->where('slots.date_time', '<', $currentSlotStart)
+                        //         ->whereRaw('DATE_ADD(slots.date_time, INTERVAL (lessons.lesson_duration * 60) MINUTE) > ?', [$currentSlotStart]);
+                        // });
                 })
                 ->exists();
 
