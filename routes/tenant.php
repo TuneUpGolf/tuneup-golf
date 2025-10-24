@@ -305,7 +305,10 @@ Route::middleware([
         // plans
         Route::resource('plans', PlanController::class);
         Route::get('myplans', [PlanController::class, 'myPlan'])->name('plans.myplan');
+        Route::get('/plans/myplan/data', [PlanController::class, 'myPlanData'])->name('plans.myplan.data');
         Route::get('myplans-create', [PlanController::class, 'createMyPlan'])->name('plans.createmyplan');
+        Route::post('/plan/reorder', [PlanController::class, 'reorder'])
+            ->name('plan.reorder');
         Route::get('myplans/{id}/edit', [PlanController::class, 'editMyplan'])->name('requestdomain.editplan');
         Route::post('myplan-status/{id}', [PlanController::class, 'planStatus'])->name('myplan.status');
         Route::get('payment/{code}', [PlanController::class, 'payment'])->name('payment');
