@@ -23,7 +23,8 @@ class Slots extends Model
         'location',
         'is_completed',
         'is_active',
-        'cancelled'
+        'cancelled',
+        'tenant_id'
     ];
 
     public function lesson()
