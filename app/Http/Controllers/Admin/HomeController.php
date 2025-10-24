@@ -86,8 +86,8 @@ class HomeController extends Controller
             if ($request->has('instructor_id') && !empty($request->instructor_id)) {
                 $plans->where('instructor_id', $request->instructor_id);
             }
-            
-            $plans = $plans->with('instructor')->whereHas('instructor')->get();
+
+            $plans = $plans->with('instructor')->whereHas('instructor')->orderBy('column_order', 'asc')->get();
 
             $tab = !empty($tab) ? $tab : 'in-person';
 

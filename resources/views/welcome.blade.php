@@ -507,10 +507,12 @@
                                                             {!! $plan->description !!}
                                                         </p>
                                                         <style>
-                                                            #sub ul, ol{
+                                                            #sub ul,
+                                                            ol {
                                                                 margin-left: 27px !important;
                                                             }
-                                                            #sub ol{
+
+                                                            #sub ol {
                                                                 list-style: auto;
                                                             }
                                                         </style>
