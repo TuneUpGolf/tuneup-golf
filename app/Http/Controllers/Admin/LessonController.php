@@ -2087,7 +2087,7 @@ class LessonController extends Controller
 
                         $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
                             ->where('slots.tenant_id', $tenantId)
-                            ->where('slots.is_active', 1)
+                            ->where('slots.is_active', 0)
                             ->where(function($query) use ($currentSlotStart, $currentSlotEnd) {
                                 $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
                             })
