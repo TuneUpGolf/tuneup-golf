@@ -70,16 +70,8 @@ class PlanController extends Controller
         if ($request->ajax()) {
             $model = new Plan();
 
-            $plans = $model->newQuery()->withCount([
-                'orders as buyers_count' => function ($q) {
-                    $q->join('followers', 'orders.follower_id', '=', 'followers.id')
-                        ->whereNotNull('followers.plan_expired_date')
-                        ->whereDate('followers.plan_expired_date', '>=', now()->toDateString())
-                        ->whereColumn('followers.plan_id', 'orders.plan_id')
-                        ->select(DB::raw('COUNT(DISTINCT orders.follower_id)'));
-                },
-            ])
-                ->where('influencer_id', auth()->user()->id)
+            $plans = $model
+                ->newQuery()->where('instructor_id', auth()->user()->id)
                 ->orderBy('column_order', 'asc')
                 ->get();
 
