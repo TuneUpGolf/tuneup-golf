@@ -126,6 +126,7 @@ class LessonController extends Controller
 
     public function create()
     {
+        // dd("create");
         if (Auth::user()->can('create-lessons')) {
             if (Auth::user()->type == 'Admin' || Auth::user()->type == 'Instructor') {
                 $roles      = Role::where('name', '!=', 'Super Admin')->where('name', '!=', 'Admin')->pluck('name', 'name');
@@ -148,6 +149,7 @@ class LessonController extends Controller
     // Method to create a new lesson
     public function store(Request $request)
     {
+        // dd("stroe");
         if ($request->type === Lesson::LESSON_PAYMENT_ONLINE) {
             $validatedData = $request->validate(
                 [
@@ -1043,6 +1045,7 @@ class LessonController extends Controller
 
     public function addConsectuiveSlots(Request $request)
     {
+        // dd("sdd");
         try {
             $validatedData = $request->validate([
                 'lesson_id' => 'required|integer',
