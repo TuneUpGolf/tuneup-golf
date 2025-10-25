@@ -104,7 +104,7 @@ class StudentsPurchaseDataTable extends DataTable
                 $hasBooking = \App\Models\Slots::where('lesson_id', $purchase->lesson_id)
                     ->whereHas('student')
                     ->exists();
-                return view('admin_student.purchases.action', compact('purchase', 'hasBooking'));
+                return view('admin.purchases.action_student', compact('purchase', 'hasBooking'));
             })
             ->rawColumns(['action', 'status', 'student_name', 'instructor_name', 'lesson_name', 'remaining_slots']);
     }
