@@ -1500,106 +1500,110 @@ function updateCalendarWithCurrentFilters() {
     ///////
 
     // Function to handle Set Availability in modal
-function setAvailability(startFormatted, endFormatted, startTime, endTime) {
-    console.log("Opening Set Availability Modal");
+    function setAvailability(startFormatted, endFormatted, startTime, endTime) {
+        // console.log("Opening Set Availability Modal");
+        console.log("Calendar Selection:", {
+            startFormatted,
+            endFormatted,
+            startTime,
+            endTime
+        });
 
-    $.ajax({
-        url: "{{ route('slot.availability.modal') }}",
-        type: "GET",
-        success: function(response) {
-            Swal.close();
+        $.ajax({
+            url: "{{ route('slot.availability.modal') }}",
+            type: "GET",
+            data: {
+                selected_date: startFormatted.split(' ')[0], // Extract date part
+                start_time: startTime // Pass the start time
+            },
+            success: function(response) {
+                Swal.close();
 
-            Swal.fire({
-                title: 'Set Availability',
-                html: response,
-                width: '700px',
-                showCancelButton: true,
-                confirmButtonText: 'Save Availability',
-                cancelButtonText: 'Cancel',
-                showLoaderOnConfirm: true,
-                allowOutsideClick: false,
-                didOpen: () => {
-                    initAvailabilityModal();
-                },
-                preConfirm: () => {
-                    return new Promise((resolve, reject) => {
-                        const form = document.getElementById('availabilityModalForm');
-                        const formData = new FormData(form);
-                        formData.append('_token', '{{ csrf_token() }}');
+                Swal.fire({
+                    title: 'Set Availability',
+                    html: response,
+                    width: '700px',
+                    showCancelButton: true,
+                    confirmButtonText: 'Save Availability',
+                    cancelButtonText: 'Cancel',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        // Pass calendar selection data to initialize
+                        initAvailabilityModal(startFormatted.split(' ')[0], startTime);
+                    },
+                    preConfirm: () => {
+                        return new Promise((resolve, reject) => {
+                            const form = document.getElementById('availabilityModalForm');
+                            const formData = new FormData(form);
+                            formData.append('_token', '{{ csrf_token() }}');
 
-                        $.ajax({
-                            url: "{{ route('slot.availability') }}",
-                            type: "POST",
-                            data: formData,
-                            processData: false,
-                            contentType: false,
-                            success: function(response, status, xhr) {
-                                // ✅ Check if this is a real success or conflict disguised as success
-                                if (typeof response === 'string') {
-                                    // HTML response means redirect (conflict)
-                                    if (response.includes('conflict') || response.includes('Conflict')) {
-                                        // CONFLICT - Show error and DON'T resolve
-                                        Swal.close();
-                                        setTimeout(() => {
-                                            Swal.fire({
-                                                icon: 'warning',
-                                                title: 'Slot Conflicts',
-                                                text: 'Same time slots are already booked. Please choose different times.',
-                                                confirmButtonText: 'OK'
-                                            });
-                                        }, 300);
-                                        return; // ❌ Don't call resolve or reject
+                            $.ajax({
+                                url: "{{ route('slot.availability') }}",
+                                type: "POST",
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                success: function(response, status, xhr) {
+                                    if (typeof response === 'string') {
+                                        if (response.includes('conflict') || response.includes('Conflict')) {
+                                            Swal.close();
+                                            setTimeout(() => {
+                                                Swal.fire({
+                                                    icon: 'warning',
+                                                    title: 'Slot Conflicts',
+                                                    text: 'Same time slots are already booked. Please choose different times.',
+                                                    confirmButtonText: 'OK'
+                                                });
+                                            }, 300);
+                                            return;
+                                        }
                                     }
-                                }
-                                
-                                // ✅ REAL SUCCESS
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Success!', 
-                                    text: 'Availability set successfully!',
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                });
-                                resolve(); // ✅ This allows the modal to close properly
-                                 location.reload();
-                            },
-                            error: function(xhr, status, error) {
-                                // ✅ OTHER ERRORS
-                                let errorMessage = 'Something went wrong while saving availability!';
-                                if (xhr.responseJSON && xhr.responseJSON.message) {
-                                    errorMessage = xhr.responseJSON.message;
-                                }
-                                
-                                Swal.close();
-                                setTimeout(() => {
+                                    
                                     Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: errorMessage,
-                                        confirmButtonText: 'OK'
+                                        icon: 'success',
+                                        title: 'Success!', 
+                                        text: 'Availability set successfully!',
+                                        timer: 2000,
+                                        showConfirmButton: false
                                     });
-                                }, 300);
-                                reject(errorMessage); // ✅ This tells SweetAlert there was an error
-                            }
+                                    resolve();
+                                    location.reload();
+                                },
+                                error: function(xhr, status, error) {
+                                    let errorMessage = 'Something went wrong while saving availability!';
+                                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                                        errorMessage = xhr.responseJSON.message;
+                                    }
+                                    
+                                    Swal.close();
+                                    setTimeout(() => {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: errorMessage,
+                                            confirmButtonText: 'OK'
+                                        });
+                                    }, 300);
+                                    reject(errorMessage);
+                                }
+                            });
                         });
-                    });
-                }
-            }).then((result) => {
-                // This executes only on successful resolve()
-                if (result.isConfirmed) {
-                    console.log('✅ Slot added successfully without page reload');
-                }
-            }).catch((error) => {
-                // This executes only on reject()
-                console.log('Error in setAvailability:', error);
-            });
-        },
-        error: function(xhr, status, error) {
-            Swal.close();
-            Swal.fire('Error', 'Could not load availability form', 'error');
-        }
-    });
-}
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        console.log('✅ Availability added successfully');
+                    }
+                }).catch((error) => {
+                    console.log('Error in setAvailability:', error);
+                });
+            },
+            error: function(xhr, status, error) {
+                Swal.close();
+                Swal.fire('Error', 'Could not load availability form', 'error');
+            }
+        });
+    }
 
     // Simple loading functions to avoid SweetAlert loading issues
     function showSimpleLoading() {
