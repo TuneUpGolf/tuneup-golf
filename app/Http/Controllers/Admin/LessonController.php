@@ -1242,7 +1242,7 @@ class LessonController extends Controller
             ]);
 
             // Convert JSON string to array (just in case)
-
+            // dd(request());
             $slot = Slots::with('lesson', 'student')->findOrFail(request()->slot_id);
             if (Auth::user()->type == Role::ROLE_STUDENT && Auth::user()->active_status == 1 && !!$slot) {
                 return $this->handleStudentBookingAPI($slot, request());
@@ -1340,7 +1340,7 @@ class LessonController extends Controller
                     $bookingStudent->name,
                     date('Y-m-d', strtotime($slot->date_time)),
                     date('h:i A', strtotime($slot->date_time)),
-                    $request->notes
+                    $request->note
                 ));
 
                 // Reminder Scheduling
