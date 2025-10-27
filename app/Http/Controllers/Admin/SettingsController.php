@@ -74,6 +74,7 @@ class SettingsController extends Controller
 
     public function authSettingsUpdate(Request $request)
     {
+        // dd($request->all());
         $user = \Auth::user();
         if ($request->database_permission == 'on') {
             try {
@@ -100,12 +101,13 @@ class SettingsController extends Controller
             'sms_verification'      => ($request->sms_verification == 'on') ? 1 : 0,
             'roles'                 => $request->roles,
             'landing_page_status'   => ($request->landing_page_status == 'on') ? '1' : '0',
-            'enable_email_notification' => ($request->enable_email_notifiaction == 'on') ? 'on' : 'off',
-            'enable_sms_notification' => ($request->enable_email_notifiaction == 'on') ? 'on' : 'off',
+            'enable_email_notification' => ($request->enable_email_notification == "on") ? 'on' : 'off',
+            'enable_sms_notification' => ($request->enable_sms_notification == 'on') ? 'on' : 'off',
             'bio_heading'=>$request->bio_heading,
             'instructor_heading'=>$request->instructor_heading,
 
         ];
+        // dd($request->all(), $request->enable_email_notification, $data);
         foreach ($data as $key => $value) {
             UtilityFacades::storesettings([
                 'key'   => $key,
