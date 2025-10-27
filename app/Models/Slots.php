@@ -24,7 +24,8 @@ class Slots extends Model
         'is_completed',
         'is_active',
         'cancelled',
-        'tenant_id'
+        'tenant_id',
+        'is_reminder_sent'
     ];
 
     public function lesson()

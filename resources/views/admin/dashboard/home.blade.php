@@ -222,7 +222,7 @@ $chatcolor = '#0C7785';
                         <div class="col-sm">
                             <h2 class="text-white ">{{ 'Connect Stripe' }}</h2>
                             <p class="text-white">
-                                {{ __('Inorder to recieve payments for your lessons and subscriptions you need to connect stripe') }}
+                                {{ __('To receive payments for your lessons and subscriptions, you’ll need to connect your Stripe account.') }}
                             </p>
                             <div class="quick-add-btn">
                                 {!! Form::open([
