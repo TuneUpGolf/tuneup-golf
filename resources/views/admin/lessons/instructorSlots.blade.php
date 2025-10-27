@@ -992,119 +992,126 @@ function updateCalendarWithCurrentFilters() {
         }
 
 
-function addPersonalEvent(startFormatted, endFormatted, startTime, endTime, info) {
-    Swal.fire({
-        title: "Add Personal Event",
-        html: `
-                <div style="text-align:left;">
-                    <label><strong>Start Time:</strong></label>
-                    <input type="text" id="selectedTime" class="form-control mb-3" value="${startTime}" readonly>
-                    <label><strong>End Time:</strong></label>
-                    <input type="time" id="selectedendTime" class="form-control mb-3" value="">
-                    <label><strong>Event Description:</strong></label>
-                    <textarea id="reason" class="form-control" placeholder="Enter event description here..." rows="4"></textarea>
-                </div>
-            `,
-        showCancelButton: true,
-        confirmButtonText: "Save",
-        cancelButtonText: "Cancel",
-        preConfirm: () => {
-            const reason = document.getElementById('reason').value;
-            const selectedEndTime = document.getElementById('selectedendTime').value;
-            if (!reason) {
-                Swal.showValidationMessage("Please enter a reason before saving.");
-                return false;
-            }
-            let end = endFormatted;
-            if (selectedEndTime) {
-                const endDate = new Date(info.end);
-                const [h, m] = selectedEndTime.split(':');
-                endDate.setHours(h, m, 0, 0);
-                end = formatDate(endDate);
-            }
-            return {
-                reason,
-                start: startFormatted,
-                end: end
-            };
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Show loading state
-        
-            $.ajax({
-                url: "{{ route('slot.block.reason') }}",
-                type: "POST",
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content'),
-                    reason: result.value.reason,
-                    start_time: result.value.start,
-                    end_time: result.value.end
-                },
-                success: function(response) {
-                    Swal.close();
-                    
-                    // Add to calendar silently
-                    blockSlots.push({
-                        id: response.data.id,
-                        start_time: result.value.start,
-                        end_time: result.value.end,
-                        description: result.value.reason
-                    });
-                    calendar.addEvent({
-                        id: response.data.id,
-                        title: "Blocked",
-                        start: result.value.start,
-                        end: result.value.end,
-                        color: '#ff3d41',
-                        extendedProps: {
-                            isBlocked: true,
-                            description: result.value.reason
-                        }
-                    });
-
-                    // Show success message
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: response.message || 'Event saved successfully!',
-                        confirmButtonText: 'OK'
-                    });
-                },
-                error: function(xhr, status, error) {
-                    Swal.close();
-                    
-                    let errorMessage = "Save failed. Please try again.";
-                    
-                    // Check if we have a response with a specific message
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    } else if (xhr.status === 409) {
-                        errorMessage = "There's a scheduling conflict. Please choose a different time.";
-                    } else if (xhr.status === 400) {
-                        errorMessage = "Invalid request. Please check your input.";
-                    }
-                    
-                    Swal.fire({
-                        icon: "error",
-                        title: "Slots Conflict",
-                        html: `
-                            <div style="text-align:left;">
-                                <p><strong>${errorMessage}</strong></p>
-                            </div>
-                        `,
-                        confirmButtonText: "OK"
-                    });
+    function addPersonalEvent(startFormatted, endFormatted, startTime, endTime, info) {
+        Swal.fire({
+            title: "Add Personal Event",
+            html: `
+                    <div style="text-align:left;">
+                        <label><strong>Start Time:</strong></label>
+                        <input type="text" id="selectedTime" class="form-control mb-3" value="${startTime}" readonly>
+                        <label><strong>End Time:</strong></label>
+                        <input type="time" id="selectedendTime" class="form-control mb-3" value="">
+                        <label><strong>Event Description:</strong></label>
+                        <textarea id="reason" class="form-control" placeholder="Enter event description here..." rows="4"></textarea>
+                    </div>
+                `,
+            showCancelButton: true,
+            confirmButtonText: "Save",
+            cancelButtonText: "Cancel",
+            preConfirm: () => {
+                const reason = document.getElementById('reason').value;
+                const selectedEndTime = document.getElementById('selectedendTime').value;
+                if (!reason) {
+                    Swal.showValidationMessage("Please enter a reason before saving.");
+                    return false;
                 }
-            });
-        }
-    });
-}
+                let end = endFormatted;
+                if (selectedEndTime) {
+                    const endDate = new Date(info.end);
+                    const [h, m] = selectedEndTime.split(':');
+                    endDate.setHours(h, m, 0, 0);
+                    end = formatDate(endDate);
+                }
+                return {
+                    reason,
+                    start: startFormatted,
+                    end: end
+                };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading state
+            
+                $.ajax({
+                    url: "{{ route('slot.block.reason') }}",
+                    type: "POST",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        reason: result.value.reason,
+                        start_time: result.value.start,
+                        end_time: result.value.end
+                    },
+                    success: function(response) {
+                        Swal.close();
+                        
+                        // Add to calendar silently
+                        blockSlots.push({
+                            id: response.data.id,
+                            start_time: result.value.start,
+                            end_time: result.value.end,
+                            description: result.value.reason
+                        });
+                        calendar.addEvent({
+                            id: response.data.id,
+                            title: "Blocked",
+                            start: result.value.start,
+                            end: result.value.end,
+                            color: '#ff3d41',
+                            extendedProps: {
+                                isBlocked: true,
+                                description: result.value.reason
+                            }
+                        });
+
+                        // Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message || 'Event saved successfully!',
+                            confirmButtonText: 'OK'
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.close();
+                        
+                        let errorMessage = "Save failed. Please try again.";
+                        
+                        // Check if we have a response with a specific message
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        } else if (xhr.status === 409) {
+                            errorMessage = "There's a scheduling conflict. Please choose a different time.";
+                        } else if (xhr.status === 400) {
+                            errorMessage = "Invalid request. Please check your input.";
+                        }
+                        
+                        Swal.fire({
+                            icon: "error",
+                            title: "Slots Conflict",
+                            html: `
+                                <div style="text-align:left;">
+                                    <p><strong>${errorMessage}</strong></p>
+                                </div>
+                            `,
+                            confirmButtonText: "OK"
+                        });
+                    }
+                });
+            }
+        });
+    }
     });
 
     // Function to handle Schedule Lesson
+    // Function to handle Schedule Lesson
     function scheduleLesson(startFormatted, endFormatted, startTime, endTime) {
         console.log("Opening Schedule Lesson Modal");
+        console.log("Calendar Selection:", {
+            startFormatted,
+            endFormatted, 
+            startTime,
+            endTime
+        });
 
         $.ajax({
             url: "{{ route('lesson.schedule.modal') }}",
@@ -1113,7 +1120,8 @@ function addPersonalEvent(startFormatted, endFormatted, startTime, endTime, info
                 start_time: startFormatted,
                 end_time: endFormatted,
                 start_time_display: startTime,
-                end_time_display: endTime
+                end_time_display: endTime,
+                selected_date: startFormatted.split(' ')[0] // Extract date part
             },
             success: function(response) {
                 Swal.close();
@@ -1128,7 +1136,8 @@ function addPersonalEvent(startFormatted, endFormatted, startTime, endTime, info
                     showLoaderOnConfirm: true,
                     allowOutsideClick: false,
                     didOpen: () => {
-                        initializeScheduleLessonModal();
+                        // Pass calendar selection data to the modal
+                        initializeScheduleLessonModal(startFormatted, startTime, endTime);
                     },
                     preConfirm: () => {
                         return new Promise((resolve, reject) => {
@@ -1151,7 +1160,6 @@ function addPersonalEvent(startFormatted, endFormatted, startTime, endTime, info
                                     if (response.success) {
                                         resolve(response);
                                     } else {
-                                        // ERROR CASE: Close modal and show SweetAlert
                                         Swal.close();
                                         setTimeout(() => {
                                             Swal.fire({
@@ -1165,7 +1173,6 @@ function addPersonalEvent(startFormatted, endFormatted, startTime, endTime, info
                                     }
                                 },
                                 error: function(xhr) {
-                                    //  CONFLICT CASE: Close modal and show SweetAlert
                                     if (xhr.status === 409) {
                                         const message = xhr.responseJSON?.message || 'Time slot conflict!';
                                         Swal.close();
@@ -1180,7 +1187,6 @@ function addPersonalEvent(startFormatted, endFormatted, startTime, endTime, info
                                         return;
                                     }
                                     
-                                    // ✅ OTHER ERRORS: Close modal and show SweetAlert
                                     let errorMessage = 'Something went wrong while scheduling the lesson!';
                                     if (xhr.responseJSON && xhr.responseJSON.message) {
                                         errorMessage = xhr.responseJSON.message;
@@ -1201,7 +1207,6 @@ function addPersonalEvent(startFormatted, endFormatted, startTime, endTime, info
                     }
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        //  SUCCESS CASE: Show success message
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
@@ -1219,10 +1224,101 @@ function addPersonalEvent(startFormatted, endFormatted, startTime, endTime, info
             }
         });
     }
+   
 
-    // Function to initialize the schedule lesson modal functionality
-    function initializeScheduleLessonModal() {
-        // Initialize student multi-select
+    // Function to initialize the schedule lesson modal functionality with calendar data
+    function initializeScheduleLessonModal(startTime, endTime) {
+        console.log("Received times:", { startTime, endTime });
+
+        function parseTime(timeString) {
+            if (!timeString) return '';
+            
+            // If it's already in "06:30 AM" format
+            if (timeString.includes('AM') || timeString.includes('PM')) {
+                return timeString;
+            }
+            
+            // If it's a full datetime like "2025-10-28 06:30:00"
+            if (timeString.includes(' ')) {
+                const timePart = timeString.split(' ')[1]; // "06:30:00"
+                const timeWithoutSeconds = timePart.substring(0, 5); // "06:30"
+                
+                // Convert to 12-hour format
+                const [hours, minutes] = timeWithoutSeconds.split(':');
+                const hourInt = parseInt(hours);
+                const ampm = hourInt >= 12 ? 'PM' : 'AM';
+                const displayHour = hourInt % 12 || 12;
+                return `${displayHour}:${minutes} ${ampm}`;
+            }
+            
+            // If it's in 24-hour format like "06:30"
+            if (timeString.includes(':')) {
+                const [hours, minutes] = timeString.split(':');
+                const hourInt = parseInt(hours);
+                const ampm = hourInt >= 12 ? 'PM' : 'AM';
+                const displayHour = hourInt % 12 || 12;
+                return `${displayHour}:${minutes} ${ampm}`;
+            }
+            
+            return timeString;
+        }
+        
+        function convertTo24Hour(timeString) {
+            if (!timeString) return '';
+            
+            console.log('Converting time:', timeString);
+            
+            // Handle full datetime format: "2025-10-28 07:30:00"
+            if (timeString.includes(' ') && timeString.includes('-')) {
+                // Extract time part from datetime string
+                const timePart = timeString.split(' ')[1]; // "07:30:00"
+                const timeWithoutSeconds = timePart.substring(0, 5); // "07:30"
+                console.log('Extracted time from datetime:', timeWithoutSeconds);
+                return timeWithoutSeconds; // Already in 24-hour format
+            }
+            
+            // Handle 12-hour format: "07:30 AM"
+            if (timeString.includes('AM') || timeString.includes('PM')) {
+                const [time, modifier] = timeString.split(' ');
+                let [hours, minutes] = time.split(':');
+                
+                if (modifier === 'PM' && hours !== '12') {
+                    hours = parseInt(hours, 10) + 12;
+                }
+                
+                if (modifier === 'AM' && hours === '12') {
+                    hours = '00';
+                }
+                
+                return `${hours.toString().padStart(2, '0')}:${minutes}`;
+            }
+            
+            // If already in 24-hour format, return as is
+            return timeString;
+        }
+
+        const startTimeInput = document.getElementById('start_time');
+        const endTimeInput = document.getElementById('end_time');
+        
+        // Parse and convert start time only
+        const parsedStartTime = parseTime(startTime);
+        
+        console.log('Parsed start time:', parsedStartTime);
+        
+        // Set only start time (pre-filled from calendar)
+        if (startTimeInput && parsedStartTime) {
+            const formattedStartTime = convertTo24Hour(parsedStartTime);
+            startTimeInput.value = formattedStartTime;
+            console.log('Set START time:', startTime, '->', parsedStartTime, '->', formattedStartTime);
+        }
+
+        // Clear end time for manual selection
+        if (endTimeInput) {
+            endTimeInput.value = ''; // Empty for manual selection
+            console.log('End time cleared for manual selection');
+        }
+
+        // Initialize other components
         const studentSelect = document.getElementById('student_id');
         if (studentSelect) {
             new Choices(studentSelect, {
@@ -1234,7 +1330,6 @@ function addPersonalEvent(startFormatted, endFormatted, startTime, endTime, info
             });
         }
 
-        // Initialize lesson dropdown
         const lessonSelect = document.getElementById('lesson_id');
         if (lessonSelect) {
             new Choices(lessonSelect, {
@@ -1242,27 +1337,43 @@ function addPersonalEvent(startFormatted, endFormatted, startTime, endTime, info
                 shouldSort: false
             });
         }
+    }
 
-        // Handle lesson type change for multi-student functionality
-        const lessonTypeSelect = document.getElementById('lesson_type');
-        if (lessonTypeSelect) {
-            lessonTypeSelect.addEventListener('change', function() {
-                toggleMultiStudentField(this.value);
-            });
-        }
-
-        // Add student functionality
-        const addStudentBtn = document.getElementById('add-student');
-        if (addStudentBtn) {
-            addStudentBtn.addEventListener('click', addStudentField);
-        }
-
-        // Remove student functionality
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('remove-student')) {
-                e.target.closest('.student-field').remove();
+    // Function to show selected slot information
+    function showSelectedSlotInfo(date, startTime, endTime) {
+        // Create or update selected slot info display
+        let selectedSlotInfo = document.getElementById('selectedSlotInfo');
+        
+        if (!selectedSlotInfo) {
+            selectedSlotInfo = document.createElement('div');
+            selectedSlotInfo.id = 'selectedSlotInfo';
+            selectedSlotInfo.className = 'selected-slot-info mb-3 p-3 bg-light rounded';
+            
+            // Insert at the beginning of the modal body
+            const modalBody = document.querySelector('.swal2-html-container');
+            if (modalBody) {
+                modalBody.insertBefore(selectedSlotInfo, modalBody.firstChild);
             }
+        }
+
+        // Format date for display
+        const dateObj = new Date(date);
+        const formattedDate = dateObj.toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
         });
+
+        selectedSlotInfo.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="bi bi-info-circle me-2"></i>
+                <div>
+                    <strong>Selected from Calendar</strong><br>
+                    <small>Date: ${formattedDate} | Time: ${startTime} - ${endTime}</small>
+                </div>
+            </div>
+        `;
     }
 
     // Function to toggle multi-student field based on lesson type

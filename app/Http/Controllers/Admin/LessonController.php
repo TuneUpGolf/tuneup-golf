@@ -2163,10 +2163,34 @@ class LessonController extends Controller
         $lessons = Lesson::where('created_by', $user->id)->whereIn('type',['package','inPerson'])->where('active_status', true)->get();
         $students = Student::get(); // Adjust based on your user structure
         
-        return view('admin.lessons.schedule-lesson-modal', compact('lessons', 'students'));
+           // Get calendar selection data from request
+        $selectedDate = $request->input('selected_date');
+        $startTime = $request->input('start_time_display');
+        $endTime = $request->input('end_time_display');
+
+        // Convert time to 24-hour format for HTML input
+          // Convert 12-hour format to 24-hour format for HTML input
+        $startTime24 = $this->convertTo24Hour($startTime);
+        $endTime24 = $this->convertTo24Hour($endTime);
+
+        // return view('admin.lessons.schedule-lesson-modal', compact('lessons', 'students'));
+        return view('admin.lessons.schedule-lesson-modal', compact('lessons', 'students', 'selectedDate', 'startTime', 'endTime','startTime24','endTime24'));
     }
 
-    public function scheduleLesson1(Request $request) //for local
+    private function convertTo24Hour($time12Hour)
+    {
+        if (empty($time12Hour)) {
+            return '';
+        }
+        
+        try {
+            return \Carbon\Carbon::createFromFormat('h:i A', $time12Hour)->format('H:i');
+        } catch (\Exception $e) {
+            // If conversion fails, return original time
+            return $time12Hour;
+        }
+    }
+    public function scheduleLesson(Request $request) //for local
     {
         // Validate the request
         $request->validate([
@@ -2206,16 +2230,14 @@ class LessonController extends Controller
                 // $conflict = Slots::where('lesson_id', $request->lesson_id)
                 //     ->whereBetween('date_time', [$currentSlotStart, $currentSlotEnd])
                 //     ->exists();
+               
                 $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
-                ->where('slots.tenant_id', $tenantId)
-                ->where(function($query) use ($currentSlotStart, $currentSlotEnd) {
-                    $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
-                        // ->orWhere(function($q) use ($currentSlotStart) {
-                        //     $q->where('slots.date_time', '<', $currentSlotStart)
-                        //         ->whereRaw('DATE_ADD(slots.date_time, INTERVAL (lessons.lesson_duration * 60) MINUTE) > ?', [$currentSlotStart]);
-                        // });
-                })
-                ->exists();
+                    ->where('slots.tenant_id', $tenantId)
+                    ->where('slots.is_active', 0)
+                    ->where(function($query) use ($currentSlotStart, $currentSlotEnd) {
+                        $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
+                    })
+                    ->exists();
 
                 if (!$conflict) {
                     // Create the slot
@@ -2327,7 +2349,7 @@ class LessonController extends Controller
         }
     }
 
-    public function scheduleLesson(Request $request) //for live
+    public function scheduleLesson1(Request $request) //for live
     {
         // Validate the request
         $request->validate([
@@ -2348,7 +2370,7 @@ class LessonController extends Controller
             $slotStart = Carbon::createFromFormat('Y-m-d H:i', $request->lesson_date . ' ' . $request->start_time);
             $slotEnd = Carbon::createFromFormat('Y-m-d H:i', $request->lesson_date . ' ' . $request->end_time);
             $totalMinutes = $slotStart->diffInMinutes($slotEnd);
-
+     
             // Get lesson duration in minutes (assuming lesson_duration is in hours)
             $lessonMinutes = $lesson->lesson_duration * 60;
 

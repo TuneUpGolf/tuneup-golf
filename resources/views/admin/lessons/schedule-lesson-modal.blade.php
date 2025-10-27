@@ -4,6 +4,19 @@
     </div>
 
     <div class="modal-body px-4">
+        <!-- Selected Slot Info -->
+        <!-- <div class="selected-slot-info mb-3 p-3 bg-light rounded" id="selectedSlotInfo" 
+             style="{{ $selectedDate ? '' : 'display: none;' }}">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-info-circle me-2"></i>
+                <div>
+                    <strong>Selected from Calendar</strong><br>
+                    <small>Date: <span id="displayDate">{{ $selectedDate ? \Carbon\Carbon::parse($selectedDate)->format('F j, Y') : '' }}</span> | 
+                    Time: <span id="displayTime">{{ $startTime24 ?? '' }} - {{ $endTime24 ?? '' }}</span></small>
+                </div>
+            </div>
+        </div> -->
+
         {!! Form::open([
             'route' => 'lesson.schedule',
             'method' => 'POST',
@@ -11,27 +24,26 @@
         ]) !!}
 
         <!-- Lesson Date -->
-    <div class="mb-3">
-        <label for="lesson_date" class="form-label fw-semibold">Lesson Date</label>
-        <input 
-            type="date" 
-            id="lesson_date" 
-            name="lesson_date" 
-            class="form-control" 
-            value="{{ request('lesson_date') }}" 
-            required
-        >
-    </div>
-    
+        <div class="mb-3">
+            <label for="lesson_date" class="form-label fw-semibold">Lesson Date</label>
+            <input 
+                type="date" 
+                id="lesson_date" 
+                name="lesson_date" 
+                class="form-control" 
+                value="{{ $selectedDate ?? old('lesson_date') }}" 
+                required
+            >
+        </div>
 
-      <!-- Editable Lesson Time -->
+        <!-- Editable Lesson Time -->
         <div class="mb-3">
             <label for="start_time" class="form-label fw-semibold">Start Time</label>
             <input type="time" 
                 id="start_time" 
                 name="start_time" 
                 class="form-control" 
-                value="{{ request('start_time') }}" 
+                value="{{ $startTime24 ?? old('start_time') }}" 
                 required>
 
             <label for="end_time" class="form-label fw-semibold mt-2">End Time</label>
@@ -45,12 +57,13 @@
 
         <!-- Lesson Title Dropdown -->
         <div class="mb-3">
-            {{ Form::label('lesson_id', 'Lesson Title', ['class' => 'form-label fw-semibold']) }}
+            <label for="lesson_id" class="form-label fw-semibold">Lesson Title</label>
             <select name="lesson_id" id="lesson_id" class="form-select" required>
                 <option value="">Select Lesson</option>
                 @foreach($lessons as $lesson)
                     <option value="{{ $lesson->id }}" 
-                        data-allows-multiple="{{ $lesson->allows_multiple_students ? 'true' : 'false' }}">
+                        data-allows-multiple="{{ $lesson->allows_multiple_students ? 'true' : 'false' }}"
+                        {{ old('lesson_id') == $lesson->id ? 'selected' : '' }}>
                         {{ $lesson->lesson_name }} 
                         @if($lesson->lesson_duration)
                             ({{ $lesson->lesson_duration }} hour(s))
@@ -60,38 +73,14 @@
             </select>
         </div>
 
-        <!-- Multi-Student Section (Initially Hidden) -->
-        <div id="multi-student-container" style="display: none;">
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Students</label>
-                <div id="student-fields">
-                    <!-- Student fields will be added dynamically -->
-                </div>
-                <button type="button" id="add-student" class="btn btn-outline-primary mt-2">
-                    + Add Another Student
-                </button>
-            </div>
-        </div>
-
-        <!-- Single Student Field (Initially Visible) -->
-        <!-- <div id="single-student-container">
-            <div class="mb-3">
-                {{ Form::label('student_id', 'Student', ['class' => 'form-label fw-semibold']) }}
-                <select name="student_id" id="student_id" class="form-select" required>
-                    <option value="">Select Student</option>
-                    @foreach($students as $student)
-                        <option value="{{ $student->id }}">{{ $student->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div> -->
-          <div class="form-group" id="student-form">
+        <!-- Student Selection -->
+        <div class="form-group" id="student-form">
             <div class="flex justify-start">
                 <label class="mb-1"><strong>Select Students</strong></label>
             </div>
             <select name="student_id[]" id="student_id" class="form-select w-full" multiple>
                 @foreach ($students as $student)
-                    <option value="{{ $student->id }}">
+                    <option value="{{ $student->id }}" {{ in_array($student->id, old('student_id', [])) ? 'selected' : '' }}>
                         {{ ucfirst($student->name) }}
                     </option>
                 @endforeach
@@ -100,34 +89,29 @@
 
         <!-- Location -->
         <div class="mb-3">
-            {{ Form::label('location', 'Location', ['class' => 'form-label fw-semibold']) }}
-            {{ Form::text('location', null, [
-                'class' => 'form-control',
-                'placeholder' => 'Enter lesson location',
-                'required'
-            ]) }}
+            <label for="location" class="form-label fw-semibold">Location</label>
+            <input type="text" 
+                name="location" 
+                class="form-control" 
+                placeholder="Enter lesson location" 
+                value="{{ old('location') }}"
+                required>
         </div>
 
         <!-- Note for Student -->
         <div class="mb-3">
-            {{ Form::label('note', 'Note for Student', ['class' => 'form-label fw-semibold']) }}
-            {{ Form::textarea('note', null, [
-                'class' => 'form-control',
-                'placeholder' => 'Enter any notes for the student...',
-                'rows' => 4
-            ]) }}
+            <label for="note" class="form-label fw-semibold">Note for Student</label>
+            <textarea name="note" class="form-control" placeholder="Enter any notes for the student..." rows="4">{{ old('note') }}</textarea>
         </div>
 
         {!! Form::close() !!}
     </div>
 
-    <!-- <div class="modal-footer border-top-0 px-4 pb-4">
-        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="submitScheduleLessonForm()">Book Lesson</button>
-    </div> -->
+   
 </div>
 
 <script>
+// Function to submit the form
 function submitScheduleLessonForm() {
     const form = document.getElementById('scheduleLessonForm');
     if (form.checkValidity()) {
@@ -143,6 +127,10 @@ function submitScheduleLessonForm() {
 
 // Initialize when modal opens
 document.addEventListener('DOMContentLoaded', function() {
+    // Debug: Check time values
+    console.log('Start Time Input Value:', document.getElementById('start_time')?.value);
+    console.log('End Time Input Value:', document.getElementById('end_time')?.value);
+    
     const lessonSelect = document.getElementById('lesson_id');
     if (lessonSelect) {
         lessonSelect.addEventListener('change', function() {
@@ -155,17 +143,31 @@ document.addEventListener('DOMContentLoaded', function() {
             if (allowsMultiple) {
                 multiStudentContainer.style.display = 'block';
                 singleStudentContainer.style.display = 'none';
-                // Add first student field
-                addStudentField();
             } else {
                 multiStudentContainer.style.display = 'none';
                 singleStudentContainer.style.display = 'block';
-                // Clear student fields
-                const studentFields = document.getElementById('student-fields');
-                if (studentFields) {
-                    studentFields.innerHTML = '';
-                }
             }
+        });
+    }
+    
+    // Initialize Choices for student multi-select
+    const studentSelect = document.getElementById('student_id');
+    if (studentSelect) {
+        new Choices(studentSelect, {
+            removeItemButton: true,
+            searchEnabled: true,
+            placeholder: true,
+            placeholderValue: 'Select students',
+            shouldSort: false
+        });
+    }
+    
+    // Initialize Choices for lesson dropdown
+    const lessonDropdown = document.getElementById('lesson_id');
+    if (lessonDropdown) {
+        new Choices(lessonDropdown, {
+            searchEnabled: true,
+            shouldSort: false
         });
     }
 });
