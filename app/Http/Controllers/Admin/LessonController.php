@@ -1915,11 +1915,15 @@ class LessonController extends Controller
         // dd("ddd");
         if (Auth::user()->can('create-lessons')) {
                     $lesson = Lesson::find($request->get('lesson_id'));
+                    // Get calendar selection data
+                    $selectedDate = $request->input('selected_date');
+                    $startTime = $request->input('start_time');
+
                     if ($lesson) {
                         return view('admin.lessons.addSlot', compact('lesson'));
                     } else {
                         $lesson = Lesson::withMax('packages', 'number_of_slot')->whereIn('type', ['package', 'inPerson'])->where('created_by', Auth::user()->id)->where('active_status', true)->get()->toArray();
-                        return view('admin.lessons.set-availability-modal', compact('lesson'));
+                        return view('admin.lessons.set-availability-modal', compact('lesson','selectedDate', 'startTime'));
                     }
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));

@@ -1457,45 +1457,93 @@ function updateCalendarWithCurrentFilters() {
 
 
     // Keep this in a global <script> file or inside <script> tags in the parent page
-    function initAvailabilityModal() {
-        // Datepicker
-        $('.date').datepicker({
-            startDate: new Date(),
-            multidate: true,
-            format: 'yyyy-mm-dd'
-        });
+    function initAvailabilityModal(selectedDate, startTime) {
+    console.log("Initializing availability modal with:", { selectedDate, startTime });
+    
+    // Convert 12-hour format to 24-hour format for time input
+    function convertTo24Hour(time12h) {
+        if (!time12h) return '';
+        
+        console.log('Converting time:', time12h);
+        
+        // Handle 12-hour format: "07:30 AM"
+        if (time12h.includes('AM') || time12h.includes('PM')) {
+            const [time, modifier] = time12h.split(' ');
+            let [hours, minutes] = time.split(':');
+            
+            if (modifier === 'PM' && hours !== '12') {
+                hours = parseInt(hours, 10) + 12;
+            }
+            
+            if (modifier === 'AM' && hours === '12') {
+                hours = '00';
+            }
+            
+            const result = `${hours.toString().padStart(2, '0')}:${minutes}`;
+            console.log('Converted 12-hour to:', result);
+            return result;
+        }
+        
+        return time12h;
+    }
 
-        // Time range handling
-        const container = $('#time-ranges');
-        const addBtn = $('#add-range-btn');
+    // ✅ Initialize Multi-Date Picker with selected date
+    $('.date').datepicker({
+        startDate: new Date(),
+        multidate: true,
+        format: 'yyyy-mm-dd',
+        todayHighlight: true
+    });
 
-        addBtn.on('click', function() {
-            const newRange = $(`
+    // Set the selected date from calendar
+    if (selectedDate) {
+        $('#start_date').val(selectedDate);
+        $('.date').datepicker('update', selectedDate);
+        console.log('Set date to:', selectedDate);
+    }
+
+    // Set the first time slot start time from calendar
+    if (startTime) {
+        const formattedStartTime = convertTo24Hour(startTime);
+        const firstStartTimeInput = document.querySelector('#time-ranges input[name="start_time[]"]');
+        
+        if (firstStartTimeInput) {
+            firstStartTimeInput.value = formattedStartTime;
+            console.log('Set first start time to:', formattedStartTime);
+        }
+    }
+
+    // ✅ Manage Time Slots
+    const container = $('#time-ranges');
+    const addBtn = $('#add-range-btn');
+
+    addBtn.on('click', function() {
+        const newRange = $(`
             <div class="time-range row g-2 mb-2">
                 <div class="col-md-5">
-                    <label class="form-label">Start Time</label>
+                    <label class="form-label fw-semibold">Start Time</label>
                     <input type="time" name="start_time[]" class="form-control" required>
                 </div>
                 <div class="col-md-5">
-                    <label class="form-label">End Time</label>
+                    <label class="form-label fw-semibold">End Time</label>
                     <input type="time" name="end_time[]" class="form-control" required>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
-                    <button type="button" class="btn btn-danger btn-sm remove-range">Remove</button>
+                    <button type="button" class="btn btn-danger btn-sm remove-range">X</button>
                 </div>
             </div>
         `);
-            container.append(newRange);
-        });
+        container.append(newRange);
+    });
 
-        container.on('click', '.remove-range', function() {
-            if (container.find('.time-range').length > 1) {
-                $(this).closest('.time-range').remove();
-            } else {
-                alert('You need at least one time slot');
-            }
-        });
-    }
+    container.on('click', '.remove-range', function() {
+        if (container.find('.time-range').length > 1) {
+            $(this).closest('.time-range').remove();
+        } else {
+            alert('At least one time range is required');
+        }
+    });
+}
 
     ///////
 
