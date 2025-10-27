@@ -2,13 +2,16 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\SendPushNotification;
-use App\Actions\SendSMS;
-use App\Models\Slots;
-use Carbon\Carbon;
 use Exception;
-use Illuminate\Console\Command;
+use Carbon\Carbon;
+use App\Models\Slots;
+use App\Models\Tenant;
+use App\Actions\SendSMS;
+use App\Actions\SendEmail;
 use Illuminate\Support\Str;
+use Illuminate\Console\Command;
+use App\Mail\LessonReminderMail;
+use App\Actions\SendPushNotification;
 use Stancl\Tenancy\Concerns\HasATenantsOption;
 
 class SendBookingReminderCron extends Command
@@ -20,7 +23,7 @@ class SendBookingReminderCron extends Command
      *
      * @var string
      */
-    protected $signature = 'booking --tenants=*';
+    protected $signature = 'booking {--tenants=*}';
 
     /**
      * The console command description.
@@ -36,15 +39,22 @@ class SendBookingReminderCron extends Command
      */
     public function handle()
     {
+        $tenants = $this->getTenants();
+
+        if ($tenants->isEmpty()) {
+            $this->error('No tenants found.');
+            return;
+        }
+
         tenancy()->runForMultiple(
-            $this->option('tenants'),
+            $tenants,
             function ($tenant) {
                 $this->line("Tenant: {$tenant['id']}");
                 $now = Carbon::now();
 
                 // Get slots in the next hour
                 $slots = Slots::whereHas('student') // Ensure slot has students
-                    ->whereBetween('date_time', [$now->format('Y-m-d H:i:s'), $now->addHour()->format('Y-m-d H:i:s')])
+                    ->whereBetween('date_time', [$now->format('Y-m-d H:i:s'), $now->addHour()->format('Y-m-d H:i:s')])->where('is_reminder_sent', 0)
                     ->get();
 
                 try {
@@ -72,6 +82,19 @@ class SendBookingReminderCron extends Command
                             $studentPhone = Str::of($student->dial_code)->append($student->phone)->value();
                             $studentPhone = str_replace(['(', ')'], '', $studentPhone);
                             SendSMS::dispatch($studentPhone, $messageStudent);
+
+                            if (!empty($student->email)) {
+                                SendEmail::dispatch(
+                                    $student->email,
+                                    new LessonReminderMail(
+                                        $studentName,
+                                        $lessonName,
+                                        $date->format('Y-m-d'),
+                                        $date->format('h:i A'),
+                                        $instructorName
+                                    )
+                                );
+                            }
                         }
 
                         // Notify Instructor
@@ -90,8 +113,23 @@ class SendBookingReminderCron extends Command
                             $instructorPhone = Str::of($instructor->dial_code)->append($instructor->phone)->value();
                             $instructorPhone = str_replace(['(', ')'], '', $instructorPhone);
                             SendSMS::dispatch($instructorPhone, $messageInstructor);
+
+                            if (!empty($instructor->email)) {
+                                SendEmail::dispatch(
+                                    $instructor->email,
+                                    new LessonReminderMail(
+                                        $instructorName,
+                                        $lessonName,
+                                        $date->format('Y-m-d'),
+                                        $date->format('h:i A'),
+                                        $instructorName
+                                    )
+                                );
+                            }
                         }
                     }
+                    Slots::whereHas('student') // Ensure slot has students
+                        ->whereBetween('date_time', [$now->format('Y-m-d H:i:s'), $now->addHour()->format('Y-m-d H:i:s')])->update(['is_reminder_sent' => 1]);
                 } catch (\Exception $e) {
                     return throw new Exception($e->getMessage(), $e->getCode());
                 }
