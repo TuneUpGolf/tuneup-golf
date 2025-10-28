@@ -311,19 +311,21 @@ class PurchaseDataTable extends DataTable
                     $onlinePackageQuery->where($adminFilter);
                 }
 
+              
                 $inPersonQuery->selectRaw('
                     purchases.lesson_id,
                     purchases.instructor_id,
                     MAX(purchases.id) AS id,
                     MAX(purchases.created_at) AS created_at,
                     MAX(purchases.total_amount) AS total_amount,
-                    ANY_VALUE(purchases.student_id) AS student_id,
-                    ANY_VALUE(students.name) AS student_name,
+                    MAX(purchases.student_id) AS student_id,
+                    MAX(students.name) AS student_name,
                     MAX(purchases.type) AS purchase_type,
                     MAX(purchases.status) AS status,
                     lessons.lesson_name AS lesson_name,
                     instructors.name AS instructor_name
                 ')
+
                     ->groupBy(
                         'purchases.lesson_id',
                         'purchases.instructor_id',

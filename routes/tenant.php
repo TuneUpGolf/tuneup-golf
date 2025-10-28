@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Student;
+use App\Services\TenantOption;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
@@ -42,6 +43,7 @@ use App\Http\Controllers\Admin\PageSettingController;
 use App\Http\Controllers\Admin\SmsTemplateController;
 use App\Http\Controllers\Admin\SocialLoginController;
 use App\Http\Controllers\Admin\TestimonialController;
+use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\DocumentMenuController;
 use App\Http\Controllers\Admin\PurchasePostController;
 use App\Http\Controllers\Admin\EmailTemplateController;
@@ -67,6 +69,7 @@ use App\Http\Controllers\Admin\Payment\RazorpayController;
 use App\Http\Controllers\Superadmin\HelpSectionController;
 use App\Http\Controllers\Admin\Payment\PayuMoneyController;
 use App\Http\Controllers\Admin\Payment\ToyyibpayController;
+use App\Http\Controllers\Admin\RestrictInstructorController;
 use App\Http\Controllers\Admin\Payment\FlutterwaveController;
 use App\Http\Controllers\Admin\NotificationsSettingController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -74,7 +77,6 @@ use App\Http\Controllers\Admin\Payment\MolliePaymentController;
 use App\Http\Controllers\Admin\Payment\SkrillPaymentController;
 use App\Http\Controllers\Admin\Payment\BenefitPaymentController;
 use App\Http\Controllers\Admin\Payment\EasebuzzPaymentController;
-use App\Http\Controllers\Admin\RestrictInstructorController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
 
 /*
@@ -92,6 +94,9 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
 
 Route::post('/instructor/details', [LandingController::class, 'details'])->name('instructor.details');
 
+Route::get('/announcements/tenantOption', function (TenantOption $tenant_option) {
+        return $tenant_option->TenantOption();
+    })->name('announcements.tenantOption');
 
 Route::middleware([
     'web',
@@ -242,6 +247,10 @@ Route::middleware([
 
         //purchase
         Route::resource('purchase', PurchaseController::class);
+        Route::resource('announcements', AnnouncementController::class);
+        Route::get('announcements/action', [AnnouncementController::class,'action'])->name('announcements.action');
+        // Route::get('tenantOption', AnnouncementController::class,'tenantOption');
+
         Route::get('/purchases/data', [PurchaseController::class, 'data'])->name('purchase.data');
 
         Route::get('purchase/checkout', [PurchaseController::class, 'store'])->name('purchase.checkout');

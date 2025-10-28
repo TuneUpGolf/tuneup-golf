@@ -3,6 +3,7 @@
 use AWS\CRT\HTTP\Request;
 use App\Actions\SendEmail;
 use App\Models\RequestDemo;
+use App\Services\TenantOption;
 use App\Mail\Admin\RequestDemoMail;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,7 @@ use App\Http\Controllers\Superadmin\RoleController;
 use App\Http\Controllers\Superadmin\UserController;
 use App\Http\Controllers\Superadmin\CouponController;
 use App\Http\Controllers\Superadmin\ModuleController;
+use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\PurchasePostController;
 use App\Http\Controllers\Superadmin\ProfileController;
 use App\Http\Controllers\Admin\StripeWebhookController;
@@ -72,6 +74,9 @@ use App\Http\Controllers\Admin\Payment\StripeController as PaymentStripeControll
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('/announcements/tenantOption', function (TenantOption $tenant_option) {
+        return $tenant_option->TenantOption();
+    })->name('announcements.tenantOption');
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
 
@@ -98,6 +103,9 @@ Route::group(['middleware' => ['Setting', 'xss']], function () {
 Route::group(['middleware' => [
     InitializeTenancyByDomainOrSubdomain::class,
 ]], function () {
+
+    
+
     Route::get('purchase/successful', [PurchaseController::class, 'purchaseSuccess'])->name('purchase-success');
     Route::get('purchase/unsuccessful', [PurchaseController::class, 'purchaseCancel'])->name('purchase-cancel');
     Route::get('follow/subscription/success', [FollowController::class, 'subscriptionSuccess'])->name('subscription-success');
@@ -407,6 +415,9 @@ Route::any('config-cache', function () {
     return redirect()->back()->with('success', __('Cache Clear Successfully.'));
 })->name('config.cache');
 Route::get('/', [RequestDomainController::class, 'landingPage'])->name('landingpage');
+Route::get('/announcements/tenantOption', function (TenantOption $tenant_option) {
+        return $tenant_option->TenantOption();
+    })->name('announcements.tenantOption');
 Route::get('/follower', [RequestDomainController::class, 'followerLandingPage'])->name('follower-landingpage');
 Route::get('changeLang/{lang?}', [RequestDomainController::class, 'changeLang'])->name('change.lang');
 Route::get('/request-demo', function () {

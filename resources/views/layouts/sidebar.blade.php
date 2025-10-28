@@ -281,176 +281,105 @@
                             </li>
                         @endcan
 
+                         
+
                         {{--  Manage Expenses  --}}
                     @endif
 
                     @if ($userType === 'Instructor')
-                        <li
-                            class="dash-item dash-hasmenu {{ ($userType != 'Admin' && request()->is('lesson*')) || ($userType === 'Admin' && request()->is('home'))
-                                ? 'active'
-                                : '' }}">
-                            @can('manage-purchases')
-                            <li class="dash-item dash-hasmenu {{ request()->is('purchase*') ? 'active' : '' }}">
-                                <a class="dash-link" href="{{ route('purchase.index') }}">
-                                    <span class="dash-micon"><i class="ti ti-messages"></i></span>
-                                    <span class="dash-mtext">{{ __('Purchased Lessons') }}</span>
-                                </a>
-                            </li>
+                        {{-- Purchased Lessons --}}
+                        @can('manage-purchases')
+                        <li class="dash-item dash-hasmenu {{ request()->is('purchase*') ? 'active' : '' }}">
+                            <a class="dash-link" href="{{ route('purchase.index') }}">
+                                <span class="dash-micon"><i class="ti ti-messages"></i></span>
+                                <span class="dash-mtext">{{ __('Purchased Lessons') }}</span>
+                            </a>
+                        </li>
                         @endcan
 
-                        @canany(['manage-coupon', 'manage-plan'])
-                            <li
-                                class="dash-item dash-hasmenu {{ request()->is('coupon*') || request()->is('plans*') || request()->is('myplan*') || request()->is('payment*') ? 'active dash-trigger' : 'collapsed' }}">
-                                <a href="#!" class="dash-link">
+                        {{-- Announcements --}}
+                        
+                        <li class="dash-item dash-hasmenu {{ request()->is('announcements*') ? 'active' : '' }}">
+                            <a class="dash-link" href="{{ route('announcements.index') }}">
+                                <span class="dash-micon"><i class="ti ti-bell"></i></span>
+                                <span class="dash-mtext">{{ __('Announcements') }}</span>
+                            </a>
+                        </li>
 
-                                    <span class="dash-micon"><i class="ti ti-currency-dollar"></i></span>
-                                    <span class="dash-mtext">{{ __('Subscription') }}</span><span class="dash-arrow"><i
-                                            data-feather="chevron-right"></i></span></a>
-                                <ul class="dash-submenu">
-                                    @can('manage-coupon')
-                                        <li class="dash-item {{ request()->is('coupon*') ? 'active' : '' }}">
-                                            <a class="dash-link" href="{{ route('coupon.index') }}">{{ __('Coupons') }}</a>
-                                        </li>
-                                    @endcan
-                                    @if ($userType == 'Instructor')
-                                        <li class="dash-item {{ request()->is('myplan*') ? 'active' : '' }}">
-                                            <a class="dash-link"
-                                                href="{{ route('plans.myplan') }}">{{ __('Manage Subscription Plans') }}</a>
-                                        </li>
-                                    @endif
-                                    @if ($userType === 'Student')
-                                        <li class="dash-item {{ request()->is('follow*') ? 'active' : '' }}">
-                                            <a class="dash-link"
-                                                href="{{ route('follow.subsctiptions') }}">{{ __('My Subscriptions') }}</a>
-                                        </li>
-                                    @endif
-                                </ul>
-                            </li>
+                        {{-- Subscription --}}
+                        @canany(['manage-coupon', 'manage-plan'])
+                        <li class="dash-item dash-hasmenu {{ request()->is('coupon*') || request()->is('plans*') || request()->is('myplan*') || request()->is('payment*') ? 'active dash-trigger' : 'collapsed' }}">
+                            <a href="#!" class="dash-link">
+                                <span class="dash-micon"><i class="ti ti-currency-dollar"></i></span>
+                                <span class="dash-mtext">{{ __('Subscription') }}</span>
+                                <span class="dash-arrow"><i data-feather="chevron-right"></i></span>
+                            </a>
+                            <ul class="dash-submenu">
+                                @can('manage-coupon')
+                                    <li class="dash-item {{ request()->is('coupon*') ? 'active' : '' }}">
+                                        <a class="dash-link" href="{{ route('coupon.index') }}">{{ __('Coupons') }}</a>
+                                    </li>
+                                @endcan
+                                @if ($userType == 'Instructor')
+                                    <li class="dash-item {{ request()->is('myplan*') ? 'active' : '' }}">
+                                        <a class="dash-link" href="{{ route('plans.myplan') }}">{{ __('Manage Subscription Plans') }}</a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
                         @endcanany
 
+                        {{-- Chat --}}
                         <li class="dash-item dash-hasmenu {{ request()->has('all-chat*') ? 'active' : '' }}">
                             <a class="dash-link" href="{{ route('all-chat.index') }}">
                                 <span class="dash-micon"><i class="ti ti-message-circle"></i></span>
                                 <span class="dash-mtext">{{ __('Chat') }}</span>
                             </a>
                         </li>
+
+                        {{-- Tips/Drills --}}
                         @canany(['manage-blog', 'manage-category'])
-                            <li
-                                class="dash-item dash-hasmenu {{ request()->is('blogs*') || request()->is('category*') ? 'active dash-trigger' : 'collapsed' }}">
-                                <a href="#!" class="dash-link">
-                                    <span class="dash-micon"><i class="ti ti-server"></i></span>
-                                    <span class="dash-mtext">{{ __('Tips/Drills') }}</span><span class="dash-arrow"><i
-                                            data-feather="chevron-right"></i></span></a>
-                                <ul class="dash-submenu">
-                                    @can('create-blog')
-                                        <li class="dash-item {{ request()->is('blogs/create') ? 'active' : '' }}">
-                                            <a class="dash-link"
-                                                href="{{ route('blogs.create') }}">{{ __('Create New Tips/Drills') }}</a>
-                                        </li>
-
-                                        {{--  <li class="dash-item {{ request()->is('album/create') ? 'active' : '' }}">
-                                            <a class="dash-link"
-                                                href="{{ route('album.create') }}">{{ __('Create New Album') }}</a>
-                                        </li>
-
-                                        <li class="dash-item {{ request()->is('album-category/create') ? 'active' : '' }}">
-                                            <a class="dash-link"
-                                                href="{{ route('album.category.create') }}">{{ __('Create New Album Category') }}</a>
-                                        </li>  --}}
-                                    @endcan
-                                    @can('manage-blog')
-                                        <li class="dash-item {{ request()->is('blogs') ? 'active' : '' }}">
-                                            <a class="dash-link" href="{{ route('blogs.index') }}">{{ __('Feed') }}</a>
-                                        </li>
-
-                                        {{--  <li class="dash-item {{ request()->is('album-category/show') ? 'active' : '' }}">
-                                            <a class="dash-link" href="{{ route('album.category.show') }}">{{ __('Albums') }}</a>
-                                        </li>   --}}
-                                    @endcan
-                                    @can('manage-blog')
-                                        <li class="dash-item {{ request()->is('blogs/manage/posts') ? 'active' : '' }}">
-                                            <a class="dash-link"
-                                                href="{{ route('blogs.manage') }}">{{ __('Manage Tips/Drills') }}</a>
-                                        </li>
-
-                                        <li class="dash-item {{ request()->is('album-category') ? 'active' : '' }}">
-                                            <a class="dash-link"
-                                                href="{{ route('album.category.manage') }}">{{ __('Create/Manage Categories') }}</a>
-                                        </li>
-
-                                        {{-- <li class="dash-item {{ request()->is('album') ? 'active' : '' }}">
-                                            <a class="dash-link"
-                                                href="{{ route('album.manage') }}">{{ __('Manage Albums') }}</a>
-                                        </li> --}}
-
-                                        {{--  <li class="dash-item {{ request()->is('album-category/show') ? 'active' : '' }}">
-                                            <a class="dash-link" href="{{ route('album.category.show') }}">{{ __('Album Categories') }}</a>
-                                        </li>  --}}
-                                    @endcan
-
-                                    {{-- @can('manage-category')
-                                        <li class="dash-item {{ request()->is('category*') ? 'active' : '' }}">
-                                            <a class="dash-link" href="{{ route('category.index') }}">{{ __('Categories') }}</a>
-                                        </li>
-                                    @endcan --}}
-                                </ul>
-                            </li>
+                        <li class="dash-item dash-hasmenu {{ request()->is('blogs*') || request()->is('category*') ? 'active dash-trigger' : 'collapsed' }}">
+                            <a href="#!" class="dash-link">
+                                <span class="dash-micon"><i class="ti ti-server"></i></span>
+                                <span class="dash-mtext">{{ __('Tips/Drills') }}</span>
+                                <span class="dash-arrow"><i data-feather="chevron-right"></i></span>
+                            </a>
+                            <ul class="dash-submenu">
+                                {{-- Tips/Drills submenu items --}}
+                            </ul>
+                        </li>
                         @endcanany
+
+                        {{-- Annotation Tool --}}
                         <li class="dash-item dash-hasmenu">
                             <a class="dash-link" rel="noopener noreferrer"
                                 href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid }}"
                                 target="_blank">
-
                                 <span class="dash-micon"><i class="ti ti-picture-in-picture"></i></span>
                                 <span class="dash-mtext">{{ __('Annotation Tool') }}</span>
                             </a>
                         </li>
 
-                        <li
-                            class="dash-item dash-hasmenu {{ in_array($userType, [\App\Models\Role::ROLE_SUPER_ADMIN, \App\Models\Role::ROLE_STUDENT]) && request()->is('lesson*') ? 'active' : '' }}">
+                        {{-- Manage Expenses --}}
+                        <li class="dash-item dash-hasmenu {{ in_array($userType, [\App\Models\Role::ROLE_SUPER_ADMIN, \App\Models\Role::ROLE_STUDENT]) && request()->is('lesson*') ? 'active' : '' }}">
                             <a href="#!" class="dash-link">
                                 <span class="dash-micon"><i class="ti ti-receipt-2"></i></span>
                                 <span class="dash-mtext">{{ __('Manage Expenses') }}</span>
-                                <span class="dash-arrow"><i data-feather="chevron-right"></i>
-                                </span>
+                                <span class="dash-arrow"><i data-feather="chevron-right"></i></span>
                             </a>
                             <ul class="dash-submenu">
                                 <li class="dash-item {{ request()->is('expense.type.index') ? 'active' : '' }}">
-                                    <a class="dash-link"
-                                        href="{{ route('expense.type.index') }}">{{ __('Expense Type') }}</a>
+                                    <a class="dash-link" href="{{ route('expense.type.index') }}">{{ __('Expense Type') }}</a>
                                 </li>
                                 <li class="dash-item {{ request()->is('expense.index') ? 'active' : '' }}">
-                                    <a class="dash-link"
-                                        href="{{ route('expense.index') }}">{{ __('Add Expense') }}</a>
+                                    <a class="dash-link" href="{{ route('expense.index') }}">{{ __('Add Expense') }}</a>
                                 </li>
                             </ul>
                         </li>
-
-
-                        {{--  @can('manage-lessons')
-                                <li class="dash-item dash-hasmenu {{ (in_array($userType, [\App\Models\Role::ROLE_SUPER_ADMIN, \App\Models\Role::ROLE_STUDENT]) && request()->is('lesson*')) ? 'active' : '' }}">
-                                    <a href="#!" class="dash-link">
-                                    <span class="dash-micon"><i class="ti ti-receipt-2"></i></span>
-                                        <span class="dash-mtext">{{ __('Manage Expenses') }}</span>
-                                        <span class="dash-arrow"><i data-feather="chevron-right"></i>
-                                        </span>
-                                    </a>
-                                    <ul class="dash-submenu">
-                                        <li class="dash-item {{ request()->is('expense.type.index') ? 'active' : '' }}">
-                                            <a class="dash-link"
-                                                href="{{ route('expense.type.index') }}">{{ __('Expense Type') }}</a>
-                                        </li>
-                                        <li
-                                            class="dash-item {{ request()->is('expense.index') ? 'active' : '' }}">
-                                            <a class="dash-link"
-                                                href="{{ route('expense.index') }}">{{ __('Add Expense') }}</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            @endcan  --}}
-                        </li>
                     @endif
                     {{-- @if ($userType == 'Student')
+                        
                         <li class="dash-item dash-hasmenu {{ request()->is('lesson*') ? 'active' : '' }}">
                             <a class="dash-link"
                                 href="{{ route('lesson.available', ['type' => 'inPerson']) }}">
@@ -458,7 +387,10 @@
                                 <span class="dash-mtext">{{ __('Start Lesson') }}</span>
                             </a>
                         </li>
+                        
                     @endif --}}
+
+                    
 
                     {{--  @if ($userType != 'Student')
                         @can('manage-purchases')
@@ -477,6 +409,8 @@
                                 <span class="dash-mtext">{{ __('Instructors') }}</span>
                             </a>
                         </li>
+
+                        
                     @endif  --}}
                     {{--  @if ($userType === 'Instructor')
                         <li class="dash-item dash-hasmenu">
@@ -490,6 +424,7 @@
                         </li>
                     @endif  --}}
                     {{-- @if ($userType == 'Student')
+                       
                         @canany(['manage-blog', 'manage-category'])
                             <li
                                 class="dash-item dash-hasmenu {{ request()->is('blogs*') || request()->is('category*') ? 'active dash-trigger' : 'collapsed' }}">
@@ -544,6 +479,17 @@
                                 </ul>
                             </li>
                         @endcanany
+                    @endif
+                         {{-- Student Section --}}
+                    @if ($userType == 'Student')
+                        {{-- Announcements for Students --}}
+                        <li class="dash-item dash-hasmenu {{ request()->is('announcements*') ? 'active' : '' }}">
+                            <a class="dash-link" href="{{ route('announcements.index') }}">
+                                <span class="dash-micon"><i class="ti ti-bell"></i></span>
+                                <span class="dash-mtext">{{ __('Announcements') }}</span>
+                            </a>
+                        </li>
+
                     @endif
                     {{--  @canany(['manage-coupon', 'manage-plan'])
                         <li
