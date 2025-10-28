@@ -9,6 +9,7 @@ use App\Models\Tenant;
 use App\Actions\SendSMS;
 use App\Actions\SendEmail;
 use Illuminate\Support\Str;
+use App\Facades\UtilityFacades;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use App\Actions\SendPushNotification;
@@ -51,7 +52,9 @@ class SendBookingReminderCron extends Command
             $tenants,
             function ($tenant) {
                 $this->line("Tenant: {$tenant['id']}");
-                $now = Carbon::now();
+                $timezone = UtilityFacades::getValByName('default_timezone');
+
+                $now = $timezone != '' ? Carbon::now($timezone) : Carbon::now();
                 $oneHourLater = $now->copy()->addHour();
 
                 Log::info($now);
@@ -139,9 +142,8 @@ class SendBookingReminderCron extends Command
                         }
                     }
                     Slots::whereHas('student')
-                    ->whereBetween('date_time', [$now->format('Y-m-d H:i:s'), $oneHourLater->format('Y-m-d H:i:s')])
-                    ->update(['is_reminder_sent' => 1]);
-                    
+                        ->whereBetween('date_time', [$now->format('Y-m-d H:i:s'), $oneHourLater->format('Y-m-d H:i:s')])
+                        ->update(['is_reminder_sent' => 1]);
                 } catch (\Exception $e) {
                     return throw new Exception($e->getMessage(), $e->getCode());
                 }

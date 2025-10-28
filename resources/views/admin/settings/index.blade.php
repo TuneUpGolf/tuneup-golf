@@ -1,5 +1,6 @@
 @php
     $lang = \App\Facades\UtilityFacades::getValByName('default_language');
+    $tZone = \App\Facades\UtilityFacades::getValByName('default_timezone');
     $roles = App\Models\Role::whereNotIn('name', ['Super Admin', 'Admin'])
         ->pluck('name', 'name')
         ->all();
@@ -582,6 +583,22 @@
                                             </select>
                                         </div>
                                     </div>
+
+                                     <div class="col-md-6">
+                                        <div class="form-group">
+                                            {{ Form::label('default_timezone', __('Default Timezone'), ['class' => 'form-label']) }}
+                                            <select class="form-control" id="default_timezone" data-trigger
+                                                name="default_timezone"
+                                                placeholder="{{ __('This is a search placeholder') }}">
+                                                @foreach ($timezones as $timezone)
+                                                    <option @if ($tZone == $timezone) selected @endif
+                                                        value="{{ $timezone }}">
+                                                        {{ $timezone }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             {{ Form::label('date_format', __('Date Format'), ['class' => 'form-label']) }}

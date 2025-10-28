@@ -25,7 +25,23 @@ class SettingsController extends Controller
             return $changeDomainRequest;
         });
         $notificationsSettings = NotificationsSetting::all();
-        return view('admin.settings.index', compact('order', 'notificationsSettings'));
+        $timezones = [
+            'America/Vancouver',
+            'America/Whitehorse',
+            'America/Dawson',
+            'America/Edmonton',
+            'America/Yellowknife',
+            'America/Regina',
+            'America/Winnipeg',
+            'America/Toronto',
+            'America/Ottawa',
+            'America/Montreal',
+            'America/Halifax',
+            'America/Moncton',
+            'America/St_Johns',
+            'Asia/Karachi',
+        ];
+        return view('admin.settings.index', compact('order', 'notificationsSettings', 'timezones'));
     }
 
     public function appNameUpdate(Request $request)
@@ -93,6 +109,7 @@ class SettingsController extends Controller
             'time_format'           => $request->time_format,
             'gtag'                  => $request->gtag,
             'default_language'      => $request->default_language,
+            'default_timezone'      => $request->default_timezone,
             'dark_mode'             => ($request->dark_mode == 'on') ? 'on' : 'off',
             'transparent_layout'    => ($request->transparent_layout == 'on') ? '1' : '0',
             'color'                 => ($request->color) ? $request->color : UtilityFacades::getsettings('color'),
@@ -103,8 +120,8 @@ class SettingsController extends Controller
             'landing_page_status'   => ($request->landing_page_status == 'on') ? '1' : '0',
             'enable_email_notification' => ($request->enable_email_notification == "on") ? 'on' : 'off',
             'enable_sms_notification' => ($request->enable_sms_notification == 'on') ? 'on' : 'off',
-            'bio_heading'=>$request->bio_heading,
-            'instructor_heading'=>$request->instructor_heading,
+            'bio_heading' => $request->bio_heading,
+            'instructor_heading' => $request->instructor_heading,
 
         ];
         // dd($request->all(), $request->enable_email_notification, $data);
