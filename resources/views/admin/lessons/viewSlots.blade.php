@@ -399,23 +399,23 @@
                          .fire({
                              title: "Book Slot",
                              html: `
-                        <form id="swal-form">
-                        <div class="flex justify-start mb-1">
-                        <span>Available Spots: <strong>${availableSeats}</strong></span>
-                        </div>
-                        <div class="form-group" id="student-form">
-                             <div class="flex justify-start">
-                            <label class="mb-1">Select Students</label>
-                            </div>
-                            <select name="student_id[]" id="student_id" class="form-select w-full" multiple>
-                                @foreach ($students as $student)
-                                    <option value="{{ $student->id }}">
-                                        {{ ucfirst($student->name) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        </form>`,
+                                <form id="swal-form">
+                                <div class="flex justify-start mb-1">
+                                <span>Available Spots: <strong>${availableSeats}</strong></span>
+                                </div>
+                                <div class="form-group" id="student-form">
+                                    <div class="flex justify-start">
+                                    <label class="mb-1">Select Students</label>
+                                    </div>
+                                    <select name="student_id[]" id="student_id" class="form-select w-full" multiple>
+                                        @foreach ($students as $student)
+                                            <option value="{{ $student->id }}">
+                                                {{ ucfirst($student->name) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                </form>`,
 
                              didOpen: () => {
                                  const choices = new Choices(document.getElementById(
@@ -505,9 +505,9 @@
                          Swal.fire({
                              title: "Confirm Slot Completion",
                              html: `
-            <p style="text-align: left;">Are you sure you want to complete this lesson slot?</p>
-            ${bookedStudentsHtml}
-        `,
+                                <p style="text-align: left;">Are you sure you want to complete this lesson slot?</p>
+                                ${bookedStudentsHtml}
+                            `,
                              icon: "warning",
                              showCancelButton: true,
                              confirmButtonText: "Confirm",
@@ -673,22 +673,22 @@
                          });
                  }
                  if (type == 'Student' && !isAuthStudentBooked && !isFullyBooked && !isCompleted) {
-    //                  let studentsHtml = `
-    //     <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
-    //     <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
-    // `;
+                     //                  let studentsHtml = `
+                    //     <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
+                    //     <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
+                    // `;
                      Swal.fire({
                          title: "Lesson Details",
                          html: `
-                    <div style="text-align: left; font-size: 14px;">
-                    <span><strong>Lesson Date/Time:</strong> ${formattedTime}</span><br/>
-                    <span><strong>Location:</strong> ${slot.location}</span><br/>
-                    <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
-                    <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
-                    <span><strong>Available Spots:</strong> ${availableSeats}</span><br/>
-                         ${studentsHtml}
-                    </div>
-                         `,
+                            <div style="text-align: left; font-size: 14px;">
+                            <span><strong>Lesson Date/Time:</strong> ${formattedTime}</span><br/>
+                            <span><strong>Location:</strong> ${slot.location}</span><br/>
+                            <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
+                            <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
+                            <span><strong>Available Spots:</strong> ${availableSeats}</span><br/>
+                                ${studentsHtml}
+                            </div>
+                            `,
                          showCancelButton: true,
                          confirmButtonText: "Book Slot",
                          cancelButtonText: "Cancel",
@@ -1131,189 +1131,336 @@
 
          // ========== STUDENT: Book ==========
          if (type == 'Student' && !isAuthStudentBooked && !isFullyBooked && !isCompleted) {
-            //  let friendsHtml = `
+             //  let friendsHtml = `
             //   <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
             //   <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
             //   <textarea name="notes" id="notes" class="form-control mt-2" placeholder="Enter note here" cols="10" rows="5"></textarea>
             // `;
-            let friendsHtml = `
+             let friendsHtml = `
 
               <textarea name="notes" id="notes" class="form-control mt-2" placeholder="Enter note here" cols="10" rows="5"></textarea>
             `;
-            //  Swal.fire({
-            //      title: "Lesson Details",
-            //      html: `
+             //  Swal.fire({
+             //      title: "Lesson Details",
+             //      html: `
             //       <div style="text-align: left; font-size: 14px;">
             //         <span><strong>Lesson Date/Time:</strong> ${formattedTime}</span><br/>
             //         <span><strong>Location:</strong> ${slot.location}</span><br/>
             //         <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
             //         <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
             //         <span><strong>Available Spots:</strong> ${availableSeats}</span><br/>
-                    
+
             //         ${friendsHtml}
             //       </div>
             //     `,
-            //      showCancelButton: true,
-            //      confirmButtonText: "Book Slot",
-            //      cancelButtonText: "Cancel",
-            //      preConfirm: () => {
-            //          const v = document.getElementById('studentFriends')?.value.trim();
-            //          const arr = v ? v.split(',').map(x => x.trim()).filter(Boolean) : [];
+             //      showCancelButton: true,
+             //      confirmButtonText: "Book Slot",
+             //      cancelButtonText: "Cancel",
+             //      preConfirm: () => {
+             //          const v = document.getElementById('studentFriends')?.value.trim();
+             //          const arr = v ? v.split(',').map(x => x.trim()).filter(Boolean) : [];
 
-            //          const notes = document.getElementById('notes')?.value.trim() || "";
+             //          const notes = document.getElementById('notes')?.value.trim() || "";
 
-            //          return {
-            //              friendNames: arr,
-            //              note: notes
-            //          };
-            //      }
-            //  }).then((r) => {
-            //      if (!r.isConfirmed) return;
-            //      $.ajax({
-            //          url: "{{ route('slot.book') }}",
-            //          type: "POST",
-            //          data: {
-            //              _token: $('meta[name="csrf-token"]').attr('content'),
-            //              slot_id: slot_id,
-            //              friend_names: r.value.friendNames || "",
-            //              note: r.value.note || "",
-            //              redirect: 0,
-            //          },
-            //          success: function(response) {
-            //              if (response.payment_url) {
-            //                  window.location.href = response.payment_url;
-            //              } else {
-            //                  Swal.fire({
-            //                          icon: 'success',
-            //                          title: 'Booking Successful',
-            //                          text: response.message ||
-            //                              'You have successfully booked the slot.'
-            //                      })
-            //                      .then(() => {
-            //                          showPageLoader();
-            //                          location.reload();
-            //                      });
-            //              }
-            //          },
-            //          error: function(xhr) {
-            //              Swal.fire({
-            //                  icon: 'error',
-            //                  title: 'Booking Failed',
-            //                  text: xhr.responseJSON?.message ||
-            //                      'An error occurred while booking the slot.'
-            //              });
-            //          }
-            //      });
-            //  });
+             //          return {
+             //              friendNames: arr,
+             //              note: notes
+             //          };
+             //      }
+             //  }).then((r) => {
+             //      if (!r.isConfirmed) return;
+             //      $.ajax({
+             //          url: "{{ route('slot.book') }}",
+             //          type: "POST",
+             //          data: {
+             //              _token: $('meta[name="csrf-token"]').attr('content'),
+             //              slot_id: slot_id,
+             //              friend_names: r.value.friendNames || "",
+             //              note: r.value.note || "",
+             //              redirect: 0,
+             //          },
+             //          success: function(response) {
+             //              if (response.payment_url) {
+             //                  window.location.href = response.payment_url;
+             //              } else {
+             //                  Swal.fire({
+             //                          icon: 'success',
+             //                          title: 'Booking Successful',
+             //                          text: response.message ||
+             //                              'You have successfully booked the slot.'
+             //                      })
+             //                      .then(() => {
+             //                          showPageLoader();
+             //                          location.reload();
+             //                      });
+             //              }
+             //          },
+             //          error: function(xhr) {
+             //              Swal.fire({
+             //                  icon: 'error',
+             //                  title: 'Booking Failed',
+             //                  text: xhr.responseJSON?.message ||
+             //                      'An error occurred while booking the slot.'
+             //              });
+             //          }
+             //      });
+             //  });
 
-            Swal.fire({
-    title: "Lesson Details",
-    html: `
-      <div style="text-align: left; font-size: 14px;">
-        <span><strong>Lesson Date/Time:</strong> ${formattedTime}</span><br/>
-        <span><strong>Location:</strong> ${slot.location}</span><br/>
-        <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
-        <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
-        <span><strong>Available Spots:</strong> ${availableSeats}</span><br/><br/>
+             //  Swal.fire({
+             //      title: "Lesson Details",
+             //      html: `
+            //     <div style="text-align: left; font-size: 14px;">
+            //         <span><strong>Lesson Date/Time:</strong> ${formattedTime}</span><br/>
+            //         <span><strong>Location:</strong> ${slot.location}</span><br/>
+            //         <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
+            //         <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
+            //         <span><strong>Available Spots:</strong> ${availableSeats}</span><br/><br/>
 
-        <!-- 👇 NEW RADIO SELECTION -->
-        <div class="form-group mb-2">
-          <label><strong>Booking Type:</strong></label><br>
-          <label><input type="radio" name="isGuest" value="false" checked> For Myself</label>
-          <label class="ml-3"><input type="radio" name="isGuest" value="true"> As Guest</label>
-        </div>
+            //         <!-- 👇 NEW RADIO SELECTION -->
+            //         <div class="form-group mb-2">
+            //         <label><strong>Booking Type:</strong></label><br>
+            //         <label><input type="radio" name="isGuest" value="false" checked> For Myself</label>
+            //         <label class="ml-3"><input type="radio" name="isGuest" value="true"> As Guest</label>
+            //         </div>
 
-        <!-- Guest Fields -->
-        <div id="guest-form" class="hidden">
-          <div class="form-group mb-2">
-            <label>Guest Name</label>
-            <input type="text" id="guestName" class="form-control" placeholder="Enter guest name">
-          </div>
-          <div class="form-group mb-2">
-            <label>Guest Email</label>
-            <input type="email" id="guestEmail" class="form-control" placeholder="Enter guest email">
-          </div>
-          <div class="form-group mb-2">
-            <label>Guest Phone</label>
-            <input type="text" id="guestPhone" class="form-control" placeholder="Enter guest phone">
-          </div>
-        </div>
+            //         <!-- Guest Fields -->
+            //         <div id="guest-form" class="hidden">
+            //         <div class="form-group mb-2">
+            //             <label>Guest Name</label>
+            //             <input type="text" id="guestName" class="form-control" placeholder="Enter guest name">
+            //         </div>
+            //         <div class="form-group mb-2">
+            //             <label>Guest Email</label>
+            //             <input type="email" id="guestEmail" class="form-control" placeholder="Enter guest email">
+            //         </div>
+            //         <div class="form-group mb-2">
+            //             <label>Guest Phone</label>
+            //             <input type="text" id="guestPhone" class="form-control" placeholder="Enter guest phone">
+            //         </div>
+            //         </div>
 
-        <div class="form-group mt-3">
-          <textarea name="notes" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="4"></textarea>
-        </div>
-      </div>
-    `,
-    showCancelButton: true,
-    confirmButtonText: "Book Slot",
-    cancelButtonText: "Cancel",
-    didOpen: () => {
-        // Toggle Guest Form
-        $('input[name="isGuest"]').on('change', function () {
-            const isGuest = $(this).val() === 'true';
-            if (isGuest) {
-                $('#guest-form').removeClass('hidden').show();
-            } else {
-                $('#guest-form').hide();
-            }
-        });
-    },
-    preConfirm: () => {
-        const isGuest = $('input[name="isGuest"]:checked').val() === 'true';
-        const notes = document.getElementById('notes')?.value.trim() || "";
+            //         <div class="form-group mt-3">
+            //         <textarea name="notes" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="4"></textarea>
+            //         </div>
+            //     </div>
+            //     `,
+             //      showCancelButton: true,
+             //      confirmButtonText: "Book Slot",
+             //      cancelButtonText: "Cancel",
+             //      didOpen: () => {
+             //          // Toggle Guest Form
+             //          $('input[name="isGuest"]').on('change', function() {
+             //              const isGuest = $(this).val() === 'true';
+             //              if (isGuest) {
+             //                  $('#guest-form').removeClass('hidden').show();
+             //              } else {
+             //                  $('#guest-form').hide();
+             //              }
+             //          });
+             //      },
+             //      preConfirm: () => {
+             //          const isGuest = $('input[name="isGuest"]:checked').val() === 'true';
+             //          const notes = document.getElementById('notes')?.value.trim() || "";
 
-        if (isGuest) {
-            const guestName = $('#guestName').val().trim();
-            const guestEmail = $('#guestEmail').val().trim();
-            const guestPhone = $('#guestPhone').val().trim();
-            if (!guestName || !guestEmail) {
-                Swal.showValidationMessage("Please fill in guest name and email.");
-                return false;
-            }
-            return { isGuest: true, guestName, guestEmail, guestPhone, note: notes };
-        } else {
-            return { isGuest: false, note: notes };
-        }
-    }
-}).then((r) => {
-    if (!r.isConfirmed) return;
-    $.ajax({
-        url: "{{ route('slot.book') }}",
-        type: "POST",
-        data: {
-            _token: $('meta[name="csrf-token"]').attr('content'),
-            slot_id: slot_id,
-            isGuest: r.value.isGuest,
-            guest_name: r.value.guestName || "",
-            guest_email: r.value.guestEmail || "",
-            guest_phone: r.value.guestPhone || "",
-            note: r.value.note || "",
-            redirect: 0,
-        },
-        success: function(response) {
-            if (response.payment_url) {
-                window.location.href = response.payment_url;
-            } else {
-                Swal.fire({
-                        icon: 'success',
-                        title: 'Booking Successful',
-                        text: response.message || 'You have successfully booked the slot.'
-                    })
-                    .then(() => {
-                        showPageLoader();
-                        location.reload();
-                    });
-            }
-        },
-        error: function(xhr) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Booking Failed',
-                text: xhr.responseJSON?.message || 'An error occurred while booking the slot.'
-            });
-        }
-    });
-});
+             //          if (isGuest) {
+             //              const guestName = $('#guestName').val().trim();
+             //              const guestEmail = $('#guestEmail').val().trim();
+             //              const guestPhone = $('#guestPhone').val().trim();
+             //              if (!guestName || !guestEmail) {
+             //                  Swal.showValidationMessage("Please fill in guest name and email.");
+             //                  return false;
+             //              }
+             //              return {
+             //                  isGuest: true,
+             //                  guestName,
+             //                  guestEmail,
+             //                  guestPhone,
+             //                  note: notes
+             //              };
+             //          } else {
+             //              return {
+             //                  isGuest: false,
+             //                  note: notes
+             //              };
+             //          }
+             //      }
+             //  }).then((r) => {
+             //      if (!r.isConfirmed) return;
+             //      $.ajax({
+             //          url: "{{ route('slot.book') }}",
+             //          type: "POST",
+             //          data: {
+             //              _token: $('meta[name="csrf-token"]').attr('content'),
+             //              slot_id: slot_id,
+             //              isGuest: r.value.isGuest,
+             //              guest_name: r.value.guestName || "",
+             //              guest_email: r.value.guestEmail || "",
+             //              guest_phone: r.value.guestPhone || "",
+             //              note: r.value.note || "",
+             //              redirect: 0,
+             //          },
+             //          success: function(response) {
+             //              if (response.payment_url) {
+             //                  window.location.href = response.payment_url;
+             //              } else {
+             //                  Swal.fire({
+             //                          icon: 'success',
+             //                          title: 'Booking Successful',
+             //                          text: response.message ||
+             //                              'You have successfully booked the slot.'
+             //                      })
+             //                      .then(() => {
+             //                          showPageLoader();
+             //                          location.reload();
+             //                      });
+             //              }
+             //          },
+             //          error: function(xhr) {
+             //              Swal.fire({
+             //                  icon: 'error',
+             //                  title: 'Booking Failed',
+             //                  text: xhr.responseJSON?.message ||
+             //                      'An error occurred while booking the slot.'
+             //              });
+             //          }
+             //      });
+             //  });
+
+             Swal.fire({
+                 title: "Lesson Details",
+                 html: `
+                    <div style="text-align: left; font-size: 14px;">
+                        <span><strong>Lesson Date/Time:</strong> ${formattedTime}</span><br/>
+                        <span><strong>Location:</strong> ${slot.location}</span><br/>
+                        <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
+                        <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
+                        <span><strong>Available Spots:</strong> ${availableSeats}</span><br/><br/>
+
+                        <!-- ✅ ADD GUEST BUTTON -->
+                        <div class="form-group mb-2">
+                            <button type="button" id="addGuestBtn" class="btn btn-sm btn-outline-primary">
+                                + Add Guest
+                            </button>
+                        </div>
+
+                        <!-- Guest Fields Container -->
+                        <div id="guest-container"></div>
+
+                        <div class="form-group mt-3">
+                            <textarea name="notes" id="notes" class="form-control" placeholder="Enter note here" cols="10" rows="4"></textarea>
+                        </div>
+                    </div>
+                    `,
+                 showCancelButton: true,
+                 confirmButtonText: "Book Slot",
+                 cancelButtonText: "Cancel",
+                 didOpen: () => {
+                     // ✅ Add new guest entry dynamically
+                     let guestCount = 0;
+                     $('#addGuestBtn').on('click', function() {
+                         guestCount++;
+                         const guestHtml = `
+                                <div class="guest-entry border rounded p-2 mb-2" data-guest="${guestCount}">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong>Guest #${guestCount}</strong>
+                                        <button type="button" class="btn btn-sm btn-danger removeGuestBtn">×</button>
+                                    </div>
+                                    <div class="form-group mt-2">
+                                        <label>Guest Name</label>
+                                        <input type="text" class="form-control friend-name" placeholder="Enter guest name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Guest Email</label>
+                                        <input type="email" class="form-control friend-email" placeholder="Enter guest email">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Guest Phone</label>
+                                        <input type="text" class="form-control friend-phone" placeholder="Enter guest phone">
+                                    </div>
+                                </div>
+                            `;
+                         $('#guest-container').append(guestHtml);
+                     });
+
+                     // ✅ Remove guest entry
+                     $(document).on('click', '.removeGuestBtn', function() {
+                         $(this).closest('.guest-entry').remove();
+                     });
+                 },
+                 preConfirm: () => {
+                     const notes = $('#notes').val()?.trim() || "";
+                     const friendNames = [];
+                     const friendEmails = [];
+                     const friendPhones = [];
+
+                     $('.guest-entry').each(function() {
+                         const name = $(this).find('.friend-name').val().trim();
+                         const email = $(this).find('.friend-email').val().trim();
+                         const phone = $(this).find('.friend-phone').val().trim();
+
+                         if (!name || !email) {
+                             Swal.showValidationMessage(
+                                 "Please fill in guest name and email for all guests.");
+                             throw new Error("Invalid guest data");
+                         }
+
+                         friendNames.push(name);
+                         friendEmails.push(email);
+                         friendPhones.push(phone);
+                     });
+
+                     return {
+                         hasGuests: friendNames.length > 0,
+                         friend_names: friendNames,
+                         friend_emails: friendEmails,
+                         friend_phones: friendPhones,
+                         note: notes
+                     };
+                 }
+             }).then((r) => {
+                 if (!r.isConfirmed) return;
+
+                 $.ajax({
+                     url: "{{ route('slot.book') }}",
+                     type: "POST",
+                     data: {
+                         _token: $('meta[name="csrf-token"]').attr('content'),
+                         slot_id: slot_id,
+                         isGuest: r.value.hasGuests,
+                         friend_names: r.value.friend_names || [],
+                         friend_emails: r.value.friend_emails || [],
+                         friend_phones: r.value.friend_phones || [],
+                         note: r.value.note || "",
+                         redirect: 0,
+                     },
+                     success: function(response) {
+                         if (response.payment_url) {
+                             window.location.href = response.payment_url;
+                         } else {
+                             Swal.fire({
+                                 icon: 'success',
+                                 title: 'Booking Successful',
+                                 text: response.message ||
+                                     'You have successfully booked the slot.'
+                             }).then(() => {
+                                 showPageLoader();
+                                 location.reload();
+                             });
+                         }
+                     },
+                     error: function(xhr) {
+                         Swal.fire({
+                             icon: 'error',
+                             title: 'Booking Failed',
+                             text: xhr.responseJSON?.message ||
+                                 'An error occurred while booking the slot.'
+                         });
+                     }
+                 });
+             });
+
+
+
 
              return;
          }
@@ -1401,9 +1548,10 @@
 
          slotsForDate.forEach(ev => {
              const payload = normalizeEventObject(ev);
+            //  console.log(payload)
 
              const lessonText =
-                 `${payload.lesson?.lesson_name || 'Lesson'} (${payload.lesson?.booked || 0}/${payload.lesson?.capacity || 1})`;
+                 `${payload.lesson?.lesson_name || 'Lesson'} (${payload.slot?.lesson?.max_students - payload.availableSeats || 0}/${payload.slot?.lesson?.max_students || 1})`;
              const start = new Date(payload.slot.date_time); // e.g. "2025-09-02 13:00:00"
 
              const durationInMinutes = payload.slot.lesson.lesson_duration * 60; // 0.5 -> 30 mins
@@ -1412,19 +1560,19 @@
              const myClass = ev.className.split(' ')[0] || '';
 
              const card = $(`
-            <div class="col-md-6 col-sm-12 col-lg-4">
-                <div class="card mb-2 p-2 border rounded shadow-sm d-flex justify-content-between align-items-center flex-row ${ myClass }">
-                  <div class="slot-action">
-                    <strong>${formattedTimeRange}</strong> ${lessonText}
-                  </div>
-                  <div class="gap-2">
-                    ${type == 'Instructor'
-                      ? `<button class="btn btn-sm btn-danger del-btn" title="Delete"><i class="ti ti-trash"></i></button>`
-                      : ``}
-                  </div>                                                                                                                                                                                                                                                                   
+                <div class="col-md-6 col-sm-12 col-lg-4">
+                    <div class="card mb-2 p-2 border rounded shadow-sm d-flex justify-content-between align-items-center flex-row ${ myClass }">
+                    <div class="slot-action">
+                        <strong>${formattedTimeRange}</strong> ${lessonText}
+                    </div>
+                    <div class="gap-2">
+                        ${type == 'Instructor'
+                        ? `<button class="btn btn-sm btn-danger del-btn" title="Delete"><i class="ti ti-trash"></i></button>`
+                        : ``}
+                    </div>                                                                                                                                                                                                                                                                   
+                    </div>
                 </div>
-            </div>
-            `);
+                `);
 
              // Delete (mobile)
              card.find('.del-btn').on('click', function(e) {
