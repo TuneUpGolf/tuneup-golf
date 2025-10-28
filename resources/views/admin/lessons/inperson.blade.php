@@ -137,7 +137,7 @@
                                         '6.25' => '6 Hours 15 Minutes',
                                         '6.5' => '6 Hours 30 Minutes',
                                         '6.75' => '6 Hours 45 Minutes',
-                                        '7' => '7 Hours',   
+                                        '7' => '7 Hours',
                                         '7.25' => '7 Hours 15 Minutes',
                                         '7.5' => '7 Hours 30 Minutes',
                                         '7.75' => '7 Hours 45 Minutes',
@@ -163,6 +163,35 @@
                                     'min' => 1,
                                 ]) !!}
                             </div>
+
+                            <div class="form-group mt-3">
+                                {{ Form::label('advance_booking_limit_days', __('Advance Booking Limit (Days)'), ['class' => 'form-label']) }}
+                                {!! Form::number('advance_booking_limit_days', null, [
+                                    'class' => 'form-control',
+                                    'placeholder' => __('Enter maximum days in advance students can book'),
+                                    'min' => 0,
+                                ]) !!}
+                            </div>
+
+                            <div class="form-group mt-3">
+                                {{ Form::label('last_minute_booking_buffer_hours', __('Last-Minute Booking Restriction (Hours)'), ['class' => 'form-label']) }}
+                                {!! Form::number('last_minute_booking_buffer_hours', null, [
+                                    'class' => 'form-control',
+                                    'placeholder' => __('Enter minimum hours before lesson can be booked'),
+                                    'min' => 0,
+                                ]) !!}
+                            </div>
+
+                            <div class="form-group mt-3">
+                                {{ Form::label('cancel_window_hours', __('Cancellation Window (Hours)'), ['class' => 'form-label']) }}
+                                {!! Form::number('cancel_window_hours', null, [
+                                    'class' => 'form-control',
+                                    'placeholder' => __('Enter minimum hours before lesson start for cancellation'),
+                                    'min' => 0,
+                                ]) !!}
+                            </div>
+
+
 
                             <!-- Payment Method -->
                             <div class="form-group">

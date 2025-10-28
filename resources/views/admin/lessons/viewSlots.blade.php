@@ -1501,9 +1501,23 @@
                          showPageLoader();
                          window.location.reload();
                      },
-                     error: function(error) {
-                         Swal.fire("Error", "Failed to unbook the slot.", "error");
+                     error: function(xhr, status, error) {
+                         console.error(xhr);
+
+                         // Try to extract a readable message from the Laravel JSON response
+                         let message = "Failed to unbook the slot.";
+
+                         if (xhr.responseJSON && xhr.responseJSON.message) {
+                             message += " " + xhr.responseJSON.message;
+                         } else if (xhr.responseText) {
+                             message += " " + xhr.responseText;
+                         } else if (error) {
+                             message += " " + error;
+                         }
+
+                         Swal.fire("Error", message, "error");
                      }
+
                  });
              });
              return;
@@ -1548,7 +1562,7 @@
 
          slotsForDate.forEach(ev => {
              const payload = normalizeEventObject(ev);
-            //  console.log(payload)
+             //  console.log(payload)
 
              const lessonText =
                  `${payload.lesson?.lesson_name || 'Lesson'} (${payload.slot?.lesson?.max_students - payload.availableSeats || 0}/${payload.slot?.lesson?.max_students || 1})`;

@@ -60,7 +60,10 @@ class Lesson extends Model
         'number_of_slots',
         'long_description',
         'logo',
-        'column_order'
+        'column_order',
+        'advance_booking_limit_days',
+        'last_minute_booking_buffer_hours',
+        'cancel_window_hours',
     ];
 
     protected $casts = [
