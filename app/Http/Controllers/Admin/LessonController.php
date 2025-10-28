@@ -173,7 +173,6 @@ class LessonController extends Controller
                 ],
                 [
                     'lesson_description.required' => 'The short description is required.',
-
                 ]
             );
         }
@@ -206,6 +205,12 @@ class LessonController extends Controller
         $validatedData['payment_method'] = $request->payment_method ?? Lesson::LESSON_PAYMENT_ONLINE;
         $validatedData['tenant_id'] = Auth::user()->tenant_id;
         $validatedData['lesson_price'] = $request->lesson_price ?? 0;
+
+        // 🆕 Add new scheduling preference fields
+        $validatedData['advance_booking_limit_days'] = $request->advance_booking_limit_days ?? null;
+        $validatedData['last_minute_booking_buffer_hours'] = $request->last_minute_booking_buffer_hours ?? null;
+        $validatedData['cancel_window_hours'] = $request->cancel_window_hours ?? null;
+
         $lesson = Lesson::create($validatedData);
 
         $students = Student::whereHas('pushToken')
@@ -291,6 +296,11 @@ class LessonController extends Controller
             $validatedData['lesson_duration'] = $_POST['lesson_duration'] != "" ? $_POST['lesson_duration'] : NULL;
             $validatedData['max_students'] = $_POST['max_students'] != "" ? $_POST['max_students'] : NULL;
         }
+
+        // 🆕 Add new scheduling preference fields
+        $validatedData['advance_booking_limit_days'] = $request->advance_booking_limit_days ?? null;
+        $validatedData['last_minute_booking_buffer_hours'] = $request->last_minute_booking_buffer_hours ?? null;
+        $validatedData['cancel_window_hours'] = $request->cancel_window_hours ?? null;
 
         $lesson->update($validatedData);
 
@@ -443,7 +453,7 @@ class LessonController extends Controller
             })
             ->exists();
 
-            // dd($scheduledConflict);
+        // dd($scheduledConflict);
 
         if ($scheduledConflict) {
             return response()->json([
@@ -454,9 +464,9 @@ class LessonController extends Controller
 
         // Check for conflicts with existing availability slots (slots without students)
         $availabilityConflict = Slots::whereDoesntHave('student')
-        ->whereHas('lesson', function ($q) use ($instructor) {
-            $q->where('created_by', $instructor->id);
-        })  // Only check slots without students (availability)
+            ->whereHas('lesson', function ($q) use ($instructor) {
+                $q->where('created_by', $instructor->id);
+            })  // Only check slots without students (availability)
             ->whereBetween('date_time', [$blockStart, $blockEnd->subMinute()])
             ->exists();
 
@@ -857,6 +867,37 @@ class LessonController extends Controller
                 return true; // Include this slot as it doesn't overlap with any booked time range
             });
 
+            #🧠 Apply instructor booking preferences here
+            $timezone = UtilityFacades::getValByName('default_timezone');
+
+            $now = $timezone != '' ? Carbon::now($timezone) : Carbon::now();
+            $filteredSlots = $filteredSlots->filter(function ($slot) use ($now) {
+                $lesson = $slot->lesson;
+                $slotTime = Carbon::parse($slot->date_time);
+
+                // Get instructor-defined limits
+                $advanceLimit = $lesson->advance_booking_limit_days;
+                $bufferHours = $lesson->last_minute_booking_buffer_hours;
+
+                // Exclude slots that are too far in the future
+                if (!is_null($advanceLimit)) {
+                    $latestAllowed = $now->copy()->addDays($advanceLimit);
+                    if ($slotTime->greaterThan($latestAllowed)) {
+                        return false;
+                    }
+                }
+
+                // Exclude slots that are too soon (within the buffer)
+                if (!is_null($bufferHours)) {
+                    $earliestAllowed = $now->copy()->addHours($bufferHours);
+                    if ($slotTime->lessThan($earliestAllowed)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
             $studentCountArr = [];
 
             foreach ($filteredSlots as $appointment) {
@@ -883,9 +924,6 @@ class LessonController extends Controller
 
                 $availableSeats = $maxStudents - $studentCount;
 
-                // if($appointment->id == 31)
-                // dd($appointment->lesson->max_students, $appointment->student->count(), $availableSeats, $appointment);
-
                 array_push($events, [
                     'title' => substr($appointment->lesson->lesson_name, 0, 10) .
                         ' (' . ($appointment->lesson->max_students - $availableSeats) . '/' . $appointment->lesson->max_students . ') ',
@@ -906,6 +944,48 @@ class LessonController extends Controller
             $lesson_id = request()->get('lesson_id');
             $authId = Auth::user()->id;
             $students = Student::where('active_status', true)->where('isGuest', false)->get();
+
+
+            // $now = \Carbon\Carbon::now();
+            $now = $timezone != '' ? Carbon::now($timezone) : Carbon::now();
+
+            $slotDates = $lesson->slots
+                ->filter(function ($slot) use ($now) {
+                    $lesson = $slot->lesson;
+
+                    $advanceLimit = $lesson->advance_booking_limit_days;
+                    $bufferHours = $lesson->last_minute_booking_buffer_hours;
+                    $slotTime = \Carbon\Carbon::parse($slot->date_time);
+
+                    // Exclude if too far in advance
+                    if (!is_null($advanceLimit)) {
+                        $latestAllowed = $now->copy()->addDays($advanceLimit);
+                        // dd($slotTime, $latestAllowed);
+                        if ($slotTime->greaterThan($latestAllowed)) {
+                            return false;
+                        }
+                    }
+
+                    // Exclude if within the buffer period (too close)
+                    if (!is_null($bufferHours)) {
+                        $earliestAllowed = $now->copy()->addHours($bufferHours);
+                        if ($slotTime->lessThan($earliestAllowed)) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                })
+                ->pluck('date_time')
+                ->map(function ($dt) {
+                    return \Carbon\Carbon::parse($dt)->format('Y-m-d');
+                })
+                ->unique() // avoid duplicate dates
+                ->values()
+                ->toArray();
+
+
+
             // dd($events);
             return view('admin.lessons.viewSlots', compact('events', 'lesson_id', 'type', 'authId', 'students', 'lesson', 'slotDates'));
         }
@@ -1709,6 +1789,35 @@ class LessonController extends Controller
             ]);
             $user = Auth::user();
             $slot = Slots::find($request->slot_id);
+            if ($user->type === Role::ROLE_STUDENT) {
+                $lesson = $slot->lesson;
+                $cancelWindow = $lesson->cancel_window_hours ?? null;
+                // dd("test");
+                if (!is_null($cancelWindow)) {
+                    $timezone = UtilityFacades::getValByName('default_timezone');
+                    $now = $timezone != '' ? Carbon::now($timezone) : Carbon::now();
+                    // $slotStartTime = \Carbon\Carbon::parse($slot->date_time)
+                    //     ->setTimezone($timezone ?: config('app.timezone'));
+                    $slotStartTime = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $slot->date_time, $timezone ?: config('app.timezone'));
+                    // $slotStartTime = \Carbon\Carbon::parse($slot->date_time); //convert this in my time line
+
+
+                    // Calculate the latest time the student can cancel
+                    $cancelDeadline = $slotStartTime->copy()->subHours($cancelWindow);
+
+                    // dd($cancelDeadline, $cancelWindow, $slotStartTime, $now, $slot->date_time);
+
+                    // If it's too close to the lesson start, block cancellation
+                    if ($now->greaterThanOrEqualTo($cancelDeadline)) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => __('You cannot cancel this lesson within :hours hours of the start time.', ['hours' => $cancelWindow])
+                        ], 403);
+                    }
+                }
+            }
+            // dd($user);
+
             if (array_key_exists('lessonId', $validatedData)) {
                 $slots = Slots::where('lesson_id', $validatedData['lessonId'])->get();
                 foreach ($slots as $slot) {
@@ -1799,6 +1908,8 @@ class LessonController extends Controller
                 }
                 return response()->json(new SlotAPIResource($slot), 200);
             }
+
+            // 🧠 Apply instructor's cancellation window condition
 
             // // If the user is a student and is unbooking themselves
             if ($slot->student->contains($user->id)) {

@@ -19,7 +19,7 @@
                             'route' => ['lesson.update', $user->id],
                             'method' => 'Put',
                             'data-validate',
-                            'enctype' => "multipart/form-data"
+                            'enctype' => 'multipart/form-data',
                         ]) !!}
 
                         <!-- Package Lesson Checkbox (Disabled if it's a package lesson) -->
@@ -42,10 +42,10 @@
                         </div>
 
                         <div class="form-group">
-                                {{ Form::label('logo', __('Logo'), ['class' => 'form-label']) }}
-                                {!! Form::file('logo', ['class' => 'form-control']) !!}
+                            {{ Form::label('logo', __('Logo'), ['class' => 'form-label']) }}
+                            {!! Form::file('logo', ['class' => 'form-control']) !!}
 
-                            </div>
+                        </div>
 
                         @if ($user->type == 'package')
                             <div class="form-group">
@@ -112,6 +112,33 @@
                         @endif
 
                         @if ($user->type === 'inPerson' || $user->type === 'package')
+                            <div class="form-group mt-3">
+                                {{ Form::label('advance_booking_limit_days', __('Advance Booking Limit (Days)'), ['class' => 'form-label']) }}
+                                {!! Form::number('advance_booking_limit_days', null, [
+                                    'class' => 'form-control',
+                                    'placeholder' => __('Enter maximum days in advance students can book'),
+                                    'min' => 0,
+                                ]) !!}
+                            </div>
+
+                            <div class="form-group mt-3">
+                                {{ Form::label('last_minute_booking_buffer_hours', __('Last-Minute Booking Restriction (Hours)'), ['class' => 'form-label']) }}
+                                {!! Form::number('last_minute_booking_buffer_hours', null, [
+                                    'class' => 'form-control',
+                                    'placeholder' => __('Enter minimum hours before lesson can be booked'),
+                                    'min' => 0,
+                                ]) !!}
+                            </div>
+
+                            <div class="form-group mt-3">
+                                {{ Form::label('cancel_window_hours', __('Cancellation Window (Hours)'), ['class' => 'form-label']) }}
+                                {!! Form::number('cancel_window_hours', null, [
+                                    'class' => 'form-control',
+                                    'placeholder' => __('Enter minimum hours before lesson start for cancellation'),
+                                    'min' => 0,
+                                ]) !!}
+                            </div>
+
                             <div class="form-group">
                                 {{ Form::label('lesson_duration', __('Duration (hours)'), ['class' => 'form-label']) }}
                                 {!! Form::select(
