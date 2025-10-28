@@ -83,7 +83,7 @@ class AnnouncementController extends Controller
             }
         }
 
-        broadcast(new AnnouncementCreated($announcement, $studentIds));
+        // broadcast(new AnnouncementCreated($announcement, $studentIds));
 
 
         return redirect()->route('announcements.index')
