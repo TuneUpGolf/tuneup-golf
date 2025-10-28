@@ -431,11 +431,11 @@ class LessonController extends Controller
         // Check for conflicts with existing scheduled slots (slots with students)
         $scheduledConflict = Slots::whereHas('student') // Only check slots that have students (scheduled)
             ->where(function ($query) use ($blockStart, $blockEnd) {
-                $query->whereBetween('date_time', [$blockStart, $blockEnd->subMinute()])
-                    ->orWhere(function ($q) use ($blockStart, $blockEnd) {
-                        $q->where('date_time', '<', $blockStart)
-                            ->whereRaw('DATE_ADD(date_time, INTERVAL (SELECT lesson_duration FROM lessons WHERE lessons.id = slots.lesson_id) * 60 MINUTE) > ?', [$blockStart]);
-                    });
+                $query->whereBetween('date_time', [$blockStart, $blockEnd->subMinute()]);
+                    // ->orWhere(function ($q) use ($blockStart, $blockEnd) {
+                    //     $q->where('date_time', '<', $blockStart)
+                    //         ->whereRaw('DATE_ADD(date_time, INTERVAL (SELECT lesson_duration FROM lessons WHERE lessons.id = slots.lesson_id) * 60 MINUTE) > ?', [$blockStart]);
+                    // });
             })
             ->exists();
 
@@ -462,11 +462,11 @@ class LessonController extends Controller
         $blockedConflict = InstructorBlockSlot::where('instructor_id', $instructor->id)
             ->where(function ($query) use ($blockStart, $blockEnd) {
                 $query->whereBetween('start_time', [$blockStart, $blockEnd])
-                    ->orWhereBetween('end_time', [$blockStart, $blockEnd])
-                    ->orWhere(function ($q) use ($blockStart, $blockEnd) {
-                        $q->where('start_time', '<=', $blockStart)
-                            ->where('end_time', '>=', $blockEnd);
-                    });
+                    ->orWhereBetween('end_time', [$blockStart, $blockEnd]);
+                    // ->orWhere(function ($q) use ($blockStart, $blockEnd) {
+                    //     $q->where('start_time', '<=', $blockStart)
+                    //         ->where('end_time', '>=', $blockEnd);
+                    // });
             })
             ->exists();
 
