@@ -421,6 +421,8 @@ class LessonController extends Controller
             'reason'     => 'required|string|max:5000',
         ]);
 
+        // dd($validated['start_time']);
+
         // Get the authenticated instructor
         $instructor = auth()->user();
 
@@ -429,15 +431,19 @@ class LessonController extends Controller
         $blockEnd = Carbon::parse($validated['end_time']);
 
         // Check for conflicts with existing scheduled slots (slots with students)
-        $scheduledConflict = Slots::whereHas('student') // Only check slots that have students (scheduled)
+        $scheduledConflict = Slots::whereHas('student')->whereHas('lesson', function ($q) use ($instructor) {
+            $q->where('created_by', $instructor->id);
+        }) // Only check slots that have students (scheduled)
             ->where(function ($query) use ($blockStart, $blockEnd) {
                 $query->whereBetween('date_time', [$blockStart, $blockEnd->subMinute()]);
-                    // ->orWhere(function ($q) use ($blockStart, $blockEnd) {
-                    //     $q->where('date_time', '<', $blockStart)
-                    //         ->whereRaw('DATE_ADD(date_time, INTERVAL (SELECT lesson_duration FROM lessons WHERE lessons.id = slots.lesson_id) * 60 MINUTE) > ?', [$blockStart]);
-                    // });
+                // ->orWhere(function ($q) use ($blockStart, $blockEnd) {
+                //     $q->where('date_time', '<', $blockStart)
+                //         ->whereRaw('DATE_ADD(date_time, INTERVAL (SELECT lesson_duration FROM lessons WHERE lessons.id = slots.lesson_id) * 60 MINUTE) > ?', [$blockStart]);
+                // });
             })
             ->exists();
+
+            // dd($scheduledConflict);
 
         if ($scheduledConflict) {
             return response()->json([
@@ -447,7 +453,10 @@ class LessonController extends Controller
         }
 
         // Check for conflicts with existing availability slots (slots without students)
-        $availabilityConflict = Slots::whereDoesntHave('student') // Only check slots without students (availability)
+        $availabilityConflict = Slots::whereDoesntHave('student')
+        ->whereHas('lesson', function ($q) use ($instructor) {
+            $q->where('created_by', $instructor->id);
+        })  // Only check slots without students (availability)
             ->whereBetween('date_time', [$blockStart, $blockEnd->subMinute()])
             ->exists();
 
@@ -463,10 +472,10 @@ class LessonController extends Controller
             ->where(function ($query) use ($blockStart, $blockEnd) {
                 $query->whereBetween('start_time', [$blockStart, $blockEnd])
                     ->orWhereBetween('end_time', [$blockStart, $blockEnd]);
-                    // ->orWhere(function ($q) use ($blockStart, $blockEnd) {
-                    //     $q->where('start_time', '<=', $blockStart)
-                    //         ->where('end_time', '>=', $blockEnd);
-                    // });
+                // ->orWhere(function ($q) use ($blockStart, $blockEnd) {
+                //     $q->where('start_time', '<=', $blockStart)
+                //         ->where('end_time', '>=', $blockEnd);
+                // });
             })
             ->exists();
 
