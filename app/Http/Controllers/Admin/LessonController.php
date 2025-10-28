@@ -873,7 +873,10 @@ class LessonController extends Controller
             $now = $timezone != '' ? Carbon::now($timezone) : Carbon::now();
             $filteredSlots = $filteredSlots->filter(function ($slot) use ($now) {
                 $lesson = $slot->lesson;
-                $slotTime = Carbon::parse($slot->date_time);
+                // $slotTime = Carbon::parse($slot->date_time);
+                $timezone = UtilityFacades::getValByName('default_timezone');
+
+                $slotTime = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $slot->date_time, $timezone ?: config('app.timezone'));
 
                 // Get instructor-defined limits
                 $advanceLimit = $lesson->advance_booking_limit_days;
