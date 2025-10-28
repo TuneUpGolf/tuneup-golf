@@ -430,9 +430,9 @@ class LessonController extends Controller
 
         // Check for conflicts with existing scheduled slots (slots with students)
         $scheduledConflict = Slots::whereHas('student') // Only check slots that have students (scheduled)
-            ->where(function($query) use ($blockStart, $blockEnd) {
+            ->where(function ($query) use ($blockStart, $blockEnd) {
                 $query->whereBetween('date_time', [$blockStart, $blockEnd->subMinute()])
-                    ->orWhere(function($q) use ($blockStart, $blockEnd) {
+                    ->orWhere(function ($q) use ($blockStart, $blockEnd) {
                         $q->where('date_time', '<', $blockStart)
                             ->whereRaw('DATE_ADD(date_time, INTERVAL (SELECT lesson_duration FROM lessons WHERE lessons.id = slots.lesson_id) * 60 MINUTE) > ?', [$blockStart]);
                     });
@@ -460,10 +460,10 @@ class LessonController extends Controller
 
         // Check for conflicts with existing blocked slots
         $blockedConflict = InstructorBlockSlot::where('instructor_id', $instructor->id)
-            ->where(function($query) use ($blockStart, $blockEnd) {
+            ->where(function ($query) use ($blockStart, $blockEnd) {
                 $query->whereBetween('start_time', [$blockStart, $blockEnd])
                     ->orWhereBetween('end_time', [$blockStart, $blockEnd])
-                    ->orWhere(function($q) use ($blockStart, $blockEnd) {
+                    ->orWhere(function ($q) use ($blockStart, $blockEnd) {
                         $q->where('start_time', '<=', $blockStart)
                             ->where('end_time', '>=', $blockEnd);
                     });
@@ -500,15 +500,15 @@ class LessonController extends Controller
             // Handle both single lesson_id and multiple lesson_ids
             $lessonIds = request()->input('lesson_ids', []);
             $singleLessonId = request()->input('lesson_id');
-            
+
             // If no multiple lessons selected, check for single lesson selection
             if (empty($lessonIds) && $singleLessonId && $singleLessonId !== "-1") {
                 $lessonIds = [$singleLessonId];
             }
-            
+
             // Get payment method from first selected lesson (or null if none selected)
             $payment_method = !empty($lessonIds) ? Lesson::find($lessonIds[0])?->payment_method : null;
-            
+
             $events = [];
             $resources = [];
             $instructorId = request()->get('instructor_id');
@@ -644,19 +644,19 @@ class LessonController extends Controller
             // $blockSlots = InstructorBlockSlot::all();
             return view('admin.lessons.manageSlots', compact('events', 'resources', 'lesson_id', 'type', 'payment_method', 'instructors', 'students'));
         }
-       if ($type === Role::ROLE_INSTRUCTOR) {
+        if ($type === Role::ROLE_INSTRUCTOR) {
             // Handle both single lesson_id and multiple lesson_ids
             $lessonIds = request()->input('lesson_ids', []);
             $singleLessonId = request()->input('lesson_id');
-            
+
             // If no multiple lessons selected, check for single lesson selection
             if (empty($lessonIds) && $singleLessonId && $singleLessonId !== "-1") {
                 $lessonIds = [$singleLessonId];
             }
-            
+
             // Get payment method from first selected lesson (or null if none selected)
             $payment_method = !empty($lessonIds) ? Lesson::find($lessonIds[0])?->payment_method : null;
-            
+
             $events = [];
 
             $slotsQuery = Slots::with(['lesson.user', 'student'])
@@ -848,6 +848,8 @@ class LessonController extends Controller
                 return true; // Include this slot as it doesn't overlap with any booked time range
             });
 
+            $studentCountArr = [];
+
             foreach ($filteredSlots as $appointment) {
 
                 $n = $appointment->lesson->lesson_duration;
@@ -864,8 +866,20 @@ class LessonController extends Controller
                     $type == Role::ROLE_STUDENT && $students->contains('id', Auth::user()->id))
                     ? 'custom-book-class' : 'custom-available-class') . ' custom-event-class';
 
+                if (!array_key_exists($appointment->id, $studentCountArr)) {
+                    $studentCountArr[$appointment->id] = $appointment->student->count();
+                }
+                $studentCount = $studentCountArr[$appointment->id];
+                $maxStudents = $appointment->lesson->max_students;
+
+                $availableSeats = $maxStudents - $studentCount;
+
+                // if($appointment->id == 31)
+                // dd($appointment->lesson->max_students, $appointment->student->count(), $availableSeats, $appointment);
+
                 array_push($events, [
-                    'title' => $appointment->lesson->lesson_name . ' (' . $appointment->lesson->max_students - $appointment->availableSeats() . '/' . $appointment->lesson->max_students . ')',
+                    'title' => substr($appointment->lesson->lesson_name, 0, 10) .
+                        ' (' . ($appointment->lesson->max_students - $availableSeats) . '/' . $appointment->lesson->max_students . ') ',
                     'start' => $appointment->date_time,
                     'end' => date("Y-m-d H:i:s", strtotime($appointment->date_time . " +" . $intervalString)),
                     'slot_id' => $appointment->id,
@@ -875,7 +889,7 @@ class LessonController extends Controller
                     'student' => $students,
                     'slot' => $appointment,
                     'isFullyBooked' => $appointment->isFullyBooked(),
-                    'available_seats' => $appointment->availableSeats(),
+                    'available_seats' => $availableSeats,
                     'instructor' => $appointment->lesson->user,
                     'className' => $className,
                 ]);
@@ -883,6 +897,7 @@ class LessonController extends Controller
             $lesson_id = request()->get('lesson_id');
             $authId = Auth::user()->id;
             $students = Student::where('active_status', true)->where('isGuest', false)->get();
+            // dd($events);
             return view('admin.lessons.viewSlots', compact('events', 'lesson_id', 'type', 'authId', 'students', 'lesson', 'slotDates'));
         }
     }
@@ -1241,6 +1256,8 @@ class LessonController extends Controller
                 'friend_names.*' => 'string|max:255',
             ]);
 
+            // dd(request());
+
             // Convert JSON string to array (just in case)
             // dd(request());
             $slot = Slots::with('lesson', 'student')->findOrFail(request()->slot_id);
@@ -1273,6 +1290,8 @@ class LessonController extends Controller
         if (!is_array($friendNames)) {
             $friendNames = array_filter(explode(',', $friendNames));
         }
+
+        // dd($friendNames);
         $totalNewBookings = count($friendNames) + 1;
         $checkPackageBooking = Purchase::where([
             'student_id' => $bookingStudentId,
@@ -1373,7 +1392,6 @@ class LessonController extends Controller
             }
             // Calculate total price for student and friends
             $totalAmount = $lessonPrice * $totalNewBookings;
-
             // Create purchase entry
             $newPurchase = new Purchase([
                 'student_id' => $bookingStudentId,
@@ -1914,21 +1932,20 @@ class LessonController extends Controller
     {
         // dd("ddd");
         if (Auth::user()->can('create-lessons')) {
-                    $lesson = Lesson::find($request->get('lesson_id'));
-                    // Get calendar selection data
-                    $selectedDate = $request->input('selected_date');
-                    $startTime = $request->input('start_time');
+            $lesson = Lesson::find($request->get('lesson_id'));
+            // Get calendar selection data
+            $selectedDate = $request->input('selected_date');
+            $startTime = $request->input('start_time');
 
-                    if ($lesson) {
-                        return view('admin.lessons.addSlot', compact('lesson'));
-                    } else {
-                        $lesson = Lesson::withMax('packages', 'number_of_slot')->whereIn('type', ['package', 'inPerson'])->where('created_by', Auth::user()->id)->where('active_status', true)->get()->toArray();
-                        return view('admin.lessons.set-availability-modal', compact('lesson','selectedDate', 'startTime'));
-                    }
+            if ($lesson) {
+                return view('admin.lessons.addSlot', compact('lesson'));
+            } else {
+                $lesson = Lesson::withMax('packages', 'number_of_slot')->whereIn('type', ['package', 'inPerson'])->where('created_by', Auth::user()->id)->where('active_status', true)->get()->toArray();
+                return view('admin.lessons.set-availability-modal', compact('lesson', 'selectedDate', 'startTime'));
+            }
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
-        }        
-        
+        }
     }
 
 
@@ -1956,7 +1973,7 @@ class LessonController extends Controller
 
             // Get current tenant ID
             $tenantId = Auth::user()->tenant_id;
-            
+
             foreach ($lessons as $lesson) {
                 foreach ($selectedDates as $date) {
 
@@ -1979,12 +1996,12 @@ class LessonController extends Controller
                             $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
                                 ->where('slots.tenant_id', $tenantId)
                                 ->where('slots.is_active', 0)
-                                ->where(function($query) use ($currentSlotStart, $currentSlotEnd) {
+                                ->where(function ($query) use ($currentSlotStart, $currentSlotEnd) {
                                     $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
                                 })
                                 ->exists();
 
-                                // dd($conflict);
+                            // dd($conflict);
 
                             if ($conflict) {
                                 $conflictErrors[] = "Slot conflict for lesson '{$lesson->lesson_name}' on {$date} at {$currentSlotStart->format('H:i')}.";
@@ -2048,21 +2065,21 @@ class LessonController extends Controller
     {
         $user = Auth::user();
         // dd($user);
-        $lessons = Lesson::where('created_by', $user->id)->whereIn('type',['package','inPerson'])->where('active_status', true)->get();
+        $lessons = Lesson::where('created_by', $user->id)->whereIn('type', ['package', 'inPerson'])->where('active_status', true)->get();
         $students = Student::get(); // Adjust based on your user structure
-        
-           // Get calendar selection data from request
+
+        // Get calendar selection data from request
         $selectedDate = $request->input('selected_date');
         $startTime = $request->input('start_time_display');
         $endTime = $request->input('end_time_display');
 
         // Convert time to 24-hour format for HTML input
-          // Convert 12-hour format to 24-hour format for HTML input
+        // Convert 12-hour format to 24-hour format for HTML input
         $startTime24 = $this->convertTo24Hour($startTime);
         $endTime24 = $this->convertTo24Hour($endTime);
 
         // return view('admin.lessons.schedule-lesson-modal', compact('lessons', 'students'));
-        return view('admin.lessons.schedule-lesson-modal', compact('lessons', 'students', 'selectedDate', 'startTime', 'endTime','startTime24','endTime24'));
+        return view('admin.lessons.schedule-lesson-modal', compact('lessons', 'students', 'selectedDate', 'startTime', 'endTime', 'startTime24', 'endTime24'));
     }
 
     private function convertTo24Hour($time12Hour)
@@ -2070,7 +2087,7 @@ class LessonController extends Controller
         if (empty($time12Hour)) {
             return '';
         }
-        
+
         try {
             return \Carbon\Carbon::createFromFormat('h:i A', $time12Hour)->format('H:i');
         } catch (\Exception $e) {
@@ -2113,16 +2130,16 @@ class LessonController extends Controller
             // Create multiple slots within the time range
             for ($i = 0; $i < $maxSlots; $i++) {
                 $currentSlotEnd = $currentSlotStart->copy()->addMinutes($lessonMinutes);
-                
+
                 // Check for slot conflicts for this specific slot
                 // $conflict = Slots::where('lesson_id', $request->lesson_id)
                 //     ->whereBetween('date_time', [$currentSlotStart, $currentSlotEnd])
                 //     ->exists();
-               
+
                 $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
                     ->where('slots.tenant_id', $tenantId)
                     ->where('slots.is_active', 0)
-                    ->where(function($query) use ($currentSlotStart, $currentSlotEnd) {
+                    ->where(function ($query) use ($currentSlotStart, $currentSlotEnd) {
                         $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
                     })
                     ->exists();
@@ -2151,7 +2168,7 @@ class LessonController extends Controller
 
             // STEP 2: Book ALL created slots for selected student(s)
             $studentIds = $request->student_id ?? [];
-            
+
             if (empty($studentIds)) {
                 return response()->json([
                     'success' => false,
@@ -2160,7 +2177,7 @@ class LessonController extends Controller
             }
 
             $bookedSlotIds = [];
-            
+
             foreach ($createdSlots as $slot) {
                 // Attach selected student(s) to this slot (works for single or multiple students)
                 $slot->student()->sync($studentIds);
@@ -2228,7 +2245,6 @@ class LessonController extends Controller
                 'total_slots_created' => count($createdSlots),
                 'students_booked' => count($studentIds)
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -2253,12 +2269,12 @@ class LessonController extends Controller
         try {
             // STEP 1: Create multiple availability slots
             $lesson = Lesson::find($request->lesson_id);
-            
+
             // Calculate time frames
             $slotStart = Carbon::createFromFormat('Y-m-d H:i', $request->lesson_date . ' ' . $request->start_time);
             $slotEnd = Carbon::createFromFormat('Y-m-d H:i', $request->lesson_date . ' ' . $request->end_time);
             $totalMinutes = $slotStart->diffInMinutes($slotEnd);
-     
+
             // Get lesson duration in minutes (assuming lesson_duration is in hours)
             $lessonMinutes = $lesson->lesson_duration * 60;
 
@@ -2272,7 +2288,7 @@ class LessonController extends Controller
             // Create multiple slots within the time range
             for ($i = 0; $i < $maxSlots; $i++) {
                 $currentSlotEnd = $currentSlotStart->copy()->addMinutes($lessonMinutes);
-                
+
                 // Check for slot conflicts for this specific slot
                 // $conflict = Slots::where('lesson_id', $request->lesson_id)
                 //     ->whereBetween('date_time', [$currentSlotStart, $currentSlotEnd])
@@ -2288,12 +2304,12 @@ class LessonController extends Controller
                 // ->exists();
 
                 $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
-                        ->where('slots.tenant_id', $tenantId)
-                        ->where('slots.is_active', 0)
-                        ->where(function($query) use ($currentSlotStart, $currentSlotEnd) {
-                            $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
-                        })
-                        ->exists();
+                    ->where('slots.tenant_id', $tenantId)
+                    ->where('slots.is_active', 0)
+                    ->where(function ($query) use ($currentSlotStart, $currentSlotEnd) {
+                        $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
+                    })
+                    ->exists();
 
                 if (!$conflict) {
                     // Create the slot
@@ -2319,7 +2335,7 @@ class LessonController extends Controller
 
             // STEP 2: Book ALL created slots for selected student(s)
             $studentIds = $request->student_id ?? [];
-            
+
             if (empty($studentIds)) {
                 return response()->json([
                     'success' => false,
@@ -2328,7 +2344,7 @@ class LessonController extends Controller
             }
 
             $bookedSlotIds = [];
-            
+
             foreach ($createdSlots as $slot) {
                 // Attach selected student(s) to this slot (works for single or multiple students)
                 $slot->student()->sync($studentIds);
@@ -2396,7 +2412,6 @@ class LessonController extends Controller
                 'total_slots_created' => count($createdSlots),
                 'students_booked' => count($studentIds)
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
