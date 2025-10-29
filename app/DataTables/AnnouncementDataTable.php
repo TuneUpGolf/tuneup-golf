@@ -50,9 +50,13 @@ class AnnouncementDataTable extends DataTable
                 });
                 // ->orWhereHas('recipients'); // Optional: include announcements with any recipients
         }
+
+        else if ($user->type == Role::ROLE_INSTRUCTOR) {
+            return $model->where('user_id',$user->id)->newQuery();
+        }
         
         // For admins/teachers: show all announcements
-        return $model->newQuery();
+        // return $model->newQuery();
     }
 
     /**
@@ -82,7 +86,7 @@ class AnnouncementDataTable extends DataTable
     protected function getColumns()
     {
          return [
-            Column::make('id'),
+            // Column::make('id'),
           
             Column::make('title')->title(__('Title')),
             Column::make('content')->title(__('Content')),

@@ -61,7 +61,7 @@ class AnnouncementController extends Controller
             'title' => $request->title,
             'content' => $request->content,
             // 'is_active' => $request->has('is_active'),
-            // 'created_by' => Auth::id(),
+            'user_id' => Auth::id(),
         ]);
 
     
@@ -138,6 +138,7 @@ class AnnouncementController extends Controller
             'title' => $request->title,
             'content' => $request->content,
             'recipient_type' => $request->recipient_type,
+            'user_id' => Auth::id(),
             // 'is_active' => $request->has('is_active'),
         ]);
 

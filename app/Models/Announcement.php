@@ -12,7 +12,7 @@ class Announcement extends Model
     protected $fillable = [
         'title',
         'content',
-        'created_by',
+        'user_id',
         'is_active'
     ];
 
@@ -22,7 +22,7 @@ class Announcement extends Model
 
     public function creator()
     {
-        return $this->belongsTo(User::class, 'created_by'); //no created_by column exist
+        return $this->belongsTo(User::class, 'user_id'); 
     }
 
     public function recipients()

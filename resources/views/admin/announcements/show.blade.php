@@ -42,7 +42,7 @@
                             {{ $announcement->creator->name ?? 'N/A' }}
                         </div> -->
 
-                        <div class="mb-3">
+                        <!-- <div class="mb-3">
                             <strong>{{ __('Created At') }}:</strong>
                             {{ $announcement->created_at->format('M j, Y g:i A') }}
                         </div>
@@ -50,7 +50,7 @@
                         <div class="mb-3">
                             <strong>{{ __('Updated At') }}:</strong>
                             {{ $announcement->updated_at->format('M j, Y g:i A') }}
-                        </div>
+                        </div> -->
 
                         <div class="mt-4">
                             <strong>{{ __('Content') }}:</strong>
