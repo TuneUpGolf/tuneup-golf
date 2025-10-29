@@ -5,10 +5,11 @@ namespace App\Mail;
 namespace App\Mail\Admin;
 
 use App\Models\Purchase;
-use Spatie\MailTemplates\Models\MailTemplate;
 use Spatie\MailTemplates\TemplateMailable;
+use App\Mail\Base\InstructorTemplateMailable;
+use Spatie\MailTemplates\Models\MailTemplate;
 
-class PurchaseCreated extends TemplateMailable
+class PurchaseCreated extends InstructorTemplateMailable
 {
 
     public $name;

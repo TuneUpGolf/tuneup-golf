@@ -3,8 +3,9 @@
 namespace App\Mail\Admin;
 
 use Spatie\MailTemplates\TemplateMailable;
+use App\Mail\Base\InstructorTemplateMailable;
 
-class PasswordResets extends TemplateMailable
+class PasswordResets extends InstructorTemplateMailable
 {
     public $url;
 

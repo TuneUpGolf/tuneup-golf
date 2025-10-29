@@ -1331,12 +1331,13 @@ class LessonController extends Controller
 
 
             if (!$studentEmails->isEmpty()) {
+                $instructor = Auth::user();
                 SendEmail::dispatch($studentEmails->toArray(), new SlotBookedByStudentMail(
                     Auth::user()->name,
                     date('Y-m-d', strtotime($slot->date_time)),
                     date('h:i A', strtotime($slot->date_time)),
                     $request->notes,
-                ));
+                ), $instructor->id);
             }
 
             if (request()->redirect == 1) {
@@ -1471,7 +1472,9 @@ class LessonController extends Controller
                     date('Y-m-d', strtotime($slot->date_time)),
                     date('h:i A', strtotime($slot->date_time)),
                     $request->note
-                ));
+                ),
+                $slot->lesson?->created_by
+            );
 
                 // Reminder Scheduling
                 $instructor = $slot->lesson->user;
@@ -1560,7 +1563,8 @@ class LessonController extends Controller
                     $bookingStudent->name,
                     date('Y-m-d', strtotime($slot->date_time)),
                     date('h:i A', strtotime($slot->date_time))
-                ));
+                ),
+            $slot->lesson?->created_by);
             }
         }
 
@@ -1853,13 +1857,17 @@ class LessonController extends Controller
                             "{$user->name}, has cancelled the lesson on :date."
                         );
 
-                        SendEmail::dispatch($slot->lesson->user->email, new SlotCancelledMail(
-                            $user->name,
-                            date('Y-m-d', strtotime($slot->date_time)),
-                            date('h:i A', strtotime($slot->date_time)),
-                            $slot->lesson->lesson_name,
-                            $request->notes,
-                        ));
+                        SendEmail::dispatch(
+                            $slot->lesson->user->email,
+                            new SlotCancelledMail(
+                                $user->name,
+                                date('Y-m-d', strtotime($slot->date_time)),
+                                date('h:i A', strtotime($slot->date_time)),
+                                $slot->lesson->lesson_name,
+                                $request->notes,
+                            ),
+                            $slot->lesson?->created_by
+                        );
 
                         if ($request->redirect == "1") {
                             return redirect()->back()->with('success', 'Slot Successfully Updated');
@@ -1901,13 +1909,17 @@ class LessonController extends Controller
                                 $student // Send notification only to this student
                             );
 
-                            SendEmail::dispatch($student->email, new SlotCancelledMail(
-                                $user->name,
-                                date('Y-m-d', strtotime($slot->date_time)),
-                                date('h:i A', strtotime($slot->date_time)),
-                                $slot->lesson->lesson_name,
-                                $request->notes,
-                            ));
+                            SendEmail::dispatch(
+                                $student->email,
+                                new SlotCancelledMail(
+                                    $user->name,
+                                    date('Y-m-d', strtotime($slot->date_time)),
+                                    date('h:i A', strtotime($slot->date_time)),
+                                    $slot->lesson->lesson_name,
+                                    $request->notes,
+                                ),
+                                $slot->lesson?->created_by
+                            );
                         }
                     }
                 }
@@ -1944,13 +1956,17 @@ class LessonController extends Controller
                     "{$user->name}, has cancelled the lesson on :date."
                 );
 
-                SendEmail::dispatch($slot->lesson->user->email, new SlotCancelledMail(
-                    $user->name,
-                    date('Y-m-d', strtotime($slot->date_time)),
-                    date('h:i A', strtotime($slot->date_time)),
-                    $slot->lesson->lesson_name,
-                    $request->notes,
-                ));
+                SendEmail::dispatch(
+                    $slot->lesson->user->email,
+                    new SlotCancelledMail(
+                        $user->name,
+                        date('Y-m-d', strtotime($slot->date_time)),
+                        date('h:i A', strtotime($slot->date_time)),
+                        $slot->lesson->lesson_name,
+                        $request->notes,
+                    ),
+                    $slot->lesson?->created_by
+                );
 
                 if ($request->redirect == "1") {
                     return redirect()->back()->with('success', 'Slot Successfully Updated');
@@ -2539,7 +2555,8 @@ class LessonController extends Controller
                     date('Y-m-d', strtotime($firstSlot->date_time)),
                     date('h:i A', strtotime($firstSlot->date_time)),
                     $request->note ?? '',
-                ));
+                ),
+            $slot->lesson?->created_by);
             }
 
             // Send push notifications for new lesson availability

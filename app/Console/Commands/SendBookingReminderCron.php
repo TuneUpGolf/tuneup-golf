@@ -105,7 +105,8 @@ class SendBookingReminderCron extends Command
                                         $date->format('Y-m-d'),
                                         $date->format('h:i A'),
                                         $instructorName
-                                    )
+                                    ),
+                                    $instructor->id
                                 );
                             }
                         }
@@ -136,7 +137,8 @@ class SendBookingReminderCron extends Command
                                         $date->format('Y-m-d'),
                                         $date->format('h:i A'),
                                         $instructorName
-                                    )
+                                    ),
+                                    $instructor->id
                                 );
                             }
                         }

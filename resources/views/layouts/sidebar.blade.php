@@ -281,7 +281,7 @@
                             </li>
                         @endcan
 
-                         
+
 
                         {{--  Manage Expenses  --}}
                     @endif
@@ -289,16 +289,16 @@
                     @if ($userType === 'Instructor')
                         {{-- Purchased Lessons --}}
                         @can('manage-purchases')
-                        <li class="dash-item dash-hasmenu {{ request()->is('purchase*') ? 'active' : '' }}">
-                            <a class="dash-link" href="{{ route('purchase.index') }}">
-                                <span class="dash-micon"><i class="ti ti-messages"></i></span>
-                                <span class="dash-mtext">{{ __('Purchased Lessons') }}</span>
-                            </a>
-                        </li>
+                            <li class="dash-item dash-hasmenu {{ request()->is('purchase*') ? 'active' : '' }}">
+                                <a class="dash-link" href="{{ route('purchase.index') }}">
+                                    <span class="dash-micon"><i class="ti ti-messages"></i></span>
+                                    <span class="dash-mtext">{{ __('Purchased Lessons') }}</span>
+                                </a>
+                            </li>
                         @endcan
 
                         {{-- Announcements --}}
-                        
+
                         <li class="dash-item dash-hasmenu {{ request()->is('announcements*') ? 'active' : '' }}">
                             <a class="dash-link" href="{{ route('announcements.index') }}">
                                 <span class="dash-micon"><i class="ti ti-bell"></i></span>
@@ -308,25 +308,27 @@
 
                         {{-- Subscription --}}
                         @canany(['manage-coupon', 'manage-plan'])
-                        <li class="dash-item dash-hasmenu {{ request()->is('coupon*') || request()->is('plans*') || request()->is('myplan*') || request()->is('payment*') ? 'active dash-trigger' : 'collapsed' }}">
-                            <a href="#!" class="dash-link">
-                                <span class="dash-micon"><i class="ti ti-currency-dollar"></i></span>
-                                <span class="dash-mtext">{{ __('Subscription') }}</span>
-                                <span class="dash-arrow"><i data-feather="chevron-right"></i></span>
-                            </a>
-                            <ul class="dash-submenu">
-                                @can('manage-coupon')
-                                    <li class="dash-item {{ request()->is('coupon*') ? 'active' : '' }}">
-                                        <a class="dash-link" href="{{ route('coupon.index') }}">{{ __('Coupons') }}</a>
-                                    </li>
-                                @endcan
-                                @if ($userType == 'Instructor')
-                                    <li class="dash-item {{ request()->is('myplan*') ? 'active' : '' }}">
-                                        <a class="dash-link" href="{{ route('plans.myplan') }}">{{ __('Manage Subscription Plans') }}</a>
-                                    </li>
-                                @endif
-                            </ul>
-                        </li>
+                            <li
+                                class="dash-item dash-hasmenu {{ request()->is('coupon*') || request()->is('plans*') || request()->is('myplan*') || request()->is('payment*') ? 'active dash-trigger' : 'collapsed' }}">
+                                <a href="#!" class="dash-link">
+                                    <span class="dash-micon"><i class="ti ti-currency-dollar"></i></span>
+                                    <span class="dash-mtext">{{ __('Subscription') }}</span>
+                                    <span class="dash-arrow"><i data-feather="chevron-right"></i></span>
+                                </a>
+                                <ul class="dash-submenu">
+                                    @can('manage-coupon')
+                                        <li class="dash-item {{ request()->is('coupon*') ? 'active' : '' }}">
+                                            <a class="dash-link" href="{{ route('coupon.index') }}">{{ __('Coupons') }}</a>
+                                        </li>
+                                    @endcan
+                                    @if ($userType == 'Instructor')
+                                        <li class="dash-item {{ request()->is('myplan*') ? 'active' : '' }}">
+                                            <a class="dash-link"
+                                                href="{{ route('plans.myplan') }}">{{ __('Manage Subscription Plans') }}</a>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </li>
                         @endcanany
 
                         {{-- Chat --}}
@@ -412,7 +414,8 @@
                         </li>
 
                         {{-- Manage Expenses --}}
-                        <li class="dash-item dash-hasmenu {{ in_array($userType, [\App\Models\Role::ROLE_SUPER_ADMIN, \App\Models\Role::ROLE_STUDENT]) && request()->is('lesson*') ? 'active' : '' }}">
+                        <li
+                            class="dash-item dash-hasmenu {{ in_array($userType, [\App\Models\Role::ROLE_SUPER_ADMIN, \App\Models\Role::ROLE_STUDENT]) && request()->is('lesson*') ? 'active' : '' }}">
                             <a href="#!" class="dash-link">
                                 <span class="dash-micon"><i class="ti ti-receipt-2"></i></span>
                                 <span class="dash-mtext">{{ __('Manage Expenses') }}</span>
@@ -420,11 +423,30 @@
                             </a>
                             <ul class="dash-submenu">
                                 <li class="dash-item {{ request()->is('expense.type.index') ? 'active' : '' }}">
-                                    <a class="dash-link" href="{{ route('expense.type.index') }}">{{ __('Expense Type') }}</a>
+                                    <a class="dash-link"
+                                        href="{{ route('expense.type.index') }}">{{ __('Expense Type') }}</a>
                                 </li>
                                 <li class="dash-item {{ request()->is('expense.index') ? 'active' : '' }}">
-                                    <a class="dash-link" href="{{ route('expense.index') }}">{{ __('Add Expense') }}</a>
+                                    <a class="dash-link"
+                                        href="{{ route('expense.index') }}">{{ __('Add Expense') }}</a>
                                 </li>
+                            </ul>
+                        </li>
+
+                        <li
+                            class="dash-item dash-hasmenu {{ request()->is('email-template*') || request()->is('sms-template*') || request()->is('settings*') ? 'active dash-trigger' : 'collapsed' }}">
+                            <a href="#!" class="dash-link">
+                                <span class="dash-micon"><i class="ti ti-settings"></i></span>
+                                <span class="dash-mtext">{{ __('Account Setting') }}</span><span
+                                    class="dash-arrow"><i data-feather="chevron-right"></i></span>
+                            </a>
+                            <ul class="dash-submenu">
+                                @can('manage-email-template')
+                                    <li class="dash-item {{ request()->is('email-template*') ? 'active' : '' }}">
+                                        <a class="dash-link"
+                                            href="{{ route('email-template.index') }}">{{ __('Email Templates') }}</a>
+                                    </li>
+                                @endcan
                             </ul>
                         </li>
                     @endif
@@ -440,7 +462,7 @@
                         
                     @endif --}}
 
-                    
+
 
                     {{--  @if ($userType != 'Student')
                         @can('manage-purchases')
@@ -530,7 +552,7 @@
                             </li>
                         @endcanany
                     @endif
-                         {{-- Student Section --}}
+                    {{-- Student Section --}}
                     @if ($userType == 'Student')
                         {{-- Announcements for Students --}}
                         <li class="dash-item dash-hasmenu {{ request()->is('announcements*') ? 'active' : '' }}">
@@ -539,7 +561,6 @@
                                 <span class="dash-mtext">{{ __('Announcements') }}</span>
                             </a>
                         </li>
-
                     @endif
                     {{--  @canany(['manage-coupon', 'manage-plan'])
                         <li

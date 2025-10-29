@@ -6,8 +6,9 @@ namespace App\Mail\Admin;
 
 use App\Models\Purchase;
 use Spatie\MailTemplates\TemplateMailable;
+use App\Mail\Base\InstructorTemplateMailable;
 
-class PurchaseCompleted extends TemplateMailable
+class PurchaseCompleted extends InstructorTemplateMailable
 {
 
     public $name;

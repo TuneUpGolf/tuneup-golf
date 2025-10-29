@@ -3,8 +3,9 @@
 namespace App\Mail\Admin;
 
 use Spatie\MailTemplates\TemplateMailable;
+use App\Mail\Base\InstructorTemplateMailable;
 
-class SlotCancelledMail extends TemplateMailable
+class SlotCancelledMail extends InstructorTemplateMailable
 {
 
     public $name;

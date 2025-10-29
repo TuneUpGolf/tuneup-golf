@@ -5,8 +5,9 @@ namespace App\Mail\Admin;
 use App\Models\OfflineRequest;
 
 use Spatie\MailTemplates\TemplateMailable;
+use App\Mail\Base\InstructorTemplateMailable;
 
-class ApproveOfflineMail extends TemplateMailable
+class ApproveOfflineMail extends InstructorTemplateMailable
 {
 
     public $name;

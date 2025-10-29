@@ -3,8 +3,9 @@
 namespace App\Mail\Admin;
 
 use Spatie\MailTemplates\TemplateMailable;
+use App\Mail\Base\InstructorTemplateMailable;
 
-class SupportTicketMail extends TemplateMailable
+class SupportTicketMail extends InstructorTemplateMailable
 {
     public $name;
     public $email;

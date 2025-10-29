@@ -6,8 +6,9 @@ use App\Models\OfflineRequest;
 
 
 use Spatie\MailTemplates\TemplateMailable;
+use App\Mail\Base\InstructorTemplateMailable;
 
-class OfflineMail extends TemplateMailable
+class OfflineMail extends InstructorTemplateMailable
 {
    
     public $disapprove_reason;
