@@ -9,6 +9,7 @@ use App\Services\TenantOption;
 use App\Events\AnnouncementCreated;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Models\AnnouncementRecipient;
 use App\DataTables\AnnouncementDataTable;
 
@@ -16,14 +17,14 @@ class AnnouncementController extends Controller
 {
     // public function __construct(protected TenantOption $tenant_option)
     // {
-        
+
     // }
     public function index(AnnouncementDataTable $dataTable)
     {
         if (Auth::user()->can('manage-announcements')) {
-            return $dataTable->render('admin.announcements.index'); 
+            return $dataTable->render('admin.announcements.index');
         }
-        
+
         abort(403, 'Unauthorized action.');
     }
 
@@ -33,7 +34,7 @@ class AnnouncementController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $students = Student::where('active_status',1)->get();
+        $students = Student::where('active_status', 1)->get();
 
         return view('admin.announcements.create', compact('students'));
     }
@@ -64,11 +65,14 @@ class AnnouncementController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-    
+        $instructorName = Auth::user()->name;
+
+        // Determine recipients
+        $recipients = collect();
 
         if ($request->recipient_type === 'specific' && !empty($request->recipient_students)) {
-    // ✅ only specific
-      
+            // ✅ only specific
+
 
             foreach ($request->recipient_students as $studentId) {
                 AnnouncementRecipient::create([
@@ -76,6 +80,8 @@ class AnnouncementController extends Controller
                     'student_id' => $studentId,
                 ]);
             }
+
+            $recipients = Student::whereIn('id', $request->recipient_students)->get();
         } elseif ($request->recipient_type === 'all') {
             // ✅ all
             $students = Student::query();
@@ -85,7 +91,9 @@ class AnnouncementController extends Controller
                 $students->where('tenant_id', tenant('id'));
             }
 
-            foreach ($students->get() as $student) {
+            $recipients = $students->get();
+
+            foreach ($recipients as $student) {
                 AnnouncementRecipient::create([
                     'announcement_id' => $announcement->id,
                     'student_id' => $student->id,
@@ -94,6 +102,22 @@ class AnnouncementController extends Controller
         } else {
             // no recipients – fail early
             return back()->withErrors(['recipient_students' => 'No recipients selected.']);
+        }
+
+        foreach ($recipients as $student) {
+            if (!empty($student->email)) {
+                Mail::raw(
+                    "Hello {$student->name},\n\n" .
+                        "You have a new announcement from {$instructorName}.\n\n" .
+                        "📢 *{$announcement->title}*\n\n" .
+                        "{$announcement->content}\n\n" .
+                        "— {$instructorName}",
+                    function ($message) use ($student, $announcement) {
+                        $message->to($student->email)
+                            ->subject("New Announcement: {$announcement->title}");
+                    }
+                );
+            }
         }
 
 
@@ -142,20 +166,59 @@ class AnnouncementController extends Controller
             // 'is_active' => $request->has('is_active'),
         ]);
 
+        $instructorName = Auth::user()->name;
+
+        // Determine recipients
+        $recipients = collect();
+
         // Update recipients if specific students are selected
         if ($request->recipient_type === 'specific' && $request->has('recipient_students')) {
             // Remove existing recipients
             $announcement->recipients()->delete();
-            
+
             // Add new recipients
             foreach ($request->recipient_students as $studentId) {
                 $announcement->recipients()->create([
                     'student_id' => $studentId
                 ]);
             }
+
+            $recipients = Student::whereIn('id', $request->recipient_students)->get();
         } elseif ($request->recipient_type === 'all') {
             // Remove all specific recipients when sending to all students
             $announcement->recipients()->delete();
+
+            $students = Student::query();
+
+            // add tenant scope if applicable
+            if (function_exists('tenant')) {
+                $students->where('tenant_id', tenant('id'));
+            }
+
+            $recipients = $students->get();
+
+            foreach ($recipients as $student) {
+                AnnouncementRecipient::create([
+                    'announcement_id' => $announcement->id,
+                    'student_id' => $student->id,
+                ]);
+            }
+        }
+
+        foreach ($recipients as $student) {
+            if (!empty($student->email)) {
+                Mail::raw(
+                    "Hello {$student->name},\n\n" .
+                        "You have a new announcement from {$instructorName}.\n\n" .
+                        "📢 *{$announcement->title}*\n\n" .
+                        "{$announcement->content}\n\n" .
+                        "— {$instructorName}",
+                    function ($message) use ($student, $announcement) {
+                        $message->to($student->email)
+                            ->subject("New Announcement: {$announcement->title}");
+                    }
+                );
+            }
         }
 
         return redirect()->route('announcements.index')
@@ -181,7 +244,6 @@ class AnnouncementController extends Controller
     public function action()
     {
         return view('admin.announcements.action');
-
     }
 
     public function tenantOption()
