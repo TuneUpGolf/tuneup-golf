@@ -90,7 +90,7 @@ class AnnouncementDataTable extends DataTable
           
             Column::make('title')->title(__('Title')),
             Column::make('content')->title(__('Content')),
-            Column::make('is_active')->title(__('Status')),
+            // Column::make('is_active')->title(__('Status')),
             Column::computed('action')
                 ->exportable(false)
                 ->printable(false)
