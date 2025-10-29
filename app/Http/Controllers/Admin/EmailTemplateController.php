@@ -78,13 +78,16 @@ class EmailTemplateController extends Controller
 
                 if ($existingInstructorTemplate) {
                     // Update their own copy
-                    $existingInstructorTemplate->update($request->only(['subject', 'html_template']));
+                    $existingInstructorTemplate->update([
+                        'html_template' => $_POST['html_template'],
+                    ]);
                 } else {
                     // Create new copy for instructor
                     MailTemplate::create([
                         // 'name' => $globalTemplate->name,
                         'subject' => $request->subject,
-                        'html_template' => $request->html_template,
+                        // 'html_template' => $request->html_template,
+                        'html_template' => $_POST['html_template'],
                         'text_template' => $request->text_template,
                         'mailable' => $globalTemplate->mailable,
                         'instructor_id' => $user->id,
@@ -92,7 +95,9 @@ class EmailTemplateController extends Controller
                 }
             } else {
                 // Admin updating original
-                $globalTemplate->update($request->only(['subject', 'html_template']));
+                $globalTemplate->update($request->only([
+                    'html_template' => $_POST['html_template'],
+                ]));
             }
 
             return redirect()->route('email-template.index')
