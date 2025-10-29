@@ -95,8 +95,8 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
 Route::post('/instructor/details', [LandingController::class, 'details'])->name('instructor.details');
 
 Route::get('/announcements/tenantOption', function (TenantOption $tenant_option) {
-        return $tenant_option->TenantOption();
-    })->name('announcements.tenantOption');
+    return $tenant_option->TenantOption();
+})->name('announcements.tenantOption');
 
 Route::middleware([
     'web',
@@ -248,7 +248,7 @@ Route::middleware([
         //purchase
         Route::resource('purchase', PurchaseController::class);
         Route::resource('announcements', AnnouncementController::class);
-        Route::get('announcements/action', [AnnouncementController::class,'action'])->name('announcements.action');
+        Route::get('announcements/action', [AnnouncementController::class, 'action'])->name('announcements.action');
         // Route::get('tenantOption', AnnouncementController::class,'tenantOption');
 
         Route::get('/purchases/data', [PurchaseController::class, 'data'])->name('purchase.data');
@@ -373,6 +373,7 @@ Route::middleware([
             Route::get('/', 'index')->name('manage');
             Route::get('create', 'create')->name('create');
             Route::post('store', 'store')->name('store');
+            Route::post('reorder', 'reorder')->name('reorder');
             Route::get('edit/{id}', 'edit')->name('edit');
             Route::patch('update/{id}', 'update')->name('update');
             Route::delete('delete/{id}', 'destroy')->name('destroy');

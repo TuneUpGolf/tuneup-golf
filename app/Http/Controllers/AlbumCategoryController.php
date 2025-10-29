@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\Admin\AlbumCategoryDataTable;
+use App\Facades\UtilityFacades;
 use App\Models\Album;
+use App\Models\PurchasePost;
 use App\Models\AlbumCategory;
 use App\Models\LikeAlbum;
 use App\Models\PurchaseAlbum;
@@ -19,7 +21,92 @@ use Stripe\Checkout\Session;
 
 class AlbumCategoryController extends Controller
 {
-    public function index(AlbumCategoryDataTable $dataTable)
+    public function index(Request $request)
+    {
+        if (!Auth::user()->can('manage-blog')) {
+            return redirect()->back()->with('failed', __('Permission denied.'));
+        }
+        $categories = match (Auth::user()->type) {
+            Role::ROLE_ADMIN      => AlbumCategory::query(),
+            Role::ROLE_INSTRUCTOR => AlbumCategory::where('instructor_id', Auth::id()),
+            default               => AlbumCategory::where('student_id', Auth::id()),
+        };
+
+        $categories = $categories->orderBy('column_order', 'asc')->get();
+
+        if ($request->ajax()) {
+
+
+            return datatables()
+                ->of($categories)
+                ->addIndexColumn()
+                ->addColumn('column_order', fn($post) => $post->column_order)
+                ->addColumn('title', fn($post) => '<a href="' . route('album.category.album', $post->id) . '">' . e($post->title) . '</a>')
+                ->addColumn('paid', fn($post) => $post->payment_mode === 'paid' ? 'Yes' : 'No')
+                ->addColumn('price', fn($post) => $post->payment_mode === 'paid' ? $post->price : 0)
+                ->addColumn('sales', fn($post) => PurchasePost::where('active_status', true)
+                    ->where('post_id', $post->id)
+                    ->count())
+                ->addColumn('photo', function ($post) {
+                    if ($post->image) {
+                        if ($post->file_type === 'image') {
+                            return "<img src='" . asset($post->image) . "' width='50'>";
+                        } else {
+                            return 'Video';
+                        }
+                    }
+                    return "<img src='" . asset('/storage/' . tenant('id') . '/seeder-image/350x250.png') . "' width='50'>";
+                })
+                ->addColumn('created_at', fn($post) => UtilityFacades::date_time_format($post->created_at))
+                ->addColumn('action', fn($post) => view('admin.album.category.action', compact('post'))->render())
+                ->rawColumns(['title', 'photo', 'action'])
+                ->make(true);
+        }
+
+        return view('admin.album.category.index');
+    }
+
+    public function reorder(Request $request)
+    {
+        try {
+            $orderData = $request->input('order');
+
+            if (!is_array($orderData)) {
+                throw new \Exception('Invalid order format received.');
+            }
+
+            \Log::info('Reorder request received', ['order' => $orderData]);
+
+            foreach ($orderData as $item) {
+                if (!isset($item['id'], $item['position'])) {
+                    \Log::warning('Invalid item structure', ['item' => $item]);
+                    continue;
+                }
+
+                AlbumCategory::where('id', $item['id'])
+                    ->update(['column_order' => (int) $item['position']]);
+            }
+
+            \Log::info('Reorder operation completed successfully.');
+
+            return response()->json(['success' => true]);
+        } catch (\Throwable $e) {
+            \Log::error('Error during reorder operation', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while reordering.',
+            ], 500);
+        }
+    }
+
+
+
+    public function index_old(AlbumCategoryDataTable $dataTable)
     {
         if (Auth::user()->can('manage-blog')) {
             return $dataTable->render('admin.album.category.index');
