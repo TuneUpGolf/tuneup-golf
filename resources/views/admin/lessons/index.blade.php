@@ -5,11 +5,11 @@
     <li class="breadcrumb-item">{{ __('Lessons') }}</li>
 @endsection
 @section('content')
-<style>
-    .action-btn-fix-wraper{
-        justify-content: start !important;
-    }
-</style>
+    <style>
+        .action-btn-fix-wraper {
+            justify-content: start !important;
+        }
+    </style>
     <div class="row">
         <div class="col-xl-12">
             <div class="card">
@@ -121,12 +121,12 @@
                     //     orderable: false,
                     //     searchable: false
                     // },
-                     {
-        data: 'action',
-        name: 'action',
-        orderable: false,
-        searchable: false
-    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
                     {
                         data: 'lesson_name',
                         name: 'lesson_name'
@@ -167,7 +167,8 @@
                             let data = $('<table/>').addClass('vertical-table');
                             console.log(columns);
                             $.each(columns, function(i, col) {
-                                if (i === 0 || i === 1 || i === 2) return; // skip first two columns
+                                if (i === 0 || i === 1 || i === 2)
+                            return; // skip first two columns
                                 data.append(
                                     '<tr>' +
                                     '<td><strong>' + col.title + '</strong></td>' +
@@ -185,8 +186,8 @@
                 dom: "<'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>" +
                     "<'dataTable-botton table-btn col-lg-6 col-sm-12'B>" +
                     "<'dataTable-search tb-search col-lg-3 col-sm-12'f>>" +
-                    "<'dataTable-container'<'col-sm-12'tr>>" +
-                    "<'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l><'col-sm-7'p>>",
+                    "<'dataTable-container'<'col-sm-12'tr>>",
+                    // "<'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l><'col-sm-7'p>>",
                 buttons: [{
                     text: '<i class="fa fa-calendar" aria-hidden="true"></i> Set Availability',
                     className: 'btn btn-light-primary no-corner me-1 add_module',

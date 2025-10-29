@@ -109,6 +109,8 @@
             let table = $('.data-table').DataTable({
                 processing: true,
                 serverSide: true,
+                paging: false, 
+                info: false, 
                 ajax: "{{ route('plans.myplan.data') }}",
 
                 columns: [{
