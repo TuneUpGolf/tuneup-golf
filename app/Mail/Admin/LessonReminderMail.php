@@ -6,8 +6,9 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Spatie\MailTemplates\TemplateMailable;
+use App\Mail\Base\InstructorTemplateMailable;
 
-class LessonReminderMail extends TemplateMailable
+class LessonReminderMail extends InstructorTemplateMailable
 {
     use Queueable, SerializesModels;
 

@@ -6,8 +6,9 @@ namespace App\Mail\Admin;
 
 
 use Spatie\MailTemplates\TemplateMailable;
+use App\Mail\Base\InstructorTemplateMailable;
 
-class RequestDemoMail extends TemplateMailable
+class RequestDemoMail extends InstructorTemplateMailable
 {
 
     public $name;

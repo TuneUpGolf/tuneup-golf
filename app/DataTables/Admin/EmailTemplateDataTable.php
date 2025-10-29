@@ -3,9 +3,10 @@
 namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
-use Spatie\MailTemplates\Models\MailTemplate;
 use Yajra\DataTables\Html\Column;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Services\DataTable;
+use Spatie\MailTemplates\Models\MailTemplate;
 
 class EmailTemplateDataTable extends DataTable
 {
@@ -21,12 +22,39 @@ class EmailTemplateDataTable extends DataTable
                 return view('admin.email-template.action', compact('row'));
             })
             ->rawColumns(['action']);
-
     }
 
     public function query(MailTemplate $model)
     {
-        return $model->newQuery();
+        $user = Auth::user();
+
+        // Admins see only global templates
+        if ($user->type == 'Admin') {
+            return $model->newQuery()->whereNull('instructor_id');
+        }
+
+        // Instructors see their own templates
+        if ($user->type == 'Instructor') {
+            // Get all mailables the instructor already customized
+            $customMailables = MailTemplate::where('instructor_id', $user->id)
+                ->pluck('mailable')
+                ->toArray();
+
+            // Show:
+            // 1. Instructor's own templates
+            // 2. Global templates they haven't customized yet
+            return $model->newQuery()
+                ->where(function ($query) use ($user, $customMailables) {
+                    $query->where('instructor_id', $user->id)
+                        ->orWhere(function ($subQuery) use ($customMailables) {
+                            $subQuery->whereNull('instructor_id')
+                                ->whereNotIn('mailable', $customMailables);
+                        });
+                });
+        }
+
+        // Fallback — return nothing for other roles
+        return $model->newQuery()->whereRaw('1=0');
     }
 
     public function html()
@@ -43,7 +71,8 @@ class EmailTemplateDataTable extends DataTable
                     "previous" => '<i class="ti ti-chevron-left"></i>'
                 ],
                 'lengthMenu' => __('_MENU_ entries per page'),
-                "searchPlaceholder" => __('Search...'), "search" => ""
+                "searchPlaceholder" => __('Search...'),
+                "search" => ""
             ])
             ->initComplete('function() {
                 var table = this;
@@ -60,7 +89,10 @@ class EmailTemplateDataTable extends DataTable
                                ",
                 'buttons'   => [
                     [
-                        'extend' => 'collection', 'className' => 'btn btn-light-secondary me-1 dropdown-toggle', 'text' => '<i class="ti ti-download"></i> Export', "buttons" => [
+                        'extend' => 'collection',
+                        'className' => 'btn btn-light-secondary me-1 dropdown-toggle',
+                        'text' => '<i class="ti ti-download"></i> Export',
+                        "buttons" => [
                             ["extend" => "print", "text" => '<i class="fas fa-print"></i> Print', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
                             ["extend" => "csv", "text" => '<i class="fas fa-file-csv"></i> CSV', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
                             ["extend" => "excel", "text" => '<i class="fas fa-file-excel"></i> Excel', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
@@ -72,7 +104,7 @@ class EmailTemplateDataTable extends DataTable
                 ],
                 "scrollX" => true,
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {
