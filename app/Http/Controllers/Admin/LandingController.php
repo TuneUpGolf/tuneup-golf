@@ -58,7 +58,7 @@ class LandingController extends Controller
 
             $admin = User::where('type', Role::ROLE_ADMIN)
                 ->first();
-            $albums = AlbumCategory::get();
+            $albums = AlbumCategory::orderBy('column_order', 'asc')->get();
             if (UtilityFacades::getsettings('landing_page_status') == '1') {
                 $bio_heading = UtilityFacades::getsettings('bio_heading');
                 $instructor_heading = UtilityFacades::getsettings('instructor_heading');
