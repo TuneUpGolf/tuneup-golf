@@ -28,14 +28,14 @@
                     <div class="col-md-12">
                         <h4 class="mb-3">{{ $announcement->title }}</h4>
                         
-                        <div class="mb-3">
+                        <!-- <div class="mb-3">
                             <strong>{{ __('Status') }}:</strong>
                             @if($announcement->is_active)
                                 <span class="badge bg-success">{{ __('Active') }}</span>
                             @else
                                 <span class="badge bg-danger">{{ __('Inactive') }}</span>
                             @endif
-                        </div>
+                        </div> -->
 
                         <div class="mb-3">
                             <strong>{{ __('Created By') }}:</strong>
