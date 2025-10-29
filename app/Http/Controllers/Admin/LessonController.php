@@ -2056,16 +2056,24 @@ class LessonController extends Controller
     }
     public function destroy($lessonId)
     {
-        $lesson = Lesson::with(['slots' => function ($query) {
-            $query->where('is_active', true);
-        }])
-            ->findOrFail($lessonId);
-        if (count($lesson->slots) > 0) {
-            foreach ($lesson->slots as $slot) {
-                $slot->update(['is_active' => false]);
-            }
-        }
-        $lesson->update(['active_status' => false]);
+        // $lesson = Lesson::with(['slots' => function ($query) {
+        //     $query->where('is_active', true);
+        // }])
+        //     ->findOrFail($lessonId);
+        // if (count($lesson->slots) > 0) {
+        // return redirect()->route('lesson.index')->with('failed', 'Lesson has slots. Delete them fisrt!');
+
+        //     foreach ($lesson->slots as $slot) {
+        //         $slot->update(['is_active' => false]);
+        //     }
+        // }
+
+        // $lesson->update(['active_status' => false]);
+        // $lesson->delete();
+        $slots = Slots::where('lesson_id', $lessonId)->pluck('id');
+        Purchase::whereIn('slot_id', $slots)->delete();
+        Slots::where('lesson_id', $lessonId)->delete();
+        Lesson::findOrFail($lessonId)->delete();
 
         return redirect()->route('lesson.index')->with('success', 'Lesson disabled successfully!');
     }
