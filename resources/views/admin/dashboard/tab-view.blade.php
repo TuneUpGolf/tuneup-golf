@@ -201,18 +201,18 @@
                                     </div>
                                 </div>
                             @elseif($tab == 'subscriptions')
-                             <div class="col-md-2 mt-2">
-                                        <select name="instructor" id="instructor" class="form-control"
-                                            onchange="updateInstructorUrl(this.value)">
-                                            <option value="">All Instructors</option>
-                                            @foreach ($album_instructors as $instructor)
-                                                <option value="{{ $instructor->id }}"
-                                                    {{ request('instructor_id') == $instructor->id ? 'selected' : '' }}>
-                                                    {{ $instructor->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                <div class="col-md-2 mt-2">
+                                    <select name="instructor" id="instructor" class="form-control"
+                                        onchange="updateInstructorUrl(this.value)">
+                                        <option value="">All Instructors</option>
+                                        @foreach ($album_instructors as $instructor)
+                                            <option value="{{ $instructor->id }}"
+                                                {{ request('instructor_id') == $instructor->id ? 'selected' : '' }}>
+                                                {{ $instructor->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <div id="Subscriptions" class="tabcontent block">
                                     <div class="row">
                                         @foreach ($plans as $plan)
@@ -233,11 +233,11 @@
                                                                         {{ $plan->duration . ' ' . $plan->durationtype }}
                                                                     </strong></span>
                                                                 <br>
-                                                                @if($plan->lesson_limit != 0)
-                                                                <span class="text-gray-600"><strong>Online Lesson Limit:
-                                                                        {{ $plan->lesson_limit_label }}
-                                                                    </strong></span>
-                                                                    @endif
+                                                                @if ($plan->lesson_limit != 0)
+                                                                    <span class="text-gray-600"><strong>Online Lesson Limit:
+                                                                            {{ $plan->lesson_limit_label }}
+                                                                        </strong></span>
+                                                                @endif
                                                                 <div class="flex gap-1 items-center mt-2 ">
                                                                     <p class="text-4xl font-bold">
                                                                         {{ $currency_symbol . $plan->price }}/</p>
@@ -309,7 +309,7 @@
                                                                     @endif --}}
 
                                                                     @php
-                                                                    
+
                                                                         $hasPlan = !is_null($user->plan_id);
                                                                         $isCurrentPlan =
                                                                             $hasPlan && $plan->id == $user->plan_id;
@@ -355,7 +355,7 @@
                                                                 @endif
                                                                 <p class="font-semibold text-xl mb-2 mt-2">Includes:</p>
                                                                 <p class="text-gray-600">
-                                                                    
+
                                                                     {!! $plan->description !!}
                                                                 </p>
                                                             </div>

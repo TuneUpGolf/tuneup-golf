@@ -19,7 +19,8 @@ class AlbumCategory extends Model
         'payment_mode',
         'price',
         'image',
-        'file_type'
+        'file_type',
+        'column_order'
     ];
     protected $casts = [
         'created_at' => 'datetime',
@@ -34,7 +35,7 @@ class AlbumCategory extends Model
     public function purchaseAlbum()
     {
         return $this->hasOne(PurchaseAlbum::class)->where([
-            ['student_id',$this->student_id],
+            ['student_id', $this->student_id],
             ['album_category_id', $this->album_category_id]
         ]);
     }

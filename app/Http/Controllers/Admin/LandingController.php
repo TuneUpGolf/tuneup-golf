@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Admin\ConatctMail;
+use App\Models\AlbumCategory;
 use App\Models\Posts;
 use Spatie\MailTemplates\Models\MailTemplate;
 use App\Models\Faq;
@@ -48,15 +49,16 @@ class LandingController extends Controller
 
             $instructors = User::with(['lessons' => function ($q) {
                 $q->with('packages')
-                ->where('active_status', 1)
-                    ->select('lessons.id as id', 'lesson_name','type', 'lesson_price', 'created_by', 'required_time', 'long_description', 'lesson_description', 'is_package_lesson', 'logo');
+                    ->where('active_status', 1)
+                    ->select('lessons.id as id', 'lesson_name', 'type', 'lesson_price', 'created_by', 'required_time', 'long_description', 'lesson_description', 'is_package_lesson', 'logo');
             }])
                 ->where('type', Role::ROLE_INSTRUCTOR)
-                ->where('tenant_id',tenant()->id)
+                ->where('tenant_id', tenant()->id)
                 ->get();
 
             $admin = User::where('type', Role::ROLE_ADMIN)
                 ->first();
+            $albums = AlbumCategory::get();
             if (UtilityFacades::getsettings('landing_page_status') == '1') {
                 $bio_heading = UtilityFacades::getsettings('bio_heading');
                 $instructor_heading = UtilityFacades::getsettings('instructor_heading');
@@ -66,7 +68,8 @@ class LandingController extends Controller
                     'admin',
                     'bio_heading',
                     'instructors',
-                    'instructor_heading'
+                    'instructor_heading',
+                    'albums'
                 ));
             } else {
                 return redirect()->route('home');

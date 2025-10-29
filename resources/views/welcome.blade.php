@@ -530,7 +530,10 @@
                 </section>
             @endif
             {{-- End Subscription Section --}}
+            {{-- start Category --}}
 
+
+            {{-- End Category  --}}
 
             {{-- Post Secton  --}}
             @if (!$instructors[0]->post->isEmpty())
