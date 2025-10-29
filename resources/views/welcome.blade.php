@@ -533,6 +533,16 @@
             {{-- start Category --}}
 
 
+            
+             <section class="lession-sec feed-sec">
+                    <div class="container ctm-container">
+                        <h2 class="font-bold text-4xl mb-2">Categories</h2>
+
+                        <div class="flex flex-wrap gap-5 w-100">
+                            @include('admin.posts.album-category-view-home')
+                        </div>
+                    </div>
+                </section>
             {{-- End Category  --}}
 
             {{-- Post Secton  --}}
