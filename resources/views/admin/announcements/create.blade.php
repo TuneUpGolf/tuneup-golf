@@ -38,12 +38,12 @@
                     </div>
 
 
-                    <div class="form-group mt-3">
+                  <div class="form-group mt-3">
     <label class="form-label">{{ __('Send To') }} <span class="text-danger">*</span></label>
     
     <div class="form-check mb-2">
         <input class="form-check-input recipient-type" type="radio" name="recipient_type" 
-               id="recipient_all" value="all" {{ old('recipient_type', 'all') == 'all' ? 'checked' : '' }} required>
+               id="recipient_all" value="all" {{ old('recipient_type') == 'all' ? 'checked' : '' }} required>
         <label class="form-check-label" for="recipient_all">
             <strong>{{ __('All Students') }}</strong>
             <small class="text-muted d-block">({{ $students->count() }} students)</small>
@@ -153,27 +153,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const deselectAllBtn = document.getElementById('deselectAllStudents');
     const selectedCount = document.getElementById('selectedCount');
 
-    // Toggle student selection visibility
-    function toggleStudentSelection() {
+    // Function to show/hide student selection
+    function handleRecipientChange() {
         if (recipientSpecific.checked) {
             studentSelection.style.display = 'block';
-            updateSelectedCount();
         } else {
             studentSelection.style.display = 'none';
         }
+        updateSelectedCount();
     }
 
     // Update selected count
     function updateSelectedCount() {
         const selected = document.querySelectorAll('.student-checkbox:checked').length;
         selectedCount.textContent = `${selected} students selected`;
-        
-        // Update validation
-        if (recipientSpecific.checked && selected === 0) {
-            selectedCount.classList.add('text-danger');
-        } else {
-            selectedCount.classList.remove('text-danger');
-        }
     }
 
     // Select all students
@@ -192,27 +185,48 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSelectedCount();
     });
 
-    // Event listeners
-    recipientAll.addEventListener('change', toggleStudentSelection);
-    recipientSpecific.addEventListener('change', toggleStudentSelection);
+    // Event listeners for radio buttons
+    recipientAll.addEventListener('change', handleRecipientChange);
+    recipientSpecific.addEventListener('change', handleRecipientChange);
+
+    // Event listeners for checkboxes
     studentCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', updateSelectedCount);
     });
 
-    // Form validation
+    // Form submission
     document.getElementById('announcementForm').addEventListener('submit', function(e) {
-        if (recipientSpecific.checked) {
-            const selected = document.querySelectorAll('.student-checkbox:checked').length;
-            if (selected === 0) {
+        // Get the currently selected radio button
+        const selectedRadio = document.querySelector('input[name="recipient_type"]:checked');
+        
+        if (!selectedRadio) {
+            e.preventDefault();
+            alert('Please select who to send the announcement to.');
+            return false;
+        }
+
+        const recipientType = selectedRadio.value;
+        
+        console.log('Submitting with recipient_type:', recipientType); // DEBUG
+
+        if (recipientType === 'specific') {
+            const selectedStudents = document.querySelectorAll('.student-checkbox:checked');
+            if (selectedStudents.length === 0) {
                 e.preventDefault();
                 alert('Please select at least one student.');
+                studentSelection.scrollIntoView({ behavior: 'smooth' });
                 return false;
             }
+        } else if (recipientType === 'all') {
+            // Clear any student selections
+            studentCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
         }
     });
 
     // Initialize
-    toggleStudentSelection();
+    handleRecipientChange();
 });
 </script>
 

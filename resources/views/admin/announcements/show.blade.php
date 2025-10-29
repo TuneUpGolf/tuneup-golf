@@ -37,10 +37,10 @@
                             @endif
                         </div>
 
-                        <div class="mb-3">
+                        <!-- <div class="mb-3">
                             <strong>{{ __('Created By') }}:</strong>
                             {{ $announcement->creator->name ?? 'N/A' }}
-                        </div>
+                        </div> -->
 
                         <div class="mb-3">
                             <strong>{{ __('Created At') }}:</strong>

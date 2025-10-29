@@ -14,7 +14,7 @@ class AnnouncementPermissionsSeeder extends Seeder
      *
      * @return void
      */
-     public function run()
+    public function run()
     {
         app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
 

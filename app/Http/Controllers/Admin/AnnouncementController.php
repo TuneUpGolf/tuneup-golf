@@ -9,6 +9,7 @@ use App\Services\TenantOption;
 use App\Events\AnnouncementCreated;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Models\AnnouncementRecipient;
 use App\DataTables\AnnouncementDataTable;
 
 class AnnouncementController extends Controller
@@ -20,7 +21,7 @@ class AnnouncementController extends Controller
     public function index(AnnouncementDataTable $dataTable)
     {
         if (Auth::user()->can('manage-announcements')) {
-        return $dataTable->render('admin.announcements.index'); 
+            return $dataTable->render('admin.announcements.index'); 
         }
         
         abort(403, 'Unauthorized action.');
@@ -39,6 +40,9 @@ class AnnouncementController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->all());
+        // dd($request->recipient_type, $request->recipient_students);
+
         if (!Auth::user()->can('create-announcements')) {
             abort(403, 'Unauthorized action.');
         }
@@ -47,7 +51,7 @@ class AnnouncementController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'recipient_type' => 'required|in:all,specific',
-            'recipient_students' => 'required_if:recipient_type,specific|array',
+            'recipient_students' => 'sometimes|required_if:recipient_type,specific|array',
             'recipient_students.*' => 'exists:students,id',
             'is_active' => 'boolean'
         ]);
@@ -57,33 +61,40 @@ class AnnouncementController extends Controller
             'title' => $request->title,
             'content' => $request->content,
             // 'is_active' => $request->has('is_active'),
-            // 'created_by' => Auth::id(), // Uncomment this line
+            // 'created_by' => Auth::id(),
         ]);
 
-        $studentIds = [];
+    
 
+        if ($request->recipient_type === 'specific' && !empty($request->recipient_students)) {
+    // ✅ only specific
+      
 
-        // Handle recipients based on recipient_type
-        if ($request->recipient_type === 'all') {
-            // Send to all students
-            $students = Student::get();
-            foreach ($students as $student) {
-                \App\Models\AnnouncementRecipient::create([
+            foreach ($request->recipient_students as $studentId) {
+                AnnouncementRecipient::create([
+                    'announcement_id' => $announcement->id,
+                    'student_id' => $studentId,
+                ]);
+            }
+        } elseif ($request->recipient_type === 'all') {
+            // ✅ all
+            $students = Student::query();
+
+            // add tenant scope if applicable
+            if (function_exists('tenant')) {
+                $students->where('tenant_id', tenant('id'));
+            }
+
+            foreach ($students->get() as $student) {
+                AnnouncementRecipient::create([
                     'announcement_id' => $announcement->id,
                     'student_id' => $student->id,
                 ]);
             }
         } else {
-            // Send to specific students
-            foreach ($request->recipient_students as $studentId) {
-                \App\Models\AnnouncementRecipient::create([
-                    'announcement_id' => $announcement->id,
-                    'student_id' => $studentId,
-                ]);
-            }
+            // no recipients – fail early
+            return back()->withErrors(['recipient_students' => 'No recipients selected.']);
         }
-
-        // broadcast(new AnnouncementCreated($announcement, $studentIds));
 
 
         return redirect()->route('announcements.index')
@@ -155,6 +166,7 @@ class AnnouncementController extends Controller
      */
     public function destroy(Announcement $announcement)
     {
+        // dd($announcement);
         if (!Auth::user()->can('delete-announcements')) {
             abort(403, 'Unauthorized action.');
         }

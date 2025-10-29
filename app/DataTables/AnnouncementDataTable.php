@@ -2,15 +2,17 @@
 
 namespace App\DataTables;
 
+use App\Models\Role;
 use App\Models\Announcement;
-use Illuminate\Database\Eloquent\Builder as QueryBuilder;
-use Yajra\DataTables\EloquentDataTable;
-use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
+use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
+use Yajra\DataTables\Html\Builder as HtmlBuilder;
+use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 
 class AnnouncementDataTable extends DataTable
 {
@@ -38,6 +40,18 @@ class AnnouncementDataTable extends DataTable
      */
     public function query(Announcement $model): QueryBuilder
     {
+        $user = Auth::user();
+        // return $model->newQuery();
+        if ($user->type == Role::ROLE_STUDENT) {
+        // For students: show only announcements where they are recipients
+            return $model->newQuery()
+                ->whereHas('recipients', function ($query) use($user) {
+                    $query->where('student_id', $user->id);
+                });
+                // ->orWhereHas('recipients'); // Optional: include announcements with any recipients
+        }
+        
+        // For admins/teachers: show all announcements
         return $model->newQuery();
     }
 
