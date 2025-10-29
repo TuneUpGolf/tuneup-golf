@@ -75,8 +75,8 @@
 
 
         /* th, td{
-                    display: inline-block !important;
-                } */
+                            display: inline-block !important;
+                        } */
     </style>
 @endpush
 
@@ -90,6 +90,8 @@
         $(document).on('click', '#preSetActionButton', function() {
             $("#preSetModal").modal('show');
             let lesson_id = $(this).attr('data-lesson_id');
+            showSimpleLoading()
+
             fetch(`{{ route('purchase.data') }}?lesson_id=${lesson_id}`)
                 .then(res => res.json())
                 .then(data => {
@@ -167,12 +169,58 @@
                     </tr>
                 `;
                     });
+                    hideSimpleLoading()
                 })
-                .catch(err => console.error(err));
+                .catch(err => {
+                    console.error(err);
+                    hideSimpleLoading();
+                });
         });
 
         function closeInstructorPopup() {
             $("#preSetModal").modal('hide');
+        }
+
+        function showSimpleLoading() {
+            // Create a simple overlay instead of using SweetAlert
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.id = 'simple-loading-overlay';
+            loadingOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        `;
+
+            const loadingContent = document.createElement('div');
+            loadingContent.style.cssText = `
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        `;
+            loadingContent.innerHTML = `
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading...</p>
+        `;
+
+            loadingOverlay.appendChild(loadingContent);
+            document.body.appendChild(loadingOverlay);
+        }
+
+        function hideSimpleLoading() {
+            const loadingOverlay = document.getElementById('simple-loading-overlay');
+            if (loadingOverlay) {
+                loadingOverlay.remove();
+            }
         }
     </script>
 @endpush
