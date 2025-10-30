@@ -147,7 +147,7 @@
                                         '0.25' => '15 Minutes',
                                         '0.5' => '30 Minutes',
                                         '0.75' => '45 Minutes',
-                                        '0.83' => '50 Minutes',
+                                        '0.84' => '50 Minutes',
                                         '1' => '1 Hour',
                                         '1.25' => '1 Hour 15 Minutes',
                                         '1.5' => '1 Hour 30 Minutes',
