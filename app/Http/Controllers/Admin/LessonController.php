@@ -215,11 +215,12 @@ class LessonController extends Controller
         // $validatedData['last_minute_booking_buffer_hours'] = $request->last_minute_booking_buffer_hours ?? null;
         // $validatedData['cancel_window_hours'] = $request->cancel_window_hours ?? null;
         // Convert empty strings to null
-        foreach (['advance_booking_limit_days', 'last_minute_booking_buffer_hours', 'cancel_window_hours'] as $field) {
+        if($request->type !== Lesson::LESSON_TYPE_ONLINE)
+        {foreach (['advance_booking_limit_days', 'last_minute_booking_buffer_hours', 'cancel_window_hours'] as $field) {
             if ($validatedData[$field] === '') {
                 $validatedData[$field] = null;
             }
-        }
+        }}
 
         $lesson = Lesson::create($validatedData);
 
@@ -311,11 +312,12 @@ class LessonController extends Controller
         }
 
         // Convert empty strings to null
+        if($request->type !== Lesson::LESSON_TYPE_ONLINE){
         foreach (['advance_booking_limit_days', 'last_minute_booking_buffer_hours', 'cancel_window_hours'] as $field) {
             if ($validatedData[$field] === '') {
                 $validatedData[$field] = null;
             }
-        }
+        }}
 
         // 🆕 Add new scheduling preference fields
         // $validatedData['advance_booking_limit_days'] = $request->advance_booking_limit_days ?? null;
