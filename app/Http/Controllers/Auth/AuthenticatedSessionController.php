@@ -23,6 +23,13 @@ class AuthenticatedSessionController extends Controller
 
     public function create()
     {
+        if (Auth::guard('web')->check()) {
+            return redirect()->route('home'); // or RouteServiceProvider::HOME
+        }
+
+        if (Auth::guard('student')->check()) {
+            return redirect()->route('home'); // or a student-specific route
+        }
         $lang = UtilityFacades::getActiveLanguage();
         \App::setLocale($lang);
         return view('auth.login', compact('lang'));
