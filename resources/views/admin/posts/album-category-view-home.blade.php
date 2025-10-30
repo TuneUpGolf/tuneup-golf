@@ -24,15 +24,15 @@
                                                                      class="text-xl text-white font-bold mb-0 leading-tight">
                                                                      {{ ucfirst($post->isStudentPost ? $post?->student->name : $post?->instructor?->name) }}
                                                                  </p>
-                                                          
+
                                                              </div>
                                                          </div>
 
-                                                        
+
 
                                                      </div>
                                                  </div>
-                                                
+
 
                                                  @php
                                                      // Check if student has purchased this specific album
@@ -80,8 +80,54 @@
 
                                                  @if ($post->file_type == 'image')
                                                      @if ($can_view_post)
-                                                         <img class=" w-full post-thumbnail open-full-thumbnail"
+                                                         <style>
+                                                             /* Modal background */
+                                                             .modal {
+                                                                 display: none;
+                                                                 position: fixed;
+                                                                 z-index: 9999;
+                                                                 padding-top: 50px;
+                                                                 left: 0;
+                                                                 top: 0;
+                                                                 width: 100%;
+                                                                 height: 100%;
+                                                                 overflow: auto;
+                                                                 background-color: rgba(0, 0, 0, 0.8);
+                                                                 /* semi-transparent black */
+                                                             }
+
+                                                             /* Centered image */
+                                                             .modal-content {
+                                                                 display: block;
+                                                                 margin: auto;
+                                                                 width: 70%;
+                                                                 /* show image at 70% width */
+                                                                 max-width: 900px;
+                                                                 /* optional max width */
+                                                                 border-radius: 10px;
+                                                                 box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+                                                                 transition: all 0.3s ease;
+                                                             }
+
+                                                             /* Close button */
+                                                             .close {
+                                                                 position: absolute;
+                                                                 top: 20px;
+                                                                 right: 40px;
+                                                                 color: #fff;
+                                                                 font-size: 40px;
+                                                                 font-weight: bold;
+                                                                 cursor: pointer;
+                                                             }
+
+                                                             .close:hover {
+                                                                 color: #ccc;
+                                                             }
+                                                         </style>
+
+                                                         <img class="w-full post-thumbnail open-full-thumbnail"
                                                              src="{{ asset($post->image) }}" alt="Profile" />
+
                                                          <div id="imageModal" class="modal">
                                                              <span class="close" id="closeBtn">&times;</span>
                                                              <img class="modal-content" id="fullImage">
@@ -154,9 +200,9 @@
                                                          <h1 class="text-xl font-bold truncate">
                                                              {{ $post->title }}
                                                              <a class="btn btn-sm btn-primary ml-2 view-paid"
-                                                                 href="{{url('home').'?view=posts&category=all_category'}}">
+                                                                 href="{{ url('home') . '?view=posts&category=all_category' }}">
                                                                  View
-                                                         </a>
+                                                             </a>
                                                          </h1>
                                                      @else
                                                          <h1 class="text-xl font-bold truncate  paidpost">
