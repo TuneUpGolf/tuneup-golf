@@ -42,6 +42,13 @@
         .btn:focus {
             box-shadow: none !important;
         }
+        
+        .start-on-hour-help {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: -5px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -89,6 +96,22 @@
 
             <div class="mb-3">
                 <button type="button" id="add-range-btn" class="btn btn-primary btn-sm">+ Add Time Slot</button>
+            </div>
+
+            {{-- ✅ Start on the Hour Option --}}
+            <div class="mb-3">
+                <div class="form-check">
+                    {{ Form::checkbox('start_on_hour', '1', false, [
+                        'class' => 'form-check-input',
+                        'id' => 'start_on_hour'
+                    ]) }}
+                    {{ Form::label('start_on_hour', 'Start lessons on the hour', [
+                        'class' => 'form-check-label fw-semibold'
+                    ]) }}
+                </div>
+                <div class="start-on-hour-help">
+                    When enabled, lessons will start at exact hours (8:00, 9:00, 10:00, etc.) instead of following exact availability start times.
+                </div>
             </div>
 
             {{-- ✅ Location --}}

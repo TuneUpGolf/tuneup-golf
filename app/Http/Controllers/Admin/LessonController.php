@@ -33,6 +33,7 @@ use App\Http\Resources\SlotAPIResource;
 use Illuminate\Support\Facades\Storage;
 use App\DataTables\Admin\LessonDataTable;
 use App\Http\Resources\LessonAPIResource;
+use App\Mail\Admin\PreSetScheduleMail;
 use Stancl\Tenancy\Database\Models\Domain;
 use App\Mail\Admin\SlotBookedByStudentMail;
 use Illuminate\Validation\ValidationException;
@@ -1261,6 +1262,8 @@ class LessonController extends Controller
             ]);
 
             $slot = Slots::where('id', $request->slot_id)->first();
+            $lesson = $slot->lesson;
+
             $studentIds = [];
 
             if ($request->isGuest != "false") {
@@ -1337,6 +1340,15 @@ class LessonController extends Controller
                     date('Y-m-d', strtotime($slot->date_time)),
                     date('h:i A', strtotime($slot->date_time)),
                     $request->notes,
+                ), $instructor->id);
+
+                //preset lesson schedule mail
+                SendEmail::dispatch($studentEmails->toArray(), new PreSetScheduleMail(
+                    Auth::user()->name,
+                    date('Y-m-d', strtotime($slot->date_time)),
+                    date('h:i A', strtotime($slot->date_time)),
+                    $request->notes,
+                    $lesson->lesson_description,
                 ), $instructor->id);
             }
 
@@ -2120,7 +2132,7 @@ class LessonController extends Controller
     }
 
 
-    public function addAvailabilitySlots(Request $request)
+    public function addAvailabilitySlots1(Request $request)
     {
         try {
             $validatedData = $request->validate([
@@ -2232,6 +2244,180 @@ class LessonController extends Controller
         }
     }
 
+    public function addAvailabilitySlots(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'lesson_id' => 'required|array',
+                'start_date' => 'required',
+                'start_time' => 'required|array',
+                'start_time.*' => 'required|date_format:H:i',
+                'end_time' => 'required|array',
+                'end_time.*' => 'required|date_format:H:i',
+                'location'  => 'required|string|max:255',
+                'start_on_hour' => 'sometimes|boolean',
+            ]);
+
+            $conflictErrors = [];
+            $slotsToCreate = [];
+
+            $lessons = Lesson::whereIn('id', $validatedData['lesson_id'])->get();
+            $selectedDates = explode(",", $request->start_date);
+            $startTime = $validatedData['start_time'];
+            $endTime = $validatedData['end_time'];
+            $startOnHour = $request->boolean('start_on_hour', false);
+
+            // Get current tenant ID
+            $tenantId = Auth::user()->tenant_id;
+
+            foreach ($lessons as $lesson) {
+                foreach ($selectedDates as $date) {
+                    foreach ($startTime as $key => $startTimeVal) {
+
+                        $originalStart = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $startTimeVal);
+                        $slotEnd   = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $endTime[$key]);
+                        
+                        $lessonMinutes = $lesson->lesson_duration * 60;
+
+                        // If start_on_hour is enabled, align slots to start on the hour with proper gaps
+                        if ($startOnHour) {
+                            // Start from the NEXT hour if current time is not exactly on the hour
+                            $currentSlotStart = $originalStart->copy();
+                            
+                            // If current time is not exactly on the hour, move to next hour
+                            if ($currentSlotStart->minute != 0 || $currentSlotStart->second != 0) {
+                                $currentSlotStart->addHour()->minute(0)->second(0);
+                            } else {
+                                // Already on the hour, use it as is
+                                $currentSlotStart->minute(0)->second(0);
+                            }
+                            
+                            // Ensure we don't start before the original start time
+                            if ($currentSlotStart->lt($originalStart)) {
+                                $currentSlotStart = $originalStart->copy()->addHour()->minute(0)->second(0);
+                            }
+                            
+                            // Now create slots that always start on the hour with proper gaps
+                            while ($currentSlotStart->lt($slotEnd)) {
+                                $currentSlotEnd = $currentSlotStart->copy()->addMinutes($lessonMinutes);
+                                
+                                // If this slot would exceed the end time, break
+                                if ($currentSlotEnd->gt($slotEnd)) {
+                                    break;
+                                }
+                                
+                                $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
+                                    ->where('slots.tenant_id', $tenantId)
+                                    ->where('slots.is_active', 0)
+                                    ->where(function ($query) use ($currentSlotStart, $currentSlotEnd) {
+                                        $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
+                                    })
+                                    ->exists();
+
+                                if ($conflict) {
+                                    $conflictErrors[] = "Slot conflict for lesson '{$lesson->lesson_name}' on {$date} at {$currentSlotStart->format('H:i')}.";
+                                } else {
+                                    $slotsToCreate[] = [
+                                        'lesson_id' => $lesson->id,
+                                        'date_time' => $currentSlotStart->copy(),
+                                        'location'  => $request->location,
+                                        'tenant_id' => $tenantId,
+                                        'is_active' => true
+                                    ];
+                                    
+                                    // Move to the next available hour AFTER this slot ends
+                                    // For 75-minute lesson: 12:00-1:15 → next slot at 2:00 (skip 1:00)
+                                    $currentSlotStart->addHour(); // Move to next hour
+                                    
+                                    // If the lesson duration is more than 1 hour, skip additional hours
+                                    $hoursToSkip = ceil($lessonMinutes / 60) - 1;
+                                    if ($hoursToSkip > 0) {
+                                        $currentSlotStart->addHours($hoursToSkip);
+                                    }
+                                }
+                            }
+                            
+                        } else {
+                            // Original logic - consecutive slots based on lesson duration
+                            $totalMinutes = $originalStart->diffInMinutes($slotEnd);
+                            $maxSlots = floor($totalMinutes / $lessonMinutes);
+                            $currentSlotStart = $originalStart->copy();
+
+                            for ($i = 0; $i < $maxSlots; $i++) {
+                                $currentSlotEnd = $currentSlotStart->copy()->addMinutes($lessonMinutes);
+
+                                $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
+                                    ->where('slots.tenant_id', $tenantId)
+                                    ->where('slots.is_active', 0)
+                                    ->where(function ($query) use ($currentSlotStart, $currentSlotEnd) {
+                                        $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
+                                    })
+                                    ->exists();
+
+                                if ($conflict) {
+                                    $conflictErrors[] = "Slot conflict for lesson '{$lesson->lesson_name}' on {$date} at {$currentSlotStart->format('H:i')}.";
+                                } else {
+                                    $slotsToCreate[] = [
+                                        'lesson_id' => $lesson->id,
+                                        'date_time' => $currentSlotStart->copy(),
+                                        'location'  => $request->location,
+                                        'tenant_id' => $tenantId,
+                                        'is_active' => true
+                                    ];
+                                }
+
+                                $currentSlotStart->addMinutes($lessonMinutes);
+                                
+                                if ($currentSlotStart->gte($slotEnd)) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!empty($conflictErrors)) {
+                return back()->withErrors(['conflicts' => $conflictErrors])->withInput();
+            }
+
+            // No conflicts — create all slots inside a DB transaction
+            DB::transaction(function () use ($slotsToCreate) {
+                foreach ($slotsToCreate as $slot) {
+                    Slots::create($slot);
+                }
+            });
+
+            // Send push notifications for new lessons
+            $students = Student::whereHas('pushToken')
+                ->with('pushToken')
+                ->get()
+                ->pluck('PushToken.token')
+                ->toArray();
+
+            if (!empty($students)) {
+                foreach ($lessons as $lesson) {
+                    $title = "New Lessons Available!";
+                    $body  = "{$lesson->user->name} has created new lesson opportunities: {$lesson->lesson_name}. Check now!";
+                    SendPushNotification::dispatch($students, $title, $body);
+                }
+            }
+
+            // Return based on redirect parameter
+            return $request->get('redirect') == 1
+                ? redirect()->route('lesson.index')->with('success', 'Slots Successfully Added')
+                : response()->json([
+                    'message' => 'Consecutive Slots for the given range are successfully created',
+                    'slots' => $slotsToCreate
+                ]);
+        } catch (\Exception $e) {
+            return $request->get('redirect') == 1
+                ? redirect()->back()->with('error', $e->getMessage())
+                : response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
+        }
+    }
+
+
     public function showScheduleLessonModal(Request $request)
     {
         $user = Auth::user();
@@ -2266,7 +2452,8 @@ class LessonController extends Controller
             return $time12Hour;
         }
     }
-    public function scheduleLesson1(Request $request) //for local
+
+    public function scheduleLesson(Request $request)
     {
         // Validate the request
         $request->validate([
@@ -2276,7 +2463,8 @@ class LessonController extends Controller
             'start_time' => 'required',
             'end_time' => 'required',
             'location' => 'required|string',
-            'note' => 'nullable|string'
+            'note' => 'nullable|string',
+            'start_on_hour' => 'sometimes|boolean', // Add this field
         ]);
 
         try {
@@ -2284,50 +2472,115 @@ class LessonController extends Controller
             $lesson = Lesson::find($request->lesson_id);
             // Get current tenant ID
             $tenantId = Auth::user()->tenant_id;
+            
             // Calculate time frames
-            $slotStart = Carbon::createFromFormat('Y-m-d H:i', $request->lesson_date . ' ' . $request->start_time);
+            $originalStart = Carbon::createFromFormat('Y-m-d H:i', $request->lesson_date . ' ' . $request->start_time);
             $slotEnd = Carbon::createFromFormat('Y-m-d H:i', $request->lesson_date . ' ' . $request->end_time);
-            $totalMinutes = $slotStart->diffInMinutes($slotEnd);
-
+            
             // Get lesson duration in minutes (assuming lesson_duration is in hours)
             $lessonMinutes = $lesson->lesson_duration * 60;
-
-            // Calculate how many slots we can create
-            $maxSlots = floor($totalMinutes / $lessonMinutes);
-
-            $currentSlotStart = $slotStart->copy();
+            
+            $startOnHour = $request->boolean('start_on_hour', false);
             $createdSlots = [];
 
-            // Create multiple slots within the time range
-            for ($i = 0; $i < $maxSlots; $i++) {
-                $currentSlotEnd = $currentSlotStart->copy()->addMinutes($lessonMinutes);
-
-                // Check for slot conflicts for this specific slot
-                // $conflict = Slots::where('lesson_id', $request->lesson_id)
-                //     ->whereBetween('date_time', [$currentSlotStart, $currentSlotEnd])
-                //     ->exists();
-
-                $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
-                    ->where('slots.tenant_id', $tenantId)
-                    ->where('slots.is_active', 0)
-                    ->where(function ($query) use ($currentSlotStart, $currentSlotEnd) {
-                        $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
-                    })
-                    ->exists();
-
-                if (!$conflict) {
-                    // Create the slot
-                    $slot = Slots::create([
-                        'lesson_id' => $request->lesson_id,
-                        'date_time' => $currentSlotStart,
-                        'location' => $request->location,
-                        'is_active' => true
-                    ]);
-                    $createdSlots[] = $slot;
+            // If start_on_hour is enabled, align slots to start on the hour with proper gaps
+            if ($startOnHour) {
+                // Start from the NEXT hour if current time is not exactly on the hour
+                $currentSlotStart = $originalStart->copy();
+                
+                // If current time is not exactly on the hour, move to next hour
+                if ($currentSlotStart->minute != 0 || $currentSlotStart->second != 0) {
+                    $currentSlotStart->addHour()->minute(0)->second(0);
+                } else {
+                    // Already on the hour, use it as is
+                    $currentSlotStart->minute(0)->second(0);
                 }
+                
+                // Ensure we don't start before the original start time
+                if ($currentSlotStart->lt($originalStart)) {
+                    $currentSlotStart = $originalStart->copy()->addHour()->minute(0)->second(0);
+                }
+                
+                // Now create slots that always start on the hour with proper gaps
+                while ($currentSlotStart->lt($slotEnd)) {
+                    $currentSlotEnd = $currentSlotStart->copy()->addMinutes($lessonMinutes);
+                    
+                    // If this slot would exceed the end time, break
+                    if ($currentSlotEnd->gt($slotEnd)) {
+                        break;
+                    }
+                    
+                    $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
+                        ->where('slots.tenant_id', $tenantId)
+                        ->where('slots.is_active', 0)
+                        ->where(function ($query) use ($currentSlotStart, $currentSlotEnd) {
+                            $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
+                        })
+                        ->exists();
 
-                // Move to next slot time
-                $currentSlotStart->addMinutes($lessonMinutes);
+                    if (!$conflict) {
+                        // Create the slot
+                        $slot = Slots::create([
+                            'lesson_id' => $request->lesson_id,
+                            'date_time' => $currentSlotStart,
+                            'location' => $request->location,
+                            'tenant_id' => $tenantId,
+                            'is_active' => true
+                        ]);
+                        $createdSlots[] = $slot;
+                        
+                        // Move to the next available hour AFTER this slot ends
+                        // For 75-minute lesson: 12:00-1:15 → next slot at 2:00 (skip 1:00)
+                        $currentSlotStart->addHour(); // Move to next hour
+                        
+                        // If the lesson duration is more than 1 hour, skip additional hours
+                        $hoursToSkip = ceil($lessonMinutes / 60) - 1;
+                        if ($hoursToSkip > 0) {
+                            $currentSlotStart->addHours($hoursToSkip);
+                        }
+                    } else {
+                        // If there's a conflict, just move to next hour and continue
+                        $currentSlotStart->addHour();
+                    }
+                }
+                
+            } else {
+                // Original logic - consecutive slots based on lesson duration
+                $totalMinutes = $originalStart->diffInMinutes($slotEnd);
+                $maxSlots = floor($totalMinutes / $lessonMinutes);
+                $currentSlotStart = $originalStart->copy();
+
+                // Create multiple slots within the time range
+                for ($i = 0; $i < $maxSlots; $i++) {
+                    $currentSlotEnd = $currentSlotStart->copy()->addMinutes($lessonMinutes);
+
+                    $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
+                        ->where('slots.tenant_id', $tenantId)
+                        ->where('slots.is_active', 0)
+                        ->where(function ($query) use ($currentSlotStart, $currentSlotEnd) {
+                            $query->whereBetween('slots.date_time', [$currentSlotStart, $currentSlotEnd->subMinute()]);
+                        })
+                        ->exists();
+
+                    if (!$conflict) {
+                        // Create the slot
+                        $slot = Slots::create([
+                            'lesson_id' => $request->lesson_id,
+                            'date_time' => $currentSlotStart,
+                            'location' => $request->location,
+                            'tenant_id' => $tenantId,
+                            'is_active' => true
+                        ]);
+                        $createdSlots[] = $slot;
+                    }
+
+                    // Move to next slot time
+                    $currentSlotStart->addMinutes($lessonMinutes);
+                    
+                    if ($currentSlotStart->gte($slotEnd)) {
+                        break;
+                    }
+                }
             }
 
             if (empty($createdSlots)) {
@@ -2369,52 +2622,53 @@ class LessonController extends Controller
                     ]);
 
                     // Send notification for each student
-                    // $this->sendSlotNotification(
-                    //     $slot,
-                    //     'Slot Booked',
-                    //     'A slot has been booked for :date with :instructor for the in-person lesson :lesson.',
-                    //     'A slot has been booked for :date with student ID ' . $studentId . ' for the in-person lesson :lesson.'
-                    // );
+                    $this->sendSlotNotification(
+                        $slot,
+                        'Slot Booked',
+                        'A slot has been booked for :date with :instructor for the in-person lesson :lesson.',
+                        'A slot has been booked for :date with student ID ' . $studentId . ' for the in-person lesson :lesson.'
+                    );
                 }
 
                 $bookedSlotIds[] = $slot->id;
             }
 
             // Send emails to students
-            // $studentEmails = Student::select('email')
-            //     ->whereIn('id', $studentIds)
-            //     ->pluck('email');
+            $studentEmails = Student::select('email')
+                ->whereIn('id', $studentIds)
+                ->pluck('email');
 
-            // if (!$studentEmails->isEmpty()) {
-            //     // Use the first booked slot for email details
-            //     $firstSlot = $createdSlots[0];
-            //     SendEmail::dispatch($studentEmails->toArray(), new SlotBookedByStudentMail(
-            //         Auth::user()->name,
-            //         date('Y-m-d', strtotime($firstSlot->date_time)),
-            //         date('h:i A', strtotime($firstSlot->date_time)),
-            //         $request->note ?? '',
-            //     ));
-            // }
+            if (!$studentEmails->isEmpty()) {
+                // Use the first booked slot for email details
+                $firstSlot = $createdSlots[0];
+                SendEmail::dispatch($studentEmails->toArray(), new SlotBookedByStudentMail(
+                    Auth::user()->name,
+                    date('Y-m-d', strtotime($firstSlot->date_time)),
+                    date('h:i A', strtotime($firstSlot->date_time)),
+                    $request->note ?? '',
+                ));
+            }
 
             // Send push notifications for new lesson availability
-            // $studentsWithTokens = Student::whereHas('pushToken')
-            //     ->with('pushToken')
-            //     ->get()
-            //     ->pluck('pushToken.token')
-            //     ->toArray();
+            $studentsWithTokens = Student::whereHas('pushToken')
+                ->with('pushToken')
+                ->get()
+                ->pluck('pushToken.token')
+                ->toArray();
 
-            // if (!empty($studentsWithTokens)) {
-            //     $title = "New Lesson Scheduled!";
-            //     $body  = "{$lesson->user->name} has scheduled a new lesson: {$lesson->lesson_name}. Check now!";
-            //     SendPushNotification::dispatch($studentsWithTokens, $title, $body);
-            // }
+            if (!empty($studentsWithTokens)) {
+                $title = "New Lesson Scheduled!";
+                $body  = "{$lesson->user->name} has scheduled a new lesson: {$lesson->lesson_name}. Check now!";
+                SendPushNotification::dispatch($studentsWithTokens, $title, $body);
+            }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Lesson scheduled and booked successfully. Created ' . count($createdSlots) . ' slot(s) and booked ' . count($studentIds) . ' student(s) to all slots.',
                 'slot_ids' => $bookedSlotIds,
                 'total_slots_created' => count($createdSlots),
-                'students_booked' => count($studentIds)
+                'students_booked' => count($studentIds),
+                'start_on_hour_used' => $startOnHour // Optional: indicate if hour alignment was used
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -2424,7 +2678,7 @@ class LessonController extends Controller
         }
     }
 
-    public function scheduleLesson(Request $request) //for live
+    public function scheduleLesson1(Request $request) //for live
     {
         // Validate the request
         $request->validate([

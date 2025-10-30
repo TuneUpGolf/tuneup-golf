@@ -19,7 +19,7 @@
                 <div class="m-auto col-lg-6 col-md-8 col-xxl-4">
                     <div class="card">
                         <div class="card-header flex items-center justify-between">
-                            <h5>{{ __('Set Availability') }} - 110</h5>
+                            <h5>{{ __('Set Availability') }}</h5>
                         </div>
 
                         <div class="card-body">
@@ -58,6 +58,23 @@
 
                             <div class="mb-3">
                                 <button type="button" id="add-range" class="btn btn-primary">+ Add</button>
+                            </div>
+
+                            
+                            {{-- ✅ Start on the Hour Option --}}
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    {{ Form::checkbox('start_on_hour', '1', false, [
+                                        'class' => 'form-check-input',
+                                        'id' => 'start_on_hour'
+                                    ]) }}
+                                    {{ Form::label('start_on_hour', 'Start lessons on the hour', [
+                                        'class' => 'form-check-label fw-semibold'
+                                    ]) }}
+                                </div>
+                                <div class="start-on-hour-help">
+                                    When enabled, lessons will start at exact hours (8:00, 9:00, 10:00, etc.) instead of following exact availability start times.
+                                </div>
                             </div>
 
                             {{-- Location --}}
