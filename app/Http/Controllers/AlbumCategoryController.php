@@ -123,6 +123,9 @@ class AlbumCategoryController extends Controller
 
     public function store(Request $request)
     {
+
+        // get highest column_order 
+        $column_order = AlbumCategory::max('column_order');
         if (Auth::user()->can('create-blog')) {
             try {
                 request()->validate([
@@ -132,6 +135,7 @@ class AlbumCategoryController extends Controller
                 $album_category = new AlbumCategory();
                 $album_category->instructor_id = Auth::user()->id;
                 $album_category->tenant_id = tenant('id');
+                $album_category->column_order =  $column_order + 1 ?? 1;
                 $album_category->title = $request->title;
                 $album_category->slug = Str::slug($request->title);
                 $album_category->description = $request->description;

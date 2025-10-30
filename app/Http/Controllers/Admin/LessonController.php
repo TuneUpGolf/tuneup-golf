@@ -1467,14 +1467,16 @@ class LessonController extends Controller
                     'A slot has been booked for :date with :student for the in-person lesson :lesson.'
                 );
 
-                SendEmail::dispatch($slot->lesson->user->email, new SlotBookedByStudentMail(
-                    $bookingStudent->name,
-                    date('Y-m-d', strtotime($slot->date_time)),
-                    date('h:i A', strtotime($slot->date_time)),
-                    $request->note
-                ),
-                $slot->lesson?->created_by
-            );
+                SendEmail::dispatch(
+                    $slot->lesson->user->email,
+                    new SlotBookedByStudentMail(
+                        $bookingStudent->name,
+                        date('Y-m-d', strtotime($slot->date_time)),
+                        date('h:i A', strtotime($slot->date_time)),
+                        $request->note
+                    ),
+                    $slot->lesson?->created_by
+                );
 
                 // Reminder Scheduling
                 $instructor = $slot->lesson->user;
@@ -1559,12 +1561,15 @@ class LessonController extends Controller
                     'A slot has been booked for :date with :student for the in-person lesson :lesson.'
                 );
 
-                SendEmail::dispatch($slot->lesson->user->email, new SlotBookedByStudentMail(
-                    $bookingStudent->name,
-                    date('Y-m-d', strtotime($slot->date_time)),
-                    date('h:i A', strtotime($slot->date_time))
-                ),
-            $slot->lesson?->created_by);
+                SendEmail::dispatch(
+                    $slot->lesson->user->email,
+                    new SlotBookedByStudentMail(
+                        $bookingStudent->name,
+                        date('Y-m-d', strtotime($slot->date_time)),
+                        date('h:i A', strtotime($slot->date_time))
+                    ),
+                    $slot->lesson?->created_by
+                );
             }
         }
 
@@ -2550,13 +2555,16 @@ class LessonController extends Controller
             if (!$studentEmails->isEmpty()) {
                 // Use the first booked slot for email details
                 $firstSlot = $createdSlots[0];
-                SendEmail::dispatch($studentEmails->toArray(), new SlotBookedByStudentMail(
-                    Auth::user()->name,
-                    date('Y-m-d', strtotime($firstSlot->date_time)),
-                    date('h:i A', strtotime($firstSlot->date_time)),
-                    $request->note ?? '',
-                ),
-            $slot->lesson?->created_by);
+                SendEmail::dispatch(
+                    $studentEmails->toArray(),
+                    new SlotBookedByStudentMail(
+                        Auth::user()->name,
+                        date('Y-m-d', strtotime($firstSlot->date_time)),
+                        date('h:i A', strtotime($firstSlot->date_time)),
+                        $request->note ?? '',
+                    ),
+                    $slot->lesson?->created_by
+                );
             }
 
             // Send push notifications for new lesson availability

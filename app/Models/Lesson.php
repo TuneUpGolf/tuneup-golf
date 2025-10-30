@@ -71,6 +71,20 @@ class Lesson extends Model
         'updated_at' => 'datetime',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($lesson) {
+            // Only set column_order if not already set manually
+            if (empty($lesson->column_order)) {
+                $maxOrder = self::max('column_order');
+                $lesson->column_order = $maxOrder ? $maxOrder + 1 : 1;
+            }
+        });
+    }
+
+
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class, 'created_by');
