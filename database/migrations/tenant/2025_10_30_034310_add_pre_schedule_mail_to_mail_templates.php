@@ -18,10 +18,11 @@ return new class extends Migration
             'mailable' => 'App\\Mail\\Admin\\PreSetScheduleMail',
             'subject' => 'Reminder for {{lesson}}',
             'html_template' => '
-                <p>Hello, this is to notify you that you’ve been registered into the following event {{name}}.</p>
-                <p>Hello This is the Lesson Description that the instructor has entered. <strong>{{lesson}}</strong> on 
-                <strong>Lesson Date:</strong> {{date}} at <strong>{{time}}</strong>.</p>
-                <strong>Lesson Description::</strong> {{description}}.</p>
+                <p><strong>{{name}}<strong> this is to notify you that you’ve been registered into the following event</p>
+                <p><strong>Lesson Description::</strong> {{description}}.</p>
+                <p><strong>Lesson Date:</strong> {{date}} at <strong>{{time}}</strong>.</p>
+                <p><strong>Appointment Location:</strong> {{location}}  .</p>
+
             ',
             'text_template' => 'Hello {{name}}, this is a reminder that you have a lesson scheduled with {{lesson}} on Date: {{date}} at {{time}}.',
             'created_at' => now(),

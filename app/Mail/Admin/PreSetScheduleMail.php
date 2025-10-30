@@ -24,14 +24,16 @@ class PreSetScheduleMail extends InstructorTemplateMailable
     public $time;
     public $notes;
     public $description;
+    public $location;
 
-    public function __construct($name,$date,$time,$notes=null,$description=null )
+    public function __construct($name,$date,$time,$notes=null,$description=null,$location=null )
     {
         $this->name = $name;
         $this->date = $date;
         $this->time = $time;
         $this->notes = $notes;
         $this->description = $description;
+        $this->location = $location;
     }
 
     /**
