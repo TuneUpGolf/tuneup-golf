@@ -109,8 +109,11 @@
             let table = $('.data-table').DataTable({
                 processing: true,
                 serverSide: true,
-                paging: false,
-                info: false,
+                paging: true,
+                info: true,
+                pageLength: 10, // optional, sets how many rows per page
+                lengthMenu: [10, 25, 50, 100], // optional dropdown for page size
+
                 ajax: "{{ route('plans.myplan.data') }}",
 
                 columns: [{
