@@ -109,8 +109,8 @@
             let table = $('.data-table').DataTable({
                 processing: true,
                 serverSide: true,
-                paging: false, 
-                info: false, 
+                paging: false,
+                info: false,
                 ajax: "{{ route('plans.myplan.data') }}",
 
                 columns: [{
@@ -225,30 +225,39 @@
             // Handle row reorder
             table.on('row-reorder', function(e, diff, edit) {
                 if (diff.length === 0) return;
+
+                let pageInfo = table.page.info(); // get current page info
+                let startIndex = pageInfo
+                    .start; // starting index for the current page (e.g., 10 for page 2)
+
                 let order = [];
                 diff.forEach(function(move) {
                     let rowData = table.row(move.node).data();
                     order.push({
                         id: rowData.id,
-                        position: move.newPosition + 1
+                        // add offset so position stays correct even on page 2, 3, etc.
+                        position: move.newPosition + 1 + startIndex
                     });
                 });
 
                 $.ajax({
                     url: "{{ route('plan.reorder') }}",
                     method: "POST",
-                    data: {
+                    contentType: "application/json",
+                    data: JSON.stringify({
                         order: order,
                         _token: "{{ csrf_token() }}"
-                    },
+                    }),
                     success: function() {
-                        table.ajax.reload(null, false);
+                        table.ajax.reload(null,
+                            false); // reload without resetting page
                     },
                     error: function(err) {
                         console.error('Reorder failed:', err);
                     }
                 });
             });
+
 
             // Responsive column toggle
             function handleResponsiveColumn(table) {

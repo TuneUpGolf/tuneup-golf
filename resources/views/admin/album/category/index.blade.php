@@ -163,8 +163,8 @@
                     dom: "<'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>" +
                         "<'dataTable-botton table-btn col-lg-6 col-sm-12'B>" +
                         "<'dataTable-search tb-search col-lg-3 col-sm-12'f>>" +
-                        "<'dataTable-container'<'col-sm-12'tr>>",
-                    // "<'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l><'col-sm-7'p>>",
+                        "<'dataTable-container'<'col-sm-12'tr>>" +
+                        "<'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l><'col-sm-7'p>>",
                     buttons: [{
                         text: '<i class="fa fa-plus" aria-hidden="true"></i> Create',
                         className: 'btn btn-light-primary no-corner me-1 add_module',
@@ -204,12 +204,17 @@
                 table.on('row-reorder', function(e, diff, edit) {
                     if (diff.length === 0) return;
 
+                    let pageInfo = table.page.info(); // get current page info
+                    let startIndex = pageInfo
+                        .start; // starting index for the current page (e.g., 10 for page 2)
+
                     let order = [];
                     diff.forEach(function(move) {
                         let rowData = table.row(move.node).data();
                         order.push({
                             id: rowData.id,
-                            position: move.newPosition + 1
+                            // add offset so position stays correct even on page 2, 3, etc.
+                            position: move.newPosition + 1 + startIndex
                         });
                     });
 
@@ -222,13 +227,13 @@
                             _token: "{{ csrf_token() }}"
                         }),
                         success: function() {
-                            table.ajax.reload(null, false);
+                            table.ajax.reload(null,
+                                false); // reload without resetting page
                         },
                         error: function(err) {
                             console.error('Reorder failed:', err);
                         }
                     });
-
                 });
 
                 function handleResponsiveColumn(table) {
