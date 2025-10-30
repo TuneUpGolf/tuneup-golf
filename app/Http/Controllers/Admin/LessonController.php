@@ -1264,6 +1264,7 @@ class LessonController extends Controller
             ]);
 
             $slot = Slots::where('id', $request->slot_id)->first();
+            // dd($slot);
             $lesson = $slot->lesson;
 
             $studentIds = [];
@@ -1334,6 +1335,21 @@ class LessonController extends Controller
                 ->whereIn('id', $studentIds)
                 ->pluck('email');
 
+                //preset lesson schedule mail
+            if ($lesson->type === Lesson::LESSON_TYPE_INPERSON)
+            {
+                $instructor = Auth::user();
+                SendEmail::dispatch($studentEmails->toArray(), new PreSetScheduleMail(
+                    Auth::user()->name,
+                    date('Y-m-d', strtotime($slot->date_time)),
+                    date('h:i A', strtotime($slot->date_time)),
+                    $request->notes,
+                    $lesson->lesson_description,
+                    $slot->location,
+                ), $instructor->id);
+            }
+           
+
 
             if (!$studentEmails->isEmpty()) {
                 $instructor = Auth::user();
@@ -1344,14 +1360,6 @@ class LessonController extends Controller
                     $request->notes,
                 ), $instructor->id);
 
-                //preset lesson schedule mail
-                SendEmail::dispatch($studentEmails->toArray(), new PreSetScheduleMail(
-                    Auth::user()->name,
-                    date('Y-m-d', strtotime($slot->date_time)),
-                    date('h:i A', strtotime($slot->date_time)),
-                    $request->notes,
-                    $lesson->lesson_description,
-                ), $instructor->id);
             }
 
             if (request()->redirect == 1) {
