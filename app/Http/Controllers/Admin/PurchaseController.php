@@ -478,17 +478,17 @@ class PurchaseController extends Controller
                         return redirect()->route('home')->with('success', 'Video Successfully Added');
                     }
                 } catch (\Exception $e) {
-                    dd($e);
+
                     report($e);
                     return redirect()->back()->with('errors', $e->getMessage());
                 } catch (Error $e) {
-                    dd($e);
+
 
                     report($e);
                     return response($e, 419);
                 };
             } else {
-                dd("e");
+
 
                 throw ValidationException::withMessages([
                     'purchase_id' => 'You don\'t have enough lessons remaining',
