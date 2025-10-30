@@ -24,7 +24,8 @@ class Student extends User implements MustVerifyEmail
     use BelongsToTenant, Impersonate;
 
     protected $table = "students";
-    protected $guard_name = 'web';
+    protected $guard_name = 'student';
+
     protected $fillable = [
         'id',
         'uuid',

@@ -36,7 +36,7 @@ Route::middleware('guest', 'Setting', 'xss')->group(function () {
         ->name('password.update');
 });
 
-Route::middleware('auth', 'Setting', 'xss')->group(function () {
+Route::middleware('auth:web,student', 'Setting', 'xss')->group(function () {
     Route::get('verify-email', [EmailVerificationPromptController::class, '__invoke'])
         ->name('verification.notice');
 
