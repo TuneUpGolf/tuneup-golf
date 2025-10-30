@@ -237,44 +237,44 @@ class StudentDataTable extends DataTable
                     window.location = '" . route('student.create') . "';
                 }"
                 ],
-                [
-                    'extend' => 'reload',
-                    'className' => 'btn btn-light-primary no-corner me-1 add_module',
-                    'action' => "function ( e, dt, node, config ) {
-                    window.location = '" . route('student.import') . "';
-                }"
-                ],
-                [
-                    'extend' => 'collection',
-                    'className' => 'btn btn-light-secondary me-1 dropdown-toggle',
-                    'text' => '<i class="ti ti-download"></i> Export',
-                    'buttons' => [
-                        [
-                            'extend' => 'print',
-                            'text' => '<i class="fas fa-print"></i> Print',
-                            'className' => 'btn btn-light text-primary dropdown-item',
-                            'exportOptions' => ['columns' => [0, 1, 3]]
-                        ],
-                        [
-                            'extend' => 'csv',
-                            'text' => '<i class="fas fa-file-csv"></i> CSV',
-                            'className' => 'btn btn-light text-primary dropdown-item',
-                            'exportOptions' => ['columns' => [0, 1, 3]]
-                        ],
-                        [
-                            'extend' => 'excel',
-                            'text' => '<i class="fas fa-file-excel"></i> Excel',
-                            'className' => 'btn btn-light text-primary dropdown-item',
-                            'exportOptions' => ['columns' => [0, 1, 3]]
-                        ],
-                        [
-                            'extend' => 'pdf',
-                            'text' => '<i class="fas fa-file-pdf"></i> PDF',
-                            'className' => 'btn btn-light text-primary dropdown-item',
-                            'exportOptions' => ['columns' => [0, 1, 3]]
-                        ],
-                    ],
-                ],
+                // [
+                //     'extend' => 'reload',
+                //     'className' => 'btn btn-light-primary no-corner me-1 add_module',
+                //     'action' => "function ( e, dt, node, config ) {
+                //     window.location = '" . route('student.import') . "';
+                // }"
+                // ],
+                // [
+                //     'extend' => 'collection',
+                //     'className' => 'btn btn-light-secondary me-1 dropdown-toggle',
+                //     'text' => '<i class="ti ti-download"></i> Export',
+                //     'buttons' => [
+                //         [
+                //             'extend' => 'print',
+                //             'text' => '<i class="fas fa-print"></i> Print',
+                //             'className' => 'btn btn-light text-primary dropdown-item',
+                //             'exportOptions' => ['columns' => [0, 1, 3]]
+                //         ],
+                //         [
+                //             'extend' => 'csv',
+                //             'text' => '<i class="fas fa-file-csv"></i> CSV',
+                //             'className' => 'btn btn-light text-primary dropdown-item',
+                //             'exportOptions' => ['columns' => [0, 1, 3]]
+                //         ],
+                //         [
+                //             'extend' => 'excel',
+                //             'text' => '<i class="fas fa-file-excel"></i> Excel',
+                //             'className' => 'btn btn-light text-primary dropdown-item',
+                //             'exportOptions' => ['columns' => [0, 1, 3]]
+                //         ],
+                //         [
+                //             'extend' => 'pdf',
+                //             'text' => '<i class="fas fa-file-pdf"></i> PDF',
+                //             'className' => 'btn btn-light text-primary dropdown-item',
+                //             'exportOptions' => ['columns' => [0, 1, 3]]
+                //         ],
+                //     ],
+                // ],
             ];
         }
 

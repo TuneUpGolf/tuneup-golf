@@ -215,12 +215,13 @@ class LessonController extends Controller
         // $validatedData['last_minute_booking_buffer_hours'] = $request->last_minute_booking_buffer_hours ?? null;
         // $validatedData['cancel_window_hours'] = $request->cancel_window_hours ?? null;
         // Convert empty strings to null
-        if($request->type !== Lesson::LESSON_TYPE_ONLINE)
-        {foreach (['advance_booking_limit_days', 'last_minute_booking_buffer_hours', 'cancel_window_hours'] as $field) {
-            if ($validatedData[$field] === '') {
-                $validatedData[$field] = null;
+        if ($request->type !== Lesson::LESSON_TYPE_ONLINE) {
+            foreach (['advance_booking_limit_days', 'last_minute_booking_buffer_hours', 'cancel_window_hours'] as $field) {
+                if ($validatedData[$field] === '') {
+                    $validatedData[$field] = null;
+                }
             }
-        }}
+        }
 
         $lesson = Lesson::create($validatedData);
 
@@ -312,12 +313,13 @@ class LessonController extends Controller
         }
 
         // Convert empty strings to null
-        if($request->type !== Lesson::LESSON_TYPE_ONLINE){
-        foreach (['advance_booking_limit_days', 'last_minute_booking_buffer_hours', 'cancel_window_hours'] as $field) {
-            if ($validatedData[$field] === '') {
-                $validatedData[$field] = null;
+        if ($request->type !== Lesson::LESSON_TYPE_ONLINE) {
+            foreach (['advance_booking_limit_days', 'last_minute_booking_buffer_hours', 'cancel_window_hours'] as $field) {
+                if ($validatedData[$field] === '') {
+                    $validatedData[$field] = null;
+                }
             }
-        }}
+        }
 
         // 🆕 Add new scheduling preference fields
         // $validatedData['advance_booking_limit_days'] = $request->advance_booking_limit_days ?? null;
@@ -2278,14 +2280,14 @@ class LessonController extends Controller
 
                         $originalStart = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $startTimeVal);
                         $slotEnd   = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $endTime[$key]);
-                        
+
                         $lessonMinutes = $lesson->lesson_duration * 60;
 
                         // If start_on_hour is enabled, align slots to start on the hour with proper gaps
                         if ($startOnHour) {
                             // Start from the NEXT hour if current time is not exactly on the hour
                             $currentSlotStart = $originalStart->copy();
-                            
+
                             // If current time is not exactly on the hour, move to next hour
                             if ($currentSlotStart->minute != 0 || $currentSlotStart->second != 0) {
                                 $currentSlotStart->addHour()->minute(0)->second(0);
@@ -2293,21 +2295,21 @@ class LessonController extends Controller
                                 // Already on the hour, use it as is
                                 $currentSlotStart->minute(0)->second(0);
                             }
-                            
+
                             // Ensure we don't start before the original start time
                             if ($currentSlotStart->lt($originalStart)) {
                                 $currentSlotStart = $originalStart->copy()->addHour()->minute(0)->second(0);
                             }
-                            
+
                             // Now create slots that always start on the hour with proper gaps
                             while ($currentSlotStart->lt($slotEnd)) {
                                 $currentSlotEnd = $currentSlotStart->copy()->addMinutes($lessonMinutes);
-                                
+
                                 // If this slot would exceed the end time, break
                                 if ($currentSlotEnd->gt($slotEnd)) {
                                     break;
                                 }
-                                
+
                                 $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
                                     ->where('slots.tenant_id', $tenantId)
                                     ->where('slots.is_active', 0)
@@ -2326,11 +2328,11 @@ class LessonController extends Controller
                                         'tenant_id' => $tenantId,
                                         'is_active' => true
                                     ];
-                                    
+
                                     // Move to the next available hour AFTER this slot ends
                                     // For 75-minute lesson: 12:00-1:15 → next slot at 2:00 (skip 1:00)
                                     $currentSlotStart->addHour(); // Move to next hour
-                                    
+
                                     // If the lesson duration is more than 1 hour, skip additional hours
                                     $hoursToSkip = ceil($lessonMinutes / 60) - 1;
                                     if ($hoursToSkip > 0) {
@@ -2338,7 +2340,6 @@ class LessonController extends Controller
                                     }
                                 }
                             }
-                            
                         } else {
                             // Original logic - consecutive slots based on lesson duration
                             $totalMinutes = $originalStart->diffInMinutes($slotEnd);
@@ -2369,7 +2370,7 @@ class LessonController extends Controller
                                 }
 
                                 $currentSlotStart->addMinutes($lessonMinutes);
-                                
+
                                 if ($currentSlotStart->gte($slotEnd)) {
                                     break;
                                 }
@@ -2474,14 +2475,14 @@ class LessonController extends Controller
             $lesson = Lesson::find($request->lesson_id);
             // Get current tenant ID
             $tenantId = Auth::user()->tenant_id;
-            
+
             // Calculate time frames
             $originalStart = Carbon::createFromFormat('Y-m-d H:i', $request->lesson_date . ' ' . $request->start_time);
             $slotEnd = Carbon::createFromFormat('Y-m-d H:i', $request->lesson_date . ' ' . $request->end_time);
-            
+
             // Get lesson duration in minutes (assuming lesson_duration is in hours)
             $lessonMinutes = $lesson->lesson_duration * 60;
-            
+
             $startOnHour = $request->boolean('start_on_hour', false);
             $createdSlots = [];
 
@@ -2489,7 +2490,7 @@ class LessonController extends Controller
             if ($startOnHour) {
                 // Start from the NEXT hour if current time is not exactly on the hour
                 $currentSlotStart = $originalStart->copy();
-                
+
                 // If current time is not exactly on the hour, move to next hour
                 if ($currentSlotStart->minute != 0 || $currentSlotStart->second != 0) {
                     $currentSlotStart->addHour()->minute(0)->second(0);
@@ -2497,21 +2498,21 @@ class LessonController extends Controller
                     // Already on the hour, use it as is
                     $currentSlotStart->minute(0)->second(0);
                 }
-                
+
                 // Ensure we don't start before the original start time
                 if ($currentSlotStart->lt($originalStart)) {
                     $currentSlotStart = $originalStart->copy()->addHour()->minute(0)->second(0);
                 }
-                
+
                 // Now create slots that always start on the hour with proper gaps
                 while ($currentSlotStart->lt($slotEnd)) {
                     $currentSlotEnd = $currentSlotStart->copy()->addMinutes($lessonMinutes);
-                    
+
                     // If this slot would exceed the end time, break
                     if ($currentSlotEnd->gt($slotEnd)) {
                         break;
                     }
-                    
+
                     $conflict = Slots::join('lessons', 'slots.lesson_id', '=', 'lessons.id')
                         ->where('slots.tenant_id', $tenantId)
                         ->where('slots.is_active', 0)
@@ -2530,11 +2531,11 @@ class LessonController extends Controller
                             'is_active' => true
                         ]);
                         $createdSlots[] = $slot;
-                        
+
                         // Move to the next available hour AFTER this slot ends
                         // For 75-minute lesson: 12:00-1:15 → next slot at 2:00 (skip 1:00)
                         $currentSlotStart->addHour(); // Move to next hour
-                        
+
                         // If the lesson duration is more than 1 hour, skip additional hours
                         $hoursToSkip = ceil($lessonMinutes / 60) - 1;
                         if ($hoursToSkip > 0) {
@@ -2545,7 +2546,6 @@ class LessonController extends Controller
                         $currentSlotStart->addHour();
                     }
                 }
-                
             } else {
                 // Original logic - consecutive slots based on lesson duration
                 $totalMinutes = $originalStart->diffInMinutes($slotEnd);
@@ -2578,7 +2578,7 @@ class LessonController extends Controller
 
                     // Move to next slot time
                     $currentSlotStart->addMinutes($lessonMinutes);
-                    
+
                     if ($currentSlotStart->gte($slotEnd)) {
                         break;
                     }
