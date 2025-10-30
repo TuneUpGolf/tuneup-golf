@@ -43,7 +43,7 @@ class StudentDashboardView extends GridView
         if (request()->query('category')) {
             $this->cardComponent = 'admin.posts.album-view';
             if (request()->query('instructor_id')) {
-                return AlbumCategory::where('instructor_id', request()->orderBy('column_order', 'asc')->query('instructor_id'));
+                return AlbumCategory::where('instructor_id', request()->query('instructor_id'))->orderBy('column_order', 'asc');
             } else {
                 return AlbumCategory::query()->orderBy('column_order', 'asc');
             }

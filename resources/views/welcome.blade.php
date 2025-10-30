@@ -533,8 +533,8 @@
             {{-- start Category --}}
 
 
-            
-             <section class="lession-sec feed-sec">
+            @if (!$albums->isEmpty())
+                <section class="lession-sec feed-sec">
                     <div class="container ctm-container">
                         <h2 class="font-bold text-4xl mb-2">Categories</h2>
 
@@ -543,6 +543,7 @@
                         </div>
                     </div>
                 </section>
+            @endif
             {{-- End Category  --}}
 
             {{-- Post Secton  --}}
