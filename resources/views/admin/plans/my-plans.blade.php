@@ -191,16 +191,19 @@
                 order: [
                     [2, 'asc']
                 ],
-
                 dom: `
-            <'dataTable-top row'
-                <'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
-                <'dataTable-botton table-btn col-lg-6 col-sm-12'B>
-                <'dataTable-search tb-search col-lg-3 col-sm-12'f>
-            >
-            <'dataTable-container'<'col-sm-12'tr>>
-                  "<'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l><'col-sm-7'p>>",
-        `,
+                    <'dataTable-top row'
+                        <'dataTable-botton table-btn col-lg-6 col-sm-12'B>
+                        <'dataTable-search tb-search col-lg-6 col-sm-12'f>
+                    >
+                    <'dataTable-container'<'col-sm-12'tr>>
+                    <'dataTable-bottom row'
+                        <'dataTable-dropdown page-dropdown col-lg-3 col-sm-12'l>
+                        <'dataTable-info col-lg-5 col-sm-12'i>
+                        <'dataTable-pagination col-lg-4 col-sm-12'p>
+                    >
+                    `,
+
 
                 buttons: [{
                     text: '➕ Create Plan',
