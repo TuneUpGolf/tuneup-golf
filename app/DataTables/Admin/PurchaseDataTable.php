@@ -223,6 +223,7 @@ class PurchaseDataTable extends DataTable
                         instructors.name AS instructor_name
                     ')
                     ->where('lessons.type', Lesson::LESSON_TYPE_ONLINE)
+                    ->where('purchases.status' , 'complete')
                     ->groupBy(
                         'purchases.lesson_id',
                         'purchases.instructor_id',
@@ -230,6 +231,8 @@ class PurchaseDataTable extends DataTable
                         'instructors.name'
                     )
                     ->orderByDesc('created_at');
+
+                    
                 // $query->select([
                 //     'purchases.*',
                 //     'purchases.type as purchase_type',

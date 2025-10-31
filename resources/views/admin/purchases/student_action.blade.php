@@ -23,8 +23,7 @@
     @if (in_array($user->type, ['Student', 'Instructor']) &&
             ($purchase->status == 'complete' || $purchase->lesson->payment_method == 'cash' || $hasBooking) &&
             $purchase->lesson->type != 'online' &&
-            $purchase->lesson->active_status == true &&
-            $purchase->lesson->type != 'inPerson')
+            $purchase->lesson->active_status == true )
         {{--  @if ($purchase->status == 'complete' && ($purchase->type == 'inPerson' || $purchase->type == 'package'))
                  <a href="{{ route('slot.view', ['lesson_id' => $purchase?->lesson_id]) }}" class="btn btn-primary btn-sm">
                     Change Lesson Time
