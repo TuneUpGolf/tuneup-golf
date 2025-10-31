@@ -45,7 +45,8 @@ class SendLessonReminderJob implements ShouldQueue
                     $lessonName,
                     $date,
                     $time,
-                    $instructorName
+                    $instructorName,
+                    $slot->location
                 )
             );
         }
