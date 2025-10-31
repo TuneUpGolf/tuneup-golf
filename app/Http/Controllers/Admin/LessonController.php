@@ -1357,30 +1357,18 @@ class LessonController extends Controller
             //preset lesson schedule mail
             $hasInPersonSlots = collect($allSlotDetails)->contains('lesson_type', Lesson::LESSON_TYPE_INPERSON);
             if ($hasInPersonSlots) {
+                // dd("one");
                 $instructor = Auth::user();
                 SendEmail::dispatch($studentEmails->toArray(), new PreSetScheduleMail(
                     Auth::user()->name,
-                    $allSlotDetails, // Pass all slots instead of single slot
+                    $lesson->lesson_name,
+                    $allSlotDetails, 
                     $request->notes,
                     $lesson->lesson_description,
-                    $slot->location,
                 ), $instructor->id);
-            }
-            // if ($lesson->type === Lesson::LESSON_TYPE_INPERSON)
-            // {
-            //     $instructor = Auth::user();
-            //     SendEmail::dispatch($studentEmails->toArray(), new PreSetScheduleMail(
-            //         Auth::user()->name,
-            //         date('Y-m-d', strtotime($slot->date_time)),
-            //         date('h:i A', strtotime($slot->date_time)),
-            //         $request->notes,
-            //         $lesson->lesson_description,
-            //         $slot->location,
-            //     ), $instructor->id);
-            // }
 
-
-            if (!$studentEmails->isEmpty()) {
+            }else if (!$studentEmails->isEmpty()) {
+                dd("two");
                 $instructor = Auth::user();
                 SendEmail::dispatch($studentEmails->toArray(), new SlotBookedByStudentMail(
                     Auth::user()->name,

@@ -16,24 +16,15 @@ return new class extends Migration
     {
         DB::table('mail_templates')->insert([
             'mailable' => 'App\\Mail\\Admin\\PreSetScheduleMail',
-            'subject' => 'Reminder for {{lesson}}',
+            'subject' => 'Pre schedule for {{ title }}',
             'html_template' => '
-                <p><strong>{{name}}<strong> this is to notify you that you’ve been registered into the following event</p>
-                <p><strong>Lesson Description::</strong> {{description}}.</p>
-                  <h3>Your Scheduled Slots:</h3>
-                    @foreach($slots as $slot)
-                        <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd;">
-                            <p><strong>Date:</strong> {{ $slot["date"] }}</p>
-                            <p><strong>Time:</strong> {{ $slot["time"] }}</p>
-                            <p><strong>Location:</strong> {{ $slot["location"] }}</p>
-                        </div>
-                    @endforeach
-                @if($notes)
-                <p><strong>Additional Notes:</strong> {{ $notes }}</p>
-                @endif
-
+                <p><strong>{{ name }}</strong> this is to notify you that you\'ve been registered into the following event</p>
+                <strong>Lesson Description:</strong> {{ description }}.
+                <strong>Your Scheduled Slots:</strong>
+                {{ formattedSlots }}
+                    <p><strong>Additional Notes:</strong> {{ notes }}</p>
             ',
-            'text_template' => 'Hello {{name}}, this is a reminder that you have a lesson scheduled with {{lesson}} on Date: {{date}} at {{time}}.',
+            'text_template' => 'Hello {{ name }}, this is a reminder that you have a lesson scheduled.',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
