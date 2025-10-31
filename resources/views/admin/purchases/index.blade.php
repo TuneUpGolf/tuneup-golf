@@ -75,8 +75,8 @@
 
 
         /* th, td{
-                            display: inline-block !important;
-                        } */
+                                display: inline-block !important;
+                            } */
     </style>
 @endpush
 
@@ -97,7 +97,7 @@
                 .then(data => {
                     const tbody = document.querySelector('#preSetTable tbody');
                     tbody.innerHTML = '';
-
+                    hideSimpleLoading();
                     if (!data || data.length === 0) {
                         tbody.innerHTML = `<tr><td colspan="4" class="text-center">No data found</td></tr>`;
                         return;

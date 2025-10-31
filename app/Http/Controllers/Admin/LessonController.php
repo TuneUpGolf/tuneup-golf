@@ -73,7 +73,13 @@ class LessonController extends Controller
                     ->of($lessons)
                     ->addIndexColumn()
                     ->editColumn('created_at', fn($lesson) => UtilityFacades::date_time_format($lesson->created_at))
-                    ->editColumn('lesson_price', fn($lesson) => UtilityFacades::amount_format($lesson->lesson_price))
+                    ->editColumn('lesson_price', function ($lesson) {
+                        if ($lesson->type == Lesson::LESSON_TYPE_PACKAGE) {
+                            return UtilityFacades::amount_format($lesson->packages->first()->price);
+                        } else {
+                            return UtilityFacades::amount_format($lesson->lesson_price);
+                        }
+                    })
                     ->editColumn('created_by', function ($lesson) {
                         $imageSrc = $lesson?->user?->dp
                             ? asset('/storage/' . tenant('id') . '/' . $lesson?->user?->dp)
@@ -217,8 +223,10 @@ class LessonController extends Controller
         // Convert empty strings to null
         if ($request->type !== Lesson::LESSON_TYPE_ONLINE) {
             foreach (['advance_booking_limit_days', 'last_minute_booking_buffer_hours', 'cancel_window_hours'] as $field) {
-                if ($validatedData[$field] === '') {
-                    $validatedData[$field] = null;
+                if (isset($validatedData[$field])) {
+                    if ($validatedData[$field] === '' || $validatedData[$field] === 0) {
+                        $validatedData[$field] = null;
+                    }
                 }
             }
         }
@@ -1346,7 +1354,7 @@ class LessonController extends Controller
                 ->whereIn('id', $studentIds)
                 ->pluck('email');
 
-                //preset lesson schedule mail
+            //preset lesson schedule mail
             $hasInPersonSlots = collect($allSlotDetails)->contains('lesson_type', Lesson::LESSON_TYPE_INPERSON);
             if ($hasInPersonSlots) {
                 $instructor = Auth::user();
@@ -1370,7 +1378,7 @@ class LessonController extends Controller
             //         $slot->location,
             //     ), $instructor->id);
             // }
-           
+
 
             if (!$studentEmails->isEmpty()) {
                 $instructor = Auth::user();
@@ -1380,7 +1388,6 @@ class LessonController extends Controller
                     date('h:i A', strtotime($slot->date_time)),
                     $request->notes,
                 ), $instructor->id);
-
             }
 
             if (request()->redirect == 1) {
