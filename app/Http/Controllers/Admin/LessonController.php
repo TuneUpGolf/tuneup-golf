@@ -1333,25 +1333,44 @@ class LessonController extends Controller
                 }
             }
 
+            // Collect slot details for email
+            $allSlotDetails[] = [
+                'date' => date('Y-m-d', strtotime($slot->date_time)),
+                'time' => date('h:i A', strtotime($slot->date_time)),
+                'location' => $slot->location,
+                'lesson_description' => $lesson->lesson_description,
+                'lesson_type' => $lesson->type,
+            ];
+
             $studentEmails = Student::select('email')
                 ->whereIn('id', $studentIds)
                 ->pluck('email');
 
                 //preset lesson schedule mail
-            if ($lesson->type === Lesson::LESSON_TYPE_INPERSON)
-            {
+            $hasInPersonSlots = collect($allSlotDetails)->contains('lesson_type', Lesson::LESSON_TYPE_INPERSON);
+            if ($hasInPersonSlots) {
                 $instructor = Auth::user();
                 SendEmail::dispatch($studentEmails->toArray(), new PreSetScheduleMail(
                     Auth::user()->name,
-                    date('Y-m-d', strtotime($slot->date_time)),
-                    date('h:i A', strtotime($slot->date_time)),
+                    $allSlotDetails, // Pass all slots instead of single slot
                     $request->notes,
                     $lesson->lesson_description,
                     $slot->location,
                 ), $instructor->id);
             }
+            // if ($lesson->type === Lesson::LESSON_TYPE_INPERSON)
+            // {
+            //     $instructor = Auth::user();
+            //     SendEmail::dispatch($studentEmails->toArray(), new PreSetScheduleMail(
+            //         Auth::user()->name,
+            //         date('Y-m-d', strtotime($slot->date_time)),
+            //         date('h:i A', strtotime($slot->date_time)),
+            //         $request->notes,
+            //         $lesson->lesson_description,
+            //         $slot->location,
+            //     ), $instructor->id);
+            // }
            
-
 
             if (!$studentEmails->isEmpty()) {
                 $instructor = Auth::user();

@@ -20,8 +20,17 @@ return new class extends Migration
             'html_template' => '
                 <p><strong>{{name}}<strong> this is to notify you that you’ve been registered into the following event</p>
                 <p><strong>Lesson Description::</strong> {{description}}.</p>
-                <p><strong>Lesson Date:</strong> {{date}} at <strong>{{time}}</strong>.</p>
-                <p><strong>Appointment Location:</strong> {{location}}  .</p>
+                  <h3>Your Scheduled Slots:</h3>
+                    @foreach($slots as $slot)
+                        <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd;">
+                            <p><strong>Date:</strong> {{ $slot["date"] }}</p>
+                            <p><strong>Time:</strong> {{ $slot["time"] }}</p>
+                            <p><strong>Location:</strong> {{ $slot["location"] }}</p>
+                        </div>
+                    @endforeach
+                @if($notes)
+                <p><strong>Additional Notes:</strong> {{ $notes }}</p>
+                @endif
 
             ',
             'text_template' => 'Hello {{name}}, this is a reminder that you have a lesson scheduled with {{lesson}} on Date: {{date}} at {{time}}.',
