@@ -5,9 +5,9 @@
     </div>
 
     @php
-                $purchaseVideo = $purchase->videos->first();
-                $purchaseVideo2Url = $purchaseVideo->video_url_2 ?? '';
-        @endphp ?>
+        $purchaseVideo = $purchase->videos->first();
+        $purchaseVideo2Url = $purchaseVideo->video_url_2 ?? '';
+    @endphp
 
     <div class="flex flex-col xl:flex-row gap-6 bg-white p-4 rounded-lg">
         <!-- Video Section -->
@@ -31,7 +31,7 @@
 
                     @if (auth()->user()->type == 'Instructor')
                         <div class="flex flex-wrap justify-center lg:justify-start gap-2 mt-4">
-                            <a href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid . '&videourl=' .  $purchaseVideo2Url  }}"
+                            <a href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid . '&videourl=' . $purchaseVideo2Url }}"
                                 class="rounded-full px-4 py-2 text-white font-bold flex items-center gap-1 btn btn-danger text-sm md:text-base">
                                 <i class="ti ti-search text-xl"></i> Analyze
                             </a>
