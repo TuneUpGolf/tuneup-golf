@@ -110,11 +110,11 @@ trait PurchaseTrait
             // $instructorCurrency = $account?->default_currency ?? 'usd';
             $instructorCurrency = 'usd';
             $convertedAmount = $purchase?->total_amount * 100;
-            // if ($instructorCurrency !== $application_currency) {
-            //     $exchangeRates = \Stripe\ExchangeRate::retrieve($instructorCurrency);
-            //     $conversionRate = $exchangeRates['rates'][$application_currency] ?? 1;
-            //     $convertedAmount = round($convertedAmount / $conversionRate);
-            // }
+            if ($instructorCurrency !== $application_currency) {
+                $exchangeRates = \Stripe\ExchangeRate::retrieve($instructorCurrency);
+                $conversionRate = $exchangeRates['rates'][$application_currency] ?? 1;
+                $convertedAmount = round($convertedAmount / $conversionRate);
+            }
 
 
 

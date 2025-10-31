@@ -1067,6 +1067,13 @@ class PurchaseController extends Controller
             })
             ->where('purchases.lesson_id', $request->input('lesson_id'))
             ->where('purchases.tenant_id', tenant()->id)
+            ->where(function ($query) {
+        $query->where('lessons.type', '!=', Lesson::LESSON_TYPE_ONLINE)
+              ->orWhere(function ($subQuery) {
+                  $subQuery->where('lessons.type', Lesson::LESSON_TYPE_ONLINE)
+                           ->where('purchases.status', 'complete');
+              });
+    })
             ->orderBy('slots.date_time', 'asc')
             ->get()
             ->map(function ($purchase) {

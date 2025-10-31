@@ -5,9 +5,9 @@
     </div>
 
     @php
-        $purchaseVideo = $purchase->videos->first();
-        $purchaseVideo2Url = $purchaseVideo->video_url_2 ?? '';
-    @endphp
+                $purchaseVideo = $purchase->videos->first();
+                $purchaseVideo2Url = $purchaseVideo->video_url_2 ?? '';
+        @endphp ?>
 
     <div class="flex flex-col xl:flex-row gap-6 bg-white p-4 rounded-lg">
         <!-- Video Section -->
@@ -16,24 +16,37 @@
                 <video controls autoplay loop muted src="{{ $purchase->videos->first()->video_url }}"
                     class="w-full sm:w-80 md:w-96 lg:w-[28rem] h-auto rounded-lg shadow"></video>
 
-                @if ($purchaseVideo2Url)
-                    <video controls autoplay loop muted src="{{ $purchaseVideo2Url }}"
-                        class="w-full sm:w-80 md:w-96 lg:w-[28rem] h-auto rounded-lg mt-4 shadow"></video>
-                @endif
-
-                @if (auth()->user()->type == 'Influencer')
+                @if (auth()->user()->type == 'Instructor')
                     <div class="flex flex-wrap justify-center lg:justify-start gap-2 mt-4">
-                        <a href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}"
-                            class="rounded-full px-4 py-2 text-white font-bold flex items-center gap-1 btn btn-warning text-sm md:text-base">
-                            <i class="ti ti-notebook text-xl"></i> Feedback
-                        </a>
-
                         <a href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid . '&videourl=' . $purchase->videos->first()->video_url }}"
                             class="rounded-full px-4 py-2 text-white font-bold flex items-center gap-1 btn btn-danger text-sm md:text-base">
                             <i class="ti ti-search text-xl"></i> Analyze
                         </a>
                     </div>
                 @endif
+
+                @if ($purchaseVideo2Url)
+                    <video controls autoplay loop muted src="{{ $purchaseVideo2Url }}"
+                        class="w-full sm:w-80 md:w-96 lg:w-[28rem] h-auto rounded-lg mt-4 shadow"></video>
+
+                    @if (auth()->user()->type == 'Instructor')
+                        <div class="flex flex-wrap justify-center lg:justify-start gap-2 mt-4">
+                            <a href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid . '&videourl=' .  $purchaseVideo2Url  }}"
+                                class="rounded-full px-4 py-2 text-white font-bold flex items-center gap-1 btn btn-danger text-sm md:text-base">
+                                <i class="ti ti-search text-xl"></i> Analyze
+                            </a>
+                        </div>
+                    @endif
+                @endif
+
+                {{-- @if (auth()->user()->type == 'Instructor')
+                    <div class="flex flex-wrap justify-center lg:justify-start gap-2 mt-4">
+                        <a href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid . '&videourl=' . $purchase->videos->first()->video_url }}"
+                            class="rounded-full px-4 py-2 text-white font-bold flex items-center gap-1 btn btn-danger text-sm md:text-base">
+                            <i class="ti ti-search text-xl"></i> Analyze
+                        </a>
+                    </div>
+                @endif --}}
             </div>
 
             <!-- Details Section -->
