@@ -1491,7 +1491,7 @@ class LessonController extends Controller
                 ), $instructor->id);
 
             }else if (!$studentEmails->isEmpty()) {
-                dd("two");
+                // dd("two");
                 $instructor = Auth::user();
                 SendEmail::dispatch($studentEmails->toArray(), new SlotBookedByStudentMail(
                     Auth::user()->name,
