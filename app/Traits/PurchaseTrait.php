@@ -178,9 +178,9 @@ trait PurchaseTrait
             if (
                 $instructor?->active_status &&
                 !empty($account->id) &&
-                $account->charges_enabled &&
-                !empty($account->capabilities['card_payments']) &&
-                $account->capabilities['card_payments'] === 'active'
+                // $account->charges_enabled &&
+                !empty($account->capabilities['card_payments']) 
+                // $account->capabilities['card_payments'] === 'active'
             ) {
                 $session = Session::create($sessionData);
             } else {
@@ -195,6 +195,7 @@ trait PurchaseTrait
 
             return $session;
         } catch (\Exception $e) {
+
             // dd($e);
             return redirect()->back()->with('errors', $e->getMessage());
         }
@@ -276,6 +277,7 @@ trait PurchaseTrait
             ]);
 
             $purchase = Purchase::find($request?->purchase_id);
+            // dd($purchase->instructor->is_stripe_connected, Auth::user()->can('create-purchases'));
             if ($purchase && Auth::user()->can('create-purchases') && !!$purchase->instructor->is_stripe_connected) {
                 $session = $this->createSessionForPayment($purchase, true);
                 if (empty($session->url)) {
@@ -294,6 +296,7 @@ trait PurchaseTrait
 
             \Log::error('Payment link generation failed: ' . $e->getMessage());
 
+            // dd($e);
             if ($returnJson) {
                 return response()->json(['error' => 'Failed to generate payment link, please try again later.'], 500);
             }
