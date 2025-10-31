@@ -191,8 +191,6 @@
                                 ]) !!}
                             </div>
 
-
-
                             <!-- Payment Method -->
                             <div class="form-group">
                                 {{ Form::label('payment_method', __('Payment Method'), ['class' => 'form-label']) }}
@@ -202,9 +200,21 @@
                                     'required',
                                     'id' => 'payment_method',
                                 ]) !!}
-                                <!-- Hidden input to store payment method when disabled -->
-                                {{-- {!! Form::hidden('payment_method', 'online', ['id' => 'hidden_payment_method']) !!} --}}
                             </div>
+
+                            <!-- Email Description -->
+                            <div class="form-group">
+                                {{ Form::label('email_description', __('Email Description'), ['class' => 'form-label']) }}
+                                {!! Form::textarea('email_description', null, [
+                                    'class' => 'form-control',
+                                    'placeholder' => __('Enter email description that will be sent to students after booking'),
+                                    'rows' => 4,
+                                ]) !!}
+                                <small class="form-text text-muted">
+                                    {{ __('This description will be included in confirmation emails sent to students after they book this lesson.') }}
+                                </small>
+                            </div>
+
                             <div class="form-group">
                                 {{ Form::label('description', __('Short Description'), ['class' => 'form-label']) }}
                                 {!! Form::textarea('lesson_description', null, [
@@ -213,9 +223,9 @@
                                     'placeholder' => __('Enter Description'),
                                 ]) !!}
                                 <p>Total Characters: <span id="count"></span></p>
-
                             </div>
-                            <!-- Description -->
+
+                            <!-- Long Description -->
                             <div class="form-group">
                                 {{ Form::label('description', __('Long Description'), ['class' => 'form-label']) }}
                                 {!! Form::textarea('long_description', null, [
@@ -224,10 +234,7 @@
                                     'placeholder' => __('Enter Description'),
                                 ]) !!}
                                 <p>Total Characters: <span id="long_count"></span></p>
-
                             </div>
-
-
 
                         </div>
 
@@ -378,8 +385,6 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            //const paymentMethodSelect = document.getElementById('payment_method');
-            //const hiddenPaymentMethod = document.getElementById('hidden_payment_method');
             const packageNote = document.getElementById('package_note');
             const lessonPriceWrapper = document.getElementById('lesson_price');
             const lessonPriceInput = lessonPriceWrapper.querySelector('input[name="lesson_price"]');
@@ -402,9 +407,6 @@
                 const selectedValue = document.querySelector('input[name="is_package_lesson"]:checked')?.value;
 
                 if (selectedValue == 1) {
-                    // paymentMethodSelect.value = 'online';
-                    // paymentMethodSelect.setAttribute('disabled', 'disabled');
-                    // hiddenPaymentMethod.value = 'online';
                     packageNote?.classList.remove('d-none');
 
                     numberSlotSection.show();
@@ -421,7 +423,6 @@
                     initialPriceInput.setAttribute('required', '');
                     initialSlotSelect.setAttribute('required', '');
                 } else {
-                    //paymentMethodSelect.removeAttribute('disabled');
                     packageNote?.classList.add('d-none');
 
                     numberSlotSection.hide();

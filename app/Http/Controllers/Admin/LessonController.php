@@ -154,9 +154,8 @@ class LessonController extends Controller
     }
 
     // Method to create a new lesson
-    public function store(Request $request)
+    public function store11(Request $request)
     {
-        // dd("stroe");
         if ($request->type === Lesson::LESSON_PAYMENT_ONLINE) {
             $validatedData = $request->validate(
                 [
@@ -210,6 +209,130 @@ class LessonController extends Controller
         // Assuming 'created_by' is the ID of the currently authenticated instructor
         $validatedData['long_description'] = $_POST['long_description'] != "" ? $_POST['long_description'] : NULL;
         $validatedData['lesson_description'] = $_POST['lesson_description'] != "" ? $_POST['lesson_description'] : NULL;
+        $validatedData['created_by'] = Auth::user()->id;
+        $validatedData['type'] = ($request->is_package_lesson == 1) ? 'package' : $request->type;
+        $validatedData['payment_method'] = $request->payment_method ?? Lesson::LESSON_PAYMENT_ONLINE;
+        $validatedData['tenant_id'] = Auth::user()->tenant_id;
+        $validatedData['lesson_price'] = $request->lesson_price ?? 0;
+
+        // 🆕 Add new scheduling preference fields
+        // $validatedData['advance_booking_limit_days'] = $request->advance_booking_limit_days ?? null;
+        // $validatedData['last_minute_booking_buffer_hours'] = $request->last_minute_booking_buffer_hours ?? null;
+        // $validatedData['cancel_window_hours'] = $request->cancel_window_hours ?? null;
+        // Convert empty strings to null
+        if ($request->type !== Lesson::LESSON_TYPE_ONLINE) {
+            foreach (['advance_booking_limit_days', 'last_minute_booking_buffer_hours', 'cancel_window_hours'] as $field) {
+                if (isset($validatedData[$field])) {
+                    if ($validatedData[$field] === '' || $validatedData[$field] === 0) {
+                        $validatedData[$field] = null;
+                    }
+                }
+            }
+        }
+
+        $lesson = Lesson::create($validatedData);
+
+        $students = Student::whereHas('pushToken')
+            ->with('pushToken')
+            ->get()
+            ->pluck('pushToken.token')
+            ->toArray();
+
+        if ($request->hasFile('logo')) {
+            $tenant_id = Auth::user()->tenant_id;
+            $lesson_id = $lesson->id;
+
+            $path = "lessons/$lesson_id";
+            $file = $request->file('logo');
+
+            // Generate unique filename
+            $originalName = $file->getClientOriginalName();
+            $fileName = uniqid() . '_' . time() . '_' . $originalName;
+
+            // Store file in storage/app/{tenant_id}/{lesson_id}/
+            $filePath = $file->storeAs($path, $fileName, 'local');
+
+            // Save file path in database
+            $lesson->logo = $filePath;
+            $lesson->save();
+        }
+
+        if ($request->is_package_lesson == 1 && !empty($request->package_lesson)) {
+            foreach ($request->package_lesson as $packages) {
+                PackageLesson::create([
+                    'tenant_id' => Auth::user()->tenant_id,
+                    'lesson_id' => $lesson->id,
+                    'number_of_slot' => $packages['no_of_slot'],
+                    'price' => $packages['price'],
+                ]);
+            }
+        }
+        if (!empty($students)) {
+            $title = "New Lesson Available!";
+            $body = Auth::user()->name . " has created a new lesson: " . $lesson->lesson_name;
+            SendPushNotification::dispatch($students, $title, $body);
+        }
+
+        return redirect()->route('lesson.index', $lesson)->with('success', 'Lesson created successfully.');
+    }
+
+    public function store(Request $request)
+    {
+        if ($request->type === Lesson::LESSON_PAYMENT_ONLINE) {
+            $validatedData = $request->validate(
+                [
+                    'lesson_name'          => 'required|string|max:255',
+                    'long_description'   => 'string',
+                    'lesson_description' => [
+                        'required',
+                        'string',
+                        function ($attribute, $value, $fail) {
+                            // Remove tags & invisible characters
+                            $clean = trim(preg_replace('/\x{200B}+/u', '', strip_tags($value)));
+
+                            if ($clean === '') {
+                                $fail('The short description is required.');
+                            }
+                        },
+                    ],
+                    'lesson_price'         => 'required|numeric',
+                    'lesson_quantity'      => 'required|integer',
+                    'required_time'        => 'required|integer',
+                ],
+                [
+                    'lesson_description.required' => 'The short description is required.',
+                ]
+            );
+        }
+        if ($request->type === Lesson::LESSON_TYPE_INPERSON) {
+            $validatedData = $request->validate(
+                [
+                    'lesson_name'          => 'required|string|max:255',
+                    'long_description'      =>    'string',
+                    'lesson_description'   => 'required|string',
+                    'email_description'    => 'nullable|string', // Added email_description validation
+                    'lesson_price'         => 'required_if:is_package_lesson,0|numeric',
+                    'lesson_duration'      => 'required|numeric',
+                    'payment_method'       => ['required', 'in:online,cash'],
+                    'slots'                => 'array',
+                    'max_students'         => 'required|integer|min:1',
+                    'is_package_lesson'    => 'string',
+                    'advance_booking_limit_days' => 'nullable|integer',
+                    'last_minute_booking_buffer_hours' => 'nullable|integer',
+                    'cancel_window_hours' => 'nullable|integer',
+                ],
+                [
+                    'lesson_description.required' => 'The short description is required.',
+                ]
+            );
+            $validatedData['lesson_quantity'] = 1;
+            $validatedData['required_time'] = 0;
+            !empty($validatedData['is_package_lesson']) && $validatedData['is_package_lesson'] == 1 ? $validatedData['is_package_lesson'] = true : $validatedData['is_package_lesson'] = false;
+        }
+        // Assuming 'created_by' is the ID of the currently authenticated instructor
+        $validatedData['long_description'] = $_POST['long_description'] != "" ? $_POST['long_description'] : NULL;
+        $validatedData['lesson_description'] = $_POST['lesson_description'] != "" ? $_POST['lesson_description'] : NULL;
+        $validatedData['email_description'] = $request->email_description ?: NULL; // Added email_description assignment
         $validatedData['created_by'] = Auth::user()->id;
         $validatedData['type'] = ($request->is_package_lesson == 1) ? 'package' : $request->type;
         $validatedData['payment_method'] = $request->payment_method ?? Lesson::LESSON_PAYMENT_ONLINE;
