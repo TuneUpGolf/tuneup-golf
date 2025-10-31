@@ -64,6 +64,7 @@ class Lesson extends Model
         'advance_booking_limit_days',
         'last_minute_booking_buffer_hours',
         'cancel_window_hours',
+        'email_description',
     ];
 
     protected $casts = [
