@@ -380,11 +380,11 @@ class PurchaseController extends Controller
 
                             $filePath = implode('/', $pathParts);
 
-                            // Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
-                            // $path = Storage::disk('spaces')->url($filePath);
+                            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                            $path = Storage::disk('spaces')->url($filePath);
                         }
 
-                        // $purchase_video->video_url = $path;
+                        $purchase_video->video_url = $path;
                         $purchase_video->save();
                     }
 
