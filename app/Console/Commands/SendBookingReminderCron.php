@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 use App\Actions\SendPushNotification;
 use App\Mail\Admin\LessonReminderMail;
 use Stancl\Tenancy\Concerns\HasATenantsOption;
+use App\Mail\Admin\InstructorLessonReminderMail;
 
 class SendBookingReminderCron extends Command
 {
@@ -104,7 +105,8 @@ class SendBookingReminderCron extends Command
                                         $lessonName,
                                         $date->format('Y-m-d'),
                                         $date->format('h:i A'),
-                                        $instructorName
+                                        $instructorName,
+                                        $slot->location
                                     ),
                                     $instructor->id
                                 );
@@ -131,12 +133,13 @@ class SendBookingReminderCron extends Command
                             if (!empty($instructor->email)) {
                                 SendEmail::dispatch(
                                     $instructor->email,
-                                    new LessonReminderMail(
-                                        $instructorName,
+                                    new InstructorLessonReminderMail(
+                                        $studentNames,
                                         $lessonName,
                                         $date->format('Y-m-d'),
                                         $date->format('h:i A'),
-                                        $instructorName
+                                        $instructorName,
+                                        $slot->location,
                                     ),
                                     $instructor->id
                                 );

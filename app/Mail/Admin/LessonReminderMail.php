@@ -17,14 +17,16 @@ class LessonReminderMail extends InstructorTemplateMailable
     public $date;
     public $time;
     public $instructorName;
+    public $slot_location;
 
-    public function __construct($studentName, $lessonName, $date, $time, $instructorName)
+    public function __construct($studentName, $lessonName, $date, $time, $instructorName, $slot_location)
     {
         $this->studentName = $studentName;
         $this->lessonName = $lessonName;
         $this->date = $date;
         $this->time = $time;
         $this->instructorName = $instructorName;
+        $this->slot_location = $slot_location;
     }
 
     public function getHtmlLayout(): string

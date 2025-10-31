@@ -28,14 +28,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Actions\SendPushNotification;
 use App\Mail\Admin\SlotCancelledMail;
+use App\Mail\Admin\PreSetScheduleMail;
 use App\Mail\Admin\StudentPaymentLink;
 use App\Http\Resources\SlotAPIResource;
 use Illuminate\Support\Facades\Storage;
 use App\DataTables\Admin\LessonDataTable;
 use App\Http\Resources\LessonAPIResource;
-use App\Mail\Admin\PreSetScheduleMail;
 use Stancl\Tenancy\Database\Models\Domain;
 use App\Mail\Admin\SlotBookedByStudentMail;
+use App\Mail\Admin\SlotBookedByInstructorMail;
 use Illuminate\Validation\ValidationException;
 
 class LessonController extends Controller
@@ -1628,13 +1629,27 @@ class LessonController extends Controller
                     'A slot has been booked for :date with :student for the in-person lesson :lesson.'
                 );
 
+                // SendEmail::dispatch(
+                //     $slot->lesson->user->email,
+                //     new SlotBookedByStudentMail(
+                //         $bookingStudent->name,
+                //         date('Y-m-d', strtotime($slot->date_time)),
+                //         date('h:i A', strtotime($slot->date_time)),
+                //         $request->note,
+                //     ),
+                //     $slot->lesson?->created_by
+                // );
                 SendEmail::dispatch(
                     $slot->lesson->user->email,
-                    new SlotBookedByStudentMail(
+                    new SlotBookedByInstructorMail(
                         $bookingStudent->name,
                         date('Y-m-d', strtotime($slot->date_time)),
                         date('h:i A', strtotime($slot->date_time)),
                         $request->note,
+                        $slot->lesson->lesson_name,
+                        $bookingStudent->email,
+                        $bookingStudent->phone,
+                        $slot->lesson->user->name
                     ),
                     $slot->lesson?->created_by
                 );
@@ -1722,12 +1737,26 @@ class LessonController extends Controller
                     'A slot has been booked for :date with :student for the in-person lesson :lesson.'
                 );
 
+                // SendEmail::dispatch(
+                //     $slot->lesson->user->email,
+                //     new SlotBookedByStudentMail(
+                //         $bookingStudent->name,
+                //         date('Y-m-d', strtotime($slot->date_time)),
+                //         date('h:i A', strtotime($slot->date_time))
+                //     ),
+                //     $slot->lesson?->created_by
+                // );
                 SendEmail::dispatch(
                     $slot->lesson->user->email,
-                    new SlotBookedByStudentMail(
+                    new SlotBookedByInstructorMail(
                         $bookingStudent->name,
                         date('Y-m-d', strtotime($slot->date_time)),
-                        date('h:i A', strtotime($slot->date_time))
+                        date('h:i A', strtotime($slot->date_time)),
+                        $request->note,
+                        $slot->lesson->lesson_name,
+                        $bookingStudent->email,
+                        $bookingStudent->phone,
+                        $slot->lesson->user->name
                     ),
                     $slot->lesson?->created_by
                 );
