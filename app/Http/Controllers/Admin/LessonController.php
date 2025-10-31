@@ -75,7 +75,7 @@ class LessonController extends Controller
                     ->editColumn('created_at', fn($lesson) => UtilityFacades::date_time_format($lesson->created_at))
                     ->editColumn('lesson_price', function ($lesson) {
                         if ($lesson->type == Lesson::LESSON_TYPE_PACKAGE) {
-                            return UtilityFacades::amount_format($lesson->packages->first()->price);
+                            return UtilityFacades::amount_format($lesson->packages()->orderBy('id', 'desc')->first()->price);
                         } else {
                             return UtilityFacades::amount_format($lesson->lesson_price);
                         }
@@ -1523,7 +1523,7 @@ class LessonController extends Controller
                         $bookingStudent->name,
                         date('Y-m-d', strtotime($slot->date_time)),
                         date('h:i A', strtotime($slot->date_time)),
-                        $request->note
+                        $request->note,
                     ),
                     $slot->lesson?->created_by
                 );
