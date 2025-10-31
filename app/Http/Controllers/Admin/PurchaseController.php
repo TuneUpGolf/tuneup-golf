@@ -380,11 +380,11 @@ class PurchaseController extends Controller
 
                             $filePath = implode('/', $pathParts);
 
-                            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
-                            $path = Storage::disk('spaces')->url($filePath);
+                            // Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                            // $path = Storage::disk('spaces')->url($filePath);
                         }
 
-                        $purchase_video->video_url = $path;
+                        // $purchase_video->video_url = $path;
                         $purchase_video->save();
                     }
 
@@ -478,17 +478,19 @@ class PurchaseController extends Controller
                         return redirect()->route('home')->with('success', 'Video Successfully Added');
                     }
                 } catch (\Exception $e) {
-
+                    // dd($e);
                     report($e);
                     return redirect()->back()->with('errors', $e->getMessage());
                 } catch (Error $e) {
 
+                    // dd("e");
 
                     report($e);
                     return response($e, 419);
                 };
             } else {
 
+                    // dd("e");
 
                 throw ValidationException::withMessages([
                     'purchase_id' => 'You don\'t have enough lessons remaining',
