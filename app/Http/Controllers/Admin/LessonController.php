@@ -1487,7 +1487,7 @@ class LessonController extends Controller
                     $lesson->lesson_name,
                     $allSlotDetails, 
                     $request->notes,
-                    $lesson->lesson_description,
+                    $lesson->email_description,
                 ), $instructor->id);
 
             }else if (!$studentEmails->isEmpty()) {
